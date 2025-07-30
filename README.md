@@ -1,1 +1,1 @@
-# MediTory
+# Meditory
