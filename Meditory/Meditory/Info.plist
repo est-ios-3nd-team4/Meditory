@@ -4,5 +4,11 @@
 <dict>
 	<key>AlanAPIKey</key>
 	<string>$(ALAN_API_KEY)</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>NotoSansKR-Bold.ttf</string>
+		<string>NotoSansKR-Medium.ttf</string>
+		<string>NotoSansKR-SemiBold.ttf</string>
+	</array>
 </dict>
 </plist>
