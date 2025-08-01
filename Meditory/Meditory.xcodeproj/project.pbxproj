@@ -35,25 +35,26 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		7A02C0062E39D9DC00587F53 /* Exceptions for "MeditoryUITests" folder in "Meditory" target */ = {
+		36DAF4552E3C6519005BBAE6 /* Exceptions for "Meditory" folder in "Meditory" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Secrets.xcconfig,
+				Info.plist,
 			);
 			target = 7A02BFD72E39D9AD00587F53 /* Meditory */;
-		};
-		7A02C0072E39D9DC00587F53 /* Exceptions for "MeditoryUITests" folder in "MeditoryUITests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Secrets.xcconfig,
-			);
-			target = 7A02BFF02E39D9AF00587F53 /* MeditoryUITests */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		0F44F56C2E3C91C400569FBF /* Resource */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Resource;
+			sourceTree = "<group>";
+		};
 		7A02BFDA2E39D9AD00587F53 /* Meditory */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				36DAF4552E3C6519005BBAE6 /* Exceptions for "Meditory" folder in "Meditory" target */,
+			);
 			path = Meditory;
 			sourceTree = "<group>";
 		};
@@ -64,10 +65,6 @@
 		};
 		7A02BFF42E39D9AF00587F53 /* MeditoryUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				7A02C0062E39D9DC00587F53 /* Exceptions for "MeditoryUITests" folder in "Meditory" target */,
-				7A02C0072E39D9DC00587F53 /* Exceptions for "MeditoryUITests" folder in "MeditoryUITests" target */,
-			);
 			path = MeditoryUITests;
 			sourceTree = "<group>";
 		};
@@ -103,6 +100,7 @@
 		7A02BFCF2E39D9AD00587F53 = {
 			isa = PBXGroup;
 			children = (
+				0F44F56C2E3C91C400569FBF /* Resource */,
 				7A02BFDA2E39D9AD00587F53 /* Meditory */,
 				7A02BFEA2E39D9AF00587F53 /* MeditoryTests */,
 				7A02BFF42E39D9AF00587F53 /* MeditoryUITests */,
@@ -137,6 +135,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				0F44F56C2E3C91C400569FBF /* Resource */,
 				7A02BFDA2E39D9AD00587F53 /* Meditory */,
 			);
 			name = Meditory;
@@ -462,6 +461,7 @@
 				DEVELOPMENT_TEAM = ALRD325VZ8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Meditory/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -493,6 +493,7 @@
 				DEVELOPMENT_TEAM = ALRD325VZ8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Meditory/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
