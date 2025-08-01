@@ -37,9 +37,14 @@ extension AlanAPIEndpoint: Endpoint {
     var queryItems: [URLQueryItem]? {
         switch self {
         case .question(let content), .questionWithSSE(let content):
+            guard let apiKey = APIKey.alan.value else {
+                print("AlanAPIKey is missing.")
+                return nil
+            }
+            
             return [
                 URLQueryItem(name: "content", value: content),
-                URLQueryItem(name: "client_id", value: ""),
+                URLQueryItem(name: "client_id", value: apiKey),
             ]
         }
     }
@@ -47,6 +52,7 @@ extension AlanAPIEndpoint: Endpoint {
     func makeURLRequest() -> URLRequest? {
         var components = URLComponents(string: baseURL)
         components?.path += path
+        guard let queryItems else { return nil }
         components?.queryItems = queryItems
 
         guard let url = components?.url else { return nil }
