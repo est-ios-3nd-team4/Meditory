@@ -34,27 +34,9 @@
 		7A02BFF12E39D9AF00587F53 /* MeditoryUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeditoryUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		36DAF4552E3C6519005BBAE6 /* Exceptions for "Meditory" folder in "Meditory" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 7A02BFD72E39D9AD00587F53 /* Meditory */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		0F44F56C2E3C91C400569FBF /* Resource */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Resource;
-			sourceTree = "<group>";
-		};
 		7A02BFDA2E39D9AD00587F53 /* Meditory */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				36DAF4552E3C6519005BBAE6 /* Exceptions for "Meditory" folder in "Meditory" target */,
-			);
 			path = Meditory;
 			sourceTree = "<group>";
 		};
@@ -100,7 +82,6 @@
 		7A02BFCF2E39D9AD00587F53 = {
 			isa = PBXGroup;
 			children = (
-				0F44F56C2E3C91C400569FBF /* Resource */,
 				7A02BFDA2E39D9AD00587F53 /* Meditory */,
 				7A02BFEA2E39D9AF00587F53 /* MeditoryTests */,
 				7A02BFF42E39D9AF00587F53 /* MeditoryUITests */,
@@ -135,7 +116,6 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				0F44F56C2E3C91C400569FBF /* Resource */,
 				7A02BFDA2E39D9AD00587F53 /* Meditory */,
 			);
 			name = Meditory;
@@ -458,10 +438,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = ALRD325VZ8;
+				DEVELOPMENT_TEAM = H7398M62YF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Meditory/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -490,10 +469,9 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ALRD325VZ8;
+				DEVELOPMENT_TEAM = H7398M62YF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Meditory/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
