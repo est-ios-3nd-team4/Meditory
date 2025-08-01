@@ -100,4 +100,5 @@ iOSInjectionProject/
 
 # .xcconfig 파일 무시
 *.xcconfig
+GoogleService-Info.plist
 # End of https://www.toptal.com/developers/gitignore/api/swift,xcode
