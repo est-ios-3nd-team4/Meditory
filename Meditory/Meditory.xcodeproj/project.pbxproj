@@ -34,23 +34,6 @@
 		7A02BFF12E39D9AF00587F53 /* MeditoryUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeditoryUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		7A02C0062E39D9DC00587F53 /* Exceptions for "MeditoryUITests" folder in "Meditory" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Secrets.xcconfig,
-			);
-			target = 7A02BFD72E39D9AD00587F53 /* Meditory */;
-		};
-		7A02C0072E39D9DC00587F53 /* Exceptions for "MeditoryUITests" folder in "MeditoryUITests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Secrets.xcconfig,
-			);
-			target = 7A02BFF02E39D9AF00587F53 /* MeditoryUITests */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		7A02BFDA2E39D9AD00587F53 /* Meditory */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -64,10 +47,6 @@
 		};
 		7A02BFF42E39D9AF00587F53 /* MeditoryUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				7A02C0062E39D9DC00587F53 /* Exceptions for "MeditoryUITests" folder in "Meditory" target */,
-				7A02C0072E39D9DC00587F53 /* Exceptions for "MeditoryUITests" folder in "MeditoryUITests" target */,
-			);
 			path = MeditoryUITests;
 			sourceTree = "<group>";
 		};
@@ -459,7 +438,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = ALRD325VZ8;
+				DEVELOPMENT_TEAM = H7398M62YF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -490,7 +469,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ALRD325VZ8;
+				DEVELOPMENT_TEAM = H7398M62YF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
