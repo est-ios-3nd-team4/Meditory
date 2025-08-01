@@ -13,6 +13,12 @@ struct ContentView: View {
     @Query private var items: [Item]
 
     var body: some View {
+        VStack  {
+
+            Button("Crash") {
+              fatalError("Crash was triggered")
+            }
+        }
         NavigationSplitView {
             List {
                 ForEach(items) { item in
