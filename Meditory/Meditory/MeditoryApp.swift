@@ -17,6 +17,13 @@ struct MeditoryApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
+
+            //User 정보
+            User.self,
+            UserProfile.self,
+            UserStatus.self,
+            UserAllergy.self,
+            UserExtraInfo.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
