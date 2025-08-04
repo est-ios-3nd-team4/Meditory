@@ -35,7 +35,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		7A5EB4602E3CB19800B30708 /* Exceptions for "Meditory" folder in "Meditory" target */ = {
+		7A5EB6762E403F3300B30708 /* Exceptions for "Meditory" folder in "Meditory" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -48,7 +48,7 @@
 		7A02BFDA2E39D9AD00587F53 /* Meditory */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				7A5EB4602E3CB19800B30708 /* Exceptions for "Meditory" folder in "Meditory" target */,
+				7A5EB6762E403F3300B30708 /* Exceptions for "Meditory" folder in "Meditory" target */,
 			);
 			path = Meditory;
 			sourceTree = "<group>";
