@@ -8,9 +8,9 @@
 import Foundation
 
 enum APIKey: String {
-    case alan = "AlanAPIKey"
-    
-    var value: String? {
-        Bundle.main.object(forInfoDictionaryKey: self.rawValue) as? String
-    }
+  case alan = "AlanAPIKey"
+  
+  var value: String? {
+    Bundle.main.object(forInfoDictionaryKey: self.rawValue) as? String
+  }
 }

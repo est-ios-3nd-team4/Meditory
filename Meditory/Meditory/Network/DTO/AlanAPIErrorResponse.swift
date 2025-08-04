@@ -8,11 +8,11 @@
 import Foundation
 
 struct AlanAPIErrorResponse: Decodable {
-    struct Detail: Decodable {
-        let loc: [String]
-        let msg: String
-        let type: String
-    }
-    
-    let detail: [Detail]
+  struct Detail: Decodable {
+    let loc: [String]
+    let msg: String
+    let type: String
+  }
+  
+  let detail: [Detail]
 }
