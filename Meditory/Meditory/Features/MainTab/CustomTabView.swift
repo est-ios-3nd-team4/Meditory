@@ -26,8 +26,6 @@ struct CustomTabView: View {
   }
   
   var body: some View {
-    let secondaryColor: Color = .init(red: 223, green: 223, blue: 223)
-    
     ZStack {
       if colorScheme == .light {
         backgroundRectangle
@@ -45,38 +43,9 @@ struct CustomTabView: View {
       HStack(spacing: itemSpacing()) {
         ForEach(TabItem.allCases, id: \.self) { tab in
           if tab.isAdd {
-            VStack {
-              Circle()
-                .frame(width: 65, height: 65)
-                .foregroundStyle(.main)
-                .overlay {
-                  Image(systemName: tab.iconImage)
-                    .font(.system(size: 35, weight: .semibold))
-                    .foregroundStyle(.white)
-                }
-              
-              Spacer()
-            }
-            .onTapGesture {
-              selectedTab = tab
-            }
+            addTabItem(for: tab)
           } else {
-            VStack(spacing: 8) {
-              let tintColor: Color = selectedTab == tab ? .main : secondaryColor
-              
-              (tab.isHome ? Image(tab.iconImage) : Image(systemName: tab.iconImage))
-                .resizable()
-                .scaledToFit()
-                .frame(width: iconSize.width, height: iconSize.height)
-                .foregroundStyle(tintColor)
-              
-              Text(tab.title)
-                .font(.notoSans(size: 11))
-                .foregroundStyle(tintColor)
-            }
-            .onTapGesture {
-              selectedTab = tab
-            }
+            tabItem(for: tab)
           }
         }
       }
@@ -90,6 +59,48 @@ struct CustomTabView: View {
     let itemCount = CGFloat(TabItem.allCases.count)
     
     return (viewWidth - (iconSize.width * itemCount - 1) - addButtonSize.width - horizontalPadding) / itemCount
+  }
+}
+
+
+// MARK: - TabItem 관련 View
+extension CustomTabView {
+  private func addTabItem(for tab: TabItem) -> some View {
+    VStack {
+      Circle()
+        .frame(width: addButtonSize.width, height: addButtonSize.height)
+        .foregroundStyle(.main)
+        .overlay {
+          Image(systemName: tab.iconImage)
+            .font(.system(size: 35, weight: .semibold))
+            .foregroundStyle(.white)
+        }
+      
+      Spacer()
+    }
+    .onTapGesture {
+      selectedTab = tab
+    }
+  }
+  
+  private func tabItem(for tab: TabItem) -> some View {
+    let secondaryColor: Color = .init(red: 223, green: 223, blue: 223)
+    let tintColor: Color = selectedTab == tab ? .main : secondaryColor
+
+    return VStack(spacing: 8) {
+      (tab.isHome ? Image(tab.iconImage) : Image(systemName: tab.iconImage))
+        .resizable()
+        .scaledToFit()
+        .frame(width: iconSize.width, height: iconSize.height)
+        .foregroundStyle(tintColor)
+
+      Text(tab.title)
+        .font(.notoSans(size: 11))
+        .foregroundStyle(tintColor)
+    }
+    .onTapGesture {
+      selectedTab = tab
+    }
   }
 }
 
