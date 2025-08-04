@@ -8,11 +8,11 @@
 import Foundation
 
 struct AlanResponse: Decodable {
-    struct Action: Decodable {
-        let name: String
-        let speak: String
-    }
-    
-    let action: Action
-    let content: String
+  struct Action: Decodable {
+    let name: String
+    let speak: String
+  }
+  
+  let action: Action
+  let content: String
 }

@@ -8,6 +8,6 @@
 import Foundation
 
 enum NetworkError: Error {
-    case invalidRequest
-    case unprocessableEntity
+  case invalidRequest
+  case unprocessableEntity
 }

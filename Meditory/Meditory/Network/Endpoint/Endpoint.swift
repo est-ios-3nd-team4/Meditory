@@ -8,5 +8,5 @@
 import Foundation
 
 protocol Endpoint {
-    func makeURLRequest() -> URLRequest?
+  func makeURLRequest() -> URLRequest?
 }
