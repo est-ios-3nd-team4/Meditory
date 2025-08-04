@@ -1,75 +1,101 @@
-//
-//  RecommendView.swift
-//  Meditory
-//
-//  Created by Jaehun Kim on 8/1/25.
-//
-
 import SwiftUI
 
 struct CardView: View {
     var title: String
-    var subtitle: String? = nil
+    var subtitles: [String]? = nil
     var actionText: String? = nil
+    var summary: String? = nil
+    var onActionTap: (() -> Void)? = nil
+    var onSubtitleTap: ((String) -> Void)? = nil
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text(title)
-                    .font(.headline)
+                    .font(.custom("NotoSansKR-Medium.ttf", size: 15))
+
                 Spacer()
                 if let action = actionText {
-                    Text(action)
-                        .font(.subheadline)
-                        .foregroundColor(.mint)
+                    Button {
+                        onActionTap?()
+                    } label: {
+                        Text(action)
+                            .font(.custom("NotoSansKR-Medium.ttf", size: 15))
+                            .foregroundColor(.main)
+                    }
                 }
             }
-            if let subtitle = subtitle {
-                Text(subtitle)
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+            if let subtitles = subtitles {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(subtitles, id: \.self) { tag in
+                            Button {
+                                onSubtitleTap?(tag)
+                            } label: {
+                                Text(tag)
+                                    .font(.custom("NotoSansKR-Medium.ttf", size: 15))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(Color.main)
+                                    .cornerRadius(20)
+                            }
+                        }
+                    }
+                }
+            }
+            if let summary = summary {
+                Text(summary)
+                    .font(.custom("NotoSansKR-Medium.ttf", size: 15))
+                    .foregroundColor(.black)
             }
         }
-        .padding()
+        .padding(16)
         .background(Color.white)
         .cornerRadius(20)
-        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 2)
     }
 }
 
 struct RecommendView: View {
     @State private var searchText = ""
     @State private var selectedTab = 0
+    @State private var selectedNutrient: String? = nil
+    @State private var navigateToNutrientDetail = false
+
 
     var body: some View {
         NavigationView {
             VStack {
                 ZStack(alignment: .trailing) {
-                            TextField("영양제 정보를 검색해보세요!", text: $searchText)
-                                .padding(.vertical, 12)
-                                .padding(.horizontal, 20)
-                                .background(Color.white)
-                                .cornerRadius(30)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 30)
-                                        .stroke(Color.clear, lineWidth: 0)
-                                )
-                                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+                    TextField("영양성분 정보를 검색해보세요!", text: $searchText)
+                        .font(.custom("NotoSansKR-Medium.ttf", size: 15))
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
+                        .background(Color.white)
+                        .cornerRadius(30)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.clear, lineWidth: 0)
+                        )
+                        .padding(16)
+                        .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
 
-                            Image(systemName: "magnifyingglass")
-                                .foregroundColor(.gray)
-                                .padding(.trailing, 20)
-                        }
-                .padding(.horizontal)
-                .padding(16)
+                    Button {
+
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(.gray)
+                            .padding(.trailing, 24)
+                    }
+                }
 
                 ZStack {
-                    RoundedRectangle(cornerRadius: 30)
-                        .fill(Color.white)
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color(.systemGray6))
                         .shadow(color: .black.opacity(0.5), radius: 4, x: 0, y: 2)
 
-
-                    VStack(spacing: 0) {
+                    VStack {
 
                         HStack {
                             Button {
@@ -78,10 +104,12 @@ struct RecommendView: View {
                                 VStack {
                                     Text("추천")
                                         .fontWeight(selectedTab == 0 ? .bold : .regular)
-                                        .font(.custom("NotoSansKR-Bold", size: 20))
+                                        .foregroundColor(selectedTab == 0 ? .main : .gray)
+                                        .font(.custom("NotoSansKR-Medium.ttf", size: 15))
                                     Rectangle()
-                                        .fill(selectedTab == 0 ? .black : .clear)
-                                        .frame(height: 2)
+                                        .fill(selectedTab == 0 ? .main : .gray)
+                                        .padding(.horizontal, 16)
+                                        .frame(height: 5)
                                 }
                             }
 
@@ -93,44 +121,79 @@ struct RecommendView: View {
                                 VStack {
                                     Text("스크랩")
                                         .fontWeight(selectedTab == 1 ? .bold : .regular)
+                                        .foregroundColor(selectedTab == 1 ? .main : .gray)
+                                        .font(.custom("NotoSansKR-Medium.ttf", size: 15))
 
                                     Rectangle()
-                                        .fill(selectedTab == 1 ? .black : .clear)
-                                        .frame(height: 2)
+
+                                        .fill(selectedTab == 1 ? .main : .gray)
+                                        .padding(.horizontal, 16)
+                                        .frame(height: 5)
                                 }
                             }
                         }
-                        .padding(.horizontal, 30)
-                        .padding()
+                        .padding(.vertical)
 
                         ScrollView {
                             VStack {
                                 if selectedTab == 0 {
+                                    CardView(title: "사용자의 질병관리", subtitles: ["당뇨"], actionText: "수정하기", onActionTap: {
+
+                                    })
+                                        .font(.custom("NotoSansKR-Medium.ttf", size: 15))
+                                        .foregroundColor(.black)
+                                        .frame(height: 70)
+                                        .padding(.vertical, 8)
+
+                                    CardView(
+                                        title: "👍🏻 추천 영양성분",
+                                        subtitles: ["아연", "밀크씨슬", "히알루론산"],
+                                        actionText: "자세히 보기",
+                                        onActionTap: {
+
+                                        },
+                                        onSubtitleTap: { nutrient in
+                                            selectedNutrient = nutrient
+                                            navigateToNutrientDetail = true
+                                        }
+                                    )
+                                    .frame(height: 160)
+
+
                                     NavigationLink {
-
+                                        RecommendAgeView()
                                     } label: {
-                                        CardView(title: "사용자의 질병관리", subtitle: "당뇨", actionText: "수정하기")
+                                        CardView(title: "연령대 성별별 영양제 소개", summary: "\n\n\n\n\n\n")
+                                            .font(.custom("NotoSansKR-Medium.ttf", size: 15))
+                                            .foregroundColor(.black)
+                                            .frame(height: 210)
                                     }
+                                    .padding(.bottom, 16)
 
-                                    CardView(title: "추천 영양성분")
-                                    CardView(title: "연령대 성별별 영양제 소개")
-                                    CardView(title: "사용자 맞춤 영양제 소개")
+                                    NavigationLink {
+                                        RecommendUserView()
+                                    } label: {
+                                        CardView(title: "맞춤 영양제 소개", summary: "\n\n\n\n\n\n")
+                                            .font(.custom("NotoSansKR-Medium.ttf", size: 15))
+                                            .foregroundColor(.black)
+                                            .frame(height: 210)
+                                    }
+                                    .padding(.bottom, 16)
+
                                 } else {
-                                    CardView(title: "아연", subtitle: "#정상적인 면역기능에 필요")
+                                    CardView(title: "아연", summary: "#정상적인 면역기능에 필요")
+                                        .foregroundColor(.black)
                                 }
                             }
-                            .padding()
                         }
+                        .padding(.horizontal, 16)
                     }
                 }
                 .frame(maxWidth: .infinity)
             }
-
+            .background(Color.main)
         }
-
     }
-
-
 }
 
 #Preview {
