@@ -14,7 +14,7 @@ struct RowItemView: View {
       ZStack {
         RoundedRectangle(cornerRadius: 8)
           .stroke(isSelected ? Color.accent : Color.gray,lineWidth: 1)
-          .frame(width: .infinity,height: 60)
+          .frame(height: 60)
           .foregroundStyle(.clear)
         HStack {
           Image(systemName: isSelected ? "circle.fill" : "circle" )

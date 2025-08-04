@@ -16,6 +16,12 @@ struct OnboardingNew: View {
   @State private var weight = ""
   @State private var gender = ""
   @State private var isViewApearing = false
+  @State private var isItemSelected = false
+  @State private var isPregnancy = false
+  @State private var hasDisease = false
+  @State private var hasAllergy = false
+  @State private var takingMedication = false
+  
   private var questionOptions = [
     "홍삼, 사상자, 산수유",
     "강황",
@@ -59,8 +65,17 @@ struct OnboardingNew: View {
     Spacer()
     stepContent(for: currentStep)
     Button(currentStep == Step.allCases.last ? "완료" : "다음") {
-      if let next = currentStep.next() {
+      print("✅ currentStep: \(currentStep)")
+      print("💊 복용 여부: \(takingMedication)")
+      if let next = currentStep.next(
+        gender: gender,
+        isPregnancy: isPregnancy,
+        hasDisease: hasDisease,
+        hasAllergy: hasAllergy,
+        takesMedication: takingMedication) {
         currentStep = next
+        print("다음 스텝 \(next)")
+        print(#line,takingMedication)
       }
       if currentStep == Step.allCases.last {
         showEndingSheet = true
@@ -88,20 +103,31 @@ struct OnboardingNew: View {
     case .weight:
       OnboardingTextInputView(prompt: "\(name)님의 몸무게를 알려주세요", placeholder: "체중", unit: "KG", inputText: $weight)
     case .gender:
-        OnboardingTwoOptionView(prompt: "\(name) 님의 성별을 알려주세요", image: "male_icon", title: "남성", action: {
+        OnboardingTwoOptionView(prompt: "\(name) 님의 성별을 알려주세요",isSelected: $isItemSelected, image: "male_icon", title: "남성", action: {
           gender = "남성"
         }, secondImage: "female_icon", secondTitle: "여성") {
           gender = "여성"
         }
-    case .desease:
+      case .pregnancy:
+        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 임신중이십니까?", isSelected: $isItemSelected, image: "o_icon", title: "예",action: {
+          isPregnancy = true
+        }, secondImage: "x_icon", secondTitle: "아니요") {
+          isPregnancy = false
+        }
+      case .hasDisease:
+        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 질병이 있으신가요?",isSelected: $takingMedication, image: "o_icon", title: "예", action: {
+          hasDisease = true
+        }, secondImage: "x_icon", secondTitle: "아니요") {
+          hasDisease = false
+        }
+    case .selectDisease:
       ScrollView {
         ForEach(questionOptions, id: \.self) { option in
           RowItemView(isSelected: false, context: option)
         }
       }
-    case .end:
+    default:
       EmptyView()
-
     }
   }
 }
