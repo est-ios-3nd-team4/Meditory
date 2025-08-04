@@ -8,22 +8,38 @@
 import SwiftUI
 
 struct CustomTabView: View {
+  @Environment(\.colorScheme) private var colorScheme
   
   @Binding var selectedTab: TabItem
   
-  private let secondaryColor: Color = .init(red: 223, green: 223, blue: 223)
   private let iconSize = CGSize(width: 22, height: 22)
   private let addButtonSize = CGSize(width: 65, height: 65)
+  private let cornerRadius: CGFloat = 15
+  
+  private var backgroundRectangle: some View {
+    Rectangle()
+      .fill(.background)
+      .clipShape(
+        RoundedCorner(radius: cornerRadius, corners: [.topLeft, .topRight])
+      )
+  }
   
   var body: some View {
+    let secondaryColor: Color = .init(red: 223, green: 223, blue: 223)
+    
     ZStack {
-      Rectangle()
-          .fill(Color.white)
-          .clipShape(
-              RoundedCorner(radius: 20, corners: [.topLeft, .topRight])
-          )
-          .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 4)
+      if colorScheme == .light {
+        backgroundRectangle
+          .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
           .padding(.top, 14)
+      } else {
+        backgroundRectangle
+          .overlay(
+            RoundedCorner(radius: cornerRadius, corners: [.topLeft, .topRight])
+              .stroke(.white.opacity(0.3), lineWidth: 1)
+          )
+          .padding(.top, 14)
+      }
       
       HStack(spacing: itemSpacing()) {
         ForEach(TabItem.allCases, id: \.self) { tab in
