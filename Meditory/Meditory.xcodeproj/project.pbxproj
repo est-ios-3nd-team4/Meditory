@@ -35,10 +35,24 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		7A5EB6762E403F3300B30708 /* Exceptions for "Meditory" folder in "Meditory" target */ = {
+		36FF9FE12E3F76B600903AA4 /* Exceptions for "Meditory" folder in "MeditoryTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				Resource/Secrets.xcconfig,
+			);
+			target = 7A02BFE62E39D9AF00587F53 /* MeditoryTests */;
+		};
+		36FF9FE22E3F76B600903AA4 /* Exceptions for "Meditory" folder in "MeditoryUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resource/Secrets.xcconfig,
+			);
+			target = 7A02BFF02E39D9AF00587F53 /* MeditoryUITests */;
+		};
+		36FF9FE62E3F781B00903AA4 /* Exceptions for "Meditory" folder in "Meditory" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resource/Info.plist,
 			);
 			target = 7A02BFD72E39D9AD00587F53 /* Meditory */;
 		};
@@ -48,7 +62,9 @@
 		7A02BFDA2E39D9AD00587F53 /* Meditory */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				7A5EB6762E403F3300B30708 /* Exceptions for "Meditory" folder in "Meditory" target */,
+				36FF9FE62E3F781B00903AA4 /* Exceptions for "Meditory" folder in "Meditory" target */,
+				36FF9FE12E3F76B600903AA4 /* Exceptions for "Meditory" folder in "MeditoryTests" target */,
+				36FF9FE22E3F76B600903AA4 /* Exceptions for "Meditory" folder in "MeditoryUITests" target */,
 			);
 			path = Meditory;
 			sourceTree = "<group>";
@@ -373,6 +389,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/Meditory/Resource/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -431,6 +448,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/Meditory/Resource/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -443,8 +461,8 @@
 		};
 		7A02BFFC2E39D9AF00587F53 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 7A02BFF42E39D9AF00587F53 /* MeditoryUITests */;
-			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
+			baseConfigurationReferenceAnchor = 7A02BFDA2E39D9AD00587F53 /* Meditory */;
+			baseConfigurationReferenceRelativePath = Resource/Secrets.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -475,8 +493,8 @@
 		};
 		7A02BFFD2E39D9AF00587F53 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 7A02BFF42E39D9AF00587F53 /* MeditoryUITests */;
-			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
+			baseConfigurationReferenceAnchor = 7A02BFDA2E39D9AD00587F53 /* Meditory */;
+			baseConfigurationReferenceRelativePath = Resource/Secrets.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
