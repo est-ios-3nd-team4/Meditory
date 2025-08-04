@@ -16,7 +16,7 @@ struct MainTabView: View {
       
     } else {
       GeometryReader { geometry in
-        let tabViewHeight = geometry.size.width * 0.3
+        let tabViewHeight = geometry.size.width * 0.27
         
         ZStack {
           Group {
