@@ -19,12 +19,12 @@ struct CustomTabView: View {
         .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 4)
         .padding(.top, 14)
       
-      HStack(spacing: 37) {
+      HStack(spacing: 36) {
         ForEach(TabItem.allCases, id: \.self) { tab in
           if tab.isAdd {
             VStack {
               Circle()
-                .frame(width: 72, height: 72)
+                .frame(width: 65, height: 65)
                 .foregroundStyle(.main)
                 .overlay {
                   Image(systemName: tab.iconImage)
@@ -38,13 +38,13 @@ struct CustomTabView: View {
               selectedTab = tab
             }
           } else {
-            VStack(spacing: 10) {
+            VStack(spacing: 8) {
               let tintColor: Color = selectedTab == tab ? .main : secondaryColor
               
               (tab.isHome ? Image(tab.iconImage) : Image(systemName: tab.iconImage))
                 .resizable()
                 .scaledToFit()
-                .frame(width: 24, height: 24)
+                .frame(width: 22, height: 22)
                 .foregroundStyle(tintColor)
               
               Text(tab.title)
