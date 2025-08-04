@@ -13,7 +13,7 @@ struct MainTabView: View {
   
   var body: some View {
     if UIDevice.isPad {
-      
+      DefaultTabView()
     } else {
       GeometryReader { geometry in
         let tabViewHeight = geometry.size.width * 0.27
