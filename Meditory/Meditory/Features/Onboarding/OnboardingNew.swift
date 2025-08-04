@@ -12,9 +12,33 @@ struct OnboardingNew: View {
   @State private var showEndingSheet: Bool = false
   @State private var name = ""
   @State private var age = ""
-  @State private var height = "0.0"
-  @State private var weight = "0.0"
+  @State private var height = ""
+  @State private var weight = ""
   @State private var gender = ""
+  @State private var isViewApearing = false
+  private var questionOptions = [
+    "홍삼, 사상자, 산수유",
+    "강황",
+    "달맞이꽃종자유",
+    "프로폴리스",
+    "석류",
+    "소맥 (보리)",
+    "밀 또는 밀 단백질",
+    "특정 단백질",
+    "무화과",
+    " 난황 (계란)",
+    " 대두",
+    " 호박씨",
+    " 국화과 ( 쑥갓, 카모마일, 해바라기 씨 등)",
+    " 유제품 또는 유당불내증",
+    " 호프추출물",
+    " 땅콩",
+    " 옻",
+    " 갑각류 (게, 새우 등)",
+    " 에스트로겐 민감",
+    " 카페인 민감",
+    " 특정 알러지 (예, 원인을 알 수 없는 알러지)",
+  ]
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
       GeometryReader { geometry in
@@ -22,7 +46,6 @@ struct OnboardingNew: View {
           Capsule()
             .frame(height: 10)
             .foregroundColor(Color.gray.opacity(0.2))
-
           Capsule()
             .frame(width: geometry.size.width * CGFloat(currentStep.index + 1) / CGFloat(Step.totalCount), height: 10)
             .foregroundColor(.accent)
@@ -30,158 +53,55 @@ struct OnboardingNew: View {
         }
       }
       .frame(height: 10)
-      .padding(.top,10)
+      .padding(.top, 10)
     }
     .padding(.horizontal)
     Spacer()
     stepContent(for: currentStep)
-    Spacer()
-    HStack {
-      if currentStep != .name {
-        Button("이전") {
-          if let prev = currentStep.previous() {
-            currentStep = prev
-          }
-        }
-        .disabled(currentStep == Step.allCases.first)
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color.gray.opacity(0.2))
-        .cornerRadius(10)
+    Button(currentStep == Step.allCases.last ? "완료" : "다음") {
+      if let next = currentStep.next() {
+        currentStep = next
       }
-
-      Button(currentStep == .gender ? "완료" : "다음") {
-        if let next = currentStep.next() {
-          currentStep = next
-        }
-        if currentStep == Step.allCases.last {
-          showEndingSheet = true
-          print(name,age,height,weight,gender)
-        }
+      if currentStep == Step.allCases.last {
+        showEndingSheet = true
       }
-      .disabled(currentStep == Step.allCases.last)
-      .frame(maxWidth: .infinity)
-      .padding()
-      .background(Color.blue)
-      .foregroundColor(.white)
-      .cornerRadius(12)
-      Spacer()
     }
+    .disabled(currentStep == Step.allCases.last)
+    .frame(maxWidth: .infinity)
+    .padding()
+    .background(Color.accent)
+    .foregroundColor(.white)
+    .cornerRadius(12)
     .padding(.horizontal)
-    .padding(.bottom,20)
+    .padding(.bottom, 20)
   }
 
   @ViewBuilder
   func stepContent(for step: Step) -> some View {
     switch step {
     case .name:
-      VStack(alignment: .leading) {
-        Spacer()
-        Text("정말 반갑습니다! \n고객님의 이름을 알려주세요")
-          .font(.title)
-          .padding(.bottom, 20)
-        Text("이름")
-          .foregroundStyle(.gray)
-        TextField("", text: $name)
-        Divider()
-        Spacer()
-      }
-      .padding()
-      case .age:
-        VStack(alignment: .leading) {
-          Spacer()
-          Text("\(name)님은 언제 태어나셨나요?")
-            .font(.title)
-            .padding(.bottom, 20)
-          Text("생년월일")
-            .foregroundStyle(.gray)
-          TextField("", text: $age)
-          Divider()
-          Spacer()
-        }
-        .padding()
-      case .height:
-        VStack(alignment: .leading) {
-          Spacer()
-          Text("\(name)님의 키를 알려주세요?")
-            .font(.title)
-            .padding(.bottom, 20)
-          Text("키")
-            .foregroundStyle(.gray)
-          TextField("", text: $height)
-          Divider()
-          Spacer()
-        }
-        .padding()
-      case .weight:
-        VStack(alignment: .leading) {
-          Spacer()
-          Text("\(name)님의 체중을 알려주세요?")
-            .font(.title)
-            .padding(.bottom, 20)
-          Text("체중")
-            .foregroundStyle(.gray)
-          TextField("", text: $weight)
-          Divider()
-          Spacer()
-        }
-        .padding()
+      OnboardingTextInputView(prompt: "정말 반갑습니다.\n고객님의 이름을 알려주세요", placeholder: "이름", inputText: $name)
+    case .age:
+      OnboardingTextInputView(prompt: "\(name)님의 나이를 알려주세요", placeholder: "연령", inputText: $age)
+    case .height:
+      OnboardingTextInputView(prompt: "\(name)님의 키를 알려주세요", placeholder: "신장", unit: "CM", inputText: $height)
+    case .weight:
+      OnboardingTextInputView(prompt: "\(name)님의 몸무게를 알려주세요", placeholder: "체중", unit: "KG", inputText: $weight)
     case .gender:
-        VStack(alignment: .leading) {
-          Spacer()
-          Text("\(name)님의 성별을 알려주세요")
-            .font(.title)
-            .padding(.bottom, 20)
-          HStack{
-            VStack(spacing: 12) {
-              Image("male_icon")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 80, height: 80)
-                .foregroundColor(.purple)
-                .shadow(color: Color.purple.opacity(0.4), radius: 4, x: 0, y: 4)
-              Text("남성")
-                .font(.headline)
-                .foregroundColor(.primary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 18)
-            .background(
-              RoundedRectangle(cornerRadius: 20)
-                .fill(Color.purple.opacity(0.1))
-            )
-            .contentShape(Rectangle())
-            .onTapGesture {
-              gender = "남성"
-            }
-            VStack(spacing: 12) {
-              Image("female_icon")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 80, height: 80)
-                .foregroundColor(.pink)
-                .shadow(color: Color.pink.opacity(0.4), radius: 4, x: 0, y: 4)
-              Text("여성")
-                .font(.headline)
-                .foregroundColor(.primary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 18)
-            .background(
-              RoundedRectangle(cornerRadius: 20)
-                .fill(Color.pink.opacity(0.1))
-            )
-            .contentShape(Rectangle())
-            .onTapGesture {
-              gender = "여성"
-            }
-          }
-          Spacer()
+        OnboardingTwoOptionView(prompt: "\(name) 님의 성별을 알려주세요", image: "male_icon", title: "남성", action: {
+          gender = "남성"
+        }, secondImage: "female_icon", secondTitle: "여성") {
+          gender = "여성"
         }
-        .padding()
-      case .end:
-        EmptyView()
-        
+    case .desease:
+      ScrollView {
+        ForEach(questionOptions, id: \.self) { option in
+          RowItemView(isSelected: false, context: option)
+        }
+      }
+    case .end:
+      EmptyView()
+
     }
   }
 }

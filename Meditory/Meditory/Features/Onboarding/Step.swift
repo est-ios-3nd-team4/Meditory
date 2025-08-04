@@ -11,6 +11,7 @@ enum Step: Int, CaseIterable {
   case height
   case weight
   case gender
+  case desease
   case end
 
   var index: Int {
