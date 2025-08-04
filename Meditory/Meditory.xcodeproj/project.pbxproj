@@ -44,11 +44,22 @@
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		D707FBB22E406DBC008B2253 /* Exceptions for "Meditory" folder in "Copy Bundle Resources" phase from "Meditory" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 7A02BFD62E39D9AD00587F53 /* Resources */;
+			membershipExceptions = (
+				Features/Test/Test.swift,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		7A02BFDA2E39D9AD00587F53 /* Meditory */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				36FF9FE62E3F781B00903AA4 /* Exceptions for "Meditory" folder in "Meditory" target */,
+				D707FBB22E406DBC008B2253 /* Exceptions for "Meditory" folder in "Copy Bundle Resources" phase from "Meditory" target */,
 			);
 			path = Meditory;
 			sourceTree = "<group>";
