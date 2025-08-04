@@ -11,6 +11,7 @@ struct CustomTabView: View {
   @Environment(\.colorScheme) private var colorScheme
   
   @Binding var selectedTab: TabItem
+  var topInset: CGFloat
   
   private let iconSize = CGSize(width: 22, height: 22)
   private let addButtonSize = CGSize(width: 65, height: 65)
@@ -31,14 +32,14 @@ struct CustomTabView: View {
       if colorScheme == .light {
         backgroundRectangle
           .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
-          .padding(.top, 14)
+          .padding(.top, topInset)
       } else {
         backgroundRectangle
           .overlay(
             RoundedCorner(radius: cornerRadius, corners: [.topLeft, .topRight])
               .stroke(.white.opacity(0.3), lineWidth: 1)
           )
-          .padding(.top, 14)
+          .padding(.top, topInset)
       }
       
       HStack(spacing: itemSpacing()) {
@@ -99,7 +100,7 @@ struct CustomTabView: View {
     VStack {
       Spacer()
       
-      CustomTabView(selectedTab: .constant(.home))
+      CustomTabView(selectedTab: .constant(.home), topInset: 14)
         .frame(width: viewWidth, height: viewWidth * 0.27)
     }
     .ignoresSafeArea()

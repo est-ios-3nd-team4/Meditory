@@ -11,6 +11,8 @@ struct MainTabView: View {
   
   @State var selectedTab: TabItem = .home
   
+  private let customTabTopInset: CGFloat = 14
+  
   var body: some View {
     if UIDevice.isPad {
       DefaultTabView()
@@ -33,11 +35,12 @@ struct MainTabView: View {
               Color.white
             }
           }
+          .padding(.bottom, tabViewHeight - customTabTopInset)
           
           VStack {
             Spacer()
             
-            CustomTabView(selectedTab: $selectedTab)
+            CustomTabView(selectedTab: $selectedTab, topInset: customTabTopInset)
               .frame(height: tabViewHeight)
           }
         }
