@@ -10,16 +10,22 @@ import SwiftUI
 struct CustomTabView: View {
   
   @Binding var selectedTab: TabItem
+  
   private let secondaryColor: Color = .init(red: 223, green: 223, blue: 223)
+  private let iconSize = CGSize(width: 22, height: 22)
+  private let addButtonSize = CGSize(width: 65, height: 65)
   
   var body: some View {
     ZStack {
-      RoundedRectangle(cornerRadius: 20)
-        .fill(Color.white)
-        .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 4)
-        .padding(.top, 14)
+      Rectangle()
+          .fill(Color.white)
+          .clipShape(
+              RoundedCorner(radius: 20, corners: [.topLeft, .topRight])
+          )
+          .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 4)
+          .padding(.top, 14)
       
-      HStack(spacing: 36) {
+      HStack(spacing: itemSpacing()) {
         ForEach(TabItem.allCases, id: \.self) { tab in
           if tab.isAdd {
             VStack {
@@ -44,7 +50,7 @@ struct CustomTabView: View {
               (tab.isHome ? Image(tab.iconImage) : Image(systemName: tab.iconImage))
                 .resizable()
                 .scaledToFit()
-                .frame(width: 22, height: 22)
+                .frame(width: iconSize.width, height: iconSize.height)
                 .foregroundStyle(tintColor)
               
               Text(tab.title)
@@ -58,6 +64,15 @@ struct CustomTabView: View {
         }
       }
     }
+  }
+  
+  /// 탭 아이템 사이의 가로 간격을 계산합니다.
+  private func itemSpacing() -> CGFloat {
+    let viewWidth = UIScreen.main.bounds.width
+    let horizontalPadding: CGFloat = 18
+    let itemCount = CGFloat(TabItem.allCases.count)
+    
+    return (viewWidth - (iconSize.width * itemCount - 1) - addButtonSize.width - horizontalPadding) / itemCount
   }
 }
 
