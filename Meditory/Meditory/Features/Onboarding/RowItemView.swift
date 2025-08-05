@@ -8,29 +8,29 @@
 import SwiftUI
 
 struct RowItemView: View {
-  @State var isSelected:Bool
-  @State var context:String
+  var isSelected:Bool
+  var context:String
   var body: some View {
-      ZStack {
-        RoundedRectangle(cornerRadius: 8)
-          .stroke(isSelected ? Color.accent : Color.gray,lineWidth: 1)
-          .frame(height: 60)
-          .foregroundStyle(.clear)
-        HStack {
-          Image(systemName: isSelected ? "circle.fill" : "circle" )
-            .renderingMode(.template)
-            .foregroundStyle(Color.accent)
-          Text(context)
-            .font(.custom("NotoSansKR-Bold", size: 16))
-          Spacer()
-        }
-        .padding(10)
+    ZStack {
+      RoundedRectangle(cornerRadius: 8)
+        .stroke(isSelected ? Color.main : Color.gray.opacity(0.4),lineWidth: 1)
+        .frame(height: 60)
+        .foregroundStyle(.clear)
+      HStack {
+        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle" )
+          .renderingMode(.template)
+          .foregroundStyle(Color.main)
+        Text(context)
+          .font(.custom("NotoSansKR-Bold", size: 16))
+        Spacer()
       }
-      .padding(.horizontal,)
+      .padding(10)
     }
+    .padding(.horizontal)
+  }
 }
 
 #Preview {
-  RowItemView(isSelected: false,context: "당뇨")
-  RowItemView(isSelected: true,context: "간질환")
+  RowItemView(isSelected: true, context: "Hello")
+  RowItemView(isSelected: false, context: "Hello")
 }
