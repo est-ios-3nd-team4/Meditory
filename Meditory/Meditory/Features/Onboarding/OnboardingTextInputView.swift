@@ -12,25 +12,21 @@ struct OnboardingTextInputView: View {
   let placeholder: String
   let unit: String?
   @Binding var inputText: String
-  @State private var isViewAppearing = false
   @Environment(\.colorScheme) var colorScheme
   
-  init(prompt: String, placeholder: String, unit: String? = nil, inputText: Binding<String>, isViewAppearing: Bool = false) {
+  init(prompt: String, placeholder: String, unit: String? = nil, inputText: Binding<String>) {
     self.prompt = prompt
     self.placeholder = placeholder
     self.unit = unit
     self._inputText = inputText
-    self.isViewAppearing = isViewAppearing
   }
   
   var body: some View {
     VStack(alignment: .leading) {
-      if isViewAppearing {
         Text(prompt)
           .font(.custom("NotoSansKR-Bold", size: 24))
           .padding(.bottom, 20)
           .transition(.move(edge: .leading))
-      }
       Text(placeholder)
         .foregroundStyle(.gray)
       HStack{
@@ -46,15 +42,11 @@ struct OnboardingTextInputView: View {
         }
       }
       Spacer()
-    }.onAppear(perform: {
-      withAnimation(.easeInOut(duration: 1)){
-        isViewAppearing = true
-      }
-    })
+    }
     .padding()
   }
 }
 
 #Preview {
-  OnboardingTextInputView(prompt: "고객님의 \n이름을 알려주세요", placeholder: "성함", unit: "H", inputText: .constant("제이슨"), isViewAppearing: true)
+  OnboardingTextInputView(prompt: "고객님의 \n이름을 알려주세요", placeholder: "성함", unit: "H", inputText: .constant("제이슨"))
 }
