@@ -44,6 +44,7 @@ struct OnboardingTextInputView: View {
       Spacer()
     }
     .padding()
+    .padding(.top,16)
   }
 }
 

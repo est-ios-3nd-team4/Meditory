@@ -20,6 +20,7 @@ struct OnboardingNew: View {
   @State private var item = ""
   @State private var itemList: Set<String> = []
   @State private var isPregnancy = false
+  @State private var isBreastfeeding = false
   @State private var hasDisease = false
   @State private var hasAllergy = false
   @State private var takingMedication = false
@@ -118,19 +119,20 @@ struct OnboardingNew: View {
         }, secondImage: "x_icon", secondTitle: "아니요") {
           hasDisease = false
         }
-    case .selectDisease:
-      ScrollView {
-        ForEach(questionOptions, id: \.self) { option in
-          RowItemView(isSelected: itemList.contains(option), context: option)
-            .onTapGesture {
-              if itemList.contains(option) {
-                itemList.remove(option)
-              } else {
-                itemList.insert(option)
-              }
-            }
+      case .breastfeeding:
+        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 수유중이신가요?", isSelected: $isSelected, image: "o_icon", title: "예",action: {
+          isBreastfeeding = true
+        }, secondImage: "x_icon", secondTitle: "아니요") {
+          isBreastfeeding = false
         }
-      }
+    case .selectDisease:
+        OnboardingListSelectionView(prompt:"\(name) 님이 앓고계신 질환을 알려주세요",info:"알레르기에 따라 피해야하는 영양성분을 확인할 수 있어요.",questions:questionOptions,selections: $itemList) { item in
+          if itemList.contains(item) {
+            itemList.remove(item)
+          } else {
+            itemList.insert(item)
+          }
+        }
     default:
       EmptyView()
     }
