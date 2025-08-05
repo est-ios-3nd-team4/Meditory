@@ -29,11 +29,6 @@ enum Step: Int, CaseIterable {
     return Self.allCases.count
   }
 
-//  func next() -> Step? {
-//    let all = Self.allCases
-//    let idx = index + 1
-//    return idx < all.count ? all[idx] : nil
-//  }
   func next(gender: String,
             isPregnancy: Bool,
            hasDisease: Bool,
