@@ -7,6 +7,8 @@
 import SwiftUI
 
 struct CircularProgressView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var progress: Double
     var lineWidth: CGFloat = 20
 
@@ -26,8 +28,7 @@ struct CircularProgressView: View {
 
             ZStack {
                 // 그래프 배경 회색
-                Circle()
-                    .stroke(Color.gray.opacity(0.2), lineWidth: lineWidth)
+                Circle().stroke(Color.chartBackground, lineWidth: lineWidth)
 
                 Group {
                     // 그래프
@@ -58,14 +59,14 @@ struct CircularProgressView: View {
                 .animation(.easeInOut(duration: 0.6), value: progress)
 
                 // 퍼센트
-                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                HStack(alignment: .firstTextBaseline) {
                     Text("\(Int(progress * 100))")
-                        .font(.notoSans(size: 20))
+                        .font(.notoSans(size: 60))
                         .fontWeight(.bold)
                     Text("%")
                         .font(.notoSans(size: 20))
                 }
-                .foregroundColor(.black)
+                .foregroundColor(.label)
             }
             .frame(width: side, height: side)
         }

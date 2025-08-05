@@ -10,7 +10,8 @@ import SwiftUI
 
 struct HomeView: View {
     @StateObject private var vm = HomeViewModel()
-
+    @Environment(\.colorScheme) private var colorScheme
+    
     var body: some View {
         CalendarBackgroundView {
             ScrollView {
@@ -22,16 +23,16 @@ struct HomeView: View {
             }
         }
     }
-
+    
     private var achiveMentSection: some View {
         VStack {
             Text("오늘 복용 달성률")
                 .font(.notoSans(size: 18))
                 .frame(maxWidth: .infinity, alignment: .leading)
-
+            
             CircularProgressView(progress: vm.progress)
                 .frame(width: 150, height: 150)
-
+            
             VStack {
                 Button {
                     print("페이지 이동 필요")
@@ -41,40 +42,47 @@ struct HomeView: View {
                         .tint(.secondary)
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
-
+                
                 List {
                     ForEach(vm.items.indices.sorted { vm.items[$0].time < vm.items[$1].time }, id: \.self) { index in
                         Button {
                             vm.toggleCompleted(at: index)
                         } label: {
-                            HStack {
-                                Image(systemName: vm.items[index].isCompleted
-                                      ? "checkmark.circle.fill"
-                                      : "circle")
-                                .font(.notoSans(size: 20))
-                                .foregroundStyle(vm.items[index].isCompleted ? .main : .secondary)
-
+                            HStack(alignment: .center, spacing: 16) {
+                                CircleCheck(isCompleted: vm.items[index].isCompleted)
+                                    .offset(y: 2)
+                                
                                 Text(vm.items[index].name)
                                     .font(.notoSans(size: 20))
-                                    .foregroundStyle(.black)
+                                
                                 Spacer()
-
+                                
                                 Text(vm.items[index].time.timeFormatter)
                                     .font(.notoSans(size: 15))
-                                    .foregroundStyle(.main)
+                                    .foregroundStyle(
+                                        colorScheme == .dark
+                                        ? Color.secondary
+                                        : Color.main
+                                    )
                             }
                         }
-                        .listRowInsets(.init(top: 8, leading: 0, bottom: 8, trailing: 0))
+                        .listRowInsets(.init(top: 8, leading: 8, bottom: 8, trailing: 0))
                         .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
                     }
                 }
                 .frame(height: 90)
                 .listStyle(.plain)
                 .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
             }
         }
         .padding()
-        .background(.white)
+        .background(
+            colorScheme == .dark
+            ? Color.white.opacity(0.3)
+            : Color.white
+        )
         .cornerRadius(20)
         .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 4)
         .padding(.bottom, 16)
