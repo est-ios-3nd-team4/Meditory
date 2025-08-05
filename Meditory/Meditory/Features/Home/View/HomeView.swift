@@ -26,7 +26,7 @@ struct HomeView: View {
     private var achiveMentSection: some View {
         VStack {
             Text("오늘 복용 달성률")
-                .font(.custom("NotoSansKR-Medium", size: 18))
+                .font(.notoSans(size: 18))
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             CircularProgressView(progress: vm.progress)
@@ -37,7 +37,7 @@ struct HomeView: View {
                     print("페이지 이동 필요")
                 } label: {
                     Text("추가")
-                        .font(.custom("NotoSansKR-Medium", size: 15))
+                        .font(.notoSans(size: 15))
                         .tint(.secondary)
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
@@ -51,16 +51,16 @@ struct HomeView: View {
                                 Image(systemName: vm.items[index].isCompleted
                                       ? "checkmark.circle.fill"
                                       : "circle")
-                                .font(.custom("NotoSansKR-Medium", size: 20))
-                                .foregroundStyle(vm.items[index].isCompleted ? .main :  .secondary)
+                                .font(.notoSans(size: 20))
+                                .foregroundStyle(vm.items[index].isCompleted ? .main : .secondary)
 
                                 Text(vm.items[index].name)
-                                    .font(.custom("NotoSansKR-Medium", size: 20))
+                                    .font(.notoSans(size: 20))
                                     .foregroundStyle(.black)
                                 Spacer()
 
                                 Text(vm.items[index].time.timeFormatter)
-                                    .font(.custom("NotoSansKR-Medium", size: 15))
+                                    .font(.notoSans(size: 15))
                                     .foregroundStyle(.main)
                             }
                         }

@@ -13,11 +13,11 @@ struct TodayHealthView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("오늘의 건강 상식")
-                .font(.custom("NotoSansKR-Medium", size: 18))
+                .font(.notoSans(size: 18))
                 .padding()
 
             Text(vm.healthContent)
-                .font(.custom("NotoSansKR-Medium", size: 15))
+                .font(.notoSans(size: 15))
                 .foregroundStyle(.secondary)
                 .padding(.horizontal)
         }
