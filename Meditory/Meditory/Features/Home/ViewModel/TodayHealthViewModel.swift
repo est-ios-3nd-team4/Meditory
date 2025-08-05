@@ -25,7 +25,7 @@ final class TodayHealthViewModel: ObservableObject {
             - 명확한 행동 제안 포함
             
             <Example>
-            “아침 식사 전 따뜻한 레몬물 한 잔은 소화 기능을 돕고 면역력 강화에 효과적입니다.”
+            아침 식사 전 따뜻한 레몬물 한 잔은 소화 기능을 돕고 면역력 강화에 효과적입니다.
             
             <Query>
             \(sampleExtraInfo)
