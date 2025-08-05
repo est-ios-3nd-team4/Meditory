@@ -22,6 +22,7 @@ struct CircleCheck: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: size * 0.5, height: size * 0.5)
                     .foregroundColor(.white)
+                    .fontWeight(.bold)
             } else {
                 Circle()
                     .strokeBorder(Color.gray, lineWidth: size * 0.08)

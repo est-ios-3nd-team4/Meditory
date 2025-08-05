@@ -49,15 +49,15 @@ struct CircularProgressView: View {
                     )
                     .offset(x: 0, y: -radius)
                     .rotationEffect(.degrees(progress * 360))
+                    .opacity(progress >= 1.0 ? 0 : 1)
                     .animation(.easeInOut(duration: 0.6), value: progress)
 
                 // 퍼센트
-                HStack(alignment: .firstTextBaseline, spacing: 0) {
+                HStack(alignment: .firstTextBaseline, spacing: 5) {
                     Text("\(Int(progress * 100))")
                         .font(.notoSans(size: 50))
                     Text("%")
                         .font(.notoSans(size: 15))
-                        .offset(y: -10)
                 }
                 .foregroundColor(.label)
                 .position(center)

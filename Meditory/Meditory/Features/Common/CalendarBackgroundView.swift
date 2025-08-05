@@ -57,7 +57,7 @@ struct CalendarBackgroundView<Content: View>: View {
                 let dates = weekDays()
                 let weekNames = ["일","월","화","수","목","금","토"]
 
-                LazyVGrid(columns: columns) {
+                LazyVGrid(columns: columns, spacing: 0) {
                     ForEach(dates.indices, id: \.self) { i in
                         let date = dates[i]
                         let selected = isSameDay(date)
@@ -82,7 +82,7 @@ struct CalendarBackgroundView<Content: View>: View {
                 }
                 .padding(.horizontal)
 
-                LazyVGrid(columns: columns, spacing: 10) {
+                LazyVGrid(columns: columns, spacing: 0) {
                     ForEach(dates, id: \.self) { date in
                         let selected = isSameDay(date)
                         
@@ -100,7 +100,6 @@ struct CalendarBackgroundView<Content: View>: View {
                             }
                         }
                         .frame(minHeight: 40, alignment: .top)
-                        .padding(.vertical, 8)
                         .onTapGesture {
                             withAnimation {
                                 currentDate = date

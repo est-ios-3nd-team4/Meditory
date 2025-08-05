@@ -11,7 +11,7 @@ import SwiftUI
 struct HomeView: View {
     @StateObject private var vm = HomeViewModel()
     @Environment(\.colorScheme) private var colorScheme
-    
+
     var body: some View {
         CalendarBackgroundView {
             ScrollView(showsIndicators: false) {
@@ -23,9 +23,9 @@ struct HomeView: View {
             }
         }
     }
-    
+
     private var achiveMentSection: some View {
-        VStack {
+        VStack(spacing: 16) {
             Text("오늘 복용 달성률")
                 .font(.notoSans(size: 18))
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -42,8 +42,8 @@ struct HomeView: View {
                         .tint(.secondary)
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
-                
-                List {
+
+                LazyVStack(spacing: 8) {
                     ForEach(vm.items.indices.sorted { vm.items[$0].time < vm.items[$1].time }, id: \.self) { index in
                         Button {
                             vm.toggleCompleted(at: index)
@@ -51,12 +51,13 @@ struct HomeView: View {
                             HStack(alignment: .center, spacing: 16) {
                                 CircleCheck(isCompleted: vm.items[index].isCompleted)
                                     .offset(y: 2)
-                                
+
                                 Text(vm.items[index].name)
                                     .font(.notoSans(size: 20))
-                                
+                                    .foregroundColor(.primary)
+
                                 Spacer()
-                                
+
                                 Text(vm.items[index].time.timeFormatter)
                                     .font(.notoSans(size: 15))
                                     .foregroundStyle(
@@ -65,16 +66,10 @@ struct HomeView: View {
                                         : Color.main
                                     )
                             }
+                            .padding(.vertical, 8)
                         }
-                        .listRowInsets(.init(top: 8, leading: 8, bottom: 8, trailing: 0))
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
                     }
                 }
-                .frame(height: 90)
-                .listStyle(.plain)
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
             }
         }
         .padding(16)
@@ -84,7 +79,14 @@ struct HomeView: View {
             : Color.white
         )
         .cornerRadius(20)
-        .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 4)
+        .shadow(
+            color: colorScheme == .dark
+            ? .clear
+            : Color.black.opacity(0.08),
+            radius: 10,
+            x: 0,
+            y: 4
+        )
         .padding(.bottom, 16)
     }
 }
