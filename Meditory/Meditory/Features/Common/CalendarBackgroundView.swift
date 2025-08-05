@@ -49,9 +49,9 @@ struct CalendarBackgroundView<Content: View>: View {
             VStack(alignment: .leading) {
                 Text(currentDate.yearMonth)
                     .foregroundStyle(.white)
-                    .font(.custom("NotoSansKR-Medium", size: 25))
+                    .font(.notoSans(size: 20))
                     .fontWeight(.bold)
-                    .padding()
+                    .padding(8)
 
                 let dates = weekDays()
                 let weekNames = ["일","월","화","수","목","금","토"]
@@ -61,10 +61,10 @@ struct CalendarBackgroundView<Content: View>: View {
                         let date = dates[i]
                         let selected = isSameDay(date)
                         Text(weekNames[i])
-                            .font(.custom("NotoSansKR-Medium", size: 13))
+                            .font(.notoSans(size: 13))
                             .frame(maxWidth: .infinity)
                             .foregroundStyle(selected ? .main : .white)
-                            .padding(.vertical, 6)
+                            .padding(.vertical, 8)
                             .background {
                                 if selected {
                                     Circle()
@@ -87,7 +87,7 @@ struct CalendarBackgroundView<Content: View>: View {
                         
                         VStack {
                             Text(Date().formattedDate(date, "d"))
-                                .font(.custom("NotoSansKR-Medium", size: 16))
+                                .font(.notoSans(size: 16))
                                 .frame(maxWidth: .infinity)
                                 .foregroundStyle(.white)
                             
@@ -99,7 +99,7 @@ struct CalendarBackgroundView<Content: View>: View {
                             }
                         }
                         .frame(minHeight: 40, alignment: .top)
-                        .padding(.vertical, 6)
+                        .padding(.vertical, 8)
                         .onTapGesture {
                             withAnimation {
                                 currentDate = date
@@ -111,12 +111,18 @@ struct CalendarBackgroundView<Content: View>: View {
 
                 ZStack {
                     Rectangle()
-                        .fill(Color(red: 249/255, green: 249/255, blue: 249/255))
-                        .cornerRadius(20)
+                        .fill(Color.background)
+                        .clipShape(RoundedCorner(radius: 20, corners: [.topLeft, .topRight]))
+                        .edgesIgnoringSafeArea(.all)
 
                     content
                 }
             }
         }
+    }
+}
+#Preview {
+    CalendarBackgroundView {
+        EmptyView()
     }
 }
