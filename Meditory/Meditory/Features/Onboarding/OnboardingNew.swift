@@ -16,7 +16,9 @@ struct OnboardingNew: View {
   @State private var weight = ""
   @State private var gender = ""
   @State private var isViewApearing = false
-  @State private var isItemSelected = false
+  @State private var isSelected = false
+  @State private var item = ""
+  @State private var itemList: Set<String> = []
   @State private var isPregnancy = false
   @State private var hasDisease = false
   @State private var hasAllergy = false
@@ -95,7 +97,7 @@ struct OnboardingNew: View {
   func stepContent(for step: Step) -> some View {
     switch step {
     case .name:
-      OnboardingTextInputView(prompt: "정말 반갑습니다.\n고객님의 이름을 알려주세요", placeholder: "이름", inputText: $name)
+      OnboardingTextInputView(prompt: "고객님의 \n이름을 알려주세요", placeholder: "이름", inputText: $name)
     case .age:
       OnboardingTextInputView(prompt: "\(name)님의 나이를 알려주세요", placeholder: "연령", inputText: $age)
     case .height:
@@ -103,13 +105,13 @@ struct OnboardingNew: View {
     case .weight:
       OnboardingTextInputView(prompt: "\(name)님의 몸무게를 알려주세요", placeholder: "체중", unit: "KG", inputText: $weight)
     case .gender:
-        OnboardingTwoOptionView(prompt: "\(name) 님의 성별을 알려주세요",isSelected: $isItemSelected, image: "male_icon", title: "남성", action: {
+        OnboardingTwoOptionView(prompt: "\(name) 님의 성별을 알려주세요",isSelected: $isSelected, image: "male_icon", title: "남성", action: {
           gender = "남성"
         }, secondImage: "female_icon", secondTitle: "여성") {
           gender = "여성"
         }
       case .pregnancy:
-        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 임신중이십니까?", isSelected: $isItemSelected, image: "o_icon", title: "예",action: {
+        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 임신중이십니까?", isSelected: $isSelected, image: "o_icon", title: "예",action: {
           isPregnancy = true
         }, secondImage: "x_icon", secondTitle: "아니요") {
           isPregnancy = false
@@ -123,7 +125,14 @@ struct OnboardingNew: View {
     case .selectDisease:
       ScrollView {
         ForEach(questionOptions, id: \.self) { option in
-          RowItemView(isSelected: false, context: option)
+          RowItemView(isSelected: itemList.contains(option), context: option)
+            .onTapGesture {
+              if itemList.contains(option) {
+                itemList.remove(option)
+              } else {
+                itemList.insert(option)
+              }
+            }
         }
       }
     default:
