@@ -19,6 +19,7 @@ struct RowItemView: View {
       HStack {
         Image(systemName: isSelected ? "checkmark.circle.fill" : "circle" )
           .renderingMode(.template)
+        
           .foregroundStyle(Color.main)
         Text(context)
           .font(.custom("NotoSansKR-Bold", size: 16))

@@ -22,7 +22,7 @@ struct OnboardingTwoOptionView: View {
   var body: some View {
     VStack(alignment: .leading) {
       Text(prompt)
-        .font(.title)
+        .font(.custom("NotoSansKR-Bold", size: 24))
         .padding(.bottom,10)
       HStack {
         VStack(spacing: 12) {
@@ -86,9 +86,10 @@ struct OnboardingTwoOptionView: View {
           hasInteracted = true
         }
       }
+      Spacer()
     }
     .padding(.horizontal,16)
-    Spacer()
+    .padding(.top,16)
   }
 }
 
