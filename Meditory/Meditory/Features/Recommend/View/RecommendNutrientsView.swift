@@ -1,41 +1,46 @@
 import SwiftUI
 
-struct NutrientChip: View {
-    let title: String
-
-    var body: some View {
-        Text("💊 \(title)")
-            .font(.subheadline)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .overlay {
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-        }
-    }
-}
-
 struct RecommendNutrientsView: View {
+    @Environment(\.dismiss) private var dismiss
+
     let nutrients = ["아연", "밀크씨슬", "히알루론산"]
 
     var body: some View {
+        VStack {
+            HStack {
+                Button {
+                    dismiss()
+                } label: {
+                    Text("〈")
+                        .font(.notoSans(weight: .medium, size: 18))
+                        .foregroundColor(.gray)
+                }
+
+                Spacer()
+
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+        }
+        .background(.clear)
+
         ScrollView {
             VStack(alignment: .leading) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("최종결과 2025.08.04")
-                        .font(.custom("NotoSansKR-Medium.ttf", size: 15))
+                        .font(.notoSans(weight: .medium, size: 15))
                         .foregroundColor(.gray)
 
                     Text("고객님의")
-                        .font(.custom("NotoSansKR-Bold.ttf", size: 25))
+                        .font(.notoSans(weight: .bold, size: 25))
                         .fontWeight(.bold)
 
-                    Text("응답을 고려한 추천하는 영양성분이에요.")
-                        .font(.custom("NotoSansKR-Medium.ttf", size: 15))
+                    Text("식단을 고려한 추천하는 영양성분이에요.")
+                        .font(.notoSans(weight: .medium, size: 15))
                         .fontWeight(.semibold)
 
                     Text("* 본결과는 의사의 처방을 대신하지 않습니다.")
-                        .font(.custom("NotoSansKR-Medium.ttf", size: 15))
+                        .font(.notoSans(weight: .medium, size: 15))
                         .foregroundColor(.gray)
                 }
 
@@ -44,12 +49,12 @@ struct RecommendNutrientsView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
                         Text("🤟🏻 추천 영양성분")
-                            .font(.custom("NotoSansKR-Bold.ttf", size: 15))
+                            .font(.notoSans(weight: .bold, size: 15))
                             .fontWeight(.bold)
 
 
                         Text("3")
-                            .font(.custom("NotoSansKR-Bold.ttf", size: 15))
+                            .font(.notoSans(weight: .bold, size: 15))
                             .fontWeight(.bold)
                             .foregroundColor(.main)
                     }
@@ -64,7 +69,7 @@ struct RecommendNutrientsView: View {
                             .cornerRadius(8)
 
                         Text("추천하는 영양성분은 꼭 필요한 것만 추천되므로 아래 성분들을 모두 섭취하는것이 좋아요.")
-                            .font(.custom("NotoSansKR-Medium.ttf", size: 15))
+                            .font(.notoSans(weight: .medium, size: 15))
                             .foregroundColor(Color.main)
 
                     }
@@ -117,9 +122,10 @@ struct RecommendNutrientsView: View {
             .padding(.horizontal, 16)
             .padding()
         }
+        .navigationBarHidden(true)
     }
 }
 
-#Preview {
-    RecommendNutrientsView()
-}
+//#Preview {
+//    RecommendNutrientsView()
+//}
