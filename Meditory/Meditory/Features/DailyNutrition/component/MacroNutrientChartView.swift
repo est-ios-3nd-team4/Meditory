@@ -13,9 +13,14 @@ import SwiftUI
 
 struct MacroNutrientChartView: View {
   
-  var carbohydrateProgress: Double
-  var proteinProgress: Double
-  var fatProgress: Double
+  var carbohydrateProgressTarget: Double
+  var proteinProgressTarget: Double
+  var fatProgressTarget: Double
+  
+  @State private var carbohydrateProgress: Double = 0
+  @State private var proteinProgress: Double = 0
+  @State private var fatProgress: Double = 0
+  
   
   var lineWidth: CGFloat = 40
   
@@ -116,6 +121,14 @@ struct MacroNutrientChartView: View {
       
     }
     .aspectRatio(1, contentMode: .fit)
+    .onAppear {
+      withAnimation(.easeInOut(duration: 1.0)) {
+        carbohydrateProgress = carbohydrateProgressTarget
+        proteinProgress = proteinProgressTarget
+        fatProgress = fatProgressTarget
+      }
+    }
+    
   }
 
   // MARK: Func
@@ -147,5 +160,7 @@ struct MacroNutrientChartView: View {
 }
 
 #Preview {
-  MacroNutrientChartView(carbohydrateProgress: 1.3, proteinProgress: 1.2, fatProgress: 1.1)
+  MacroNutrientChartView(carbohydrateProgressTarget: 0.9,
+                         proteinProgressTarget: 1.2,
+                         fatProgressTarget: 1.1)
 }
