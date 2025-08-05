@@ -60,10 +60,10 @@ struct CircularProgressView: View {
                 // 퍼센트
                 HStack(alignment: .firstTextBaseline, spacing: 2) {
                     Text("\(Int(progress * 100))")
-                        .font(.custom("NotoSansKR-Medium", size: 50))
+                        .font(.notoSans(size: 20))
                         .fontWeight(.bold)
                     Text("%")
-                        .font(.custom("NotoSansKR-Medium", size: 20))
+                        .font(.notoSans(size: 20))
                 }
                 .foregroundColor(.black)
             }
