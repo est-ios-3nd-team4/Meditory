@@ -22,7 +22,7 @@ struct OnboardingListSelectionView: View {
         if let info = info {
           Text(info)
             .font(.custom("NotoSansKR-Medium", size: 12))
-            .foregroundStyle(.gray)
+            .foregroundStyle(.gray)          
         }
       }
       ForEach(questions,id:\.self) { item in
