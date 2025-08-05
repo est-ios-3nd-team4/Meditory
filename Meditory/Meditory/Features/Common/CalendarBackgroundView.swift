@@ -84,20 +84,30 @@ struct CalendarBackgroundView<Content: View>: View {
                 LazyVGrid(columns: columns, spacing: 10) {
                     ForEach(dates, id: \.self) { date in
                         let selected = isSameDay(date)
-                        Text(Date().formattedDate(date, "d"))
-                            .font(.custom("NotoSansKR-Medium", size: 16))
-                            .frame(maxWidth: .infinity)
-                            .foregroundStyle(.white)
-                            .padding(.vertical, 6)
-                            .onTapGesture {
-                                withAnimation {
-                                    currentDate = date
-                                }
+                        
+                        VStack {
+                            Text(Date().formattedDate(date, "d"))
+                                .font(.custom("NotoSansKR-Medium", size: 16))
+                                .frame(maxWidth: .infinity)
+                                .foregroundStyle(.white)
+                            
+                            if selected {
+                                Circle()
+                                    .fill(.white)
+                                    .frame(width: 5, height: 5)
+                                    .opacity(selected ? 1 : 0)
                             }
+                        }
+                        .frame(minHeight: 40, alignment: .top)
+                        .padding(.vertical, 6)
+                        .onTapGesture {
+                            withAnimation {
+                                currentDate = date
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal)
-                .padding(.bottom)
 
                 ZStack {
                     Rectangle()
