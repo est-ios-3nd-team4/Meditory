@@ -17,6 +17,13 @@ struct MeditoryApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
+
+            //User 정보
+            User.self,
+            UserProfile.self,
+            UserStatus.self,
+            UserAllergy.self,
+            UserExtraInfo.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -29,7 +36,10 @@ struct MeditoryApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+          MainTabView()
+
+//          SwiftData 테스트용
+//          UserTestView()
         }
         .modelContainer(sharedModelContainer)
     }
