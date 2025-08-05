@@ -15,15 +15,15 @@ struct TodayHealthView: View {
         VStack(alignment: .leading) {
             Text("오늘의 건강 상식?!")
                 .font(.notoSans(size: 18))
-                .padding()
+                .padding(.bottom, 8)
 
             Text(vm.healthContent)
                 .font(.notoSans(size: 15))
                 .foregroundStyle(.secondary)
-                .padding(.horizontal)
         }
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(height: 130, alignment: .top)
+        .frame(maxHeight: .infinity, alignment: .top)
         .background(
             colorScheme == .dark
             ? Color.white.opacity(0.3)
@@ -35,4 +35,7 @@ struct TodayHealthView: View {
             //vm.fetchHealthContent()
         }
     }
+}
+#Preview {
+    MainTabView()
 }

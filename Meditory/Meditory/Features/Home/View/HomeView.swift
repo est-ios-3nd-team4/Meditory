@@ -14,7 +14,7 @@ struct HomeView: View {
     
     var body: some View {
         CalendarBackgroundView {
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack {
                     achiveMentSection
                     TodayHealthView(vm: TodayHealthViewModel())
@@ -29,10 +29,10 @@ struct HomeView: View {
             Text("오늘 복용 달성률")
                 .font(.notoSans(size: 18))
                 .frame(maxWidth: .infinity, alignment: .leading)
-            
+
             CircularProgressView(progress: vm.progress)
-                .frame(width: 150, height: 150)
-            
+                .frame(width: 170, height: 170)
+
             VStack {
                 Button {
                     print("페이지 이동 필요")
@@ -77,7 +77,7 @@ struct HomeView: View {
                 .listRowBackground(Color.clear)
             }
         }
-        .padding()
+        .padding(16)
         .background(
             colorScheme == .dark
             ? Color.white.opacity(0.3)
