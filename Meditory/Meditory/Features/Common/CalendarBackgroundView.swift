@@ -52,6 +52,7 @@ struct CalendarBackgroundView<Content: View>: View {
                     .font(.notoSans(size: 20))
                     .fontWeight(.bold)
                     .padding(8)
+                    .padding(.horizontal)
 
                 let dates = weekDays()
                 let weekNames = ["일","월","화","수","목","금","토"]

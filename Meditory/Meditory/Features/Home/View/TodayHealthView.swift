@@ -9,10 +9,11 @@ import SwiftUI
 
 struct TodayHealthView: View {
     @StateObject var vm: TodayHealthViewModel
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("오늘의 건강 상식")
+            Text("오늘의 건강 상식?!")
                 .font(.notoSans(size: 18))
                 .padding()
 
@@ -23,11 +24,15 @@ struct TodayHealthView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .frame(height: 130, alignment: .top)
-        .background(.white)
+        .background(
+            colorScheme == .dark
+            ? Color.white.opacity(0.3)
+            : Color.white
+        )
         .cornerRadius(20)
         .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 4)
         .onAppear {
-            vm.fetchHealthContent()
+            //vm.fetchHealthContent()
         }
     }
 }

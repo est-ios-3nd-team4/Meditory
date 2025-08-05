@@ -8,9 +8,17 @@
 import SwiftUI
 
 extension Color {
-  static let background = Color(UIColor.systemBackground)
-  static let label = Color(UIColor.label)
-  
+    static let background = Color(UIColor.systemBackground)
+    static let label = Color(UIColor.label)
+    static let chartBackground = Color(
+        UIColor(
+            red: 239/255,
+            green: 239/255,
+            blue: 239/255,
+            alpha: 1
+        )
+    )
+
   init(red: Int, green: Int, blue: Int, opacity: Double = 1.0) {
       self.init(
           .sRGB,
