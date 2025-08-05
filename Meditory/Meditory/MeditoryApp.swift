@@ -37,6 +37,9 @@ struct MeditoryApp: App {
     var body: some Scene {
         WindowGroup {
           MainTabView()
+
+//          SwiftData 테스트용
+//          UserTestView()
         }
         .modelContainer(sharedModelContainer)
     }
