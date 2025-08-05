@@ -45,7 +45,7 @@ struct HomeView: View {
                 List {
                     ForEach(vm.items.indices.sorted { vm.items[$0].time < vm.items[$1].time }, id: \.self) { index in
                         Button {
-                            vm.items[index].isCompleted.toggle()
+                            vm.toggleCompleted(at: index)
                         } label: {
                             HStack {
                                 Image(systemName: vm.items[index].isCompleted
