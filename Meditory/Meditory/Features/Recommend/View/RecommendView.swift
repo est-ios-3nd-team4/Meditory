@@ -16,7 +16,7 @@ struct RecommendView: View {
                 ZStack(alignment: .trailing) {
                     TextField("영양성분 및 영양제를 검색해보세요!", text: $searchText)
                         .font(.notoSans(weight: .medium, size: 15))
-                        .padding(.vertical, 12)
+                        .padding(.vertical, 8)
                         .padding(.horizontal, 16)
                         .background(Color.white)
                         .cornerRadius(30)

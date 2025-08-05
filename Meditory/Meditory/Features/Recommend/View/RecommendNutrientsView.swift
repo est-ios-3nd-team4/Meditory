@@ -11,8 +11,7 @@ struct RecommendNutrientsView: View {
                 Button {
                     dismiss()
                 } label: {
-                    Text("〈")
-                        .font(.notoSans(weight: .medium, size: 18))
+                    Image(systemName: "chevron.left")
                         .foregroundColor(.gray)
                 }
 

@@ -9,7 +9,7 @@ struct NutrientChip: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .overlay {
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 20)
                     .stroke(Color.gray.opacity(0.5), lineWidth: 1)
         }
     }
@@ -27,8 +27,7 @@ struct NutrientCardView: View {
                 Spacer()
 
                 NavigationLink(destination: RecommendNutrientsView()) {
-                    Text("〉")
-                        .font(.notoSans(weight: .medium, size: 18))
+                    Image(systemName: "chevron.right")
                         .foregroundColor(.gray)
 
                 }
