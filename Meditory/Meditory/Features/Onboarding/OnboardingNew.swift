@@ -67,8 +67,6 @@ struct OnboardingNew: View {
     Spacer()
     stepContent(for: currentStep)
     Button(currentStep == Step.allCases.last ? "완료" : "다음") {
-      print("✅ currentStep: \(currentStep)")
-      print("💊 복용 여부: \(takingMedication)")
       if let next = currentStep.next(
         gender: gender,
         isPregnancy: isPregnancy,
@@ -76,8 +74,6 @@ struct OnboardingNew: View {
         hasAllergy: hasAllergy,
         takesMedication: takingMedication) {
         currentStep = next
-        print("다음 스텝 \(next)")
-        print(#line,takingMedication)
       }
       if currentStep == Step.allCases.last {
         showEndingSheet = true
