@@ -9,7 +9,7 @@ import SwiftUI
 
 struct OnboardingListSelectionView: View {
   let prompt:String
-  let info:String
+  var info:String?
   var questions:[String]
   @Binding var selections:Set<String>
   var onAction:((String)->Void)?
@@ -19,9 +19,11 @@ struct OnboardingListSelectionView: View {
         Text(prompt)
           .font(.custom("NotoSansKR-Bold", size: 24))
           .padding(.vertical, 10)
-        Text(info)
-          .font(.custom("NotoSansKR-Medium", size: 12))
-          .foregroundStyle(.gray)
+        if let info = info {
+          Text(info)
+            .font(.custom("NotoSansKR-Medium", size: 12))
+            .foregroundStyle(.gray)
+        }
       }
       ForEach(questions,id:\.self) { item in
         RowItemView(isSelected: selections.contains(item), context: item)
