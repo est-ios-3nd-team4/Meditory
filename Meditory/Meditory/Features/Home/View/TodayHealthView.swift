@@ -30,7 +30,14 @@ struct TodayHealthView: View {
             : Color.white
         )
         .cornerRadius(20)
-        .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 4)
+        .shadow(
+            color: colorScheme == .dark
+            ? .clear
+            : Color.black.opacity(0.08),
+            radius: 10,
+            x: 0,
+            y: 4
+        )
         .onAppear {
             //vm.fetchHealthContent()
         }
