@@ -11,6 +11,62 @@
 
 import SwiftUI
 
+/// Knob을 원형을 따라 애니메이션을 주기 위해한 Modifier입니다.
+struct CircularKnobAnimationModifier: AnimatableModifier {
+  var progress: Double
+  var radius: CGFloat
+  var lineWidth: CGFloat
+  var color: Color
+  
+  var animatableData: Double {
+    get { progress }
+    set { progress = newValue }
+  }
+  
+  func body(content: Content) -> some View {
+    content
+      .overlay(
+        GeometryReader { geo in
+          let knobPoint = knobPosition(geo: geo, progress: progress)
+          let shadowPoint = knobShadowPosition(progress: progress)
+          
+          Circle()
+            .fill(color)
+            .frame(width: lineWidth, height: lineWidth)
+            .position(x: knobPoint.x, y: knobPoint.y)
+            .shadow(color: .black.opacity(0.3),
+                    radius: 5,
+                    x: shadowPoint.x,
+                    y: shadowPoint.y)
+        }
+          
+      )
+  }
+  
+  func knobPosition(geo: GeometryProxy, progress: Double) -> CGPoint {
+    let centerX = geo.size.width / 2
+    let centerY = geo.size.height / 2
+    let angle = Angle(degrees: progress * 360 - 90)
+    let radians = CGFloat(angle.radians)
+    
+    let knobX = centerX + cos(radians) * radius
+    let knobY = centerY + sin(radians) * radius
+    
+    return CGPoint(x: knobX, y: knobY)
+  }
+  
+  func knobShadowPosition(progress: Double) -> CGPoint {
+    let forwardAngle = Angle(degrees: progress * 360 + 15)
+    let forwardRadians = CGFloat(forwardAngle.radians)
+    
+    let shadowOffset: CGFloat = 10
+    let shadowX = cos(forwardRadians) * shadowOffset
+    let shadowY = sin(forwardRadians) * shadowOffset
+    
+    return CGPoint(x: shadowX, y: shadowY)
+  }
+}
+
 struct MacroNutrientChartView: View {
   
   var carbohydrateProgressTarget: Double
@@ -42,22 +98,11 @@ struct MacroNutrientChartView: View {
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
             .rotationEffect(.degrees(-90))
           
-          GeometryReader { innerGeo in
-            let knobPoint = knobPosition(geo: innerGeo, progress: carbohydrateProgress)
-            let shadowPoint = knobShadowPosition(progress: carbohydrateProgress)
-            
-            Circle()
-              .fill(Color.customCarbohydrate)
-              .frame(width: lineWidth,
-                     height: lineWidth)
-              .position(x: knobPoint.x,
-                        y: knobPoint.y)
-              .shadow(color: .black.opacity(0.3),
-                      radius: 5,
-                      x: shadowPoint.x,
-                      y: shadowPoint.y)
-          }
         }
+        .modifier(CircularKnobAnimationModifier(progress: carbohydrateProgress,
+                                                radius: min(geo.size.width, geo.size.height) / 2 - lineWidth/2 + 20,
+                                                lineWidth: lineWidth,
+                                                color: .customCarbohydrate))
         
         // protein
         Group {
@@ -70,23 +115,12 @@ struct MacroNutrientChartView: View {
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
             .rotationEffect(.degrees(-90))
           
-          GeometryReader { innerGeo in
-            let knobPoint = knobPosition(geo: innerGeo, progress: proteinProgress)
-            let shadowPoint = knobShadowPosition(progress: proteinProgress)
-            
-            Circle()
-              .fill(Color.customProtein)
-              .frame(width: lineWidth,
-                     height: lineWidth)
-              .position(x: knobPoint.x,
-                        y: knobPoint.y)
-              .shadow(color: .black.opacity(0.3),
-                      radius: 5,
-                      x: shadowPoint.x,
-                      y: shadowPoint.y)
-          }
         }
         .frame(width: side - 90, height: side - 90)
+        .modifier(CircularKnobAnimationModifier(progress: proteinProgress,
+                                                radius: min(geo.size.width, geo.size.height) / 2 - lineWidth/2 + 20 - 45,
+                                                lineWidth: lineWidth,
+                                                color: .customProtein))
         
         // fat
         Group {
@@ -99,23 +133,12 @@ struct MacroNutrientChartView: View {
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
             .rotationEffect(.degrees(-90))
           
-          GeometryReader { innerGeo in
-            let knobPoint = knobPosition(geo: innerGeo, progress: fatProgress)
-            let shadowPoint = knobShadowPosition(progress: fatProgress)
-            
-            Circle()
-              .fill(Color.customFat)
-              .frame(width: lineWidth,
-                     height: lineWidth)
-              .position(x: knobPoint.x,
-                        y: knobPoint.y)
-              .shadow(color: .black.opacity(0.3),
-                      radius: 5,
-                      x: shadowPoint.x,
-                      y: shadowPoint.y)
-          }
         }
         .frame(width: side - 180, height: side - 180)
+        .modifier(CircularKnobAnimationModifier(progress: fatProgress,
+                                                radius: min(geo.size.width, geo.size.height) / 2 - lineWidth/2 + 20 - 90,
+                                                lineWidth: lineWidth,
+                                                color: .customFat))
       }
       .frame(width: side, height: side)
       
@@ -160,7 +183,7 @@ struct MacroNutrientChartView: View {
 }
 
 #Preview {
-  MacroNutrientChartView(carbohydrateProgressTarget: 0.9,
+  MacroNutrientChartView(carbohydrateProgressTarget: 1.5,
                          proteinProgressTarget: 1.2,
                          fatProgressTarget: 1.1)
 }
