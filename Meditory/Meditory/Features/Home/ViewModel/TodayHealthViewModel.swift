@@ -28,7 +28,6 @@ final class TodayHealthViewModel: ObservableObject {
             아침 식사 전 따뜻한 레몬물 한 잔은 소화 기능을 돕고 면역력 강화에 효과적입니다.
             
             <Query>
-            \(sampleExtraInfo)
             
             “오늘의 건강 상식” 키워드에 들어갈 짧고 유익한 문구를 작성해주세요.
             """
