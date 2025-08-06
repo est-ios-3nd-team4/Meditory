@@ -14,38 +14,40 @@ struct MainTabView: View {
   private let customTabTopInset: CGFloat = 14
   
   var body: some View {
-    if UIDevice.isPad {
-      DefaultTabView()
-    } else {
-      GeometryReader { geometry in
-        let tabViewHeight = geometry.size.width * 0.27
-        
-        ZStack {
-          Group {
-            switch selectedTab {
-            case .home:
-              HomeView()
-            case .recommend:
-              RecommendView()
-            case .add:
-              Color.red
-            case .dailyNutrition:
-              Color.green
-            case .settings:
-              Color.white
+    NavigationStack {
+      if UIDevice.isPad {
+        DefaultTabView()
+      } else {
+        GeometryReader { geometry in
+          let tabViewHeight = geometry.size.width * 0.27
+          
+          ZStack {
+            Group {
+              switch selectedTab {
+              case .home:
+                HomeView()
+              case .recommend:
+                RecommendView()
+              case .add:
+                Color.red
+              case .dailyNutrition:
+                Color.green
+              case .settings:
+                Color.white
+              }
+            }
+            .padding(.bottom, tabViewHeight - customTabTopInset)
+            
+            VStack {
+              Spacer()
+              
+              CustomTabView(selectedTab: $selectedTab, topInset: customTabTopInset)
+                .frame(height: tabViewHeight)
             }
           }
-          .padding(.bottom, tabViewHeight - customTabTopInset)
-          
-          VStack {
-            Spacer()
-            
-            CustomTabView(selectedTab: $selectedTab, topInset: customTabTopInset)
-              .frame(height: tabViewHeight)
-          }
         }
+        .ignoresSafeArea(edges: .bottom)
       }
-      .ignoresSafeArea(edges: .bottom)
     }
   }
 }
