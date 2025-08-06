@@ -24,21 +24,21 @@ struct OnboardingTextInputView: View {
   var body: some View {
     VStack(alignment: .leading) {
         Text(prompt)
-          .font(.custom("NotoSansKR-Bold", size: 24))
+          .font(.notoSans(weight: .bold, size: 24))
           .padding(.bottom, 20)
           .transition(.move(edge: .leading))
       Text(placeholder)
         .foregroundStyle(.gray)
       HStack{
         TextField("", text: $inputText)
-          .font(.custom("NotoSansKR-SemiBold", size: 16))
+          .font(.notoSans(weight: .semiBold, size: 16))
           .padding(.horizontal)
           .frame(height: 60)
           .background(colorScheme == .light ? Color.gray.opacity(0.1) : Color.white.opacity(0.1), in: RoundedRectangle(cornerRadius: 16))
         if let unit = unit {
           Text(unit)
             .padding(.trailing,8)
-            .font(.custom("NotoSansKR-Bold", size: 16))
+            .font(.notoSans(weight: .bold, size: 16))
         }
       }
       Spacer()

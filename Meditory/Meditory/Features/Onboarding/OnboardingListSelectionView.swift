@@ -17,11 +17,11 @@ struct OnboardingListSelectionView: View {
     ScrollView {
       VStack(alignment: .leading){
         Text(prompt)
-          .font(.custom("NotoSansKR-Bold", size: 24))
+          .font(.notoSans(weight: .bold, size: 24))
           .padding(.vertical, 10)
         if let info = info {
           Text(info)
-            .font(.custom("NotoSansKR-Medium", size: 12))
+            .font(.notoSans(weight: .medium, size: 12))
             .foregroundStyle(.gray)          
         }
       }
