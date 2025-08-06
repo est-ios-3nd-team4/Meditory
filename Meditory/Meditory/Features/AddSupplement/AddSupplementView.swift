@@ -116,7 +116,7 @@ extension AddSupplementView {
               }
           }
           
-          InputTextField(fontSize: 16, placeHolder: "사진 촬영 및 텍스트로 검색")
+          InputTextField(placeHolder: "사진 촬영 및 텍스트로 검색")
         }
         .padding(.horizontal, 8)
       }
@@ -316,7 +316,7 @@ extension AddSupplementView {
       Text("메모")
         .font(.notoSans(size: 20))
       
-      InputTextField(fontSize: 16, placeHolder: "ex) 따듯한 물과 함께 먹기")
+      InputTextField(placeHolder: "ex) 따듯한 물과 함께 먹기")
         .padding(.defaultSpacing)
         .background {
           RoundedRectangle(cornerRadius: 10)

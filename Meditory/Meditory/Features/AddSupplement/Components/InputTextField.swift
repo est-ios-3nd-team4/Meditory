@@ -10,8 +10,10 @@ import SwiftUI
 
 struct InputTextField: UIViewRepresentable {
   
-  let fontSize: CGFloat
+  let font: UIFont? = .notoSans(size: 16)
   let placeHolder: String
+  let placHolderTextColor: UIColor = .textGray
+  let tintColor: UIColor = .textGray
   
   func makeUIView(context: Context) -> some UIView {
     let textField = UITextField()
@@ -20,12 +22,12 @@ struct InputTextField: UIViewRepresentable {
     textField.attributedPlaceholder = NSAttributedString(
       string: placeHolder,
       attributes: [
-        .foregroundColor: UIColor.textGray
+        .foregroundColor: placHolderTextColor
       ]
     )
-    textField.tintColor = .textGray
-    textField.font = UIFont(name: "NotoSans-Medium", size: fontSize)
-    textField.clearButtonMode = .whileEditing 
+    textField.tintColor = tintColor
+    textField.font = font
+    textField.clearButtonMode = .whileEditing
     
     return textField
   }
