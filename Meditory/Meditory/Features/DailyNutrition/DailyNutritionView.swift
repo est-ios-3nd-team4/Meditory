@@ -20,9 +20,11 @@ struct DailyNutritionView: View {
       VStack {
         ZStack {
           Rectangle()
-            .fill(Color.white)
+            .fill(Color.customContainer)
             .frame(height: 140)
             .clipShape(RoundedRectangle(cornerRadius: 20))
+            .modifier(UnifiedShadow())
+            .padding(20)
           
           HStack {
             Text("오늘 하루 식단")
