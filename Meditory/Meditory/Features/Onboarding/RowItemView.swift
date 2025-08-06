@@ -17,10 +17,7 @@ struct RowItemView: View {
         .frame(height: 60)
         .foregroundStyle(.clear)
       HStack {
-        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle" )
-          .renderingMode(.template)
-        
-          .foregroundStyle(Color.main)
+        CircleCheck(isCompleted: isSelected)
         Text(context)
           .font(.notoSans(weight: .bold, size: 16))
         Spacer()
