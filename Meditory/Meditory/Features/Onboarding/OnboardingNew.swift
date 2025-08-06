@@ -10,6 +10,8 @@ import SwiftUI
 struct OnboardingNew: View {
   @State private var currentStep: Step = .name
   @State private var showEndingSheet: Bool = false
+  @State private var completedStep:Set<Step> = []
+  
   @State private var name = ""
   @State private var age = ""
   @State private var height = ""
@@ -24,6 +26,8 @@ struct OnboardingNew: View {
   @State private var hasDisease = false
   @State private var hasAllergy = false
   @State private var takingMedication = false
+  
+  
   
   private var allergyOptions = [
     "홍삼, 사상자, 산수유",
@@ -97,7 +101,7 @@ struct OnboardingNew: View {
             .frame(height: 10)
             .foregroundColor(Color.gray.opacity(0.2))
           Capsule()
-            .frame(width: geometry.size.width * CGFloat(currentStep.index + 1) / CGFloat(Step.totalCount), height: 10)
+            .frame(width: geometry.size.width * CGFloat(completedStep.count) / CGFloat(Step.totalCount), height: 10)
             .foregroundColor(.accent)
             .animation(.easeInOut(duration: 0.3), value: currentStep)
         }
@@ -106,6 +110,9 @@ struct OnboardingNew: View {
       .padding(.top, 10)
     }
     .padding(.horizontal)
+    .onChange(of: currentStep) { _, newValue in
+      print(newValue.rawValue)
+    }
     Spacer()
     stepContent(for: currentStep)
     Button(currentStep == Step.allCases.last ? "완료" : "다음") {
@@ -115,6 +122,12 @@ struct OnboardingNew: View {
         hasDisease: hasDisease,
         hasAllergy: hasAllergy,
         takesMedication: takingMedication) {
+        if let currentScene = Step.allCases.firstIndex(of: currentStep),let nextScene = Step.allCases.firstIndex(of: next) {
+          if currentScene <= nextScene {
+            let skippedSteps = Step.allCases[currentScene...nextScene]
+            completedStep.formUnion(skippedSteps)            
+          }
+        }
         currentStep = next
       }
       if currentStep == Step.allCases.last {

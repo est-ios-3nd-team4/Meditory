@@ -21,10 +21,6 @@ enum Step: Int, CaseIterable {
   case selectMedication
   case end
 
-  var index: Int {
-    return Self.allCases.firstIndex(of: self)!
-  }
-
   static var totalCount: Int {
     return Self.allCases.count
   }
@@ -60,10 +56,5 @@ enum Step: Int, CaseIterable {
       case .end:
         return nil
     }
-  }
-
-  func previous() -> Step? {
-    let idx = index - 1
-    return idx >= 0 ? Self.allCases[idx] : nil
   }
 }
