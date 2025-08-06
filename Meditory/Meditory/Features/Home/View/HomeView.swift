@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
-
+import SwiftData
 
 struct HomeView: View {
+    @Environment(\.modelContext) private var context
     @StateObject private var vm = HomeViewModel()
     @Environment(\.colorScheme) private var colorScheme
 
@@ -21,6 +22,9 @@ struct HomeView: View {
                 }
                 .padding()
             }
+        }
+        .onAppear {
+            vm.updateContext(context)
         }
     }
 
@@ -35,10 +39,10 @@ struct HomeView: View {
 
             VStack {
                 NavigationLink(destination: AddSupplementView()) {
-                  Text("추가")
-                      .font(.notoSans(size: 15))
-                      .tint(.secondary)
-                      .frame(maxWidth: .infinity, alignment: .trailing)
+                    Text("추가")
+                        .font(.notoSans(size: 15))
+                        .tint(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                 }
 
                 LazyVStack(spacing: 8) {
@@ -89,6 +93,47 @@ struct HomeView: View {
     }
 }
 
-#Preview {
-    HomeView()
+struct HomeView_Previews: PreviewProvider {
+    static var container: ModelContainer = {
+        let container = try! ModelContainer(
+            for: Routine.self, RoutineTime.self, RoutineRecord.self,
+            configurations: .init(isStoredInMemoryOnly: true)
+        )
+        let ctx = container.mainContext
+
+        let routine = Routine(
+            type: 1,
+            name: "비타민C",
+            cycleType: 1,
+            cycleValue: 0,
+            startDate: Date(),
+            timesPerDay: 3,
+            pillsPerDose: 1,
+            memo: nil,
+            hasPush: true,
+            imageData: nil,
+            productName: "Vit C",
+            productDescription: "면역력 강화",
+            notWith: nil,
+            whenToTake: "아침 식후"
+        )
+
+        let hours = [8, 13, 20]
+        let times = hours.compactMap { h in
+            Calendar.current.date(bySettingHour: h, minute: 0, second: 0, of: Date())
+        }.map { date in
+            RoutineTime(id: UUID(), time: date)
+        }
+        routine.routineTimes = times
+
+        ctx.insert(routine)
+
+        return container
+    }()
+
+    static var previews: some View {
+        HomeView()
+            .environment(\.modelContext, container.mainContext)
+            .previewDisplayName("HomeView Dummy Preview")
+    }
 }
