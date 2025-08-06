@@ -41,3 +41,26 @@ final class Routine {
     }
 }
 
+
+extension Routine {
+  convenience init(id: UUID = UUID(), type: Int = 1, name: String = "", cycleType: Int = 1, cycleValue: Int = 0, startDate: Date = .now, timesPerDay: Int = 1, pillsPerDose: Int = 1, hasPush: Bool = false) {
+    self.init(
+      id: id,
+      type: type,
+      name: name,
+      cycleType: cycleType,
+      cycleValue: cycleValue,
+      startDate: startDate,
+      timesPerDay: timesPerDay,
+      pillsPerDose: pillsPerDose,
+      memo: nil,
+      hasPush: hasPush,
+      imageData: nil,
+      productName: nil,
+      productDescription: nil,
+      notWith: nil,
+      whenToTake: nil
+    )
+  }
+}
+

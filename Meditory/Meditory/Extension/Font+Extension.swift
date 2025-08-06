@@ -9,6 +9,7 @@ import SwiftUI
 
 extension Font {
   enum NotoSansWeight {
+    case regular
     case medium
     case semiBold
     case bold
@@ -16,6 +17,8 @@ extension Font {
   
   static func notoSans(weight: NotoSansWeight = .medium, size: CGFloat) -> Font {
     switch weight {
+    case .regular:
+      return custom("NotoSansKR-Regular", size: size)
     case .medium:
       return custom("NotoSansKR-Medium", size: size)
     case .semiBold:
