@@ -102,7 +102,7 @@ struct CalendarBackgroundView<Content: View>: View {
 
                 ZStack {
                     Rectangle()
-                        .fill(Color.background)
+                    .fill(.customBackground)
                         .clipShape(RoundedCorner(radius: 20, corners: [.topLeft, .topRight]))
                         .edgesIgnoringSafeArea(.all)
 
