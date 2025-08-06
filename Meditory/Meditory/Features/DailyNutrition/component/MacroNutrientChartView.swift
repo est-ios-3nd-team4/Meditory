@@ -34,7 +34,7 @@ struct CircularKnobAnimationModifier: AnimatableModifier {
             .fill(color)
             .frame(width: lineWidth, height: lineWidth)
             .position(x: knobPoint.x, y: knobPoint.y)
-            .shadow(color: .black.opacity(0.3),
+            .shadow(color: .black.opacity(0.2),
                     radius: 5,
                     x: shadowPoint.x,
                     y: shadowPoint.y)

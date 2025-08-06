@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4BD85A0A2E43202E00D04680 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 7A4B00EF2E3BA21200F00C94 /* FirebaseAnalytics */; };
+		4BD85A0B2E43202E00D04680 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 7A4B00F12E3BA21200F00C94 /* FirebaseCrashlytics */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		7A02BFE82E39D9AF00587F53 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -73,6 +78,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4BD85A0B2E43202E00D04680 /* FirebaseCrashlytics in Frameworks */,
+				4BD85A0A2E43202E00D04680 /* FirebaseAnalytics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
