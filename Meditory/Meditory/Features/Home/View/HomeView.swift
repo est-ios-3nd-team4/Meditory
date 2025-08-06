@@ -34,14 +34,12 @@ struct HomeView: View {
                 .frame(width: 200, height: 200)
 
             VStack {
-                Button {
-                    print("페이지 이동 필요")
-                } label: {
-                    Text("추가")
-                        .font(.notoSans(size: 15))
-                        .tint(.secondary)
+                NavigationLink(destination: AddSupplementView()) {
+                  Text("추가")
+                      .font(.notoSans(size: 15))
+                      .tint(.secondary)
+                      .frame(maxWidth: .infinity, alignment: .trailing)
                 }
-                .frame(maxWidth: .infinity, alignment: .trailing)
 
                 LazyVStack(spacing: 8) {
                     ForEach(vm.items.indices.sorted { vm.items[$0].time < vm.items[$1].time }, id: \.self) { index in
