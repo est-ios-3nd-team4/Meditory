@@ -92,7 +92,6 @@ struct SchedulePickerSheet: View {
               }
               
               DispatchQueue.main.asyncAfter(deadline: .now() + anaimaionDuration) {
-                dismiss()
                 selectedPicker = nil
               }
             }
