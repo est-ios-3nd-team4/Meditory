@@ -9,9 +9,9 @@ import SwiftUI
 import SwiftData
 
 struct HomeView: View {
-    @Environment(\u2060\.modelContext) private var context
+    @Environment(\.modelContext) private var context
     @StateObject private var vm = HomeViewModel()
-    @Environment(\u2060\.colorScheme) private var colorScheme
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         CalendarBackgroundView {
@@ -133,7 +133,7 @@ struct HomeView_Previews: PreviewProvider {
 
     static var previews: some View {
         HomeView()
-            .environment(\u2060\.modelContext, container.mainContext)
+            .environment(\.modelContext, container.mainContext)
             .previewDisplayName("HomeView Dummy Preview")
     }
 }
