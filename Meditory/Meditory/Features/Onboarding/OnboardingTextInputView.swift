@@ -11,12 +11,14 @@ struct OnboardingTextInputView: View {
   let prompt: String
   let placeholder: String
   let unit: String?
+  let keyboardType: UIKeyboardType
   @Binding var inputText: String
   @Environment(\.colorScheme) var colorScheme
   
-  init(prompt: String, placeholder: String, unit: String? = nil, inputText: Binding<String>) {
+  init(prompt: String, placeholder: String, unit: String? = nil,keyboardType: UIKeyboardType = .default, inputText: Binding<String>) {
     self.prompt = prompt
     self.placeholder = placeholder
+    self.keyboardType = keyboardType
     self.unit = unit
     self._inputText = inputText
   }
@@ -31,6 +33,7 @@ struct OnboardingTextInputView: View {
         .foregroundStyle(.gray)
       HStack{
         TextField("", text: $inputText)
+          .keyboardType(keyboardType)
           .font(.notoSans(weight: .semiBold, size: 16))
           .padding(.horizontal)
           .frame(height: 60)
