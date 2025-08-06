@@ -45,7 +45,6 @@
 		D7D287C02E4272DE001F49CA /* Exceptions for "Meditory" folder in "MeditoryTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				"Resource/GoogleService-Info.plist",
 				Resource/Secrets.xcconfig,
 			);
 			target = 7A02BFE62E39D9AF00587F53 /* MeditoryTests */;

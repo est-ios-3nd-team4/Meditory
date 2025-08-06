@@ -30,7 +30,8 @@ struct MeditoryApp: App {
     var body: some Scene {
         WindowGroup {
 //            ContentView()
-          OnboardingNew()
+          
+          OnboardingView()
         }
         .modelContainer(sharedModelContainer)
     }
