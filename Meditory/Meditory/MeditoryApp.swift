@@ -7,12 +7,12 @@
 
 import SwiftUI
 import SwiftData
-import FirebaseCore
+//import FirebaseCore
 
 @main
 struct MeditoryApp: App {
     init() {
-        FirebaseApp.configure()
+//        FirebaseApp.configure()
     }
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
