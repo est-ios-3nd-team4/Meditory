@@ -15,7 +15,6 @@ struct CircularProgressView: View {
     var body: some View {
         GeometryReader { geo in
             let side = min(geo.size.width, geo.size.height)
-            let center = CGPoint(x: side/2, y: side/2)
             let radius = (side - lineWidth) / 2
 
             ZStack {
@@ -49,18 +48,18 @@ struct CircularProgressView: View {
                     )
                     .offset(x: 0, y: -radius)
                     .rotationEffect(.degrees(progress * 360))
-                    .opacity(progress >= 1.0 ? 0 : 1)
+                    .opacity((progress == 0.0 || progress == 1.0) ? 0 : 1)
                     .animation(.easeInOut(duration: 0.6), value: progress)
 
                 // 퍼센트
                 HStack(alignment: .firstTextBaseline, spacing: 5) {
                     Text("\(Int(progress * 100))")
-                        .font(.notoSans(size: 50))
+                        .font(.notoSans(size: 60))
                     Text("%")
-                        .font(.notoSans(size: 15))
+                        .font(.notoSans(size: 20))
                 }
-                .foregroundColor(.label)
-                .position(center)
+                .foregroundStyle(Color.label)
+                .offset(y: -radius * 0.1)
             }
             .frame(width: side, height: side)
         }
@@ -68,5 +67,5 @@ struct CircularProgressView: View {
     }
 }
 #Preview {
-    HomeView()
+    MainTabView()
 }

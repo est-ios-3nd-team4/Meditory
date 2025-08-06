@@ -84,20 +84,11 @@ struct CalendarBackgroundView<Content: View>: View {
 
                 LazyVGrid(columns: columns, spacing: 0) {
                     ForEach(dates, id: \.self) { date in
-                        let selected = isSameDay(date)
-                        
                         VStack {
                             Text(Date().formattedDate(date, "d"))
                                 .font(.notoSans(size: 16))
                                 .frame(maxWidth: .infinity)
                                 .foregroundStyle(.white)
-                            
-                            if selected {
-                                Circle()
-                                    .fill(.white)
-                                    .frame(width: 5, height: 5)
-                                    .opacity(selected ? 1 : 0)
-                            }
                         }
                         .frame(minHeight: 40, alignment: .top)
                         .onTapGesture {
