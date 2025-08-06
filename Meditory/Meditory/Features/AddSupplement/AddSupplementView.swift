@@ -16,60 +16,61 @@ struct AddSupplementView: View {
   
   var type: Mode = .add
   
+  @Environment(\.dismiss) var dismiss
+  
   @State private var selectedScheduleType: SupplementScheduleType = .weekday
   @StateObject private var addSupplementVM = AddSupplementViewModel()
   @State private var selectedPicker: SchedulePickerType?
   
   var body: some View {
-    NavigationView {
-      ZStack {
-        VStack(spacing: 20) {
-          supplementNameInput()
-          supplementCountSelector()
-          scheduleTypeSelector()
-          
-          switch selectedScheduleType {
-          case .weekday:
-            weekdayScheduleView()
-          case .interval:
-            intervalScheduleView()
-          }
-          
-          timeSelectionSection()
-          memoSection()
-          
-          Spacer()
-          
-          Button {
-            
-          } label: {
-            RoundedRectangle(cornerRadius: 10)
-              .fill(.main)
-              .frame(height: 50)
-              .overlay {
-                Text("완료")
-                  .font(.notoSans(size: 18))
-                  .foregroundStyle(.white)
-              }
-          }
-        }
-        .padding(.horizontal, 32)
-        .navigationTitle("복용약 추가")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-          ToolbarItem(placement: .navigationBarLeading) {
-            Button {
-              
-            } label: {
-              Image(systemName: "chevron.left")
-                .foregroundStyle(Color.label)
-            }
-          }
+    ZStack {
+      VStack(spacing: 20) {
+        supplementNameInput()
+        supplementCountSelector()
+        scheduleTypeSelector()
+        
+        switch selectedScheduleType {
+        case .weekday:
+          weekdayScheduleView()
+        case .interval:
+          intervalScheduleView()
         }
         
-        if let selectedPicker {
-          SchedulePickerSheet(type: selectedPicker, selectedPicker: $selectedPicker)
+        timeSelectionSection()
+        memoSection()
+        
+        Spacer()
+        
+        Button {
+          
+        } label: {
+          RoundedRectangle(cornerRadius: 10)
+            .fill(.main)
+            .frame(height: 50)
+            .overlay {
+              Text("완료")
+                .font(.notoSans(size: 18))
+                .foregroundStyle(.white)
+            }
         }
+      }
+      .padding(.horizontal, 32)
+      .navigationTitle("복용약 추가")
+      .navigationBarTitleDisplayMode(.inline)
+      .navigationBarBackButtonHidden(true)
+      .toolbar {
+        ToolbarItem(placement: .navigationBarLeading) {
+          Button {
+            dismiss()
+          } label: {
+            Image(systemName: "chevron.left")
+              .foregroundStyle(Color.label)
+          }
+        }
+      }
+      
+      if let selectedPicker {
+        SchedulePickerSheet(type: selectedPicker, selectedPicker: $selectedPicker)
       }
     }
   }
