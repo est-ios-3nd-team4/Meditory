@@ -3,16 +3,19 @@ import Foundation
 
 @Model
 final class UserExtraInfo {
-    @Attribute(.unique) var id: UUID
-    var infoKey: String // 정보 종류 (예: 복용중약물, 질환 등)
-    var infoValue: String // 정보 값 (예: 약물명, 질환명 등)
+  @Attribute(.unique) var id: UUID
+  var disease: [ExtraInfo]
+  var allergy: [ExtraInfo]
+  var concern: [ExtraInfo]
 
-    @Relationship(inverse: \User.userExtraInfos) var user: User? // userId 관계
 
-    init(id: UUID = UUID(), infoKey: String, infoValue: String, user: User? = nil) {
-        self.id = id
-        self.infoKey = infoKey
-        self.infoValue = infoValue
-        self.user = user
-    }
+  @Relationship(inverse: \User.userExtraInfos) var user: User? // userId 관계
+
+  init(id: UUID = UUID(), disease: [ExtraInfo] = [], allergy: [ExtraInfo] = [], concern: [ExtraInfo] = [], user: User? = nil) {
+    self.id = id
+    self.disease = disease
+    self.allergy = allergy
+    self.concern = concern
+    self.user = user
+  }
 }
