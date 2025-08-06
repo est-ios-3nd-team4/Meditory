@@ -40,7 +40,7 @@ final class RoutineStore {
     type: Int,
     name: String,
     cycleType: Int,
-    cycleValue: Int,
+    cycleValue: [Int],
     startDate: Date,
     timesPerDay: Int,
     pillsPerDose: Int,
@@ -70,6 +70,23 @@ final class RoutineStore {
       whenToTake: whenToTake
     )
     context.insert(routine)
+    try? context.save()
+  }
+
+  /// Routine 하나만 삭제하는 함수
+  @MainActor
+  func deleteRoutine(_ routine: Routine, context: ModelContext) {
+    context.delete(routine)
+    try? context.save()
+  }
+
+  /// 모든 Routine을 삭제하는 함수
+  @MainActor
+  func deleteAllRoutines(context: ModelContext) {
+    let routines = fetchAllRoutines(context: context)
+    for routine in routines {
+      context.delete(routine)
+    }
     try? context.save()
   }
 

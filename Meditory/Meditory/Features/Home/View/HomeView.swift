@@ -105,7 +105,7 @@ struct HomeView_Previews: PreviewProvider {
             type: 1,
             name: "비타민C",
             cycleType: 1,
-            cycleValue: 0,
+            cycleValue: [0],
             startDate: Date(),
             timesPerDay: 3,
             pillsPerDose: 1,
