@@ -18,50 +18,57 @@ struct AddSupplementView: View {
   
   @State private var selectedScheduleType: SupplementScheduleType = .weekday
   @StateObject private var addSupplementVM = AddSupplementViewModel()
+  @State private var selectedPicker: SchedulePickerType?
   
   var body: some View {
     NavigationView {
-      VStack(spacing: 20) {
-        supplementNameInput()
-        supplementCountSelector()
-        scheduleTypeSelector()
-        
-        switch selectedScheduleType {
-        case .weekday:
-          weekdayScheduleView()
-        case .interval:
-          intervalScheduleView()
-        }
-        
-        timeSelectionSection()
-        memoSection()
-        
-        Spacer()
-        
-        Button {
+      ZStack {
+        VStack(spacing: 20) {
+          supplementNameInput()
+          supplementCountSelector()
+          scheduleTypeSelector()
           
-        } label: {
-          RoundedRectangle(cornerRadius: 10)
-            .fill(.main)
-            .frame(height: 50)
-            .overlay {
-              Text("완료")
-                .font(.notoSans(size: 18))
-                .foregroundStyle(.white)
-            }
-        }
-      }
-      .padding(.horizontal, 32)
-      .navigationTitle("복용약 추가")
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .navigationBarLeading) {
+          switch selectedScheduleType {
+          case .weekday:
+            weekdayScheduleView()
+          case .interval:
+            intervalScheduleView()
+          }
+          
+          timeSelectionSection()
+          memoSection()
+          
+          Spacer()
+          
           Button {
             
           } label: {
-            Image(systemName: "chevron.left")
-              .foregroundStyle(Color.label)
+            RoundedRectangle(cornerRadius: 10)
+              .fill(.main)
+              .frame(height: 50)
+              .overlay {
+                Text("완료")
+                  .font(.notoSans(size: 18))
+                  .foregroundStyle(.white)
+              }
           }
+        }
+        .padding(.horizontal, 32)
+        .navigationTitle("복용약 추가")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+          ToolbarItem(placement: .navigationBarLeading) {
+            Button {
+              
+            } label: {
+              Image(systemName: "chevron.left")
+                .foregroundStyle(Color.label)
+            }
+          }
+        }
+        
+        if let selectedPicker {
+          SchedulePickerSheet(type: selectedPicker, selectedPicker: $selectedPicker)
         }
       }
     }
@@ -69,6 +76,7 @@ struct AddSupplementView: View {
 }
 
 
+// MARK: - Colors
 extension AddSupplementView {
   func backgroundColor(for type: SupplementScheduleType) -> Color {
     type == selectedScheduleType ? .main : .backgroundGray
@@ -184,7 +192,7 @@ extension AddSupplementView {
         Spacer()
         
         Button {
-          
+          selectedPicker = .weekday
         } label: {
           HStack(spacing: 8) {
             Text("매일")
@@ -207,7 +215,7 @@ extension AddSupplementView {
         Spacer()
         
         Button {
-          
+          selectedPicker = .month
         } label: {
           RoundedRectangle(cornerRadius: 10)
             .fill(.backgroundGray)
@@ -224,7 +232,7 @@ extension AddSupplementView {
           .padding(.trailing, 8)
         
         Button {
-          
+          selectedPicker = .day
         } label: {
           RoundedRectangle(cornerRadius: 10)
             .fill(.backgroundGray)
@@ -247,7 +255,7 @@ extension AddSupplementView {
         Spacer()
         
         Button {
-          
+          selectedPicker = .duration
         } label: {
           RoundedRectangle(cornerRadius: 10)
             .fill(.backgroundGray)
@@ -294,6 +302,9 @@ extension AddSupplementView {
           Image(systemName: "chevron.right")
             .font(.system(size: 18, weight: .medium))
             .foregroundStyle(.textGray)
+        }
+        .onTapGesture {
+          selectedPicker = .time
         }
       }
     }
