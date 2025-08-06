@@ -31,7 +31,7 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             CircularProgressView(progress: vm.progress)
-                .frame(width: 170, height: 170)
+                .frame(width: 200, height: 200)
 
             VStack {
                 Button {
