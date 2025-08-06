@@ -125,7 +125,7 @@ struct OnboardingNew: View {
         if let currentScene = Step.allCases.firstIndex(of: currentStep),let nextScene = Step.allCases.firstIndex(of: next) {
           if currentScene <= nextScene {
             let skippedSteps = Step.allCases[currentScene...nextScene]
-            completedStep.formUnion(skippedSteps)            
+            completedStep.formUnion(skippedSteps)
           }
         }
         currentStep = next
@@ -162,21 +162,21 @@ struct OnboardingNew: View {
           gender = "여성"
         }
       case .pregnancy:
-        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 임신중이십니까?", isSelected: $isSelected, image: "o_icon", title: "예",action: {
+        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 임신중이십니까?", isSelected: $isSelected, image: YesOrNo.yes.image, title: "예",action: {
           isPregnancy = true
-        }, secondImage: "x_icon", secondTitle: "아니요") {
+        }, secondImage: YesOrNo.no.image, secondTitle: YesOrNo.no.title) {
           isPregnancy = false
         }
       case .breastfeeding:
-        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 수유중이신가요?", isSelected: $isSelected, image: "o_icon", title: "예",action: {
+        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 수유중이신가요?", isSelected: $isSelected, image: YesOrNo.yes.image, title: "예",action: {
           isBreastfeeding = true
-        }, secondImage: "x_icon", secondTitle: "아니요") {
+        }, secondImage: YesOrNo.no.image, secondTitle: YesOrNo.no.title) {
           isBreastfeeding = false
         }
       case .hasDisease:
-        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 질병이 있으신가요?",isSelected: $hasDisease, image: "o_icon", title: "예", action: {
+        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 질병이 있으신가요?",isSelected: $hasDisease, image: YesOrNo.yes.image, title: "예", action: {
           hasDisease = true
-        }, secondImage: "x_icon", secondTitle: "아니요") {
+        }, secondImage: YesOrNo.no.image, secondTitle: YesOrNo.no.title) {
           hasDisease = false
         }
       case .selectDisease:
@@ -188,9 +188,9 @@ struct OnboardingNew: View {
           }
         }
       case .hasAllergy:
-        OnboardingTwoOptionView(prompt: "\(name) 님은 식품에 알레르기가 있으신가요?", isSelected: $hasAllergy, image: "o_icon", title: "예",action:{
+        OnboardingTwoOptionView(prompt: "\(name) 님은 식품에 알레르기가 있으신가요?", isSelected: $hasAllergy, image: YesOrNo.yes.image, title: "예",action:{
           hasAllergy = true
-        }, secondImage: "x_icon", secondTitle: "아니요") {
+        }, secondImage: YesOrNo.no.image, secondTitle: YesOrNo.no.title) {
           hasAllergy = false
         }
       case .selectAllergy:
@@ -202,9 +202,9 @@ struct OnboardingNew: View {
           }
         }
       case .takingMedication:
-        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 복용중인 약물이 있으신가요?", isSelected: $takingMedication, image: "o_icon", title: "네",action:{
+        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 복용중인 약물이 있으신가요?", isSelected: $takingMedication, image: YesOrNo.yes.image, title: YesOrNo.yes.title,action:{
           takingMedication = true
-        }, secondImage: "x_icon", secondTitle: "아니요") {
+        }, secondImage: YesOrNo.no.image, secondTitle: YesOrNo.no.title) {
           takingMedication = false
         }
       case .selectMedication:

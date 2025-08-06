@@ -58,3 +58,26 @@ enum Step: Int, CaseIterable {
     }
   }
 }
+
+enum YesOrNo: String, CaseIterable {
+  case yes
+  case no
+  
+  var title:String {
+    switch self {
+      case .yes:
+        "예"
+      case .no:
+        "아니요"
+    }
+  }
+  
+  var image:String {
+    switch self {
+      case .yes:
+        "o_icon"
+      case .no:
+        "x_icon"
+    }
+  }
+}
