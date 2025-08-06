@@ -6,11 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		7A4B00F02E3BA21200F00C94 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 7A4B00EF2E3BA21200F00C94 /* FirebaseAnalytics */; };
-		7A4B00F22E3BA21200F00C94 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 7A4B00F12E3BA21200F00C94 /* FirebaseCrashlytics */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXContainerItemProxy section */
 		7A02BFE82E39D9AF00587F53 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -35,6 +30,20 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		36FF9FE12E3F76B600903AA4 /* Exceptions for "Meditory" folder in "MeditoryTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resource/Secrets.xcconfig,
+			);
+			target = 7A02BFE62E39D9AF00587F53 /* MeditoryTests */;
+		};
+		36FF9FE22E3F76B600903AA4 /* Exceptions for "Meditory" folder in "MeditoryUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resource/Secrets.xcconfig,
+			);
+			target = 7A02BFF02E39D9AF00587F53 /* MeditoryUITests */;
+		};
 		36FF9FE62E3F781B00903AA4 /* Exceptions for "Meditory" folder in "Meditory" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -49,6 +58,8 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				36FF9FE62E3F781B00903AA4 /* Exceptions for "Meditory" folder in "Meditory" target */,
+				36FF9FE12E3F76B600903AA4 /* Exceptions for "Meditory" folder in "MeditoryTests" target */,
+				36FF9FE22E3F76B600903AA4 /* Exceptions for "Meditory" folder in "MeditoryUITests" target */,
 			);
 			path = Meditory;
 			sourceTree = "<group>";
@@ -70,8 +81,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7A4B00F02E3BA21200F00C94 /* FirebaseAnalytics in Frameworks */,
-				7A4B00F22E3BA21200F00C94 /* FirebaseCrashlytics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
