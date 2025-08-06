@@ -7,7 +7,7 @@ final class Routine {
     var type: Int  // 1: 영양제, 2: 약
     var name: String
     var cycleType: Int  // 1: 요일별, 2: 주기별
-    var cycleValue: Int  // 0~6: 일~토, 11~19: 1일~9일 간격
+    var cycleValue: [Int]  // 0~6: 일~토, 11~19: 1일~9일 간격
     var startDate: Date
     var timesPerDay: Int
     var pillsPerDose: Int
@@ -22,7 +22,7 @@ final class Routine {
     @Relationship(deleteRule: .cascade)
     var routineTimes: [RoutineTime] = []
 
-    init(id: UUID = UUID(), type: Int, name: String, cycleType: Int, cycleValue: Int, startDate: Date, timesPerDay: Int, pillsPerDose: Int, memo: String? = nil, hasPush: Bool, imageData: Data? = nil, productName: String? = nil, productDescription: String? = nil, notWith: String? = nil, whenToTake: String? = nil) {
+    init(id: UUID = UUID(), type: Int, name: String, cycleType: Int, cycleValue: [Int], startDate: Date, timesPerDay: Int, pillsPerDose: Int, memo: String? = nil, hasPush: Bool, imageData: Data? = nil, productName: String? = nil, productDescription: String? = nil, notWith: String? = nil, whenToTake: String? = nil) {
         self.id = id
         self.type = type
         self.name = name
@@ -43,7 +43,7 @@ final class Routine {
 
 
 extension Routine {
-  convenience init(id: UUID = UUID(), type: Int = 1, name: String = "", cycleType: Int = 1, cycleValue: Int = 0, startDate: Date = .now, timesPerDay: Int = 1, pillsPerDose: Int = 1, hasPush: Bool = false) {
+  convenience init(id: UUID = UUID(), type: Int = 1, name: String = "", cycleType: Int = 1, cycleValue: [Int] = [0], startDate: Date = .now, timesPerDay: Int = 1, pillsPerDose: Int = 1, hasPush: Bool = false) {
     self.init(
       id: id,
       type: type,
