@@ -42,6 +42,13 @@
 			);
 			target = 7A02BFD72E39D9AD00587F53 /* Meditory */;
 		};
+		D7D287C02E4272DE001F49CA /* Exceptions for "Meditory" folder in "MeditoryTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resource/Secrets.xcconfig,
+			);
+			target = 7A02BFE62E39D9AF00587F53 /* MeditoryTests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -49,6 +56,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				36FF9FE62E3F781B00903AA4 /* Exceptions for "Meditory" folder in "Meditory" target */,
+				D7D287C02E4272DE001F49CA /* Exceptions for "Meditory" folder in "MeditoryTests" target */,
 			);
 			path = Meditory;
 			sourceTree = "<group>";
