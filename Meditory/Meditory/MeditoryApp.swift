@@ -11,6 +11,9 @@ import SwiftData
 
 @main
 struct MeditoryApp: App {
+
+
+
   let userStore = UserStore()
 
   init() {
@@ -35,6 +38,7 @@ struct MeditoryApp: App {
       return try ModelContainer(for: schema, configurations: [modelConfiguration])
     } catch {
       fatalError("Could not create ModelContainer: \(error)")
+
     }
   }()
 
