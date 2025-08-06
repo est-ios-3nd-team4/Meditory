@@ -1,5 +1,5 @@
 //
-//  OnboardingNew.swift
+//  OnboardingView.swift
 //  Meditory
 //
 //  Created by hyunsic on 8/4/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct OnboardingNew: View {
+struct OnboardingView: View {
   @State private var currentStep: Step = .name
   @State private var showEndingSheet: Bool = false
   @State private var completedStep:Set<Step> = []
@@ -162,19 +162,19 @@ struct OnboardingNew: View {
           gender = "여성"
         }
       case .pregnancy:
-        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 임신중이십니까?", isSelected: $isSelected, image: YesOrNo.yes.image, title: "예",action: {
+        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 임신중이십니까?", isSelected: $isSelected, image: YesOrNo.yes.image, title: YesOrNo.yes.title,action: {
           isPregnancy = true
         }, secondImage: YesOrNo.no.image, secondTitle: YesOrNo.no.title) {
           isPregnancy = false
         }
       case .breastfeeding:
-        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 수유중이신가요?", isSelected: $isSelected, image: YesOrNo.yes.image, title: "예",action: {
+        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 수유중이신가요?", isSelected: $isSelected, image: YesOrNo.yes.image, title: YesOrNo.yes.title,action: {
           isBreastfeeding = true
         }, secondImage: YesOrNo.no.image, secondTitle: YesOrNo.no.title) {
           isBreastfeeding = false
         }
       case .hasDisease:
-        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 질병이 있으신가요?",isSelected: $hasDisease, image: YesOrNo.yes.image, title: "예", action: {
+        OnboardingTwoOptionView(prompt: "\(name) 님은 현재 질병이 있으신가요?",isSelected: $hasDisease, image: YesOrNo.yes.image, title: YesOrNo.yes.title, action: {
           hasDisease = true
         }, secondImage: YesOrNo.no.image, secondTitle: YesOrNo.no.title) {
           hasDisease = false
@@ -188,7 +188,7 @@ struct OnboardingNew: View {
           }
         }
       case .hasAllergy:
-        OnboardingTwoOptionView(prompt: "\(name) 님은 식품에 알레르기가 있으신가요?", isSelected: $hasAllergy, image: YesOrNo.yes.image, title: "예",action:{
+        OnboardingTwoOptionView(prompt: "\(name) 님은 식품에 알레르기가 있으신가요?", isSelected: $hasAllergy, image: YesOrNo.yes.image, title: YesOrNo.yes.title,action:{
           hasAllergy = true
         }, secondImage: YesOrNo.no.image, secondTitle: YesOrNo.no.title) {
           hasAllergy = false
@@ -223,5 +223,5 @@ struct OnboardingNew: View {
 }
 
 #Preview {
-  OnboardingNew()
+  OnboardingView()
 }
