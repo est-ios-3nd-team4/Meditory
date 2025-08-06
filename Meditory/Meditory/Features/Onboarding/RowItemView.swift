@@ -22,7 +22,7 @@ struct RowItemView: View {
         
           .foregroundStyle(Color.main)
         Text(context)
-          .font(.custom("NotoSansKR-Bold", size: 16))
+          .font(.notoSans(weight: .bold, size: 16))
         Spacer()
       }
       .padding(10)

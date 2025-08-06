@@ -22,7 +22,7 @@ struct OnboardingTwoOptionView: View {
   var body: some View {
     VStack(alignment: .leading) {
       Text(prompt)
-        .font(.custom("NotoSansKR-Bold", size: 24))
+        .font(.notoSans(weight: .bold, size: 24))
         .padding(.bottom,10)
       HStack {
         VStack(spacing: 12) {
