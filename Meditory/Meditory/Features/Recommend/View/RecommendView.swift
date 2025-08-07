@@ -5,6 +5,8 @@ struct RecommendView: View {
   @State private var selectedScene: SceneTab = .recommend
 
   @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.modelContext) private var context
+  @State private var didSeedNutrients = false
 
   enum SceneTab {
     case recommend
@@ -12,8 +14,7 @@ struct RecommendView: View {
   }
 
   var body: some View {
-    NavigationView {
-
+    NavigationStack {
       VStack(alignment: .leading) {
         ZStack(alignment: .trailing) {
           // 검색창
@@ -109,12 +110,57 @@ struct RecommendView: View {
               .scrollIndicators(.hidden)
             }
           }
+
+          else if selectedScene == .scrap {
+            ScrapView()
+              .padding(16)
+              .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
+          }
         }
-
       }
-
       .background(colorScheme == .dark ? Color.black : Color.main)
     }
+    .onAppear {
+            guard !didSeedNutrients else { return }
+            didSeedNutrients = true
+
+            let dummyNutrients = [
+              Nutrient(
+                id: "zinc",
+                name: "아연",
+                hashtags: ["정상적인 면역기능에 필요", "정상적인 세포분열에 필요"],
+                description: "영양성분 설명",
+                title: "아연은 면역에 필요한 미네랄입니다.",
+                content: "아연은 정상적인 세포성장, 생식 기능, 면역 등에 필수적입니다.",
+                positiveKeywords: [],
+                negativeKeywords: []
+              ),
+              Nutrient(
+                id: "milkthistle",
+                name: "밀크씨슬",
+                hashtags: ["간 건강에 도움을 줄 수 있음"],
+                description: "영양성분 설명",
+                title: "밀크씨슬 추출물은 간 건강에 도움을 줄 수 있는 건강기능식품 기능성 원료입니다.",
+                content: "밀크씨슬(Milk Thistle)은 국화과 식물로…",
+                positiveKeywords: [],
+                negativeKeywords: []
+              ),
+              Nutrient(
+                id: "hyaluronic",
+                name: "히알루론산",
+                hashtags: ["피부 보습에 도움을 줄 수 있음", "관절 건강에 도움을 줄 수 있음"],
+                description: "영양성분 설명",
+                title: "히알루론산은 피부 보습과 관절 건강에 도움을 줄 수 있는 건강기능식품 기능성 원료입니다.",
+                content: "히알루론산은 인체 내에 존재하는 천연 물질로…",
+                positiveKeywords: [],
+                negativeKeywords: []
+              )
+            ]
+            for nut in dummyNutrients {
+              context.insert(nut)
+            }
+            try? context.save()
+          }
   }
 }
 

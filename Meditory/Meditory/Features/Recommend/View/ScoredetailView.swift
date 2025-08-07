@@ -1,10 +1,3 @@
-//
-//  ScoredetailView.swift
-//  Meditory
-//
-//  Created by Jaehun Kim on 8/6/25.
-//
-
 import SwiftUI
 
 struct ScoredetailView: View {
@@ -38,12 +31,17 @@ struct ScoredetailView: View {
 
         Spacer()
 
-        Image("share")
-          .renderingMode(.template)
-          .resizable()
-          .scaledToFit()
-          .frame(width: 25, height: 25)
-          .foregroundColor(.white)
+        ShareLink(
+          item: "내 점수는 \(Int(score))점이에요! #Meditory",
+          preview: SharePreview("영양제 분석 리포트", image: Image("share"))
+        ) {
+          Image("share")
+            .renderingMode(.template)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 25, height: 25)
+            .foregroundColor(.white)
+        }
       }
       .padding(16)
 
@@ -54,176 +52,180 @@ struct ScoredetailView: View {
           .padding(.bottom, -80)
           .ignoresSafeArea(.container, edges: .bottom)
 
-          ScrollView {
+        VStack(spacing: 16) {
+          ZStack(alignment: .center) {
+            Circle()
+              .trim(from: 0, to: 1)
+              .stroke(colorScheme == .dark ? Color.white : Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 30, lineCap: .round)
+              )
+              .rotationEffect(.degrees(-90))
+
+
+            Circle()
+              .trim(from: 0, to: animatedProgress)
+              .stroke(Color.main, style: StrokeStyle(lineWidth: 40, lineCap: .butt)
+              )
+              .rotationEffect(.degrees(-90))
+
+            HStack(alignment: .firstTextBaseline, spacing: 0) {
+              Text("\(Int(score))")
+                .font(.notoSans(weight: .medium, size: 50))
+
+              Text("점")
+                .font(.notoSans(weight: .medium, size: 20))
+            }
+          }
+          .padding(.vertical, 16)
+          .frame(maxWidth: .infinity)
+          .frame(height: 250)
+
+          ZStack {
             VStack(spacing: 16) {
+              Text("AI 분석결과")
+                .font(.notoSans(weight: .bold, size: 15))
+                .foregroundColor(Color.accent)
+                .padding(.top, 16)
 
-              ZStack(alignment: .center) {
-                Circle()
-                  .trim(from: 0, to: 1)
-                  .stroke(colorScheme == .dark ? Color.white : Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 30, lineCap: .round)
-                  )
-                  .rotationEffect(.degrees(-90))
+              HStack {
+                  HStack {
+                    Text("부족")
+                      .font(.notoSans(weight: .bold, size: 12))
+                      .foregroundColor(Color.pink)
+                      .padding(.horizontal, 8)
+                      .padding(.vertical, 4)
+                      .background (
+                        RoundedRectangle(cornerRadius: 20)
+                          .fill(colorScheme == .dark
+                                ? Color.pink.opacity(0.1)
+                                : Color.pink.opacity(0.2))
 
+                      )
 
-                Circle()
-                  .trim(from: 0, to: animatedProgress)
-                  .stroke(Color.main, style: StrokeStyle(lineWidth: 40, lineCap: .butt)
-                  )
-                  .rotationEffect(.degrees(-90))
-
-                  HStack(alignment: .firstTextBaseline, spacing: 0) {
-                    Text("\(Int(score))")
-                      .font(.notoSans(weight: .medium, size: 50))
-
-                    Text("점")
-                      .font(.notoSans(weight: .medium, size: 20))
+                    Spacer()
+                    // 나중에 수정
+                    Text("0 개")
+                      .font(.notoSans(weight: .medium, size: 12))
                   }
+                  .padding(16)
+                  .background(
+                    RoundedRectangle(cornerRadius: 12)
+                      .fill(colorScheme == .dark
+                            ? Color.white.opacity(0.3)
+                            : Color.white)
+                      .shadow(color: .black.opacity(0.08),
+                              radius: 10, x: 0, y: 4)
+                  )
+
+                  HStack {
+                    Text("주의")
+                      .font(.notoSans(weight: .bold, size: 12))
+                      .foregroundColor(Color.yellow)
+                      .padding(.horizontal, 8)
+                      .padding(.vertical, 4)
+                      .background (
+                        RoundedRectangle(cornerRadius: 20)
+                          .fill(colorScheme == .dark
+                                ? Color.yellow.opacity(0.1)
+                                : Color.yellow.opacity(0.2))
+
+                      )
+
+                    Spacer()
+                    // 나중에 수정
+                    Text("0 개")
+                      .font(.notoSans(weight: .medium, size: 12))
+                  }
+                  .padding(16)
+                  .background(
+                    RoundedRectangle(cornerRadius: 12)
+                      .fill(colorScheme == .dark
+                            ? Color.white.opacity(0.3)
+                            : Color.white)
+                      .shadow(color: .black.opacity(0.08),
+                              radius: 10, x: 0, y: 4)
+                  )
               }
-              .padding(.vertical, 16)
-              .frame(maxWidth: .infinity)
-              .frame(height: 250)
 
-              ZStack {
-                VStack(spacing: 16) {
-                  Text("AI 분석결과")
-                    .font(.notoSans(weight: .bold, size: 15))
-                    .foregroundColor(Color.accent)
-                    .padding(.top, 16)
+              HStack {
+                  HStack {
+                    Text("최적")
+                      .font(.notoSans(weight: .bold, size: 12))
+                      .foregroundColor(Color.accent)
+                      .padding(.horizontal, 8)
+                      .padding(.vertical, 4)
+                      .background (
+                        RoundedRectangle(cornerRadius: 20)
+                          .fill(colorScheme == .dark
+                                ? Color.blue.opacity(0.1)
+                                : Color.blue.opacity(0.2))
+                      )
 
-//                    .background(
-//                      RoundedRectangle(cornerRadius: 20)
-//                        .fill(colorScheme == .dark
-//                              ? Color.sub
-//                              : Color.sub.opacity(0.3))
-//                        .shadow(color: .black.opacity(0.08),
-//                                radius: 10, x: 0, y: 4)
-//                    )
+                    Spacer()
+                    // 나중에 수정
+                    Text("14 개")
+                      .font(.notoSans(weight: .medium, size: 12))
+                  }
+                  .padding(16)
+                  .background(
+                    RoundedRectangle(cornerRadius: 12)
+                      .fill(colorScheme == .dark
+                            ? Color.white.opacity(0.3)
+                            : Color.white)
+                      .shadow(color: .black.opacity(0.08),
+                              radius: 10, x: 0, y: 4)
+                  )
 
                   HStack {
-                    ZStack {
-                      RoundedRectangle(cornerRadius: 12)
-                        .fill(colorScheme == .dark
-                              ? Color.white.opacity(0.3)
-                              : Color.white)
-                        .shadow(color: .black.opacity(0.08),
-                                radius: 10, x: 0, y: 4)
-                      HStack {
-                        Text("부족")
-                          .font(.notoSans(weight: .bold, size: 12))
-                          .foregroundColor(Color.pink)
-                          .padding(.horizontal, 8)
-                          .padding(.vertical, 4)
-                          .background (
-                            RoundedRectangle(cornerRadius: 20)
-                              .fill(colorScheme == .dark
-                                    ? Color.pink.opacity(0.1)
-                                    : Color.pink.opacity(0.2))
+                    Text("충족")
+                      .font(.notoSans(weight: .bold, size: 12))
+                      .foregroundColor(Color.green)
+                      .padding(.horizontal, 8)
+                      .padding(.vertical, 4)
+                      .background (
+                        RoundedRectangle(cornerRadius: 20)
+                          .fill(colorScheme == .dark
+                                ? Color.green.opacity(0.1)
+                                : Color.green.opacity(0.2))
+                      )
 
-                          )
-
-                        Spacer()
-                        // 나중에 수정
-                        Text("0 개")
-                          .font(.notoSans(weight: .medium, size: 12))
-                      }
-                      .padding(16)
-                    }
-
-                    ZStack {
-                      RoundedRectangle(cornerRadius: 12)
-                        .fill(colorScheme == .dark
-                              ? Color.white.opacity(0.3)
-                              : Color.white)
-                        .shadow(color: .black.opacity(0.08),
-                                radius: 10, x: 0, y: 4)
-                      HStack {
-                        Text("주의")
-                          .font(.notoSans(weight: .bold, size: 12))
-                          .foregroundColor(Color.yellow)
-                          .padding(.horizontal, 8)
-                          .padding(.vertical, 4)
-                          .background (
-                            RoundedRectangle(cornerRadius: 20)
-                              .fill(colorScheme == .dark
-                                    ? Color.yellow.opacity(0.1)
-                                    : Color.yellow.opacity(0.2))
-
-                          )
-
-                        Spacer()
-                        // 나중에 수정
-                        Text("0 개")
-                          .font(.notoSans(weight: .medium, size: 12))
-                      }
-                      .padding(16)
-                    }
+                    Spacer()
+                    // 나중에 수정
+                    Text("6 개")
+                      .font(.notoSans(weight: .medium, size: 12))
                   }
+                  .padding(16)
+                  .background(
+                    RoundedRectangle(cornerRadius: 12)
+                      .fill(colorScheme == .dark
+                            ? Color.white.opacity(0.3)
+                            : Color.white)
+                      .shadow(color: .black.opacity(0.08),
+                              radius: 10, x: 0, y: 4)
+                  )
+              }
 
-                  HStack {
-                    ZStack {
-                      RoundedRectangle(cornerRadius: 12)
-                        .fill(colorScheme == .dark
+              NavigationLink(destination: AnalysisView()) {
+                Text("성분 분석 전체 보기")
+                  .font(.notoSans(weight: .medium, size: 15))
+                  .foregroundColor(colorScheme == .dark ? Color.white : Color.black)
+                  .padding(16)
+                  .frame(maxWidth: .infinity)
+                  .buttonBorderShape(.roundedRectangle)
+
+                  .background(colorScheme == .dark
                               ? Color.white.opacity(0.3)
                               : Color.white)
-                        .shadow(color: .black.opacity(0.08),
-                                radius: 10, x: 0, y: 4)
-                      HStack {
-                        Text("최적")
-                          .font(.notoSans(weight: .bold, size: 12))
-                          .foregroundColor(Color.accent)
-                          .padding(.horizontal, 8)
-                          .padding(.vertical, 4)
-                          .background (
-                            RoundedRectangle(cornerRadius: 20)
-                              .fill(colorScheme == .dark
-                                    ? Color.blue.opacity(0.1)
-                                    : Color.blue.opacity(0.2))
-                          )
-
-                        Spacer()
-                        // 나중에 수정
-                        Text("14 개")
-                          .font(.notoSans(weight: .medium, size: 12))
-                      }
-                      .padding(16)
-                    }
-
-                    ZStack {
-                      RoundedRectangle(cornerRadius: 12)
-                        .fill(colorScheme == .dark
-                              ? Color.white.opacity(0.3)
-                              : Color.white)
-                        .shadow(color: .black.opacity(0.08),
-                                radius: 10, x: 0, y: 4)
-                      HStack {
-                        Text("충족")
-                          .font(.notoSans(weight: .bold, size: 12))
-                          .foregroundColor(Color.green)
-                          .padding(.horizontal, 8)
-                          .padding(.vertical, 4)
-                          .background (
-                            RoundedRectangle(cornerRadius: 20)
-                              .fill(colorScheme == .dark
-                                    ? Color.green.opacity(0.1)
-                                    : Color.green.opacity(0.2))
-
-                          )
-
-                        Spacer()
-                        // 나중에 수정
-                        Text("6 개")
-                          .font(.notoSans(weight: .medium, size: 12))
-                      }
-                      .padding(16)
-                    }
-                  }
-                }
+                  .cornerRadius(12)
+                  .shadow(color: .black.opacity(0.08),
+                          radius: 10, x: 0, y: 4)
+                  .padding(.bottom, 16)
               }
             }
-            .padding(.top, 50)
           }
-          .scrollIndicators(.hidden)
-
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 50)
+        .scrollIndicators(.hidden)
       }
     }
     .navigationBarHidden(true)
