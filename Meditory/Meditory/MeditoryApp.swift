@@ -22,6 +22,9 @@ struct MeditoryApp: App {
   var sharedModelContainer: ModelContainer = {
     let schema = Schema([
       Item.self,
+      Nutrient.self,
+      Scrap.self,
+      NutrientRecommendation.self,
 
       //User 정보
       User.self,

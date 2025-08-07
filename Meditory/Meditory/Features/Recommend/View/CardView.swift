@@ -27,8 +27,20 @@ struct CardView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
-      Text(title)
-        .font(.notoSans(weight: .medium, size: 18))
+      HStack {
+        Text(title)
+          .font(.notoSans(weight: .medium, size: 18))
+
+        Spacer()
+
+        Button {
+
+        } label: {
+          Text("수정하기")
+            .font(.notoSans(weight: .medium, size: 12))
+
+        }
+      }
 
       ScrollView(.horizontal, showsIndicators: false) {
         HStack {
