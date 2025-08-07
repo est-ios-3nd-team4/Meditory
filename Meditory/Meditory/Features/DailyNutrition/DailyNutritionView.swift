@@ -14,9 +14,10 @@ enum MacroNutrient {
 }
 
 struct DailyNutritionView: View {
-  
+  @State private var selectedDate: Date = Date()
+
   var body: some View {
-    CalendarBackgroundView {
+    CalendarBackgroundView(selectedDate: $selectedDate) { _ in
       VStack {
         ZStack {
           Rectangle()
