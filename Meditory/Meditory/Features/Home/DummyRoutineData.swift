@@ -1,9 +1,16 @@
+//
+//  DummyRoutineData.swift
+//  Meditory
+//
+//  Created by 윤혜주 on 8/7/25.
+//
+
+
 import Foundation
 import SwiftData
 
-/// 더미 Routine 및 RoutineTime 데이터를 삽입하는 유틸리티
+@MainActor
 struct DummyRoutineData {
-  /// context에 이미 Routine이 없을 때만 더미 데이터를 삽입
   static func seed(into context: ModelContext) {
     let store = RoutineStore()
     let existing = store.fetchAllRoutines(context: context)
