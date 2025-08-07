@@ -5,7 +5,7 @@
 //  Created by hyunsic on 8/6/25.
 //
 
-struct questions {
+struct Questions {
   static let allergy = [
     "홍삼, 사상자, 산수유",
     "강황",
@@ -69,5 +69,4 @@ struct questions {
     "수면유도제",
     "신장에 영향을 미치는 약품",
   ]
-
 }
