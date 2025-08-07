@@ -27,6 +27,8 @@ struct AddSupplementView: View {
     }
   }
   
+  private let defaultFontSize: CGFloat = 18
+  
   var body: some View {
     ZStack {
       VStack(spacing: 20) {
@@ -54,7 +56,7 @@ struct AddSupplementView: View {
             .frame(height: 50)
             .overlay {
               Text("완료")
-                .font(.notoSans(weight: .semiBold, size: 18))
+                .font(.notoSans(weight: .semiBold, size: defaultFontSize))
                 .foregroundStyle(.white)
             }
         }
@@ -95,7 +97,7 @@ extension AddSupplementView {
   private func supplementNameInput() -> some View {
     VStack(alignment: .leading, spacing: .defaultSpacing) {
       Text("섭취 제품 이름")
-        .font(.notoSans(size: 20))
+        .font(.notoSans(size: defaultFontSize))
       
       ZStack {
         RoundedRectangle(cornerRadius: 20)
@@ -128,7 +130,7 @@ extension AddSupplementView {
   private func supplementCountSelector() -> some View {
     VStack(alignment: .leading, spacing: .defaultSpacing) {
       Text("섭취 횟수")
-        .font(.notoSans(size: 20))
+        .font(.notoSans(size: defaultFontSize))
       
       HStack {
         Button {
@@ -139,7 +141,7 @@ extension AddSupplementView {
             .foregroundStyle(.main)
             .overlay {
               Image(systemName: "minus")
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: defaultFontSize, weight: .semibold))
                 .foregroundStyle(.white)
             }
         }
@@ -147,7 +149,7 @@ extension AddSupplementView {
         Spacer()
         
         Text("\(addSupplementVM.routineTimes.count)")
-          .font(.notoSans(size: 20))
+          .font(.notoSans(size: defaultFontSize))
         
         Spacer()
         
@@ -189,7 +191,7 @@ extension AddSupplementView {
   private func weekdayScheduleView() -> some View {
     HStack {
       Text("복용 요일")
-        .font(.notoSans(size: 20))
+        .font(.notoSans(size: defaultFontSize))
       
       Spacer()
       
@@ -198,10 +200,10 @@ extension AddSupplementView {
       } label: {
         HStack(spacing: 8) {
           Text("매일")
-            .font(.notoSans(size: 20))
+            .font(.notoSans(size: defaultFontSize))
           
           Image(systemName: "chevron.right")
-            .font(.system(size: 18, weight: .medium))
+            .font(.system(size: defaultFontSize, weight: .medium))
         }
       }
       .foregroundStyle(.textGray)
@@ -212,7 +214,7 @@ extension AddSupplementView {
     VStack {
       HStack(spacing: 8) {
         Text("시작 날짜")
-          .font(.notoSans(size: 20))
+          .font(.notoSans(size: defaultFontSize))
         
         Spacer()
         
@@ -224,13 +226,13 @@ extension AddSupplementView {
             .frame(width: 48, height: 36)
             .overlay {
               Text("8")
-                .font(.notoSans(size: 18))
+                .font(.notoSans(size: defaultFontSize))
                 .foregroundStyle(.textGray)
             }
         }
         
         Text("월")
-          .font(.notoSans(weight: .regular, size: 20))
+          .font(.notoSans(weight: .regular, size: defaultFontSize))
           .padding(.trailing, 8)
         
         Button {
@@ -241,18 +243,18 @@ extension AddSupplementView {
             .frame(width: 48, height: 36)
             .overlay {
               Text("5")
-                .font(.notoSans(size: 18))
+                .font(.notoSans(size: defaultFontSize))
                 .foregroundStyle(.textGray)
             }
         }
         
         Text("일")
-          .font(.notoSans(weight: .regular, size: 20))
+          .font(.notoSans(weight: .regular, size: defaultFontSize))
       }
       
       HStack(spacing: 8) {
         Text("복용 주기")
-          .font(.notoSans(size: 20))
+          .font(.notoSans(size: defaultFontSize))
         
         Spacer()
         
@@ -264,13 +266,13 @@ extension AddSupplementView {
             .frame(width: 48, height: 36)
             .overlay {
               Text("5")
-                .font(.notoSans(size: 18))
+                .font(.notoSans(size: defaultFontSize))
                 .foregroundStyle(.textGray)
             }
         }
         
         Text("일")
-          .font(.notoSans(weight: .regular, size: 20))
+          .font(.notoSans(weight: .regular, size: defaultFontSize))
       }
     }
   }
@@ -278,7 +280,7 @@ extension AddSupplementView {
   private func timeSelectionSection() -> some View {
     VStack(alignment: .leading){
       Text("복용 시간")
-        .font(.notoSans(size: 20))
+        .font(.notoSans(size: defaultFontSize))
       
       ForEach(addSupplementVM.routineTimes.indices, id: \.self) { index in
         let routine = addSupplementVM.routineTimes[index]
@@ -296,13 +298,13 @@ extension AddSupplementView {
           }
           
           Text(routine.timeString)
-            .font(.notoSans(weight: .regular, size: 20))
+            .font(.notoSans(weight: .regular, size: defaultFontSize))
             .padding(.bottom, 2)
           
           Spacer()
           
           Image(systemName: "chevron.right")
-            .font(.system(size: 18, weight: .medium))
+            .font(.system(size: defaultFontSize, weight: .medium))
             .foregroundStyle(.textGray)
         }
         .onTapGesture {
@@ -315,15 +317,16 @@ extension AddSupplementView {
   private func memoSection() -> some View {
     VStack(alignment: .leading, spacing: .defaultSpacing) {
       Text("메모")
-        .font(.notoSans(size: 20))
+        .font(.notoSans(size: defaultFontSize))
       
       InputTextField(placeHolder: "ex) 따듯한 물과 함께 먹기")
-        .padding(.defaultSpacing)
+        .padding(.smallSpacing)
+        .padding(.horizontal, .smallSpacing)
         .background {
           RoundedRectangle(cornerRadius: 10)
             .fill(.backgroundGray)
         }
-        .frame(height: 30)
+        .frame(height: 50)
       
       Spacer()
     }

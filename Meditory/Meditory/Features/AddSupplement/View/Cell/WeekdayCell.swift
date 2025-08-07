@@ -11,7 +11,7 @@ class WeekdayCell: UITableViewCell {
   
   private let weekdayLabel: UILabel = {
     let label = UILabel()
-    label.font = .notoSans(size: 20)
+    label.font = .notoSans(size: 18)
     label.textColor = .label
     label.translatesAutoresizingMaskIntoConstraints = false
     return label
