@@ -14,6 +14,11 @@ struct AddSupplementView: View {
     case edit
   }
   
+  enum FieldType {
+    case name
+    case memo
+  }
+  
   var type: Mode = .add
   
   @Environment(\.dismiss) var dismiss
@@ -26,52 +31,75 @@ struct AddSupplementView: View {
       showSchedulePicker()
     }
   }
+  @State private var fieldType: FieldType? = nil
   
   private let defaultFontSize: CGFloat = 18
   
   var body: some View {
-    ZStack {
-      VStack(spacing: 20) {
-        supplementNameInput()
-        supplementCountSelector()
-        scheduleTypeSelector()
-        
-        switch selectedScheduleType {
-        case .weekday:
-          weekdayScheduleView()
-        case .interval:
-          intervalScheduleView()
-        }
-        
-        timeSelectionSection()
-        memoSection()
-        
-        Spacer()
-        
-        Button {
-          
-        } label: {
-          RoundedRectangle(cornerRadius: 10)
-            .fill(.main)
-            .frame(height: 50)
-            .overlay {
-              Text("완료")
-                .font(.notoSans(weight: .semiBold, size: defaultFontSize))
-                .foregroundStyle(.white)
+    GeometryReader { geometry in
+      ScrollViewReader { proxy in
+        ScrollView {
+          VStack(spacing: 20) {
+            supplementNameInput()
+            supplementCountSelector()
+            scheduleTypeSelector()
+            
+            switch selectedScheduleType {
+            case .weekday:
+              weekdayScheduleView()
+            case .interval:
+              intervalScheduleView()
             }
+            
+            timeSelectionSection()
+            memoSection()
+            
+            Spacer()
+            
+            Button {
+              
+            } label: {
+              RoundedRectangle(cornerRadius: 10)
+                .fill(.main)
+                .frame(height: 50)
+                .overlay {
+                  Text("완료")
+                    .font(.notoSans(weight: .semiBold, size: defaultFontSize))
+                    .foregroundStyle(.white)
+                }
+            }
+            .id("confirmButton")
+            .padding(.bottom, fieldType == .memo ? 20 : 0)
+          }
+          .frame(height: fieldType != nil ? nil : geometry.size.height)
+          .padding(.horizontal, .defaultSpacing + 4)
+          .navigationTitle("복용약 추가")
+          .navigationBarTitleDisplayMode(.inline)
+          .navigationBarBackButtonHidden(true)
+          .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+              Button {
+                dismiss()
+              } label: {
+                Image(systemName: "chevron.left")
+                  .foregroundStyle(Color.label)
+              }
+            }
+          }
         }
-      }
-      .padding(.horizontal, .defaultSpacing + 4)
-      .navigationTitle("복용약 추가")
-      .navigationBarTitleDisplayMode(.inline)
-      .navigationBarBackButtonHidden(true)
-      .toolbar {
-        ToolbarItem(placement: .navigationBarLeading) {
-          Button {
-            dismiss()
-          } label: {
-            Image(systemName: "chevron.left")
-              .foregroundStyle(Color.label)
+        .scrollIndicators(.hidden)
+        .onChange(of: fieldType) { oldValue, newValue in
+          switch fieldType {
+          case .memo:
+            let keyboardAnimationDuration = 0.3
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + keyboardAnimationDuration) {
+              withAnimation {
+                proxy.scrollTo("confirmButton", anchor: .bottom)
+              }
+            }
+          default:
+            break
           }
         }
       }
@@ -119,7 +147,15 @@ extension AddSupplementView {
               }
           }
           
-          InputTextField(placeHolder: "사진 촬영 및 텍스트로 검색")
+          InputTextField(
+            placeHolder: "사진 촬영 및 텍스트로 검색",
+            didBeginEditing: {
+              fieldType = .name
+            },
+            shouldReturn: {
+              fieldType = nil
+            }
+          )
         }
         .padding(.horizontal, 8)
       }
@@ -319,14 +355,22 @@ extension AddSupplementView {
       Text("메모")
         .font(.notoSans(size: defaultFontSize))
       
-      InputTextField(placeHolder: "ex) 따듯한 물과 함께 먹기")
-        .padding(.smallSpacing)
-        .padding(.horizontal, .smallSpacing)
-        .background {
-          RoundedRectangle(cornerRadius: 10)
-            .fill(.backgroundGray)
+      InputTextField(
+        placeHolder: "ex) 따듯한 물과 함께 먹기",
+        didBeginEditing: {
+          fieldType = .memo
+        },
+        shouldReturn: {
+          fieldType = nil
         }
-        .frame(height: 50)
+      )
+      .padding(.smallSpacing)
+      .padding(.horizontal, .smallSpacing)
+      .background {
+        RoundedRectangle(cornerRadius: 10)
+          .fill(.backgroundGray)
+      }
+      .frame(height: 50)
       
       Spacer()
     }
