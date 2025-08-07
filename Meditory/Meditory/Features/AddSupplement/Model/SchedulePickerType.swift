@@ -23,4 +23,19 @@ enum SchedulePickerType: Identifiable, CaseIterable {
     case .time: return 4
     }
   }
+  
+  var title: String {
+    switch self {
+    case .month:
+      return "시작하는 달"
+    case .day:
+      return "시작하는 날"
+    case .duration:
+      return "복용 주기"
+    case .weekday:
+      return "복용 요일"
+    case .time:
+      return "복용 시간"
+    }
+  }
 }

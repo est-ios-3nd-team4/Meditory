@@ -20,7 +20,12 @@ struct AddSupplementView: View {
   
   @State private var selectedScheduleType: SupplementScheduleType = .weekday
   @StateObject private var addSupplementVM = AddSupplementViewModel()
-  @State private var selectedPicker: SchedulePickerType?
+  @StateObject private var scheduleVM = SupplementScheduleViewModel()
+  @State private var selectedPicker: SchedulePickerType? {
+    didSet {
+      showSchedulePicker()
+    }
+  }
   
   var body: some View {
     ZStack {
@@ -49,12 +54,12 @@ struct AddSupplementView: View {
             .frame(height: 50)
             .overlay {
               Text("완료")
-                .font(.notoSans(size: 18))
+                .font(.notoSans(weight: .semiBold, size: 18))
                 .foregroundStyle(.white)
             }
         }
       }
-      .padding(.horizontal, 32)
+      .padding(.horizontal, .defaultSpacing + 4)
       .navigationTitle("복용약 추가")
       .navigationBarTitleDisplayMode(.inline)
       .navigationBarBackButtonHidden(true)
@@ -67,10 +72,6 @@ struct AddSupplementView: View {
               .foregroundStyle(Color.label)
           }
         }
-      }
-      
-      if let selectedPicker {
-        SchedulePickerSheet(type: selectedPicker, selectedPicker: $selectedPicker)
       }
     }
   }
@@ -186,25 +187,25 @@ extension AddSupplementView {
   }
   
   private func weekdayScheduleView() -> some View {
-      HStack {
-        Text("복용 요일")
-          .font(.notoSans(size: 20))
-        
-        Spacer()
-        
-        Button {
-          selectedPicker = .weekday
-        } label: {
-          HStack(spacing: 8) {
-            Text("매일")
-              .font(.notoSans(size: 20))
-            
-            Image(systemName: "chevron.right")
-              .font(.system(size: 18, weight: .medium))
-          }
+    HStack {
+      Text("복용 요일")
+        .font(.notoSans(size: 20))
+      
+      Spacer()
+      
+      Button {
+        selectedPicker = .weekday
+      } label: {
+        HStack(spacing: 8) {
+          Text("매일")
+            .font(.notoSans(size: 20))
+          
+          Image(systemName: "chevron.right")
+            .font(.system(size: 18, weight: .medium))
         }
-        .foregroundStyle(.textGray)
       }
+      .foregroundStyle(.textGray)
+    }
   }
   
   private func intervalScheduleView() -> some View {
@@ -284,14 +285,14 @@ extension AddSupplementView {
         
         HStack(spacing: .defaultSpacing) {
           ZStack {
-              Circle()
-                  .fill(.main)
-                  .frame(width: 18, height: 18)
-              
-              Text("\(index + 1)")
-                  .font(.notoSans(weight: .bold, size: 10))
-                  .foregroundStyle(.white)
-                  .padding(.bottom, 1)
+            Circle()
+              .fill(.main)
+              .frame(width: 18, height: 18)
+            
+            Text("\(index + 1)")
+              .font(.notoSans(weight: .bold, size: 10))
+              .foregroundStyle(.white)
+              .padding(.bottom, 1)
           }
           
           Text(routine.timeString)
@@ -322,9 +323,23 @@ extension AddSupplementView {
           RoundedRectangle(cornerRadius: 10)
             .fill(.backgroundGray)
         }
-        .frame(height: 42)
+        .frame(height: 30)
       
       Spacer()
+    }
+  }
+  
+  func showSchedulePicker() {
+    guard let selectedPicker else { return }
+    let vc = SchedulePickerViewController(type: selectedPicker, scheduleVM: scheduleVM)
+    vc.modalPresentationStyle = .overFullScreen
+    vc.onDismiss = { type, scheduleVM in
+      self.scheduleVM.setValue(type: type, vm: scheduleVM)
+    }
+    
+    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+       let rootVC = windowScene.windows.first?.rootViewController {
+      rootVC.present(vc, animated: false)
     }
   }
 }
