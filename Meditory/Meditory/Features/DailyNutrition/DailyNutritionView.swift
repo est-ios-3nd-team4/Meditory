@@ -12,7 +12,7 @@ struct DailyNutritionView: View {
   var body: some View {
     CalendarBackgroundView {
       VStack {
-        
+        DailyMacroSummaryView()
       }
     }
   }
