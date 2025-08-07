@@ -81,13 +81,13 @@ final class HomeViewModel: ObservableObject {
       print("Fetch 실패:", error)
       records = []
     }
-     
+
     return records.contains { record in
       record.routine == routine &&
       (startOfDay..<endOfDay).contains(record.timestamp)
     }
   }
-
+  
   func toggleCompleted(at index: Int) {
     guard let context else {
       items[index].isCompleted.toggle()
@@ -98,7 +98,7 @@ final class HomeViewModel: ObservableObject {
     let item = items[index]
 
     if item.isCompleted {
-      
+
     } else {
       routineStore.createRoutineRecord(for: item.routine, context: context)
     }
