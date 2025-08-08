@@ -46,13 +46,13 @@ struct ScoredetailView: View {
       .padding(16)
 
       ZStack {
-        RoundedRectangle(cornerRadius: 20)
+        RoundedRectangle(cornerRadius: .defaultRadius)
           .fill(colorScheme == .dark ? Color.black : Color.white.opacity(0.98))
-          .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
+          .modifier(UnifiedShadow())
           .padding(.bottom, -80)
           .ignoresSafeArea(.container, edges: .bottom)
 
-        VStack(spacing: 16) {
+        VStack(spacing: .defaultSpacing) {
           ZStack(alignment: .center) {
             Circle()
               .trim(from: 0, to: 1)
@@ -80,128 +80,124 @@ struct ScoredetailView: View {
           .frame(height: 250)
 
           ZStack {
-            VStack(spacing: 16) {
+            VStack(spacing: .defaultSpacing) {
               Text("AI 분석결과")
                 .font(.notoSans(weight: .bold, size: 15))
                 .foregroundColor(Color.accent)
                 .padding(.top, 16)
 
               HStack {
-                  HStack {
-                    Text("부족")
-                      .font(.notoSans(weight: .bold, size: 12))
-                      .foregroundColor(Color.pink)
-                      .padding(.horizontal, 8)
-                      .padding(.vertical, 4)
-                      .background (
-                        RoundedRectangle(cornerRadius: 20)
-                          .fill(colorScheme == .dark
-                                ? Color.pink.opacity(0.1)
-                                : Color.pink.opacity(0.2))
+                HStack {
+                  Text("부족")
+                    .font(.notoSans(weight: .bold, size: 12))
+                    .foregroundColor(Color.pink)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background (
+                      RoundedRectangle(cornerRadius: .defaultRadius)
+                        .fill(colorScheme == .dark
+                              ? Color.pink.opacity(0.1)
+                              : Color.pink.opacity(0.2))
 
-                      )
+                    )
 
-                    Spacer()
-                    // 나중에 수정
-                    Text("0 개")
-                      .font(.notoSans(weight: .medium, size: 12))
-                  }
-                  .padding(16)
-                  .background(
-                    RoundedRectangle(cornerRadius: 12)
-                      .fill(colorScheme == .dark
-                            ? Color.white.opacity(0.3)
-                            : Color.white)
-                      .shadow(color: .black.opacity(0.08),
-                              radius: 10, x: 0, y: 4)
-                  )
+                  Spacer()
+                  // 나중에 수정
+                  Text("0 개")
+                    .font(.notoSans(weight: .medium, size: 12))
+                }
+                .padding(16)
+                .background(
+                  RoundedRectangle(cornerRadius: .smallRadius)
+                    .fill(colorScheme == .dark
+                          ? Color.white.opacity(0.3)
+                          : Color.white)
+                    .modifier(UnifiedShadow())
+                )
 
-                  HStack {
-                    Text("주의")
-                      .font(.notoSans(weight: .bold, size: 12))
-                      .foregroundColor(Color.yellow)
-                      .padding(.horizontal, 8)
-                      .padding(.vertical, 4)
-                      .background (
-                        RoundedRectangle(cornerRadius: 20)
-                          .fill(colorScheme == .dark
-                                ? Color.yellow.opacity(0.1)
-                                : Color.yellow.opacity(0.2))
+                HStack {
+                  Text("주의")
+                    .font(.notoSans(weight: .bold, size: 12))
+                    .foregroundColor(Color.yellow)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background (
+                      RoundedRectangle(cornerRadius: .defaultRadius)
+                        .fill(colorScheme == .dark
+                              ? Color.yellow.opacity(0.1)
+                              : Color.yellow.opacity(0.2))
 
-                      )
+                    )
 
-                    Spacer()
-                    // 나중에 수정
-                    Text("0 개")
-                      .font(.notoSans(weight: .medium, size: 12))
-                  }
-                  .padding(16)
-                  .background(
-                    RoundedRectangle(cornerRadius: 12)
-                      .fill(colorScheme == .dark
-                            ? Color.white.opacity(0.3)
-                            : Color.white)
-                      .shadow(color: .black.opacity(0.08),
-                              radius: 10, x: 0, y: 4)
-                  )
+                  Spacer()
+                  // 나중에 수정
+                  Text("0 개")
+                    .font(.notoSans(weight: .medium, size: 12))
+                }
+                .padding(16)
+                .background(
+                  RoundedRectangle(cornerRadius: .smallRadius)
+                    .fill(colorScheme == .dark
+                          ? Color.white.opacity(0.3)
+                          : Color.white)
+                    .modifier(UnifiedShadow())
+                )
               }
 
               HStack {
-                  HStack {
-                    Text("최적")
-                      .font(.notoSans(weight: .bold, size: 12))
-                      .foregroundColor(Color.accent)
-                      .padding(.horizontal, 8)
-                      .padding(.vertical, 4)
-                      .background (
-                        RoundedRectangle(cornerRadius: 20)
-                          .fill(colorScheme == .dark
-                                ? Color.blue.opacity(0.1)
-                                : Color.blue.opacity(0.2))
-                      )
+                HStack {
+                  Text("최적")
+                    .font(.notoSans(weight: .bold, size: 12))
+                    .foregroundColor(Color.accent)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background (
+                      RoundedRectangle(cornerRadius: .defaultRadius)
+                        .fill(colorScheme == .dark
+                              ? Color.blue.opacity(0.1)
+                              : Color.blue.opacity(0.2))
+                    )
 
-                    Spacer()
-                    // 나중에 수정
-                    Text("14 개")
-                      .font(.notoSans(weight: .medium, size: 12))
-                  }
-                  .padding(16)
-                  .background(
-                    RoundedRectangle(cornerRadius: 12)
-                      .fill(colorScheme == .dark
-                            ? Color.white.opacity(0.3)
-                            : Color.white)
-                      .shadow(color: .black.opacity(0.08),
-                              radius: 10, x: 0, y: 4)
-                  )
+                  Spacer()
+                  // 나중에 수정
+                  Text("14 개")
+                    .font(.notoSans(weight: .medium, size: 12))
+                }
+                .padding(16)
+                .background(
+                  RoundedRectangle(cornerRadius: .smallRadius)
+                    .fill(colorScheme == .dark
+                          ? Color.white.opacity(0.3)
+                          : Color.white)
+                    .modifier(UnifiedShadow())
+                )
 
-                  HStack {
-                    Text("충족")
-                      .font(.notoSans(weight: .bold, size: 12))
-                      .foregroundColor(Color.green)
-                      .padding(.horizontal, 8)
-                      .padding(.vertical, 4)
-                      .background (
-                        RoundedRectangle(cornerRadius: 20)
-                          .fill(colorScheme == .dark
-                                ? Color.green.opacity(0.1)
-                                : Color.green.opacity(0.2))
-                      )
+                HStack {
+                  Text("충족")
+                    .font(.notoSans(weight: .bold, size: 12))
+                    .foregroundColor(Color.green)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background (
+                      RoundedRectangle(cornerRadius: .defaultRadius)
+                        .fill(colorScheme == .dark
+                              ? Color.green.opacity(0.1)
+                              : Color.green.opacity(0.2))
+                    )
 
-                    Spacer()
-                    // 나중에 수정
-                    Text("6 개")
-                      .font(.notoSans(weight: .medium, size: 12))
-                  }
-                  .padding(16)
-                  .background(
-                    RoundedRectangle(cornerRadius: 12)
-                      .fill(colorScheme == .dark
-                            ? Color.white.opacity(0.3)
-                            : Color.white)
-                      .shadow(color: .black.opacity(0.08),
-                              radius: 10, x: 0, y: 4)
-                  )
+                  Spacer()
+                  // 나중에 수정
+                  Text("6 개")
+                    .font(.notoSans(weight: .medium, size: 12))
+                }
+                .padding(16)
+                .background(
+                  RoundedRectangle(cornerRadius: .smallRadius)
+                    .fill(colorScheme == .dark
+                          ? Color.white.opacity(0.3)
+                          : Color.white)
+                    .modifier(UnifiedShadow())
+                )
               }
 
               NavigationLink(destination: AnalysisView()) {
@@ -215,9 +211,8 @@ struct ScoredetailView: View {
                   .background(colorScheme == .dark
                               ? Color.white.opacity(0.3)
                               : Color.white)
-                  .cornerRadius(12)
-                  .shadow(color: .black.opacity(0.08),
-                          radius: 10, x: 0, y: 4)
+                  .cornerRadius(.smallRadius)
+                  .modifier(UnifiedShadow())
                   .padding(.bottom, 16)
               }
             }

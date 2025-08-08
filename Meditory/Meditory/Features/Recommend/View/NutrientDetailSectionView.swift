@@ -32,7 +32,7 @@ struct NutrientDetailSectionView: View {
 
   var body: some View {
     ScrollView {
-      VStack(alignment: .leading, spacing: 8) {
+      VStack(alignment: .leading, spacing: .smallSpacing) {
         HStack {
           Text(nutrient.name)
             .font(.notoSans(weight: .bold, size: 30))

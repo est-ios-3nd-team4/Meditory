@@ -9,7 +9,7 @@ struct NutrientChip: View {
       .padding(.horizontal, 12)
       .padding(.vertical, 6)
       .overlay {
-        RoundedRectangle(cornerRadius: 20)
+        RoundedRectangle(cornerRadius: .defaultRadius)
           .stroke(Color.gray.opacity(0.5), lineWidth: 1)
       }
   }
@@ -20,7 +20,7 @@ struct NutrientCardView: View {
   @Environment(\.colorScheme) private var colorScheme
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
+    VStack(alignment: .leading, spacing: .defaultSpacing) {
       HStack {
         Text("@@님 맞춤 영양소 추천")
           .font(.notoSans(weight: .medium, size: 18))
@@ -50,7 +50,7 @@ struct NutrientCardView: View {
     .padding(16)
     .background(colorScheme == .dark ? Color.white.opacity(0.3)
                 : Color.white)
-    .cornerRadius(20)
+    .cornerRadius(.defaultRadius)
   }
 }
 

@@ -29,7 +29,7 @@ struct ScoreView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 20) {
+    VStack(alignment: .leading, spacing: .defaultSpacing) {
       HStack {
         Text("내 영양제 점수는?")
           .font(.notoSans(weight: .medium, size: 18))
@@ -85,8 +85,8 @@ struct ScoreView: View {
     .padding(.horizontal, 16)
     .background(colorScheme == .dark ? Color.white.opacity(0.3)
                 : Color.white)
-    .cornerRadius(20)
-    .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 4)
+    .cornerRadius(.defaultRadius)
+    .modifier(UnifiedShadow())
   }
 }
 

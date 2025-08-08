@@ -25,17 +25,27 @@ struct ScrapView: View {
     }
   }
 
+  private func removeScrap(for nutrient: Nutrient) {
+    if let scrap = allScraps.first(where: { $0.nutrientId == nutrient.id }) {
+      withAnimation {
+        context.delete(scrap)
+        try? context.save()
+      }
+    }
+  }
+
   var body: some View {
     ScrollView {
-          LazyVStack(spacing: 16) {
+      LazyVStack(spacing: .defaultSpacing) {
             ForEach(scrappedNutrients, id: \.id) { nutrient in
               NavigationLink(value: nutrient) {
-                NutrientCardCell(nutrient: nutrient, colorScheme: colorScheme)
+                NutrientCardCell(nutrient: nutrient, colorScheme: colorScheme) {
+                  removeScrap(for: nutrient)
+                }
               }
               .buttonStyle(.plain)
             }
           }
-          .padding(16)
         }
         .navigationDestination(for: Nutrient.self) { nutrient in
           NutrientDetailSectionView(nutrient: nutrient)
@@ -47,32 +57,45 @@ struct ScrapView: View {
 struct NutrientCardCell: View {
   let nutrient: Nutrient
   let colorScheme: ColorScheme
+  let onUnscrap: () -> Void
 
   var body: some View {
     HStack {
-      VStack(alignment: .leading, spacing: 6) {
-        Text(nutrient.name)
-          .font(.notoSans(weight: .medium, size: 15))
+      VStack(alignment: .leading, spacing: .smallSpacing) {
+        HStack {
+          Text(nutrient.name)
+            .font(.notoSans(weight: .medium, size: 15))
+
+          Spacer()
+
+          Button {
+            onUnscrap()
+          } label: {
+            Image(systemName: "star.fill")
+          }
+        }
 
         // 해시태그 중 최대 2개 정도 보여주기
         HStack {
           ForEach(nutrient.hashtags.prefix(2), id: \.self) { tag in
             Text("#\(tag)")
               .font(.notoSans(weight: .medium, size: 12))
+              .lineLimit(1)
           }
         }
       }
       Spacer()
+
       Image(systemName: "chevron.right")
         .foregroundColor(.gray)
     }
     .padding(16)
     .background(
-      RoundedRectangle(cornerRadius: 12)
+      RoundedRectangle(cornerRadius: .defaultRadius)
         .fill(colorScheme == .dark ? Color.white.opacity(0.3)
                     : Color.white)
     )
-    .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 2)
+    .modifier(UnifiedShadow())
   }
 }
 
