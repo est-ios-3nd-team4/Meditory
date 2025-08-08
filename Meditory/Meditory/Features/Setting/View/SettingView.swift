@@ -4,17 +4,11 @@ import SwiftData
 
 struct SettingView: View {
   @Environment(\.modelContext) private var context
-  @StateObject private var viewModel: SettingViewModel
+  @StateObject private var viewModel = SettingViewModel()
 
   // DB의 User 목록 자동 바인딩
   @Query private var users: [User]
   private let userStore = UserStore()
-
-  // context를 파라미터로 받아서 ViewModel에 넘겨줌
-  init(context: ModelContext) {
-    _viewModel = StateObject(wrappedValue: SettingViewModel(context: context))
-  }
-
 
 
   var body: some View {
@@ -38,7 +32,7 @@ struct SettingView: View {
       Toggle("알림 수신 설정", isOn: $viewModel.isNotificationOn)
         .tint(.accent)
         .onChange(of: viewModel.isNotificationOn) { oldValue, newValue in
-          viewModel.updateNotificationSetting(newValue)
+          viewModel.updateNotificationSetting(newValue, context: context)
         }
 
       Text("고객센터 문의하기")
@@ -56,6 +50,9 @@ struct SettingView: View {
         }
       }
 
+    }
+    .task {
+      viewModel.loadSetting(context: context)
     }
   }
 
@@ -84,7 +81,7 @@ struct SettingView: View {
 
 
 #Preview {
-  // 변경된 부분
   let container = try! ModelContainer(for: Setting.self, User.self)
-  SettingView(context: container.mainContext)
+  return SettingView()
+      .modelContainer(container)
 }

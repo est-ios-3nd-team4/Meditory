@@ -7,17 +7,12 @@ class SettingViewModel: ObservableObject {
 
   private let settingStore: SettingStore = SettingStore()
 
-  private var context: ModelContext
   private var setting: Setting?
 
-  init(context: ModelContext) {
-      self.context = context
-      // 실행시 저장소에서 값 불러오기
-      Task { await self.loadSetting() }
-  }
+//  init() {}
 
   @MainActor
-  func loadSetting() {
+  func loadSetting(context: ModelContext) {
       if let existing = settingStore.fetchSetting(context: context) {
           self.setting = existing
           self.isNotificationOn = existing.isNotificationOn
@@ -36,7 +31,7 @@ class SettingViewModel: ObservableObject {
   }
 
   @MainActor
-  func updateNotificationSetting(_ value: Bool) {
+  func updateNotificationSetting(_ value: Bool, context: ModelContext) {
       // ViewModel 상태 업데이트 + Store 통해 영속화
       self.isNotificationOn = value
       settingStore.updateNotificationSetting(value, context: context)
