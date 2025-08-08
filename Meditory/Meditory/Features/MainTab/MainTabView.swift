@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct MainTabView: View {
-  
+
   @State var selectedTab: TabItem = .home
-  
+
   private let customTabTopInset: CGFloat = 14
-  
+
   var body: some View {
     NavigationStack {
       if UIDevice.isPad {
@@ -20,7 +20,7 @@ struct MainTabView: View {
       } else {
         GeometryReader { geometry in
           let tabViewHeight = geometry.size.width * 0.27
-          
+
           ZStack {
             Group {
               switch selectedTab {
@@ -33,14 +33,14 @@ struct MainTabView: View {
               case .dailyNutrition:
                 Color.green
               case .settings:
-                Color.white
+                SettingView()
               }
             }
             .padding(.bottom, tabViewHeight - customTabTopInset)
-            
+
             VStack {
               Spacer()
-              
+
               CustomTabView(selectedTab: $selectedTab, topInset: customTabTopInset)
                 .frame(height: tabViewHeight)
             }

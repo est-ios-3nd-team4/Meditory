@@ -11,7 +11,6 @@ final class User {
     
     @Relationship var userProfiles: [UserProfile] = []
     @Relationship var userStatuses: [UserStatus] = []
-    @Relationship var userAllergies: [UserAllergy] = []
     @Relationship var userExtraInfos: [UserExtraInfo] = []
 
 

@@ -30,10 +30,21 @@ struct MeditoryApp: App {
       User.self,
       UserProfile.self,
       UserStatus.self,
-      UserAllergy.self,
       UserExtraInfo.self,
-      // 추가정보(질병 알러지 등)
-      ExtraInfo.self,
+
+      ExtraInfo.self, // 추가정보(질병 알러지 등)
+      Setting.self,
+
+      // Routine
+      Routine.self,
+      RoutineTime.self,
+      RoutineRecord.self,
+
+      // Nutrient
+      Nutrient.self,
+      NutrientRecommendation.self,
+      Scrap.self,
+
     ])
     let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

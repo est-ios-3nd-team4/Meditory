@@ -6,7 +6,7 @@ import SwiftData
 // create 는 이 함수에서 객체까지 만들면서 한방에 DB에 추가하는 함수
 
 
-@Observable
+
 final class UserStore {
 
   var currentUser: User?
