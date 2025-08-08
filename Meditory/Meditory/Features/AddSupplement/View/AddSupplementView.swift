@@ -32,6 +32,7 @@ struct AddSupplementView: View {
     }
   }
   @State private var fieldType: FieldType? = nil
+  @State private var selectedTimeIndex = 0
   
   private let defaultFontSize: CGFloat = 18
   
@@ -235,7 +236,7 @@ extension AddSupplementView {
         selectedPicker = .weekday
       } label: {
         HStack(spacing: 8) {
-          Text("매일")
+          Text(addSupplementVM.weekdaysString)
             .font(.notoSans(size: defaultFontSize))
           
           Image(systemName: "chevron.right")
@@ -261,7 +262,7 @@ extension AddSupplementView {
             .fill(.backgroundGray)
             .frame(width: 48, height: 36)
             .overlay {
-              Text("8")
+              Text("\(addSupplementVM.startMonth)")
                 .font(.notoSans(size: defaultFontSize))
                 .foregroundStyle(.textGray)
             }
@@ -278,7 +279,7 @@ extension AddSupplementView {
             .fill(.backgroundGray)
             .frame(width: 48, height: 36)
             .overlay {
-              Text("5")
+              Text("\(addSupplementVM.startDay)")
                 .font(.notoSans(size: defaultFontSize))
                 .foregroundStyle(.textGray)
             }
@@ -301,7 +302,7 @@ extension AddSupplementView {
             .fill(.backgroundGray)
             .frame(width: 48, height: 36)
             .overlay {
-              Text("5")
+              Text("\(addSupplementVM.duration)")
                 .font(.notoSans(size: defaultFontSize))
                 .foregroundStyle(.textGray)
             }
@@ -344,6 +345,8 @@ extension AddSupplementView {
             .foregroundStyle(.textGray)
         }
         .onTapGesture {
+          selectedTimeIndex = index
+          scheduleVM.selectedTime = routine.time
           selectedPicker = .time
         }
       }
@@ -380,8 +383,19 @@ extension AddSupplementView {
     guard let selectedPicker else { return }
     let vc = SchedulePickerViewController(type: selectedPicker, scheduleVM: scheduleVM)
     vc.modalPresentationStyle = .overFullScreen
-    vc.onDismiss = { type, scheduleVM in
-      self.scheduleVM.setValue(type: type, vm: scheduleVM)
+    vc.onDismiss = {
+      switch selectedPicker {
+      case .month:
+        addSupplementVM.setValue(.month(scheduleVM.selectedMonth))
+      case .day:
+        addSupplementVM.setValue(.day(scheduleVM.selectedDay))
+      case .duration:
+        addSupplementVM.setValue(.duration(scheduleVM.selectedDuration))
+      case .weekday:
+        addSupplementVM.setValue(.weekday(scheduleVM.selectedDays))
+      case .time:
+        addSupplementVM.setValue(.time(scheduleVM.selectedTime), index: selectedTimeIndex)
+      }
     }
     
     if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,

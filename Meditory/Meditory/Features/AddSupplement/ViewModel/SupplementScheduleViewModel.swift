@@ -9,7 +9,7 @@ import Foundation
 
 class SupplementScheduleViewModel: ObservableObject {
   
-  @Published var selectedDays: [Weekday: Bool] = Weekday.allCases.reduce(into: [:]) { $0[$1] = false }
+  @Published var selectedDays: [Weekday: Bool] = Weekday.allCases.reduce(into: [:]) { $0[$1] = true }
   
   @Published var selectedMonth = Calendar.current.component(.month, from: .now)
   @Published var selectedDay = Calendar.current.component(.day, from: .now)
@@ -87,19 +87,6 @@ class SupplementScheduleViewModel: ObservableObject {
       return selectedDuration - 1
     default:
       return 0
-    }
-  }
-  
-  func setValue(type: SchedulePickerType, vm: SupplementScheduleViewModel) {
-    switch type {
-    case .month:
-      self.selectedMonth = vm.selectedMonth
-    case .day:
-      self.selectedDay = vm.selectedDay
-    case .duration:
-      self.selectedDuration = vm.selectedDuration
-    default:
-      break
     }
   }
   
