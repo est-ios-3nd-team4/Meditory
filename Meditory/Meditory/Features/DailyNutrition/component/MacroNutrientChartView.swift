@@ -17,6 +17,9 @@ struct CircularKnobAnimationModifier: AnimatableModifier {
   var radius: CGFloat
   var lineWidth: CGFloat
   var color: Color
+  var shadowScale: CGFloat
+  
+  @Environment(\.colorScheme) var colorScheme
   
   var animatableData: Double {
     get { progress }
@@ -34,8 +37,10 @@ struct CircularKnobAnimationModifier: AnimatableModifier {
             .fill(color)
             .frame(width: lineWidth, height: lineWidth)
             .position(x: knobPoint.x, y: knobPoint.y)
-            .shadow(color: .black.opacity(0.3),
-                    radius: 5,
+            .shadow(color: colorScheme == .dark
+                    ? .black.opacity(0.5)
+                    : .black.opacity(0.2),
+                    radius: shadowScale * 0.02,
                     x: shadowPoint.x,
                     y: shadowPoint.y)
         }
@@ -43,6 +48,9 @@ struct CircularKnobAnimationModifier: AnimatableModifier {
       )
   }
   
+  // MARK: Func
+  
+  /// 데이터를 표시할 프로그래스바 끝의 position을 계산하는 함수입니다.
   func knobPosition(geo: GeometryProxy, progress: Double) -> CGPoint {
     let centerX = geo.size.width / 2
     let centerY = geo.size.height / 2
@@ -55,11 +63,13 @@ struct CircularKnobAnimationModifier: AnimatableModifier {
     return CGPoint(x: knobX, y: knobY)
   }
   
+  /// 프로그래스바 끝을 shadow로 표현하고있습니다.
+  ///  프로그래스바의 끝의 position를 계산해 반환하는 함수입니다.
   func knobShadowPosition(progress: Double) -> CGPoint {
     let forwardAngle = Angle(degrees: progress * 360 + 15)
     let forwardRadians = CGFloat(forwardAngle.radians)
     
-    let shadowOffset: CGFloat = 10
+    let shadowOffset: CGFloat = shadowScale * 0.05
     let shadowX = cos(forwardRadians) * shadowOffset
     let shadowY = sin(forwardRadians) * shadowOffset
     
@@ -77,14 +87,22 @@ struct MacroNutrientChartView: View {
   @State private var proteinProgress: Double = 0
   @State private var fatProgress: Double = 0
   
-  
-  var lineWidth: CGFloat = 40
-  
   var body: some View {
     /// MacroNutrientChartView 컴포넌트를 담는 view의 geo(height, width)값을 받아옵니다.
     /// geo값의 최소값을 기준으로 컴포넌트의 사이즈를 정의합니다.
     GeometryReader { geo in
       let side = min(geo.size.width, geo.size.height)
+      let lineWidth: CGFloat = side / 10
+      
+      let carbohydrateSize = side
+      let proteinSize = side * 0.75
+      let fatSize = side * 0.5
+      
+      let knobOffset: CGFloat = side / 20
+      
+      let carbohydrateRadius = carbohydrateSize / 2 - lineWidth / 2 + knobOffset
+      let proteinRadius = proteinSize / 2 - lineWidth / 2 + knobOffset
+      let fatRadius = fatSize / 2 - lineWidth / 2 + knobOffset
       
       ZStack {
         // carbohydrate
@@ -99,10 +117,12 @@ struct MacroNutrientChartView: View {
             .rotationEffect(.degrees(-90))
           
         }
+        .frame(width: carbohydrateSize, height: carbohydrateSize)
         .modifier(CircularKnobAnimationModifier(progress: carbohydrateProgress,
-                                                radius: min(geo.size.width, geo.size.height) / 2 - lineWidth/2 + 20,
+                                                radius: carbohydrateRadius,
                                                 lineWidth: lineWidth,
-                                                color: .customCarbohydrate))
+                                                color: .customCarbohydrate,
+                                                shadowScale: side))
         
         // protein
         Group {
@@ -116,11 +136,12 @@ struct MacroNutrientChartView: View {
             .rotationEffect(.degrees(-90))
           
         }
-        .frame(width: side - 90, height: side - 90)
+        .frame(width: proteinSize, height: proteinSize)
         .modifier(CircularKnobAnimationModifier(progress: proteinProgress,
-                                                radius: min(geo.size.width, geo.size.height) / 2 - lineWidth/2 + 20 - 45,
+                                                radius: proteinRadius,
                                                 lineWidth: lineWidth,
-                                                color: .customProtein))
+                                                color: .customProtein,
+                                                shadowScale: side))
         
         // fat
         Group {
@@ -134,13 +155,13 @@ struct MacroNutrientChartView: View {
             .rotationEffect(.degrees(-90))
           
         }
-        .frame(width: side - 180, height: side - 180)
+        .frame(width: fatSize, height: fatSize)
         .modifier(CircularKnobAnimationModifier(progress: fatProgress,
-                                                radius: min(geo.size.width, geo.size.height) / 2 - lineWidth/2 + 20 - 90,
+                                                radius: fatRadius,
                                                 lineWidth: lineWidth,
-                                                color: .customFat))
+                                                color: .customFat,
+                                                shadowScale: side))
       }
-      .frame(width: side, height: side)
       
     }
     .aspectRatio(1, contentMode: .fit)
@@ -152,33 +173,6 @@ struct MacroNutrientChartView: View {
       }
     }
     
-  }
-
-  // MARK: Func
-  
-  /// 데이터를 표시할 프로그래스바 끝의 position을 계산하는 함수입니다.
-  func knobPosition(geo: GeometryProxy, progress: Double) -> CGPoint {
-    let radius = min(geo.size.width, geo.size.height) / 2 - lineWidth/2 + 20
-    let angle = Angle(degrees: progress * 360 - 90)
-    let radians = CGFloat(angle.radians)
-    
-    let knobX = geo.size.width/2 + cos(radians) * radius
-    let knobY = geo.size.height/2 + sin(radians) * radius
-    
-    return CGPoint(x: knobX, y: knobY)
-  }
-  
-  /// 프로그래스바 끝을 shadow로 표현하고있습니다.
-  ///  프로그래스바의 끝의 position를 계산해 반환하는 함수입니다.
-  func knobShadowPosition(progress: Double) -> CGPoint {
-    let forwardAngle = Angle(degrees: progress * 360 + 15)
-    let forwardRadians = CGFloat(forwardAngle.radians)
-    
-    let shadowOffset: CGFloat = 10
-    let shadowX = cos(forwardRadians) * shadowOffset
-    let shadowY = sin(forwardRadians) * shadowOffset
-    
-    return CGPoint(x: shadowX, y: shadowY)
   }
 }
 
