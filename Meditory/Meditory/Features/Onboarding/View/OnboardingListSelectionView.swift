@@ -15,16 +15,20 @@ struct OnboardingListSelectionView: View {
   var onAction:((String)->Void)?
   var body: some View {
     ScrollView {
-      VStack(alignment: .leading){
-        Text(prompt)
-          .font(.notoSans(weight: .bold, size: 24))
-          .padding(.vertical, 10)
-        if let info = info {
-          Text(info)
-            .font(.notoSans(weight: .medium, size: 12))
-            .foregroundStyle(.gray)          
+      HStack{
+        VStack(alignment: .leading,) {
+          Text(prompt)
+            .font(.notoSans(weight: .bold, size: 24))
+            .padding(.vertical, 10)
+          if let info = info {
+            Text(info)
+              .font(.notoSans(weight: .medium, size: 12))
+              .foregroundStyle(.gray)
+          }
         }
+        Spacer()
       }
+      .padding(.horizontal)
       ForEach(questions,id:\.self) { item in
         RowItemView(isSelected: selections.contains(item), context: item)
           .onTapGesture {
@@ -32,6 +36,7 @@ struct OnboardingListSelectionView: View {
           }
       }
     }
+    .scrollIndicators(.never)
   }
 }
 

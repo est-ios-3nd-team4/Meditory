@@ -15,7 +15,7 @@ struct OnboardingTextInputView: View {
   @Binding var inputText: String
   @Environment(\.colorScheme) var colorScheme
   
-  init(prompt: String, placeholder: String, unit: String? = nil,keyboardType: UIKeyboardType = .default, inputText: Binding<String>) {
+  init(prompt: String, placeholder: String, unit: String? = nil,keyboardType: UIKeyboardType = .default, inputText: Binding<String>, validation:((String)->Void)?=nil) {
     self.prompt = prompt
     self.placeholder = placeholder
     self.keyboardType = keyboardType
@@ -45,6 +45,11 @@ struct OnboardingTextInputView: View {
         }
       }
       Spacer()
+//        .onChange(of: inputText) { _, newValue in
+//          if keyboardType != .decimalPad  && !newValue.trimmingCharacters(in: .whitespaces).isEmpty {
+//            print(newValue)
+//          }
+//        }
     }
     .padding()
     .padding(.top,16)

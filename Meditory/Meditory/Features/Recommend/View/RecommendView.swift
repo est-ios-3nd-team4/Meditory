@@ -1,10 +1,15 @@
 import SwiftUI
+import SwiftData
 
 struct RecommendView: View {
   @State private var searchText = ""
   @State private var selectedScene: SceneTab = .recommend
 
   @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.modelContext) private var context
+  @State private var didSeedNutrients = false
+
+  @State private var refreshID = UUID()
 
   enum SceneTab {
     case recommend
@@ -12,8 +17,7 @@ struct RecommendView: View {
   }
 
   var body: some View {
-    NavigationView {
-
+    NavigationStack {
       VStack(alignment: .leading) {
         ZStack(alignment: .trailing) {
           // 검색창
@@ -29,9 +33,9 @@ struct RecommendView: View {
           .padding(.vertical, 8)
           .padding(.horizontal, 16)
           .background(Color.white)
-          .cornerRadius(30)
+          .cornerRadius(.defaultRadius)
           .padding(16)
-          .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+          .modifier(UnifiedShadow())
 
           Button {
 
@@ -68,9 +72,9 @@ struct RecommendView: View {
         .padding(.horizontal, 32)
 
         ZStack {
-          RoundedRectangle(cornerRadius: 20)
+          RoundedRectangle(cornerRadius: .defaultRadius)
             .fill(colorScheme == .dark ? Color.black : Color.white.opacity(0.98))
-            .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
+            .modifier(UnifiedShadow())
             .padding(.bottom, -80)
             .ignoresSafeArea(.container, edges: .bottom)
 
@@ -109,11 +113,60 @@ struct RecommendView: View {
               .scrollIndicators(.hidden)
             }
           }
+
+          else if selectedScene == .scrap {
+            ScrapView()
+              .padding(16)
+              .modifier(UnifiedShadow())
+          }
         }
-
       }
-
       .background(colorScheme == .dark ? Color.black : Color.main)
+    }
+    .onAppear {
+      guard !didSeedNutrients else { return }
+      didSeedNutrients = true
+
+      let existingNutrients = try? context.fetch(FetchDescriptor<Nutrient>())
+      existingNutrients?.forEach { context.delete($0) }
+
+      let dummyNutrients = [
+        Nutrient(
+          id: "zinc",
+          name: "아연",
+          hashtags: ["정상적인 면역기능에 필요", "정상적인 세포분열에 필요"],
+          description: "영양성분 설명",
+          title: "아연은 면역에 필요한 미네랄입니다.",
+          content: "아연은 정상적인 세포성장, 생식 기능, 면역 등 체내 여러 활동에 필수적인 미량 영양성분으로 우리 몸 여러부위에 약 1.5~2.5g 정도 존재합니다. 아연의 권장 섭취량은 10mg입니다. 식품으로는 굴 6개 (80g)정도의 양이면 1일 권장 섭취량을 충족하며 그 이외에 콩류 또는 붉은 살코기 등에 함유되어 있습니다.",
+          positiveKeywords: [],
+          negativeKeywords: []
+        ),
+        Nutrient(
+          id: "milkthistle",
+          name: "밀크씨슬",
+          hashtags: ["간 건강에 도움을 줄 수 있음"],
+          description: "영양성분 설명",
+          title: "밀크씨슬 추출물은 간 건강에 도움을 줄 수 있는 건강기능식품 기능성 원료입니다.",
+          content: "밀크씨슬은 실리마린(silymarin)이라는 활성 성분을 함유하고 있어 간세포를 보호하고 간 기능 개선에 도움을 줄 수 있습니다. 실리마린은 항산화 효과가 뛰어나며, 음주나 스트레스로 인해 손상된 간세포 회복에 도움이 될 수 있습니다. 일반적으로 하루 140mg 정도의 실리마린 섭취가 권장됩니다. 밀크씨슬 보충제나 추출물로 주로 섭취합니다.",
+          positiveKeywords: [],
+          negativeKeywords: []
+        ),
+        Nutrient(
+          id: "hyaluronic",
+          name: "히알루론산",
+          hashtags: ["피부 보습에 도움을 줄 수 있음", "관절 건강에 도움을 줄 수 있음"],
+          description: "영양성분 설명",
+          title: "히알루론산은 피부 보습과 관절 건강에 도움을 줄 수 있는 건강기능식품 기능성 원료입니다.",
+          content: "히알루론산은 체내에 존재하는 다당류로, 피부와 관절, 눈 등에 풍부하게 분포되어 있으며 수분을 끌어당기고 유지하는 기능을 합니다. 피부 보습 효과는 물론, 관절 내 윤활 작용에도 관여하여 움직임을 부드럽게 만들어줍니다. 일반적으로 하루 100~200mg의 섭취가 권장되며, 경구 보충제 형태로 제공됩니다.",
+          positiveKeywords: [],
+          negativeKeywords: []
+        )
+      ]
+      for nut in dummyNutrients {
+        context.insert(nut)
+      }
+      try? context.save()
+      refreshID = UUID()
     }
   }
 }

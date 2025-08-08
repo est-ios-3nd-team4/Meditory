@@ -7,56 +7,51 @@
 import SwiftUI
 
 struct CalendarBackgroundView<Content: View>: View {
-  @State private var currentDate: Date = Date()
+  @Binding var selectedDate: Date
   
+  private let content: (Date) -> Content
   private let columns: [GridItem] = Array(
     repeating: GridItem(.flexible()),
     count: 7
   )
-  private let content: Content
-  
+
   init(
-    @ViewBuilder content: () -> Content
-  ) {
-    self.content = content()
-  }
-  
+     selectedDate: Binding<Date>,
+     @ViewBuilder content: @escaping (Date) -> Content
+   ) {
+     self._selectedDate = selectedDate
+     self.content = content
+   }
+
   /// 오늘을 기준으로 해당 주(일~토)의 Date 배열을 계산
   private func weekDays() -> [Date] {
     let calendar = Calendar.current
-    let weekday = calendar.component(.weekday, from: currentDate)
-    // 주 시작(일요일)으로 이동
-    let startOfWeek = calendar.date(
-      byAdding: .day,
-      value: -(weekday - 1),
-      to: currentDate
-    )!
-    return (0..<7).map {
-      calendar.date(byAdding: .day, value: $0, to: startOfWeek)!
-    }
+    let weekday = calendar.component(.weekday, from: selectedDate)
+    let startOfWeek = calendar.date(byAdding: .day, value: -(weekday - 1), to: selectedDate)!
+    return (0..<7).map { calendar.date(byAdding: .day, value: $0, to: startOfWeek)! }
   }
-  
+
   /// 오늘과 같은 날짜인지 비교
   private func isSameDay(_ date: Date) -> Bool {
-    Calendar.current.isDate(date, inSameDayAs: currentDate)
+    Calendar.current.isDate(date, inSameDayAs: selectedDate)
   }
-  
+
   var body: some View {
     ZStack {
       Color.main
-        .edgesIgnoringSafeArea(.all)
-      
+        .ignoresSafeArea()
+
       VStack(alignment: .leading) {
-        Text(currentDate.yearMonth)
+        Text(selectedDate.yearMonth)
           .foregroundStyle(.white)
           .font(.notoSans(size: 20))
           .fontWeight(.bold)
           .padding(8)
           .padding(.horizontal)
-        
+
         let dates = weekDays()
         let weekNames = ["일","월","화","수","목","금","토"]
-        
+
         LazyVGrid(columns: columns, spacing: 0) {
           ForEach(dates.indices, id: \.self) { i in
             let date = dates[i]
@@ -75,13 +70,13 @@ struct CalendarBackgroundView<Content: View>: View {
               }
               .onTapGesture {
                 withAnimation {
-                  currentDate = date
+                  selectedDate = date
                 }
               }
           }
         }
         .padding(.horizontal)
-        
+
         LazyVGrid(columns: columns, spacing: 0) {
           ForEach(dates, id: \.self) { date in
             VStack {
@@ -93,27 +88,26 @@ struct CalendarBackgroundView<Content: View>: View {
             .frame(minHeight: 40, alignment: .top)
             .onTapGesture {
               withAnimation {
-                currentDate = date
+                selectedDate = date
               }
             }
           }
         }
         .padding(.horizontal)
-        
+
         ZStack {
           Rectangle()
             .fill(.customBackground)
             .clipShape(RoundedCorner(radius: 20, corners: [.topLeft, .topRight]))
             .edgesIgnoringSafeArea(.all)
-          
-          content
+
+          content(selectedDate)
         }
       }
     }
   }
 }
 #Preview {
-  CalendarBackgroundView {
-    EmptyView()
-  }
+  CalendarBackgroundView(selectedDate: .constant(Date())) { _ in EmptyView() }
 }
+

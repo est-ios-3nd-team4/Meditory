@@ -10,10 +10,11 @@ import SwiftUI
 struct NutritionHomeView: View {
   
   @State private var path = NavigationPath()
+  @State private var selectedDate: Date = Date()
   
   var body: some View {
     NavigationStack(path: $path) {
-      CalendarBackgroundView {
+      CalendarBackgroundView(selectedDate: $selectedDate) { _ in
         VStack {
           DailyMealSummaryView()
           
