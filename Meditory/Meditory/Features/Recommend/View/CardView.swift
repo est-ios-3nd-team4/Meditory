@@ -26,7 +26,7 @@ struct CardView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
+    VStack(alignment: .leading, spacing: .smallSpacing) {
       HStack {
         Text(title)
           .font(.notoSans(weight: .medium, size: 18))
@@ -60,7 +60,7 @@ struct CardView: View {
                   selectedCategory == category ?
                   (colorScheme == .dark ? Color.main : Color.sub.opacity(0.3)) : Color.clear)
                 .overlay {
-                  RoundedRectangle(cornerRadius: 20)
+                  RoundedRectangle(cornerRadius: .defaultRadius)
                     .stroke(
                       selectedCategory == category
                       ? (colorScheme == .dark ? Color.main : Color.sub.opacity(0.3))
@@ -68,7 +68,7 @@ struct CardView: View {
                       lineWidth: 1
                     )
                 }
-                .cornerRadius(20)
+                .cornerRadius(.defaultRadius)
 
             }
           }
@@ -76,7 +76,7 @@ struct CardView: View {
       }
 
       ZStack {
-        RoundedRectangle(cornerRadius: 14)
+        RoundedRectangle(cornerRadius: .smallRadius)
           .fill(Color(.systemGray5))
           .frame(height: 40)
 
@@ -87,14 +87,14 @@ struct CardView: View {
       }
 
       ScrollView(.horizontal, showsIndicators: false) {
-        HStack(alignment: .top, spacing: 8) {
+        HStack(alignment: .top, spacing: .smallSpacing) {
           ForEach(products) { product in
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: .smallSpacing) {
               Image(product.imageName)
                 .resizable()
                 .scaledToFit()
                 .frame(width: 100, height: 100)
-                .cornerRadius(12)
+                .cornerRadius(.smallRadius)
 
               Text(product.brand)
                 .font(.notoSans(weight: .medium, size: 15))
@@ -117,7 +117,7 @@ struct CardView: View {
     }
     .padding()
     .background(colorScheme == .dark ? Color.white.opacity(0.3) : Color.white)
-    .cornerRadius(20)
+    .cornerRadius(.defaultRadius)
 
   }
 }
