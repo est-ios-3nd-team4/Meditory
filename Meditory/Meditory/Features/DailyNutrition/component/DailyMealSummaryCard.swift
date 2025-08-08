@@ -7,13 +7,7 @@
 
 import SwiftUI
 
-enum MacroNutrient {
-  case carbohydrate
-  case protein
-  case fat
-}
-
-struct DailyMacroSummaryView: View {
+struct DailyMealSummaryView: View {
   
   let macros = [
     MacroModel(id: 0,
@@ -37,32 +31,39 @@ struct DailyMacroSummaryView: View {
         .frame(height: 140)
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .modifier(UnifiedShadow())
-        .padding(20)
       
       HStack {
         Text("오늘 하루 식단")
+          .font(.custom("NotoSansKR-Bold", size: 18))
           .foregroundStyle(.black)
+          .padding(.leading, 16)
+        
+        Spacer()
         
         macroPercentageView()
+        
+        Spacer()
         
         MacroNutrientChartView(carbohydrateProgressTarget: Double(macros[0].gram) / 100,
                                proteinProgressTarget: Double(macros[1].gram) / 100,
                                fatProgressTarget: Double(macros[2].gram) / 100)
         .frame(width: 80, height: 80)
+        .padding(.trailing, 16)
       }
     }
   }
   
   /// 탄, 단, 지 오늘 하루 목표치 대비 퍼센트값을 나타냄
   func macroPercentageView() -> some View {
-    VStack {
+    VStack(alignment: .leading) {
       ForEach(macros) { macro in
         HStack {
           Circle()
             .fill(macro.color)
-            .frame(width: 10, height: 10)
+            .frame(width: 15, height: 15)
           
           Text(macro.label + " \(macro.gram)%")
+            .font(.custom("NotoSansCJKkr-Medium", size: 18))
             .foregroundStyle(.black)
         }
       }
@@ -71,5 +72,5 @@ struct DailyMacroSummaryView: View {
 }
 
 #Preview {
-    DailyMacroSummaryView()
+    DailyMealSummaryView()
 }
