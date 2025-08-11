@@ -34,6 +34,7 @@ struct AddSupplementView: View {
   }
   @State private var fieldType: FieldType? = nil
   @State private var selectedTimeIndex = 0
+  @State private var showScanner = false
   
   private let defaultFontSize: CGFloat = 18
   
@@ -108,6 +109,13 @@ struct AddSupplementView: View {
           addSupplementVM.updateContext(context)
         }
       }
+      .fullScreenCover(isPresented: $showScanner) {
+        CameraPickerSheet(isPresented: $showScanner) { text in
+          print(text)
+        }
+        .statusBarHidden(true)
+        .ignoresSafeArea()
+      }
     }
   }
 }
@@ -138,7 +146,7 @@ extension AddSupplementView {
         
         HStack(spacing: 8) {
           Button {
-            
+            showScanner = true
           } label: {
             Circle()
               .frame(width: 25, height: 25)
