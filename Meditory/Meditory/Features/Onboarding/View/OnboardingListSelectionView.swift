@@ -23,7 +23,7 @@ struct OnboardingListSelectionView: View {
           if let info = info {
             Text(info)
               .font(.notoSans(weight: .medium, size: 12))
-              .foregroundStyle(.gray)
+              .foregroundStyle(.textGray)
           }
         }
         Spacer()
@@ -33,6 +33,7 @@ struct OnboardingListSelectionView: View {
         RowItemView(isSelected: selections.contains(item), context: item)
           .onTapGesture {
             onAction?(item)
+            print(selections)
           }
       }
     }

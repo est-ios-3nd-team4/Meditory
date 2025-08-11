@@ -9,7 +9,9 @@ import SwiftUI
 
 struct OnboardingTwoOptionView: View {
   let prompt: String
+  var info:String?
   @Binding var isSelected: Bool
+  @Binding var isValid: Bool?
   @State private var hasInteracted = false
   var image: String
   var title: String
@@ -24,6 +26,11 @@ struct OnboardingTwoOptionView: View {
       Text(prompt)
         .font(.notoSans(weight: .bold, size: 24))
         .padding(.bottom,10)
+      if let info = info {
+        Text(info)
+          .font(.notoSans(weight: .medium, size: 12))
+          .foregroundStyle(.textGray)
+      }
       HStack {
         VStack(spacing: 12) {
           Image(image)
@@ -87,6 +94,10 @@ struct OnboardingTwoOptionView: View {
         }
       }
       Spacer()
+        .onChange(of: isSelected){
+          if isSelected
+            {isValid = true}
+        }
     }
     .padding(.horizontal,16)
     .padding(.top,16)
@@ -97,11 +108,13 @@ struct OnboardingTwoOptionView: View {
   OnboardingTwoOptionView(
     prompt: "성별",
     isSelected: .constant(true),
+    isValid: .constant(true),
     image: "male_icon",
     title: "남성",
     action: nil,
     secondImage: "female_icon",
     secondTitle: "여성",
-    secondAction: nil
+    secondAction: nil,
+    
   )
 }

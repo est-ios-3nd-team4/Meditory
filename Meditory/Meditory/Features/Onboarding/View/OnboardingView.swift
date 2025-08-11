@@ -12,7 +12,22 @@ struct OnboardingView: View {
   @State private var showEndingSheet: Bool = false
   @State private var completedStep: Set<Step> = []
   @StateObject private var vm = OnboardingViewModel()
+  @StateObject private var userStore = UserStore()
 
+  var buttonLabel: String {
+    let base = (currentStep == Step.allCases.last ? "완료" : "다음")
+    switch currentStep {
+//      case .selectAllergy:
+//        return base + "\(vm.selectionSet.count)/\t9\(Questions.allergy.count)"
+//      case .selectDisease:
+//        return base + "\(vm.selectionSet.count)/\(Questions.diseases.count)"
+//      case .selectMedication:
+//        return base + "\(vm.selectionSet.count)/\(Questions.medication.count)"
+      default:
+        return base
+    }
+  }
+  
   var body: some View {
     VStack {
       VStack(alignment: .leading, spacing: 8) {
@@ -23,7 +38,7 @@ struct OnboardingView: View {
               .foregroundColor(Color.gray.opacity(0.2))
             Capsule()
               .frame(width: geometry.size.width * CGFloat(completedStep.count) / CGFloat(Step.totalCount), height: 10)
-              .foregroundColor(.accent)
+              .foregroundColor(.main)
               .animation(.easeInOut(duration: 0.3), value: currentStep)
           }
         }
@@ -33,7 +48,7 @@ struct OnboardingView: View {
       .padding(.horizontal)
       Spacer()
       stepContent(for: currentStep)
-      Button(currentStep == Step.allCases.last ? "완료" : "다음") {
+      Button(/*currentStep == Step.allCases.last ? "완료" : "다음"*/buttonLabel) {
         if let next = currentStep.next(
           gender: vm.gender,
           isPregnancy: vm.isPregnancy,
@@ -55,13 +70,13 @@ struct OnboardingView: View {
           showEndingSheet = true
         }
       }
-      .disabled(currentStep == Step.allCases.last)
+      .disabled(currentStep == Step.allCases.last || vm.isValid != true)
       .frame(maxWidth: .infinity)
       .font(.notoSans(weight: .bold, size: 24))
       .padding()
-      .background(Color.accent)
+      .background(vm.isValid != true ? Color.backgroundGray : Color.main)
       .foregroundColor(.white)
-      .cornerRadius(12)
+      .cornerRadius(10)
       .padding(.horizontal)
       .padding(.bottom, 20)
     }
@@ -72,13 +87,37 @@ struct OnboardingView: View {
     if let question = Step.stepQuestions[step] {
       switch step {
         case .name:
-          OnboardingTextInputView(prompt: question.title, placeholder: question.placeHolder ?? "", inputText: $vm.name)
-        case .age:
+          OnboardingTextInputView(
+            prompt: question.title,
+            placeholder: question.placeHolder ?? "",
+            inputText: $vm.name,
+            needValidation:true,
+            validator:{vm.validateName(context: vm.name)},
+            isValid:$vm.isValid)
+        case .birthDate:
           OnboardingTextInputView(
             prompt: question.title(name:vm.name),
             placeholder: question.placeHolder ?? "",
             keyboardType: UIKeyboardType.decimalPad,
-            inputText: $vm.age
+            inputText: $vm.age,
+            needValidation:true,
+            validator:{
+              if vm.age.contains("."){ return true }
+              guard vm.age.count == 8 else { return false }
+              let (formatted,date) = DateFormatter.plainStringToDate(plainString: vm.age)
+              if let date = date {
+                Task{
+                  await MainActor.run {vm.age = formatted}
+                }
+                vm.birthDate = date
+                return true
+              } else {
+                vm.birthDate = nil
+                return false
+              }
+              
+            },
+            isValid:$vm.isValid
           )
         case .height:
           OnboardingTextInputView(
@@ -86,7 +125,10 @@ struct OnboardingView: View {
             placeholder: question.placeHolder ?? "",
             unit: question.unit,
             keyboardType: UIKeyboardType.decimalPad,
-            inputText: $vm.height
+            inputText: $vm.height,
+            needValidation:true,
+            validator:{vm.validateHeightAndWeight(context: vm.height)},
+            isValid:$vm.isValid
           )
         case .weight:
           OnboardingTextInputView(
@@ -94,12 +136,17 @@ struct OnboardingView: View {
             placeholder: question.placeHolder ?? "",
             unit: question.unit,
             keyboardType: UIKeyboardType.decimalPad,
-            inputText: $vm.weight
+            inputText: $vm.weight,
+            needValidation:true,
+            validator:{vm.validateHeightAndWeight(context: vm.weight)},
+            isValid:$vm.isValid
           )
         case .gender:
           OnboardingTwoOptionView(
             prompt: question.title(name:vm.name),
+            info: question.info,
             isSelected: $vm.isSelected,
+            isValid:$vm.isValid,
             image: Gender.male.image,
             title: Gender.male.title,
             action: {
@@ -113,7 +160,9 @@ struct OnboardingView: View {
         case .pregnancy:
           OnboardingTwoOptionView(
             prompt: question.title(name:vm.name),
+            info: question.info,
             isSelected: $vm.isSelected,
+            isValid:$vm.isValid,
             image: YesOrNo.yes.image,
             title: YesOrNo.yes.title,
             action: {
@@ -128,6 +177,7 @@ struct OnboardingView: View {
           OnboardingTwoOptionView(
             prompt: question.title(name:vm.name),
             isSelected: $vm.isSelected,
+            isValid:$vm.isValid,
             image: YesOrNo.yes.image,
             title: YesOrNo.yes.title,
             action: {
@@ -142,6 +192,7 @@ struct OnboardingView: View {
           OnboardingTwoOptionView(
             prompt: question.title(name:vm.name),
             isSelected: $vm.hasDisease,
+            isValid:$vm.isValid,
             image: YesOrNo.yes.image,
             title: YesOrNo.yes.title,
             action: {
@@ -168,6 +219,7 @@ struct OnboardingView: View {
           OnboardingTwoOptionView(
             prompt: question.title(name:vm.name),
             isSelected: $vm.hasAllergy,
+            isValid:$vm.isValid,
             image: YesOrNo.yes.image,
             title: YesOrNo.yes.title,
             action: {
@@ -195,6 +247,7 @@ struct OnboardingView: View {
           OnboardingTwoOptionView(
             prompt: question.title(name:vm.name),
             isSelected: $vm.takingMedication,
+            isValid:$vm.isValid,
             image: YesOrNo.yes.image,
             title: YesOrNo.yes.title,
             action: {
@@ -218,8 +271,8 @@ struct OnboardingView: View {
               vm.selectionSet.insert(item)
             }
           }
-        case .end:
-          EmptyView()
+        case .recommendation:
+          OnboardingCollectionItemsView(prompt: question.title,info:question.info)
       }
     }
   }
