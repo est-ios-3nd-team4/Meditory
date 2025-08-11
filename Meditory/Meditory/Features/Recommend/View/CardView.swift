@@ -96,20 +96,20 @@ struct CardView: View {
                 default: Color.gray.opacity(0.1)
                 }
               }
-              .frame(width: 120, height: 100, alignment: .center)
+              .frame(width: 110, height: 110, alignment: .center)
               .clipShape(RoundedRectangle(cornerRadius: .smallRadius))
 
               Text(p.brand)
                 .padding(.leading, 2)
                 .font(.notoSans(weight: .medium, size: 13))
                 .foregroundStyle(.gray)
-                .frame(width: 120, height: 16, alignment: .topLeading)
+                .frame(width: 110, height: 16, alignment: .topLeading)
 
               Text(p.name)
                 .padding(.leading, 2)
                 .font(.notoSans(weight: .medium, size: 12))
                 .lineLimit(2)
-                .frame(width: 120, height: 40, alignment: .topLeading)
+                .frame(width: 110, height: 40, alignment: .topLeading)
             }
           }
         }
