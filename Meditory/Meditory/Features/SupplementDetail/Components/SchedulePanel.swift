@@ -18,7 +18,7 @@ struct SchedulePanel: View {
   var body: some View {
     let accentColor = (accent ?? .main)
 
-    VStack(alignment: .leading, spacing: .defaultSpacing) {
+    VStack(alignment: .leading, spacing: .smallSpacing) {
       HStack(spacing: .smallSpacing) {
         Text(title)
           .font(.notoSans(size: 16))
@@ -40,7 +40,7 @@ struct SchedulePanel: View {
         Spacer()
       }
 
-      VStack(alignment: .leading, spacing: .smallSpacing) {
+      VStack(alignment: .leading, spacing: 0) {
         ForEach(times, id: \.self) { t in
           ScheduleDisplayRow(icon: "alarm", text: t)
         }
@@ -64,7 +64,7 @@ struct SchedulePanel: View {
     SchedulePanel(
         title: "내 일정",
         badge: nil,
-        times: ["오전 8시", "오후 8시"],
+        times: ["오전 8시", "오후 8시", "오전 8시", "오후 8시"],
         cycle: "매일",
         highlighted: true,
         colorScheme: .light,

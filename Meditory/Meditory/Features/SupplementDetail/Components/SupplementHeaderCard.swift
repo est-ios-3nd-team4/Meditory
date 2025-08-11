@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-struct HeaderCard: View {
+struct SupplementHeaderCard: View {
   @Environment(\.colorScheme) private var colorScheme
 
   let title: String
@@ -37,7 +37,7 @@ struct HeaderCard: View {
   }
 }
 #Preview("Light Mode") {
-    HeaderCard(
+    SupplementHeaderCard(
         title: "오메가",
         subtitle: "혈관 건강 · 시력 유지 · 콜레스테롤 수치 개선에 도움",
         emoji: "🩸"
@@ -47,7 +47,7 @@ struct HeaderCard: View {
 }
 
 #Preview("Dark Mode") {
-    HeaderCard(
+    SupplementHeaderCard(
         title: "오메가",
         subtitle: "혈관 건강 · 시력 유지 · 콜레스테롤 수치 개선에 도움",
         emoji: "🩸"
