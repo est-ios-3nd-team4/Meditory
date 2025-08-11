@@ -32,11 +32,11 @@ struct HomeView: View {
       vm.loadIntake(on: newDate)
     }
   }
-  
+
   private var achiveMentSection: some View {
-    VStack(spacing: 16) {
+    VStack(spacing: .defaultSpacing) {
       Text("오늘 복용 달성률")
-        .font(.notoSans(size: 18))
+        .font(.notoSans(size: 20))
         .frame(maxWidth: .infinity, alignment: .leading)
 
       CircularProgressView(progress: vm.progress)
@@ -50,11 +50,11 @@ struct HomeView: View {
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
 
-        LazyVStack(spacing: 8) {
+        LazyVStack(spacing: .smallSpacing) {
           ForEach(vm.items.indices.sorted { vm.items[$0].time < vm.items[$1].time }, id: \.self) { index in
             let item = vm.items[index]
 
-            HStack(alignment: .center, spacing: 16) {
+            HStack(alignment: .center, spacing: .defaultSpacing) {
               Button {
                 vm.toggleCompleted(at: index, for: selectedDate)
               } label: {
@@ -63,10 +63,10 @@ struct HomeView: View {
               }
               .buttonStyle(.plain)
 
-              NavigationLink(destination: EmptyView()) {
-                HStack(spacing: 16) {
+              NavigationLink(destination: SupplementDetailView()) {
+                HStack(spacing: .defaultSpacing) {
                   Text(item.name)
-                    .font(.notoSans(size: 20))
+                    .font(.notoSans(size: 18))
                     .foregroundColor(.primary)
 
                   Spacer()
@@ -82,12 +82,12 @@ struct HomeView: View {
               }
               .buttonStyle(.plain)
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, .smallSpacing)
           }
         }
       }
     }
-    .padding(16)
+    .padding(.defaultSpacing)
     .background(
       colorScheme == .dark
       ? Color.white.opacity(0.3)
@@ -95,7 +95,7 @@ struct HomeView: View {
     )
     .cornerRadius(20)
     .modifier(UnifiedShadow())
-    .padding(.bottom, 16)
+    .padding(.bottom, .defaultSpacing)
   }
 }
 
