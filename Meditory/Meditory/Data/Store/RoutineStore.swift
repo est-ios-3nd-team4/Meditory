@@ -40,7 +40,7 @@ final class RoutineStore {
     type: Int,
     name: String,
     cycleType: Int,
-    cycleValue: [Int],
+    cycleValue: String,
     startDate: Date,
     timesPerDay: Int,
     pillsPerDose: Int,
