@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-struct GuideCard: View {
+struct SupplementGuideCard: View {
   enum GuideType { case info, warn }
 
   let title: String
@@ -59,7 +59,7 @@ struct GuideCard: View {
   }
 }
 #Preview("Info") {
-  GuideCard(
+  SupplementGuideCard(
     title: "복용법",
     icon: "pills.fill",
     type: .info,
@@ -72,7 +72,7 @@ struct GuideCard: View {
   .background(Color.customBackground)
 }
 #Preview("Info - Dark Mode") {
-  GuideCard(
+  SupplementGuideCard(
     title: "복용법",
     icon: "pills.fill",
     type: .info,
@@ -87,7 +87,7 @@ struct GuideCard: View {
 }
 
 #Preview("Warn") {
-  GuideCard(
+  SupplementGuideCard(
     title: "복용 주의 사항",
     icon: "exclamationmark.triangle.fill",
     type: .warn,
@@ -101,7 +101,7 @@ struct GuideCard: View {
 }
 
 #Preview("Warn — Dark Mode") {
-  GuideCard(
+  SupplementGuideCard(
     title: "복용 주의 사항",
     icon: "exclamationmark.triangle.fill",
     type: .warn,

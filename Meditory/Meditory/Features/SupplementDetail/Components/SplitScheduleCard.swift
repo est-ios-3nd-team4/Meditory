@@ -18,7 +18,7 @@ struct SplitScheduleCard: View {
       Text("복용 스케줄")
         .font(.notoSans(weight: .bold, size: 18))
 
-      HStack(spacing: .defaultSpacing) {
+      HStack(alignment: .top, spacing: .defaultSpacing) {
         SchedulePanel(
           title: "내 일정",
           badge: nil,
@@ -29,6 +29,7 @@ struct SplitScheduleCard: View {
           accent: .orange
         )
         .cornerRadius(20)
+        .modifier(UnifiedShadow())
         .onTapGesture {
           withAnimation(.easeInOut(duration: 0.15)) { selectedTab = .mine }
           UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -44,6 +45,7 @@ struct SplitScheduleCard: View {
           accent: .main
         )
         .cornerRadius(20)
+        .modifier(UnifiedShadow())
         .onTapGesture {
           withAnimation(.easeInOut(duration: 0.15)) { selectedTab = .ai }
           UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -105,7 +107,7 @@ struct SplitScheduleCard: View {
   @Previewable @State var selectedTab: PlanTab = .mine
     return SplitScheduleCard(
         selectedTab: $selectedTab,
-        userTimes: ["오전 8시", "오후 8시"],
+        userTimes: ["오전 8시", "오후 8시","오전 8시", "오후 8시"],
         userCycle: "매일",
         recTimes: ["오전 7시", "오후 7시"],
         recCycle: "매일"

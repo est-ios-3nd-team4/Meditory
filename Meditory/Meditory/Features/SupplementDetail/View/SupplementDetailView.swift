@@ -39,7 +39,7 @@ struct SupplementDetailView: View {
       ZStack {
         ScrollView(showsIndicators: false) {
           VStack(spacing: .defaultSpacing + 8) {
-            HeaderCard(title: vm.name, subtitle: vm.subtitle, emoji: "🩸")
+            SupplementHeaderCard(title: vm.name, subtitle: vm.subtitle, emoji: "🩸")
 
             SplitScheduleCard(
               selectedTab: $vm.selectedTab,
@@ -47,7 +47,7 @@ struct SupplementDetailView: View {
               recTimes: vm.recTimes,   recCycle: vm.recCycle
             )
 
-            GuideCard(
+            SupplementGuideCard(
               title: "복용법",
               icon: "pills.fill",
               type: .info,
@@ -58,7 +58,7 @@ struct SupplementDetailView: View {
               ]
             )
 
-            GuideCard(
+            SupplementGuideCard(
               title: "복용 주의 사항",
               icon: "exclamationmark.triangle.fill",
               type: .warn,
@@ -127,9 +127,9 @@ struct SupplementDetailView: View {
   let dto = SupplementDetailDTO(
     name: "비타민 D",
     subtitle: "면역·뼈 건강에 도움",
-    userTimes: ["오전 9시"],
+    userTimes: ["오전 9시", "오전 10시", "오후 9시", "오후 9시"],
     userCycle: "매일",
-    recTimes: ["오전 8시"],
+    recTimes: ["오전 8시", "오전 9시", "오후 8시", "오후 8시"],
     recCycle: "매일"
   )
 
