@@ -21,7 +21,8 @@ struct AddSupplementView: View {
   
   var type: Mode = .add
   
-  @Environment(\.dismiss) var dismiss
+  @Environment(\.modelContext) private var context
+  @Environment(\.dismiss) private var dismiss
   
   @State private var selectedScheduleType: SupplementScheduleType = .weekday
   @StateObject private var addSupplementVM = AddSupplementViewModel()
@@ -58,7 +59,8 @@ struct AddSupplementView: View {
             Spacer()
             
             Button {
-              
+              addSupplementVM.save(selectedScheduleType)
+              dismiss()
             } label: {
               RoundedRectangle(cornerRadius: 10)
                 .fill(.main)
@@ -102,6 +104,9 @@ struct AddSupplementView: View {
           default:
             break
           }
+        }
+        .onAppear {
+          addSupplementVM.updateContext(context)
         }
       }
     }
@@ -185,7 +190,7 @@ extension AddSupplementView {
         
         Spacer()
         
-        Text("\(addSupplementVM.routineTimes.count)")
+        Text("\(addSupplementVM.times.count)")
           .font(.notoSans(size: defaultFontSize))
         
         Spacer()
@@ -208,14 +213,14 @@ extension AddSupplementView {
   
   private func scheduleTypeSelector() -> some View {
     HStack(spacing: 8) {
-      ForEach(SupplementScheduleType.allCases) { type in
+      ForEach(SupplementScheduleType.allCases, id: \.self) { type in
         Button {
           selectedScheduleType = type
         } label: {
           RoundedRectangle(cornerRadius: 10)
             .fill(backgroundColor(for: type))
             .overlay {
-              Text(type.rawValue)
+              Text(type.title)
                 .font(.notoSans(size: 17))
                 .foregroundStyle(textColor(for: type))
             }
@@ -319,8 +324,8 @@ extension AddSupplementView {
       Text("복용 시간")
         .font(.notoSans(size: defaultFontSize))
       
-      ForEach(addSupplementVM.routineTimes.indices, id: \.self) { index in
-        let routine = addSupplementVM.routineTimes[index]
+      ForEach(addSupplementVM.times.indices, id: \.self) { index in
+        let routine = addSupplementVM.times[index]
         
         HStack(spacing: .defaultSpacing) {
           ZStack {
