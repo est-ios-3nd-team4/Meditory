@@ -112,7 +112,7 @@ struct HomeView_Previews: PreviewProvider {
       type: 1,
       name: "비타민C",
       cycleType: 1,
-      cycleValue: [0],
+      cycleValue: "0",
       startDate: Date(),
       timesPerDay: 3,
       pillsPerDose: 1,
@@ -138,7 +138,7 @@ struct HomeView_Previews: PreviewProvider {
       type: 1,
       name: "오메가-3",
       cycleType: 1,
-      cycleValue: [1, 3, 5], // 월, 수, 금
+      cycleValue: "1, 3, 5", // 월, 수, 금
       startDate: Date().addingTimeInterval(-86400 * 7),
       timesPerDay: 1,
       pillsPerDose: 2,
@@ -164,7 +164,7 @@ struct HomeView_Previews: PreviewProvider {
       type: 1,
       name: "비타민D",
       cycleType: 2,
-      cycleValue: [2], // 이틀 간격
+      cycleValue: "2", // 이틀 간격
       startDate: Date().addingTimeInterval(-86400 * 14),
       timesPerDay: 1,
       pillsPerDose: 1,
@@ -190,7 +190,7 @@ struct HomeView_Previews: PreviewProvider {
       type: 1,
       name: "프로바이오틱스",
       cycleType: 1,
-      cycleValue: [2, 4, 6], // 화, 목, 토
+      cycleValue: "2, 4, 6", // 화, 목, 토
       startDate: Date().addingTimeInterval(-86400 * 3),
       timesPerDay: 2,
       pillsPerDose: 1,

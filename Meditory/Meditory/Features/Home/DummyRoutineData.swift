@@ -21,7 +21,7 @@ struct DummyRoutineData {
       type: 1,
       name: "비타민C",
       cycleType: 1,
-      cycleValue: [0],   // 매일
+      cycleValue: "0",   // 매일
       startDate: Date(),
       timesPerDay: 3,
       pillsPerDose: 1,
@@ -34,7 +34,7 @@ struct DummyRoutineData {
       type: 1,
       name: "오메가-3",
       cycleType: 1,
-      cycleValue: [1, 3, 5], // 월, 수, 금
+      cycleValue: "1, 3, 5", // 월, 수, 금
       startDate: Calendar.current.date(byAdding: .day, value: -7, to: Date())!,
       timesPerDay: 1,
       pillsPerDose: 2,
@@ -47,7 +47,7 @@ struct DummyRoutineData {
       type: 1,
       name: "비타민D",
       cycleType: 2,
-      cycleValue: [2],    // 이틀 간격
+      cycleValue: "2",    // 이틀 간격
       startDate: Calendar.current.date(byAdding: .day, value: -14, to: Date())!,
       timesPerDay: 1,
       pillsPerDose: 1,
