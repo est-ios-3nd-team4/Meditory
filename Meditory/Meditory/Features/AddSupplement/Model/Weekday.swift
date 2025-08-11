@@ -34,4 +34,8 @@ enum Weekday: Int, CaseIterable {
       return "일요일"
     }
   }
+  
+  var subTitle: String {
+    title.first.map(String.init) ?? ""
+  }
 }

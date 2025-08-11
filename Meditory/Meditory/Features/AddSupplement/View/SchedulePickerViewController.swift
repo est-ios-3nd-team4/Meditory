@@ -9,10 +9,15 @@ import UIKit
 
 final class SchedulePickerViewController: UIViewController {
   
+  @objc enum DismissType: Int {
+    case confirm
+    case cancel
+  }
+  
   let type: SchedulePickerType
   let scheduleVM: SupplementScheduleViewModel
   
-  var onDismiss: ((SchedulePickerType, SupplementScheduleViewModel) -> Void)?
+  var onDismiss: (() -> Void)?
   
   private let backgroundView: UIView = {
     let view = UIView()
@@ -153,7 +158,7 @@ extension SchedulePickerViewController {
     }
     
     titleLabel.text = type.title
-    confirmButton.addTarget(self, action: #selector(dismissWithAnimation), for: .touchUpInside)
+    confirmButton.addTarget(self, action: #selector(confirmButtonTapped), for: .touchUpInside)
     containerView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:))))
   }
   
@@ -225,7 +230,7 @@ extension SchedulePickerViewController {
       }
     case .ended:
       if translation.y > self.containerView.bounds.height * 0.5 {
-        dismissWithAnimation()
+        dismissWithAnimation(.cancel)
       } else {
         UIView.animate(withDuration: 0.2) {
           self.containerView.transform = .identity
@@ -236,13 +241,19 @@ extension SchedulePickerViewController {
     }
   }
   
-  @objc private func dismissWithAnimation() {
+  @objc private func confirmButtonTapped(_ sender: UIButton) {
+    dismissWithAnimation(.confirm)
+  }
+  
+  private func dismissWithAnimation(_ dismissType: DismissType) {
     UIView.animate(withDuration: 0.2) {
       self.containerView.transform = CGAffineTransform(translationX: 0, y: self.containerView.bounds.height)
       self.backgroundView.alpha = 0
     } completion: { [weak self] _ in
       guard let self else { return }
-      self.onDismiss?(type, self.scheduleVM)
+      if dismissType == .confirm {
+        self.onDismiss?()
+      }
       self.dismiss(animated: false)
     }
   }
@@ -272,6 +283,7 @@ extension SchedulePickerViewController: UIPickerViewDelegate {
   }
   
   func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+    scheduleVM.setValue(for: row, type: type)
   }
 }
 
