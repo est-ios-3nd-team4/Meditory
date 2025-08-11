@@ -118,11 +118,11 @@ struct RecommendNutrientsView: View {
 
           Divider()
 
-            ForEach(nutrients, id: \.id) { nut in
-              NutrientDetailSectionView(nutrient: nut)
-                .padding(.horizontal, 16)
-              Divider()
-            }
+          ForEach(nutrients, id: \.id) { nut in
+            NutrientDetailSectionView(nutrient: nut)
+              .padding(.horizontal, 16)
+            Divider()
+          }
         }
         .padding(.vertical)
       }
@@ -132,6 +132,6 @@ struct RecommendNutrientsView: View {
   }
 }
 
-//#Preview {
-//    RecommendNutrientsView()
-//}
+#Preview {
+  RecommendNutrientsView()
+}

@@ -11,5 +11,9 @@
 		<string>NotoSansKR-SemiBold.ttf</string>
 		<string>NotoSansKR-Regular.ttf</string>
 	</array>
+	<key>googleCSEKey</key>
+	<string></string>
+	<key>googleCSE_CX</key>
+	<string></string>
 </dict>
 </plist>
