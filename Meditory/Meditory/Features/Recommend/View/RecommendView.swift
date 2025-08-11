@@ -21,21 +21,21 @@ struct RecommendView: View {
       VStack(alignment: .leading) {
         ZStack(alignment: .trailing) {
           // 검색창
-          TextField(
-            "",
-            text: $searchText,
-            prompt: Text("영양성분 및 영양제를 검색해보세요!")
-              .foregroundColor(.gray)
-              .font(.notoSans(weight: .medium, size: 15))
-          )
-          .font(.notoSans(weight: .medium, size: 15))
-          .foregroundColor(.black)
-          .padding(.vertical, 8)
-          .padding(.horizontal, 16)
-          .background(Color.white)
-          .cornerRadius(.defaultRadius)
-          .padding(16)
-          .modifier(UnifiedShadow())
+          NavigationLink(destination: SearchView()) {
+            HStack {
+              Text(searchText.isEmpty ? "영양성분 및 영양제를 검색해보세요!" : searchText)
+                .foregroundColor(searchText.isEmpty ? .gray : .black)
+                .font(.notoSans(weight: .medium, size: 15))
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
+            .background(Color.white)
+            .cornerRadius(.defaultRadius)
+            .padding(16)
+            .modifier(UnifiedShadow())
+          }
+          .buttonStyle(PlainButtonStyle())
 
           Button {
 
