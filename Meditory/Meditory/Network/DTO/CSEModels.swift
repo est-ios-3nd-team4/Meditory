@@ -14,10 +14,10 @@ struct CSEProduct: Decodable {
   struct BrandValue: Decodable {
     let value: String
     init(from decoder: Decoder) throws {
-      let c = try decoder.singleValueContainer()
-      if let s = try? c.decode(String.self) { value = s; return }
-      if let d = try? c.decode([String:String].self), let n = d["name"] { value = n; return }
-      if let a = try? c.decode([[String:String]].self), let n = a.first?["name"] { value = n; return }
+      let container = try decoder.singleValueContainer()
+      if let string = try? container.decode(String.self) { value = string; return }
+      if let dictionary = try? container.decode([String:String].self), let name = dictionary["name"] { value = name; return }
+      if let array = try? container.decode([[String:String]].self), let name = array.first?["name"] { value = name; return }
       value = ""
     }
   }

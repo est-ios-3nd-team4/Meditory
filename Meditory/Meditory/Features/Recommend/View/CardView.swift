@@ -49,26 +49,26 @@ struct CardView: View {
 
       ScrollView(.horizontal, showsIndicators: false) {
         HStack {
-          ForEach(categories, id: \.self) { c in
+          ForEach(categories, id: \.self) { category in
             Button {
-              onCategoryTap?(c)
-              selectedCategory = c
+              onCategoryTap?(category)
+              selectedCategory = category
             } label: {
-              Text(c)
+              Text(category)
                 .foregroundColor(
-                  selectedCategory == c ?
+                  selectedCategory == category ?
                   (colorScheme == .dark ? Color.white : Color.main)
                   : (colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
                 )
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
                 .background(
-                  selectedCategory == c ?
+                  selectedCategory == category ?
                   (colorScheme == .dark ? Color.main : Color.sub.opacity(0.3)) : Color.clear)
                 .overlay {
                   RoundedRectangle(cornerRadius: .defaultRadius)
                     .stroke(
-                      selectedCategory == c
+                      selectedCategory == category
                       ? (colorScheme == .dark ? Color.main : Color.sub.opacity(0.3))
                       : Color.gray,
                       lineWidth: 1
