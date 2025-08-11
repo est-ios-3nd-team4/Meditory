@@ -25,41 +25,41 @@ final class GoogleCSEImageClient: ImageSearchService {
   }
 
   func firstImageURL(for brand: String, name: String) async throws -> String? {
-    guard !apiKey.isEmpty, !cx.isEmpty else {
-      print("CSE key prefix:", GoogleKey.apiKey.prefix(8), "cx:", GoogleKey.cx)
-      return nil
-    }
-    let q = "\"\(brand)\" \"\(name)\""
-    if let hit = cache[q] { return hit }
+    guard !apiKey.isEmpty, !cx.isEmpty else { throw CSEError.missingKeyOrCX }
 
-    var u = URLComponents(string: "https://www.googleapis.com/customsearch/v1")!
-    u.queryItems = [
+    let query = "\"\(brand)\" \"\(name)\""
+    if let hit = cache[query] { return hit }
+
+    var comps = URLComponents(string: "https://www.googleapis.com/customsearch/v1")!
+    comps.queryItems = [
       .init(name: "key", value: apiKey),
       .init(name: "cx",  value: cx),
-      .init(name: "q",   value: q),
+      .init(name: "q",   value: query),
       .init(name: "searchType", value: "image"),
       .init(name: "num", value: "1"),
       .init(name: "gl",  value: "kr"),
       .init(name: "hl",  value: "ko")
     ]
+    guard let url = comps.url else { throw CSEError.badURL }
 
-    let (data, resp) = try await session.data(from: u.url!)
-    guard let http = resp as? HTTPURLResponse else { return nil }
-
-    if http.statusCode != 200 {
+    let (data, resp) = try await session.data(from: url)
+    let code = (resp as? HTTPURLResponse)?.statusCode ?? -1
+    if code != 200 {
       let body = String(data: data, encoding: .utf8) ?? "<non-utf8>"
-      print("[CSE] HTTP \(http.statusCode)\n\(body)")
-      return nil
+#if DEBUG
+      print("[CSE] HTTP \(code)\n\(body)")
+#endif
+      throw CSEError.http(status: code, body: body)
     }
 
-    guard (resp as? HTTPURLResponse)?.statusCode == 200 else { return nil }
-
-    let res = try JSONDecoder().decode(ImageSearchResponse.self, from: data)
-
-    let url = res.items?.first?.link ?? res.items?.first?.image?.thumbnailLink
-
-    if let url { cache[q] = url }
-    return url
+    do {
+      let res = try JSONDecoder().decode(ImageSearchResponse.self, from: data)
+      let url = res.items?.first?.link ?? res.items?.first?.image?.thumbnailLink
+      if let url { cache[query] = url }
+      return url
+    } catch {
+      throw CSEError.decode(error)
+    }
   }
 }
 

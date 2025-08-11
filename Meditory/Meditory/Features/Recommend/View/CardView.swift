@@ -87,25 +87,31 @@ struct CardView: View {
 
       ScrollView(.horizontal, showsIndicators: false) {
         HStack(spacing: .smallSpacing) {
-          ForEach(products) { p in
-            VStack(alignment: .leading, spacing: 8) {
-              AsyncImage(url: URL(string: p.imageName)) { phase in
-                switch phase {
-                case .success(let img): img.resizable().scaledToFill()
-                case .failure: Color.gray.opacity(0.2)
-                default: Color.gray.opacity(0.1)
+          ForEach(products) { product in
+            VStack(alignment: .leading, spacing: .smallSpacing) {
+              if let url = URL(string: product.imageName), !product.imageName.isEmpty {
+                AsyncImage(url: URL(string: product.imageName)) { phase in
+                  switch phase {
+                  case .success(let img): img.resizable().scaledToFill()
+                  case .failure: Color.gray.opacity(0.2)
+                  default: Color.gray.opacity(0.1)
+                  }
                 }
+                .frame(width: 110, height: 110, alignment: .center)
+                .clipShape(RoundedRectangle(cornerRadius: .smallRadius))
+              } else {
+                Color.gray
+                  .frame(width: 110, height: 110, alignment: .center)
+                  .clipShape(RoundedRectangle(cornerRadius: .smallRadius))
               }
-              .frame(width: 110, height: 110, alignment: .center)
-              .clipShape(RoundedRectangle(cornerRadius: .smallRadius))
 
-              Text(p.brand)
+              Text(product.brand)
                 .padding(.leading, 2)
                 .font(.notoSans(weight: .medium, size: 13))
                 .foregroundStyle(.gray)
                 .frame(width: 110, height: 16, alignment: .topLeading)
 
-              Text(p.name)
+              Text(product.name)
                 .padding(.leading, 2)
                 .font(.notoSans(weight: .medium, size: 12))
                 .lineLimit(2)

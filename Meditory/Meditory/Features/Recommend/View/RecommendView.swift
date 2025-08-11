@@ -32,24 +32,30 @@ struct RecommendView: View {
     Task {
       // id -> url 매핑으로 받아오기
       var results: [UUID: String] = [:]
+      var errors: [Error] = []
 
-      try? await withThrowingTaskGroup(of: (UUID, String?).self) { group in
-        for p in current {
+      try? await withThrowingTaskGroup(of: (UUID, String?, Error?).self) { group in
+        for product in current {
           group.addTask { [imageService] in
-            let url = try await imageService.firstImageURL(for: p.brand, name: p.name)
-            return (p.id, url)
+            do {
+              let url = try await imageService.firstImageURL(for: product.brand, name: product.name)
+              return (product.id, url, nil)
+            } catch {
+              return (product.id, nil, error)
+            }
           }
         }
-        for try await (id, url) in group {
-          if let u = url, !u.isEmpty { results[id] = u }
+        for try await (id, url, err) in group {
+          if let url, !url.isEmpty { results[id] = url }
+          if let err { errors.append(err) }
         }
       }
 
       await MainActor.run {
         // 기존 brand/name/id는 유지하고 image만 채움
-        self.items = current.map { p in
-          let url = results[p.id] ?? p.imageName
-          return Product(imageName: url, brand: p.brand, name: p.name)
+        self.items = current.map { product in
+          let url = results[product.id] ?? product.imageName
+          return Product(imageName: url, brand: product.brand, name: product.name)
         }
       }
     }
@@ -181,6 +187,11 @@ struct RecommendView: View {
 
       let existingNutrients = try? context.fetch(FetchDescriptor<Nutrient>())
       existingNutrients?.forEach { context.delete($0) }
+      
+#if DEBUG
+print("apiKey len:", GoogleKey.apiKey.count, "cx:", GoogleKey.cx)
+#endif
+
 
       let dummyNutrients = [
         Nutrient(

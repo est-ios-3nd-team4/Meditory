@@ -21,6 +21,8 @@ enum GoogleKey {
   static var cx: String { value("googleCSE_CX") }
 
   private static func value(_ key: String) -> String {
-    (Bundle.main.object(forInfoDictionaryKey: key) as? String) ?? ""
+    let raw = (Bundle.main.object(forInfoDictionaryKey: key) as? String ?? "")
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+    return raw.hasPrefix("$(") ? "" : raw
   }
 }
