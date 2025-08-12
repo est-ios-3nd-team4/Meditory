@@ -12,7 +12,7 @@ enum RoutineFormatter {
     switch cycleType {
     case 1:
       // 월=0, 화=1, 수=2, 목=3, 금=4, 토=5, 일=6
-      let map = ["월","화","수","목","금","토","일"]
+      let map = ["일", "월", "화", "수", "목", "금", "토"]
       let days = cycleValue
         .split(whereSeparator: { ", ".contains($0) })
         .compactMap { Int($0) }
