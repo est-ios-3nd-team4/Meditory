@@ -19,10 +19,10 @@ enum CSEError: Error, LocalizedError {
       return "API 키 또는 CX가 없습니다."
     case .badURL:
       return "요청 URL 생성에 실패했습니다."
-    case .http(let s, let body):
-      return "HTTP \(s): \(body)"
-    case .decode(let e):
-      return "응답 파싱 실패: \(e.localizedDescription)"
+    case .http(let status, let body):
+      return "HTTP \(status): \(body)"
+    case .decode(let error):
+      return "응답 파싱 실패: \(error.localizedDescription)"
     }
   }
 }
