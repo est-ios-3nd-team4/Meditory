@@ -14,7 +14,7 @@ struct CollectionItemCell: View {
   var body: some View {
     VStack {
       ZStack {
-        RoundedRectangle(cornerRadius: 16)
+        RoundedRectangle(cornerRadius: .defaultSpacing)
           .stroke(Color.gray.opacity(0.4), lineWidth: isSelected ? 0 : 1.4)
           .fill(isSelected ? Color.sub.opacity(0.18) : Color.clear)
           .frame(width: 100, height: 100)
@@ -25,13 +25,13 @@ struct CollectionItemCell: View {
             .resizable()
             .scaledToFit()
             .frame(width: 100,height: 100)
-            .cornerRadius(16)
+            .cornerRadius(.defaultRadius)
       }
+      .modifier(UnifiedShadow())
       Text(model.title)
         .font(.notoSans(weight: .medium, size: 18))
     }
     .frame(width: 160,height: 160)
-    .modifier(UnifiedShadow())
   }
 }
 

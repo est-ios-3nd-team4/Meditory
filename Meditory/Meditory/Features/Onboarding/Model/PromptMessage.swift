@@ -1,12 +1,12 @@
 //
-//  QuestionMessage.swift
+//  PromptMessage.swift
 //  Meditory
 //
 //  Created by hyunsic on 8/7/25.
 //
 import Foundation
 
-struct QuestionMessage {
+struct PromptMessage {
   let title: String
   let subtitle: String?
   let placeHolder: String?

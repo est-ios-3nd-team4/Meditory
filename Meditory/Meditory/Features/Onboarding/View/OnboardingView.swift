@@ -31,7 +31,7 @@ struct OnboardingView: View {
           }
         }
         .frame(width: 160)
-        .padding(.horizontal)
+        .padding(.horizontal, .defaultSpacing + 4)
         Spacer()
       }
       .padding(.top, 60)
@@ -59,14 +59,19 @@ struct OnboardingView: View {
 
   @ViewBuilder
   func setContent(for step: Step) -> some View {
-    if let question = Step.question[step] {
+    if let prompt = Step.prompt[step] {
+      let name = vm.name
       switch step {
       case .base:
-        OnboardingBaseView(vm: vm, question: question)
+        OnboardingBasicInfoView(vm: vm, prompt: prompt)
+          .onAppear {
+            print(prompt)
+          }
       case .gender:
-        OnboardingTwoOptionView(
-          prompt: question.title(name: vm.name),
-          info: question.subtitle,
+        OnboardingGenderView(
+          vm: vm,
+          prompt: prompt,
+          name: name,
           isSelected: $vm.isSelected,
           isGenderSelected: $vm.isGenderSelected,
           isValid: $vm.isValid,
@@ -84,9 +89,9 @@ struct OnboardingView: View {
           }
         )
       case .allergy:
-        OnboardingListView(
-          prompt: question.title(name: vm.name),
-          info: "알레르기에 따라 피해야하는 영양성분을 확인할 수 있어요",
+        OnboardingAllergyView(
+          prompt: prompt,
+          name: name,
           selections: $vm.selectionSet,
           isSelected: $vm.isSelected
         ) { item in
@@ -97,9 +102,9 @@ struct OnboardingView: View {
           }
         }
       case .disease:
-        OnboardingCollectionView(
-          prompt: question.title(name: vm.name),
-          info: question.subtitle,
+        OnboardingDiseaseView(
+          prompt: prompt,
+          name: name,
           selections: $vm.selectionSet,
           isSelected: $vm.isSelected
         ) { item in
@@ -110,9 +115,9 @@ struct OnboardingView: View {
           }
         }
       case .concern:
-        OnboardingCollectionView(
-          prompt: question.title(name: vm.name),
-          info: question.subtitle,
+        OnboardingConcernView(
+          prompt: prompt,
+          name: name,
           selections: $vm.selectionSet,
           isSelected: $vm.isSelected
         ) { item in

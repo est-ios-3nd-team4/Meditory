@@ -1,5 +1,5 @@
 //
-//  OnboardingTwoOptionView.swift
+//  OnboardingGenderView.swift
 //  Meditory
 //
 //  Created by hyunsic on 8/4/25.
@@ -7,9 +7,10 @@
 
 import SwiftUI
 
-struct OnboardingTwoOptionView: View {
-  let prompt: String
-  var info: String?
+struct OnboardingGenderView: View {
+  @ObservedObject var vm: OnboardingViewModel
+  var prompt:PromptMessage
+  var name:String
   @Binding var isSelected: Bool
   @Binding var isGenderSelected: Bool
   @Binding var isValid: Bool?
@@ -27,13 +28,13 @@ struct OnboardingTwoOptionView: View {
 
   var body: some View {
     VStack {
-      HStack{
+      HStack {
         VStack(alignment: .leading) {
-          Text(prompt)
+          Text(prompt.title(name: name))
             .font(.notoSans(weight: .bold, size: 24))
             .padding(.vertical, 10)
-            .padding(.bottom,10)
-          if let info = info {
+            .padding(.bottom, 10)
+          if let info = prompt.subtitle {
             Text(info)
               .font(.notoSans(weight: .medium, size: 16))
               .foregroundStyle(.textGray)
@@ -41,10 +42,10 @@ struct OnboardingTwoOptionView: View {
         }
         Spacer()
       }
-      .padding(.vertical,.defaultSpacing)
-      HStack(spacing: .defaultSpacing*2) {
+      .padding(.vertical, .defaultSpacing)
+      HStack(spacing: .defaultSpacing * 2) {
         Spacer()
-        VStack(spacing: .defaultSpacing+8) {
+        VStack(spacing: .defaultSpacing + 8) {
           Image(image)
             .resizable()
             .aspectRatio(contentMode: .fit)
@@ -57,7 +58,7 @@ struct OnboardingTwoOptionView: View {
                   if hasInteracted {
                     if isGenderSelected {
                       RoundedRectangle(cornerRadius: .defaultRadius)
-                        .stroke(Color.blue.opacity(0.7), lineWidth: 2)
+                        .stroke(Color.blue.opacity(0.7), lineWidth: 1)
                     }
                   }
                 }
@@ -70,7 +71,7 @@ struct OnboardingTwoOptionView: View {
           Text(title)
             .font(.headline)
         }
-        VStack(spacing:.defaultSpacing+8) {
+        VStack(spacing: .defaultSpacing + 8) {
           Image(secondImage)
             .resizable()
             .aspectRatio(contentMode: .fit)
@@ -83,7 +84,7 @@ struct OnboardingTwoOptionView: View {
                   if hasInteracted {
                     if !isGenderSelected {
                       RoundedRectangle(cornerRadius: .defaultRadius)
-                        .stroke(Color.pink.opacity(0.7), lineWidth: 2)
+                        .stroke(Color.pink.opacity(0.7), lineWidth: 1)
                     }
                   }
                 }
@@ -102,7 +103,7 @@ struct OnboardingTwoOptionView: View {
         if isSelected { isValid = true }
       }
     }
-    .padding(.horizontal)
+    .padding(.horizontal, .defaultSpacing + 4)
     .frame(maxWidth: .infinity)
     .padding(.bottom, 20)
     VStack(alignment: .leading, spacing: .defaultSpacing) {
@@ -116,15 +117,15 @@ struct OnboardingTwoOptionView: View {
           }
       }
     }
-    .padding(.horizontal)
+    .padding(.horizontal, .defaultSpacing + 4)
     Spacer()
   }
 
 }
 
 #Preview {
-  OnboardingTwoOptionView(
-    prompt: "성별",
+  OnboardingGenderView(
+    vm: OnboardingViewModel(), prompt: PromptMessage(title: "성별"), name: "Jason",
     isSelected: .constant(true),
     isGenderSelected: .constant(true),
     isValid: .constant(true),

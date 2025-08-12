@@ -14,22 +14,20 @@ struct RowItemCell: View {
   var body: some View {
     ZStack {
       RoundedRectangle(cornerRadius: 8)
-        .stroke(isSelected ? Color.clear : Color.gray.opacity(0.4), lineWidth: 1)
+        .stroke(isSelected ? Color.main : Color.gray.opacity(0.4), lineWidth: 1)
         .fill(isSelected ? Color.sub.opacity(0.18) : Color.clear)
         .frame(height: 100)
-      HStack {
-        HStack(alignment: .top) {
+      HStack (alignment: .center){
           if let imageName = model.toggleImage?.selectedImage(isSelect: isSelected) {
             Image(imageName)
               .resizable()
               .aspectRatio(contentMode: .fit)
               .frame(width: 60, height: 60)
               .alignmentGuide(.top) { d in d[.top] - 4 }
-          }
-          VStack(alignment: .leading, spacing: 6) {
+          VStack(alignment: .leading,spacing: 2) {
             Text(model.title)
               .font(.notoSans(weight: .semiBold, size: 16))
-            Text(model.subTitle)
+            Text(model.subtitle)
               .font(.notoSans(weight: .regular, size: 10))
               .foregroundStyle(.textGray)
           }
@@ -44,8 +42,8 @@ struct RowItemCell: View {
 }
 
 #Preview {
-  RowItemCell(model: .init(title: "간", toggleImage: .name(base: "icon_lung")), isSelected: false)
-  RowItemCell(model: .init(title: "간", toggleImage: .name(base: "icon_lung")), isSelected: true)
+  RowItemCell(model: .init(title: "땅콩", subtitle:"땅콩호두,아몬드,피스타치오,헤이즐넛",toggleImage: .name(base: "nuts_seeds")), isSelected: false)
+  RowItemCell(model: .init(title: "땅콩", subtitle:"땅콩호두,아몬드,피스타치오,헤이즐넛",toggleImage: .name(base: "nuts_seeds")), isSelected: true)
 }
 
 #Preview("dark") {

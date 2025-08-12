@@ -1,27 +1,26 @@
 //
-//  O.swift
+//  OnboardingBasicInfoView.swift
 //  Meditory
 //
 //  Created by hyunsic on 8/11/25.
 //
 import SwiftUI
 
-struct OnboardingBaseView: View {
+struct OnboardingBasicInfoView: View {
   @ObservedObject var vm: OnboardingViewModel
-  var question: QuestionMessage
-  var info: String?
+  var prompt: PromptMessage
 
   var body: some View {
     VStack {
       HStack {
         VStack(alignment: .leading) {
-          Text(question.title)
+          Text(prompt.title)
             .font(.notoSans(weight: .bold, size: 24))
-            .lineLimit(2)                               // 2줄 허용
+            .lineLimit(2)
             .fixedSize(horizontal: false, vertical: true)
             .layoutPriority(1)
             .padding(.vertical,10)
-          if let info = info {
+          if let info = prompt.info {
             Text(info)
               .font(.notoSans(weight: .medium, size: 16))
               .foregroundStyle(.textGray)
@@ -82,7 +81,7 @@ struct OnboardingBaseView: View {
       }
       Spacer()
     }
-    .padding(.horizontal)
+    .padding(.horizontal,.defaultSpacing+4)
     .frame(maxWidth: .infinity)
   }
 }
