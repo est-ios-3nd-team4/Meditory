@@ -39,11 +39,12 @@ struct NutrientCardView: View {
         .font(.notoSans(weight: .medium, size: 12))
         .foregroundColor(.gray)
 
-      HStack {
+      FlowLayout(spacing: .smallSpacing, lineSpacing: .smallSpacing) {
         ForEach(nutrients, id: \.self) { nutrient in
           NutrientChip(title: nutrient)
+            .lineLimit(1)
+            .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
         }
-        .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
       }
     }
     .frame(maxWidth: .infinity, alignment: .leading)

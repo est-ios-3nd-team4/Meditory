@@ -34,9 +34,9 @@ struct NutrientDetailSectionView: View {
     ScrollView {
       VStack(alignment: .leading, spacing: .smallSpacing) {
         HStack {
-          Text(nutrient.name)
+          Text("🧪 \(nutrient.name)")
             .font(.notoSans(weight: .bold, size: 30))
-            .fontWeight(.bold)
+            
 
           Spacer()
 
@@ -51,18 +51,11 @@ struct NutrientDetailSectionView: View {
         ForEach(nutrient.hashtags, id: \.self) { tag in
           Text("# \(tag)")
             .font(.notoSans(weight: .bold, size: 15))
-            .fontWeight(.bold)
         }
-
-        Text("🧪 \(nutrient.desc)")
-          .font(.notoSans(weight: .bold, size: 18))
-          .fontWeight(.bold)
-          .padding(.vertical, 16)
 
         Text(nutrient.title)
           .font(.notoSans(weight: .bold, size: 15))
-          .fontWeight(.bold)
-          .padding(.bottom, 8)
+          .padding(.vertical, 8)
 
         Text(nutrient.content)
           .font(.notoSans(weight: .medium, size: 15))

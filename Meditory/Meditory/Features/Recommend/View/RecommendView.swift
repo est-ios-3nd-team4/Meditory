@@ -3,13 +3,63 @@ import SwiftData
 
 struct RecommendView: View {
   @State private var searchText = ""
+
   @State private var selectedScene: SceneTab = .recommend
 
   @Environment(\.colorScheme) private var colorScheme
+
   @Environment(\.modelContext) private var context
+
   @State private var didSeedNutrients = false
 
   @State private var refreshID = UUID()
+
+  @State private var items: [Product] = [
+    Product(imageName: "", brand: "스포츠리서치", name: "트리플 스트렝스 오메가3 피쉬오일"),
+    Product(imageName: "", brand: "동아제약", name: "써큐란 알파"),
+    Product(imageName: "", brand: "정관장", name: "홍삼정 에브리타임 10ml"),
+    Product(imageName: "", brand: "종근당건강", name: "락토핏 생유산균 코어맥스"),
+    //  Product(imageName: "", brand: "바이오일레븐", name: "드시모네 데일리"),
+    // Product(imageName: "", brand: "덴프스", name: "덴마크 유산균이야기"),
+    //  Product(imageName: "", brand: "일동제약", name: "지큐랩 장건강 포스트 솔루션"),
+    // Product(imageName: "", brand: "자로우포뮬라", name: "자로우도필러스 EPS 100억 유산균")
+  ]
+
+  private let imageService = GoogleCSEImageClient()
+
+  private func hydrateImagesForCurrentItems() {
+    let current = items
+    Task {
+      // id -> url 매핑으로 받아오기
+      var results: [UUID: String] = [:]
+      var errors: [Error] = []
+
+      try? await withThrowingTaskGroup(of: (UUID, String?, Error?).self) { group in
+        for product in current {
+          group.addTask { [imageService] in
+            do {
+              let url = try await imageService.firstImageURL(for: product.brand, name: product.name)
+              return (product.id, url, nil)
+            } catch {
+              return (product.id, nil, error)
+            }
+          }
+        }
+        for try await (id, url, err) in group {
+          if let url, !url.isEmpty { results[id] = url }
+          if let err { errors.append(err) }
+        }
+      }
+
+      await MainActor.run {
+        // 기존 brand/name/id는 유지하고 image만 채움
+        self.items = current.map { product in
+          let url = results[product.id] ?? product.imageName
+          return Product(imageName: url, brand: product.brand, name: product.name)
+        }
+      }
+    }
+  }
 
   enum SceneTab {
     case recommend
@@ -18,117 +68,130 @@ struct RecommendView: View {
 
   var body: some View {
     NavigationStack {
+
       VStack(alignment: .leading) {
-        ZStack(alignment: .trailing) {
-          // 검색창
-          NavigationLink(destination: SearchView()) {
-            HStack {
-              Text(searchText.isEmpty ? "영양성분 및 영양제를 검색해보세요!" : searchText)
-                .foregroundColor(searchText.isEmpty ? .gray : .black)
-                .font(.notoSans(weight: .medium, size: 15))
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 16)
-            .background(Color.white)
-            .cornerRadius(.defaultRadius)
-            .padding(16)
-            .modifier(UnifiedShadow())
-          }
-          .buttonStyle(PlainButtonStyle())
-
-          Button {
-
-          } label: {
-            Image(systemName: "magnifyingglass")
-              .foregroundColor(.gray)
-              .padding(.trailing, 24)
-          }
-        }
-
-        // 추천 / 스크랩
-        HStack {
-          Button {
-            selectedScene = .recommend
-          } label: {
-            VStack {
-              Text("추천")
-                .foregroundColor(selectedScene == .recommend ? .white : Color.white.opacity(0.5))
-                .font(.notoSans(weight: .bold, size: 16))
-            }
-          }
-          .padding(.trailing, 16)
-
-          Button {
-            selectedScene = .scrap
-          } label: {
-            VStack {
-              Text("스크랩")
-                .foregroundColor(selectedScene == .scrap ? .white : Color.white.opacity(0.5))
-                .font(.notoSans(weight: .bold, size: 16))
-            }
-          }
-        }
-        .padding(.horizontal, 32)
-
         ZStack {
-          RoundedRectangle(cornerRadius: .defaultRadius)
-            .fill(colorScheme == .dark ? Color.black : Color.white.opacity(0.98))
-            .modifier(UnifiedShadow())
-            .padding(.bottom, -80)
-            .ignoresSafeArea(.container, edges: .bottom)
+          VStack(alignment: .leading) {
+            ZStack(alignment: .trailing) {
+              // 검색창
+              NavigationLink(destination: SearchView()) {
+                HStack {
+                  Text(searchText.isEmpty ? "영양성분 및 영양제를 검색해보세요!" : searchText)
+                    .foregroundColor(searchText.isEmpty ? .gray : .black)
+                    .font(.notoSans(weight: .medium, size: 15))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal, 16)
+                .background(Color.white)
+                .cornerRadius(.defaultRadius)
+                .padding(16)
+                .modifier(UnifiedShadow())
+              }
+              .buttonStyle(PlainButtonStyle())
 
+              Button {
 
-          if selectedScene == .recommend {
-            VStack {
+              } label: {
+                Image(systemName: "magnifyingglass")
+                  .foregroundColor(.gray)
+                  .padding(.trailing, 24)
+              }
+            }
 
-              ScrollView {
+            // 추천 / 스크랩
+            HStack {
+              Button {
+                selectedScene = .recommend
+              } label: {
                 VStack {
+                  Text("추천")
+                    .foregroundColor(selectedScene == .recommend ? .white : Color.white.opacity(0.5))
+                    .font(.notoSans(weight: .bold, size: 16))
+                }
+              }
+              .padding(.trailing, 16)
+
+              Button {
+                selectedScene = .scrap
+              } label: {
+                VStack {
+                  Text("스크랩")
+                    .foregroundColor(selectedScene == .scrap ? .white : Color.white.opacity(0.5))
+                    .font(.notoSans(weight: .bold, size: 16))
+                }
+              }
+            }
+            .padding(.horizontal, 32)
+          }
+        }
+        .zIndex(0)
+
+
+        GeometryReader { geo in
+          ScrollView(.vertical, showsIndicators: false) {
+            ZStack {
+              RoundedRectangle(cornerRadius: .defaultRadius)
+                .fill(colorScheme == .dark ? Color.black : Color.white.opacity(0.98))
+                .modifier(UnifiedShadow())
+                .padding(.bottom, -80)
+                .ignoresSafeArea(.container, edges: .bottom)
+                .frame(minHeight: geo.size.height)
+
+              if selectedScene == .recommend {
+                VStack(spacing: 24) {
                   // 맞춤 추천 셀
                   CardView(
                     title: "@@님 맞춤 추천",
                     categories: ["장 건강", "혈관 & 혈액순환"],
-                    desciption: "혈관을 건강하게 하고, 혈액순환을 개선하는데 효과가 있어요.",
-                    products: [
-                      Product(imageName: "", brand: "스포츠리서치", name: "트리플 스트렝스 오메가3 피쉬오일"),
-                      Product(imageName: "", brand: "동아제약", name: "써큐란 알파"),
-                      Product(imageName: "", brand: "정관장", name: "홍삼정 에브리타임 10ml")
-                    ]
+                    desc: "* 본결과는 의사의 처방을 대신하지 않습니다.",
+                    products: items
                   )
                   .font(.notoSans(weight: .medium, size: 15))
-                  .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
-                  .padding(16)
+                  .modifier(UnifiedShadow())
+                  .padding(.top, 24)
+                  .padding(.horizontal, 16)
+
 
                   // 맞춤 영양소 추천 셀
                   NutrientCardView(nutrients: ["아연", "밀크씨슬", "히알루론산"])
                     .padding(.horizontal, 16)
-                    .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
+                    .modifier(UnifiedShadow())
 
                   ScoreView()
-                    .padding(16)
-                    .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
-
+                    .padding(.horizontal, 16)
+                    .modifier(UnifiedShadow())
                 }
               }
-              .scrollIndicators(.hidden)
+
+              else if selectedScene == .scrap {
+                VStack {
+                  ScrapView()
+                    .padding(.top, 24)
+                    .padding(.horizontal, 16)
+                }
+              }
             }
           }
-
-          else if selectedScene == .scrap {
-            ScrapView()
-              .padding(16)
-              .modifier(UnifiedShadow())
-          }
+          .scrollClipDisabled(true)
+          .zIndex(1)
         }
       }
       .background(colorScheme == .dark ? Color.black : Color.main)
+
     }
     .onAppear {
       guard !didSeedNutrients else { return }
       didSeedNutrients = true
+      hydrateImagesForCurrentItems()
 
       let existingNutrients = try? context.fetch(FetchDescriptor<Nutrient>())
       existingNutrients?.forEach { context.delete($0) }
+      
+#if DEBUG
+print("apiKey len:", GoogleKey.apiKey.count, "cx:", GoogleKey.cx)
+#endif
+
 
       let dummyNutrients = [
         Nutrient(
