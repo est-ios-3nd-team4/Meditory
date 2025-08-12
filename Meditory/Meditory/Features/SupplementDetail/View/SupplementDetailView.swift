@@ -80,9 +80,9 @@ struct SupplementDetailView: View {
             .buttonStyle(.plain)
             .background(Color.white)
             .foregroundStyle(.red)
-            .cornerRadius(20)
+            .cornerRadius(.defaultRadius)
             .overlay(
-              RoundedRectangle(cornerRadius: 20, style: .continuous)
+              RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
                 .stroke(Color.red.opacity(0.2), lineWidth: 1.5)
             )
           }

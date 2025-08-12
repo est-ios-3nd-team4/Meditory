@@ -50,11 +50,11 @@ struct SchedulePanel: View {
     .padding(.defaultSpacing)
     .frame(maxWidth: .infinity, alignment: .leading)
     .background(
-      RoundedRectangle(cornerRadius: 20, style: .continuous)
+      RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
         .fill(colorScheme == .dark ? Color.white.opacity(0.08) : Color(.secondarySystemGroupedBackground))
     )
     .overlay(
-      RoundedRectangle(cornerRadius: 20, style: .continuous)
+      RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
         .stroke(highlighted ? accentColor.opacity(0.6) : Color.clear, lineWidth: 1.5)
     )
     .animation(.easeInOut(duration: 0.15), value: highlighted)

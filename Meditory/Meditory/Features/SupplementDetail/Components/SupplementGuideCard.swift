@@ -48,12 +48,12 @@ struct SupplementGuideCard: View {
     .frame(maxWidth: .infinity)
     .padding(.defaultSpacing)
     .background(
-      RoundedRectangle(cornerRadius: 20, style: .continuous)
+      RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
         .fill(type == .info ? Color.main.opacity(0.08) : Color.yellow.opacity(0.12))
     )
     .modifier(UnifiedShadow())
     .overlay(
-      RoundedRectangle(cornerRadius: 20, style: .continuous)
+      RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
         .strokeBorder(type == .info ? .main.opacity(0.3) : .orange.opacity(0.3))
     )
   }

@@ -32,7 +32,7 @@ struct SupplementHeaderCard: View {
     .frame(maxWidth: .infinity)
     .padding(.defaultSpacing)
     .background(colorScheme == .dark ? Color.white.opacity(0.3) : Color.white)
-    .cornerRadius(20)
+    .cornerRadius(.defaultRadius)
     .modifier(UnifiedShadow())
   }
 }

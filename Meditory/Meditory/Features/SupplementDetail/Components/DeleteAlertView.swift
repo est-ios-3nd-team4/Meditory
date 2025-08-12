@@ -43,10 +43,10 @@ struct DeleteAlertView: View {
           .buttonStyle(.plain)
           .background(Color.secondary.opacity(0.2))
           .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: .smallRadius, style: .continuous)
               .stroke(Color(.systemGray4), lineWidth: 1)
           )
-          .cornerRadius(10)
+          .cornerRadius(.smallRadius)
 
           Button {
             isPresented = false
@@ -58,12 +58,12 @@ struct DeleteAlertView: View {
           }
           .foregroundStyle(.white)
           .background(Color.main)
-          .cornerRadius(10)
+          .cornerRadius(.smallRadius)
         }
       }
       .padding(.defaultSpacing + 8)
       .background(.regularMaterial)
-      .cornerRadius(20)
+      .cornerRadius(.defaultRadius)
       .modifier(UnifiedShadow())
       .padding(.horizontal, .defaultSpacing)
       .accessibilityElement(children: .contain)
