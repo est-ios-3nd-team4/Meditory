@@ -59,13 +59,14 @@ struct ScoredetailView: View {
               .stroke(colorScheme == .dark ? Color.white : Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 30, lineCap: .round)
               )
               .rotationEffect(.degrees(-90))
-
+              .padding(5)
 
             Circle()
               .trim(from: 0, to: animatedProgress)
               .stroke(Color.main, style: StrokeStyle(lineWidth: 40, lineCap: .butt)
               )
               .rotationEffect(.degrees(-90))
+
 
             HStack(alignment: .firstTextBaseline, spacing: 0) {
               Text("\(Int(score))")
