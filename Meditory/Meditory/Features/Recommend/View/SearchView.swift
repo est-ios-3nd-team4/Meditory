@@ -3,16 +3,47 @@ import SwiftUI
 struct SearchView: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.dismiss) private var dismiss
-
-  @State private var query: String = ""
-  @State private var recentWords: [String] = [
-    "비타민","루테인", "아피곤해","눈이침침","간건강","팔저림"
-  ]
-
+  
+  @State private var query: String = "" // 현재 검색어
+  @State private var recentWords: [String] = []
+  
   private let recommended20s: [String] = [
     "아연", "밀크씨슬", "히알루론산나트륨", "펜타닐", "LSD", "마그네슘", "비타민C", "철분", "오메가3", "프로바이오틱스", "콜라겐", "비타민D", "아스타잔틴", "홍삼", "아르기닌", "코엔자임Q10", "글루타티온", "루테인"
   ]
-
+  
+  // 최근 검색어 저장 키 & 최대 개수
+  private let recentKey = "recent_search_words"
+  private let recentMaxCount = 10
+  
+  private func loadRecentWords() {
+    recentWords = UserDefaults.standard.stringArray(forKey: recentKey) ?? []
+  }
+  
+  private func persistRecentWords() {
+    UserDefaults.standard.set(recentWords, forKey: recentKey)
+  }
+  
+  /// 최근 검색어 추가 (중복 제거 + 맨 앞으로 이동 + 10개 유지)
+  private func addRecentWord(_ word: String) {
+    let trimmed = word.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return }
+    
+    // 기존 동일 단어(대소문자 무시) 제거
+    if let dupIndex = recentWords.firstIndex(where: { $0.compare(trimmed, options: .caseInsensitive) == .orderedSame }) {
+      recentWords.remove(at: dupIndex)
+    }
+    
+    // 맨 앞에 삽입
+    recentWords.insert(trimmed, at: 0)
+    
+    // 10개 초과분 삭제
+    if recentWords.count > recentMaxCount {
+      recentWords = Array(recentWords.prefix(recentMaxCount))
+    }
+    
+    persistRecentWords()
+  }
+  
   var body: some View {
     VStack(spacing: 0) {
       topBar
@@ -23,18 +54,21 @@ struct SearchView: View {
             Text("최근 검색어")
               .font(.title3).bold()
               .padding(.horizontal)
-
+            
             ScrollView(.horizontal, showsIndicators: false) {
               HStack(spacing: 8) {
                 ForEach(recentWords, id: \.self) { word in
-                  RecentWordChip(title: word)
+                  chip(title: word) {
+                    query = word
+                    performSearch()
+                  }
                 }
               }
               .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
               .padding(.horizontal)
             }
           }
-
+          
           Group {
             Text("20대 추천 영양 성분")
               .font(.title3).bold()
@@ -47,7 +81,7 @@ struct SearchView: View {
               }
             }
             .padding()
-
+            
           }
         }
         .padding(.vertical, 24)
@@ -56,8 +90,9 @@ struct SearchView: View {
     .ignoresSafeArea(edges: .bottom)
     .navigationBarBackButtonHidden(true)
     .toolbar(.hidden, for: .navigationBar)
+    .onAppear { loadRecentWords() }
   }
-
+  
   private var topBar: some View {
     HStack(spacing: 12) {
       Button(action: { dismiss() }) {
@@ -65,11 +100,15 @@ struct SearchView: View {
           .font(.title3)
           .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
       }
-
+      
       HStack {
         TextField("제품명, 브랜드명, 증상으로 검색", text: $query)
           .textInputAutocapitalization(.never)
           .disableAutocorrection(true)
+          .submitLabel(.search)
+          .onSubmit {
+            performSearch() // 엔터 키 눌렀을 때 검색 실행
+          }
         Image(systemName: "magnifyingglass")
           .symbolRenderingMode(.monochrome) // 있으면 확실
           .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
@@ -80,7 +119,7 @@ struct SearchView: View {
     .padding(.horizontal)
     .padding(.vertical, 12)
   }
-
+  
   @ViewBuilder
   private func chip(title: String, action: @escaping () -> Void) -> some View {
     Button(action: action) {
@@ -95,25 +134,17 @@ struct SearchView: View {
     }
     .buttonStyle(.plain)
   }
-}
-
-
-struct RecentWordChip: View {
-  @Environment(\.colorScheme) private var colorScheme
-  let title: String
-  var body: some View {
-    Text("\(title)")
-      .font(.notoSans(weight: .medium, size: 15))
-      .padding(.horizontal, 12)
-      .padding(.vertical, 6)
-      .overlay {
-        RoundedRectangle(cornerRadius: .defaultRadius)
-          .fill(colorScheme == .dark ? Color.gray.opacity(0.2) : Color.gray.opacity(0.1))
-      }
+  
+  private func performSearch() {
+    // 검색어가 비어있지 않을 때만 검색 실행
+    guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+      return
+    }
+    
+    addRecentWord(query)
+    print("검색 실행: \(query)")
   }
-
 }
-
 
 #Preview {
   NavigationView {
