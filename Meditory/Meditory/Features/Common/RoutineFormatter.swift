@@ -1,3 +1,12 @@
+//
+//  RoutineFormatter.swift
+//  Meditory
+//
+//  Created by 윤혜주 on 8/12/25.
+//
+
+import Foundation
+
 enum RoutineFormatter {
   static func renderCycle(cycleType: Int, cycleValue: String) -> String {
     switch cycleType {
