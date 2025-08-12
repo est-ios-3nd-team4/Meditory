@@ -3,47 +3,47 @@ import SwiftUI
 struct SearchView: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.dismiss) private var dismiss
-  
+
   @State private var query: String = "" // 현재 검색어
   @State private var recentWords: [String] = []
-  
-  private let recommended20s: [String] = [
+
+  private let recommendedForAges: [String] = [ // TODO: 샘플데이터. 추후 앨런한테 받아오는 걸로 할 거임
     "아연", "밀크씨슬", "히알루론산나트륨", "펜타닐", "LSD", "마그네슘", "비타민C", "철분", "오메가3", "프로바이오틱스", "콜라겐", "비타민D", "아스타잔틴", "홍삼", "아르기닌", "코엔자임Q10", "글루타티온", "루테인"
   ]
-  
+
   // 최근 검색어 저장 키 & 최대 개수
   private let recentKey = "recent_search_words"
   private let recentMaxCount = 10
-  
+
   private func loadRecentWords() {
     recentWords = UserDefaults.standard.stringArray(forKey: recentKey) ?? []
   }
-  
+
   private func persistRecentWords() {
     UserDefaults.standard.set(recentWords, forKey: recentKey)
   }
-  
+
   /// 최근 검색어 추가 (중복 제거 + 맨 앞으로 이동 + 10개 유지)
   private func addRecentWord(_ word: String) {
     let trimmed = word.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !trimmed.isEmpty else { return }
-    
+
     // 기존 동일 단어(대소문자 무시) 제거
     if let dupIndex = recentWords.firstIndex(where: { $0.compare(trimmed, options: .caseInsensitive) == .orderedSame }) {
       recentWords.remove(at: dupIndex)
     }
-    
+
     // 맨 앞에 삽입
     recentWords.insert(trimmed, at: 0)
-    
+
     // 10개 초과분 삭제
     if recentWords.count > recentMaxCount {
       recentWords = Array(recentWords.prefix(recentMaxCount))
     }
-    
+
     persistRecentWords()
   }
-  
+
   var body: some View {
     VStack(spacing: 0) {
       topBar
@@ -54,7 +54,7 @@ struct SearchView: View {
             Text("최근 검색어")
               .font(.title3).bold()
               .padding(.horizontal)
-            
+
             ScrollView(.horizontal, showsIndicators: false) {
               HStack(spacing: 8) {
                 ForEach(recentWords, id: \.self) { word in
@@ -68,20 +68,22 @@ struct SearchView: View {
               .padding(.horizontal)
             }
           }
-          
+
           Group {
             Text("20대 추천 영양 성분")
               .font(.title3).bold()
               .padding(.horizontal)
-            FlowLayout(spacing: 8, lineSpacing: 8) {
-              ForEach(recommended20s, id: \.self) { item in
-                NutrientChip(title: item)
-                  .lineLimit(1)
-                  .fixedSize(horizontal: true, vertical: false)
-              }
+
+            FlowLayout2(
+              items: recommendedForAges,
+              spacing: 8,
+              lineSpacing: 8,
+              lineLimit: 3
+            ) { item in
+              NutrientChip(title: item)
             }
-            .padding()
-            
+            .padding(.horizontal)
+
           }
         }
         .padding(.vertical, 24)
@@ -92,7 +94,7 @@ struct SearchView: View {
     .toolbar(.hidden, for: .navigationBar)
     .onAppear { loadRecentWords() }
   }
-  
+
   private var topBar: some View {
     HStack(spacing: 12) {
       Button(action: { dismiss() }) {
@@ -100,7 +102,7 @@ struct SearchView: View {
           .font(.title3)
           .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
       }
-      
+
       HStack {
         TextField("제품명, 브랜드명, 증상으로 검색", text: $query)
           .textInputAutocapitalization(.never)
@@ -119,7 +121,7 @@ struct SearchView: View {
     .padding(.horizontal)
     .padding(.vertical, 12)
   }
-  
+
   @ViewBuilder
   private func chip(title: String, action: @escaping () -> Void) -> some View {
     Button(action: action) {
@@ -134,13 +136,13 @@ struct SearchView: View {
     }
     .buttonStyle(.plain)
   }
-  
+
   private func performSearch() {
     // 검색어가 비어있지 않을 때만 검색 실행
     guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
       return
     }
-    
+
     addRecentWord(query)
     print("검색 실행: \(query)")
   }
