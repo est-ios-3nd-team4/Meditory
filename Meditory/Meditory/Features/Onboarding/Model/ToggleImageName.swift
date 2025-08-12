@@ -15,7 +15,7 @@ struct ToggleImageName:Hashable {
     isSelect ? selected : normal
   }
   
-  static func name(base:String,normalPrefix:String="icon_clear_",selectPrefix:String="icon_") -> Self {
-    .init(normal: normalPrefix + base, selected: selectPrefix + base)
+  static func name(base:String,normal:String="icon_",select:String="_filled") -> Self {
+    .init(normal: normal + base, selected: normal + base + select)
   }
 }
