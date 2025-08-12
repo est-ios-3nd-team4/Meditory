@@ -54,7 +54,7 @@ struct SplitScheduleCard: View {
 
       if selectedTab == .mine {
         NavigationLink {
-          AddSupplementView()
+          AddSupplementView(type: .edit)
         } label: {
           HStack(spacing: .smallSpacing) {
             Image(systemName: "pencil.circle.fill")
@@ -73,7 +73,7 @@ struct SplitScheduleCard: View {
         .accessibilityLabel("내 일정 수정 화면으로 이동")
       } else {
         NavigationLink {
-          AddSupplementView()
+          AddSupplementView(type: .edit)
         } label: {
           HStack(spacing: .smallSpacing) {
             Image(systemName: "pencil.circle.fill")

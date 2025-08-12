@@ -63,7 +63,22 @@ struct HomeView: View {
               }
               .buttonStyle(.plain)
 
-              NavigationLink(destination: SupplementDetailView()) {
+              NavigationLink(
+                destination: SupplementDetailView(
+                  dto: SupplementDetailDTO(
+                    name: item.routine.name,
+                    subtitle: item.routine.productDescription ?? "",
+                    userTimes: item.routine.routineTimes.map { $0.time.timeFormatter },
+                    userCycle: RoutineFormatter.renderCycle(
+                      cycleType: item.routine.cycleType,
+                      cycleValue: item.routine.cycleValue
+                    ),
+                    recTimes: ["오전 7시", "오후 7시"], // AI 추천값
+                    recCycle: "매일"
+                  ),
+                  routine: item.routine
+                )
+              ) {
                 HStack(spacing: .defaultSpacing) {
                   Text(item.name)
                     .font(.notoSans(size: 18))
