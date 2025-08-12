@@ -9,112 +9,132 @@ import SwiftUI
 
 struct OnboardingTwoOptionView: View {
   let prompt: String
-  var info:String?
+  var info: String?
   @Binding var isSelected: Bool
+  @Binding var isGenderSelected: Bool
   @Binding var isValid: Bool?
   @State private var hasInteracted = false
+  @Binding var selections: Set<QuestionModel>
   var image: String
   var title: String
   var action: (() -> Void)?
   var secondImage: String
   var secondTitle: String
   var secondAction: (() -> Void)?
+  var onAction: ((QuestionModel) -> Void)?
+  var question = QuestionModel.femineModel
   @Environment(\.colorScheme) var colorScheme
-  
+
   var body: some View {
-    VStack(alignment: .leading) {
-      Text(prompt)
-        .font(.notoSans(weight: .bold, size: 24))
-        .padding(.bottom,10)
-      if let info = info {
-        Text(info)
-          .font(.notoSans(weight: .medium, size: 12))
-          .foregroundStyle(.textGray)
+    VStack {
+      HStack{
+        VStack(alignment: .leading) {
+          Text(prompt)
+            .font(.notoSans(weight: .bold, size: 24))
+            .padding(.vertical, 10)
+            .padding(.bottom,10)
+          if let info = info {
+            Text(info)
+              .font(.notoSans(weight: .medium, size: 16))
+              .foregroundStyle(.textGray)
+          }
+        }
+        Spacer()
       }
-      HStack {
-        VStack(spacing: 12) {
+      .padding(.vertical,.defaultSpacing)
+      HStack(spacing: .defaultSpacing*2) {
+        Spacer()
+        VStack(spacing: .defaultSpacing+8) {
           Image(image)
             .resizable()
-            .scaledToFit()
-            .frame(width: 80, height: 80)
-            .shadow(color: Color.blue.opacity(0.4), radius: 4, x: 0, y: 4)
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 100, height: 100)
+            .background(
+              RoundedRectangle(cornerRadius: .defaultRadius)
+                .stroke(Color.gray.opacity(0.6), lineWidth: 1)
+                .fill(colorScheme == .light ? .white : Color(UIColor.darkGray))
+                .overlay {
+                  if hasInteracted {
+                    if isGenderSelected {
+                      RoundedRectangle(cornerRadius: .defaultRadius)
+                        .stroke(Color.blue.opacity(0.7), lineWidth: 2)
+                    }
+                  }
+                }
+            )
+            .onTapGesture {
+              action?()
+              isGenderSelected = true
+              hasInteracted = true
+            }
           Text(title)
             .font(.headline)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 18)
-        .background(
-          RoundedRectangle(cornerRadius: 16)
-            .stroke(Color.gray.opacity(0.2), lineWidth: 2)
-            .fill(colorScheme == .light ? .white : Color(UIColor.darkGray))
-            .overlay {
-              if hasInteracted {
-                if isSelected {
-                  RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.blue.opacity(0.7), lineWidth: 3)
-                }
-              }
-            }
-        )
-        .contentShape(Rectangle())
-        .onTapGesture {
-          action?()
-          isSelected = true
-          hasInteracted = true
-        }
-        VStack(spacing: 12) {
+        VStack(spacing:.defaultSpacing+8) {
           Image(secondImage)
             .resizable()
-            .scaledToFit()
-            .frame(width: 80, height: 80)
-            .shadow(color: Color.pink.opacity(0.4), radius: 4, x: 0, y: 4)
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 100, height: 100)
+            .background(
+              RoundedRectangle(cornerRadius: .defaultRadius)
+                .stroke(Color.gray.opacity(0.6), lineWidth: 1)
+                .fill(colorScheme == .light ? .white : Color(UIColor.darkGray))
+                .overlay {
+                  if hasInteracted {
+                    if !isGenderSelected {
+                      RoundedRectangle(cornerRadius: .defaultRadius)
+                        .stroke(Color.pink.opacity(0.7), lineWidth: 2)
+                    }
+                  }
+                }
+            )
+            .onTapGesture {
+              secondAction?()
+              isGenderSelected = false
+              hasInteracted = true
+            }
           Text(secondTitle)
             .font(.headline)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 18)
-        .background(
-          RoundedRectangle(cornerRadius: 16)
-            .stroke(Color.gray.opacity(0.2), lineWidth: 2)
-            .fill(colorScheme == .light ? .white : Color(UIColor.darkGray))
-            .overlay {
-              if hasInteracted {
-                if !isSelected {
-                  RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.pink.opacity(0.7), lineWidth: 3)
-                }
-              }
-            }
-        )
-        .contentShape(Rectangle())
-        .onTapGesture {
-          secondAction?()
-          isSelected = false
-          hasInteracted = true
-        }
+        Spacer()
       }
-      Spacer()
-        .onChange(of: isSelected){
-          if isSelected
-            {isValid = true}
-        }
+      .onChange(of: isSelected) {
+        if isSelected { isValid = true }
+      }
     }
-    .padding(.horizontal,16)
-    .padding(.top,16)
+    .padding(.horizontal)
+    .frame(maxWidth: .infinity)
+    .padding(.bottom, 20)
+    VStack(alignment: .leading, spacing: .defaultSpacing) {
+      Text("아래에 해당하는 상태가 있다면 선택해주세요")
+        .font(.notoSans(weight: .medium, size: 16))
+        .foregroundStyle(.textGray)
+      ForEach(question, id: \.self) { item in
+        RowItemCell(model: item, isSelected: selections.contains(item))
+          .onTapGesture {
+            onAction?(item)
+          }
+      }
+    }
+    .padding(.horizontal)
+    Spacer()
   }
+
 }
 
 #Preview {
   OnboardingTwoOptionView(
     prompt: "성별",
     isSelected: .constant(true),
+    isGenderSelected: .constant(true),
     isValid: .constant(true),
+    selections: .constant(.init()),
     image: "male_icon",
     title: "남성",
     action: nil,
     secondImage: "female_icon",
     secondTitle: "여성",
     secondAction: nil,
-    
+
   )
 }
