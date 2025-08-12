@@ -28,7 +28,7 @@ struct SplitScheduleCard: View {
           colorScheme: colorScheme,
           accent: .orange
         )
-        .cornerRadius(20)
+        .cornerRadius(.defaultRadius)
         .modifier(UnifiedShadow())
         .onTapGesture {
           withAnimation(.easeInOut(duration: 0.15)) { selectedTab = .mine }
@@ -44,7 +44,7 @@ struct SplitScheduleCard: View {
           colorScheme: colorScheme,
           accent: .main
         )
-        .cornerRadius(20)
+        .cornerRadius(.defaultRadius)
         .modifier(UnifiedShadow())
         .onTapGesture {
           withAnimation(.easeInOut(duration: 0.15)) { selectedTab = .ai }
@@ -54,7 +54,7 @@ struct SplitScheduleCard: View {
 
       if selectedTab == .mine {
         NavigationLink {
-          AddSupplementView()
+          AddSupplementView(type: .edit)
         } label: {
           HStack(spacing: .smallSpacing) {
             Image(systemName: "pencil.circle.fill")
@@ -67,13 +67,13 @@ struct SplitScheduleCard: View {
           .padding(.horizontal, .defaultSpacing)
           .background(Color.orange)
           .foregroundStyle(.white)
-          .cornerRadius(20)
+          .cornerRadius(.defaultRadius)
         }
         .buttonStyle(.plain)
         .accessibilityLabel("내 일정 수정 화면으로 이동")
       } else {
         NavigationLink {
-          AddSupplementView()
+          AddSupplementView(type: .edit)
         } label: {
           HStack(spacing: .smallSpacing) {
             Image(systemName: "pencil.circle.fill")
@@ -86,7 +86,7 @@ struct SplitScheduleCard: View {
           .padding(.horizontal, .defaultSpacing)
           .background(Color.main)
           .foregroundStyle(.white)
-          .cornerRadius(20)
+          .cornerRadius(.defaultRadius)
         }
         .buttonStyle(.plain)
         .accessibilityLabel("내 일정 수정 화면으로 이동")
@@ -99,7 +99,7 @@ struct SplitScheduleCard: View {
       ? Color.white.opacity(0.3)
       : Color.white
     )
-    .cornerRadius(20)
+    .cornerRadius(.defaultRadius)
     .modifier(UnifiedShadow())
   }
 }

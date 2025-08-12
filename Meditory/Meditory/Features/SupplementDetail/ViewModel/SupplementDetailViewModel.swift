@@ -7,16 +7,14 @@
 
 import Foundation
 import SwiftUI
+import SwiftData
 
 enum PlanTab: String, CaseIterable, Hashable { case mine = "내 일정", ai = "AI 추천" }
 
 @MainActor
 final class SupplementDetailViewModel: ObservableObject {
-
-  // MARK: - Inputs (DI)
-  private let onDelete: () -> Void
-  private let onEditMine: () -> Void
-  private let onApplyRec: () -> Void
+  private let routineStore: RoutineStore
+  let routine: Routine
 
   // MARK: - State
   @Published var selectedTab: PlanTab = .mine
@@ -32,10 +30,11 @@ final class SupplementDetailViewModel: ObservableObject {
 
   // MARK: - Init
   init(
-    dto: SupplementDetailDTO,
-    onDelete: @escaping () -> Void = {},
-    onEditMine: @escaping () -> Void = {},
-    onApplyRec: @escaping () -> Void = {}
+  dto: SupplementDetailDTO,
+  routine: Routine,
+  routineStore: RoutineStore = RoutineStore(),
+  onEditMine: @escaping () -> Void = {},
+  onApplyRec: @escaping () -> Void = {}
   ) {
     self.name = dto.name
     self.subtitle = dto.subtitle
@@ -43,9 +42,8 @@ final class SupplementDetailViewModel: ObservableObject {
     self.userCycle = dto.userCycle
     self.recTimes = dto.recTimes
     self.recCycle = dto.recCycle
-    self.onDelete = onDelete
-    self.onEditMine = onEditMine
-    self.onApplyRec = onApplyRec
+    self.routine = routine
+    self.routineStore = routineStore
   }
 
   // MARK: - Intents
@@ -61,14 +59,10 @@ final class SupplementDetailViewModel: ObservableObject {
 
   func requestDelete() { showDeleteAlert = true }
 
-  func confirmDelete() {
-    onDelete()
+  func confirmDelete(context: ModelContext) {
+    routineStore.deleteRoutine(routine, context: context)
     showDeleteAlert = false
   }
 
   func cancelDelete() { showDeleteAlert = false }
-
-  func goEditMine() { onEditMine() }
-
-  func applyRec() { onApplyRec() }
 }
