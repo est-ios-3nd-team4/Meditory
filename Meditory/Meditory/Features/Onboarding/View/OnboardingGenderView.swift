@@ -31,7 +31,7 @@ struct OnboardingGenderView: View {
       HStack {
         VStack(alignment: .leading) {
           Text(prompt.title(name: name))
-            .font(.notoSans(weight: .bold, size: 24))
+            .font(.notoSans(weight: .bold, size: 28))
             .padding(.vertical, 10)
             .padding(.bottom, 10)
           if let info = prompt.subtitle {

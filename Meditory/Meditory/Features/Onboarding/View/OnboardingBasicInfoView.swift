@@ -15,7 +15,7 @@ struct OnboardingBasicInfoView: View {
       HStack {
         VStack(alignment: .leading) {
           Text(prompt.title)
-            .font(.notoSans(weight: .bold, size: 24))
+            .font(.notoSans(weight: .bold, size: 28))
             .lineLimit(2)
             .fixedSize(horizontal: false, vertical: true)
             .layoutPriority(1)

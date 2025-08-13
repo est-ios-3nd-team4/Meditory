@@ -31,7 +31,7 @@ struct CollectionItemCell: View {
       Text(model.title)
         .font(.notoSans(weight: .medium, size: 18))
     }
-    .frame(width: 160,height: 160)
+    .frame(width: 140,height: 140)
   }
 }
 
