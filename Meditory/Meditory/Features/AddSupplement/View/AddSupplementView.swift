@@ -59,7 +59,6 @@ struct AddSupplementView: View {
             Spacer()
             
             Button {
-              addSupplementVM.save(selectedScheduleType)
               dismiss()
             } label: {
               RoundedRectangle(cornerRadius: 10)

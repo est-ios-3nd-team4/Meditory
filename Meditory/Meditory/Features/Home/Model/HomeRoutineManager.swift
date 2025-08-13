@@ -61,7 +61,7 @@ final class HomeRoutineManager {
         items.append(
           IntakeItem(
             id: time.id,
-            name: routine.name,
+            name: routine.category ?? "",
             time: scheduledTime,
             isCompleted: completed,
             routine: routine
