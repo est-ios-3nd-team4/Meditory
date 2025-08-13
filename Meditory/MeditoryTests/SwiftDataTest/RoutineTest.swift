@@ -25,21 +25,20 @@ final class RoutineTest: XCTestCase {
   @MainActor
   func testCreateRoutine() async throws {
     // When (RoutineStore 사용)
-    store.createRoutine(
-      type: 1,
-      name: "비타민D",
-      cycleType: 1,
-      cycleValue: "0, 2, 4", // 월수금
-      startDate: .now,
-      timesPerDay: 2,
-      pillsPerDose: 1,
-      memo: "아침 식사 후",
-      hasPush: true,
-      imageData: nil,
-      productName: "써큐텐D",
-      productDescription: "활성비타민D",
-      notWith: nil,
-      whenToTake: "식후",
+    store.addRoutine(
+      Routine(
+        type: 1,
+        displayName: "활성비타민D",
+        desc: "",
+        category: "비타민D",
+        cycleType: 1,
+        cycleValue: "0, 2, 4", // 월수금
+        startDate: .now,
+        pillsPerDose: 1,
+        memo: "아침 식사 후",
+        hasPush: true,
+        imageData: nil
+      ),
       context: context
     )
 
@@ -47,9 +46,8 @@ final class RoutineTest: XCTestCase {
     let all = store.fetchAllRoutines(context: context)
     XCTAssertEqual(all.count, 1)
     let saved = all.first!
-    XCTAssertEqual(saved.name, "비타민D")
+    XCTAssertEqual(saved.category, "비타민D")
     XCTAssertEqual(saved.cycleType, 1)
-    XCTAssertEqual(saved.timesPerDay, 2)
     XCTAssertEqual(saved.hasPush, true)
     XCTAssertEqual(saved.memo, "아침 식사 후")
   }
@@ -58,17 +56,20 @@ final class RoutineTest: XCTestCase {
   @MainActor
   func testDeleteRoutine() async throws {
     // Given
-    store.createRoutine(
-      type: 2,
-      name: "항생제",
-      cycleType: 2,
-      cycleValue: "11",
-      startDate: .now,
-      timesPerDay: 3,
-      pillsPerDose: 1,
-      hasPush: false,
+    store.addRoutine(
+      Routine(
+        type: 2,
+        displayName: "항생제D",
+        cycleType: 2,
+        cycleValue: "11",
+        startDate: .now,
+        pillsPerDose: 1,
+        hasPush: true,
+        imageData: nil
+      ),
       context: context
     )
+    
     var all = store.fetchAllRoutines(context: context)
     XCTAssertEqual(all.count, 1)
     let target = all.first!
@@ -85,26 +86,29 @@ final class RoutineTest: XCTestCase {
   @MainActor
   func testDeleteAllRoutines() async throws {
     // Given
-    store.createRoutine(
+    store
+      .addRoutine(Routine(
       type: 1,
-      name: "A",
+      displayName: "A",
       cycleType: 1,
       cycleValue: "0",
       startDate: .now,
-      timesPerDay: 1,
       pillsPerDose: 1,
-      hasPush: false,
-      context: context
-    )
-    store.createRoutine(
-      type: 2,
-      name: "B",
-      cycleType: 2,
-      cycleValue: "11",
-      startDate: .now,
-      timesPerDay: 1,
-      pillsPerDose: 1,
-      hasPush: false,
+      hasPush: true,
+      imageData: nil
+    ), context: context)
+    
+    store.addRoutine(
+      Routine(
+        type: 2,
+        displayName: "B",
+        cycleType: 2,
+        cycleValue: "11",
+        startDate: .now,
+        pillsPerDose: 1,
+        hasPush: true,
+        imageData: nil
+      ),
       context: context
     )
 
@@ -124,17 +128,20 @@ final class RoutineTest: XCTestCase {
   @MainActor
   func testAddAndFetchRoutineTime() async throws {
     // Given: Routine 1개 생성
-    store.createRoutine(
-      type: 1,
-      name: "오메가3",
-      cycleType: 1,
-      cycleValue: "0, 2, 4",
-      startDate: .now,
-      timesPerDay: 1,
-      pillsPerDose: 1,
-      hasPush: false,
+    store.addRoutine(
+      Routine(
+        type: 1,
+        displayName: "오메가3",
+        cycleType: 1,
+        cycleValue: "0, 2, 4",
+        startDate: .now,
+        pillsPerDose: 1,
+        hasPush: false,
+        imageData: nil
+      ),
       context: context
     )
+    
     let routine = store.fetchAllRoutines(context: context).first!
     // When: RoutineTime 2개 추가
     let time1 = Date()
@@ -154,17 +161,19 @@ final class RoutineTest: XCTestCase {
   @MainActor
   func testAddAndFetchRoutineRecord() async throws {
     // Given: Routine 1개 생성
-    store.createRoutine(
-      type: 1,
-      name: "종합비타민",
-      cycleType: 1,
-      cycleValue: "1, 3, 5",
-      startDate: .now,
-      timesPerDay: 1,
-      pillsPerDose: 1,
-      hasPush: true,
+    store.addRoutine(
+      Routine(
+        type: 1,
+        displayName: "종합비타민",
+        cycleType: 1,
+        cycleValue: "1, 3, 5",
+        startDate: .now,
+        pillsPerDose: 1,
+        imageData: nil
+      ),
       context: context
     )
+
     let routine = store.fetchAllRoutines(context: context).first!
 
     // When: RoutineRecord 1개 추가
