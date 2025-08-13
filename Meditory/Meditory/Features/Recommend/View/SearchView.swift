@@ -7,6 +7,9 @@ struct SearchView: View {
   @State private var query: String = "" // 현재 검색어
   @State private var recentWords: [String] = []
 
+  @State private var pushToDetail = false
+  @State private var selectedQuery: String? = nil
+
   private let recommendedForAges: [String] = [ // TODO: 샘플데이터. 추후 앨런한테 받아오는 걸로 할 거임
     "아연", "밀크씨슬", "히알루론산나트륨", "펜타닐", "LSD", "마그네슘", "비타민C", "철분", "오메가3", "프로바이오틱스", "콜라겐", "비타민D", "아스타잔틴", "홍삼", "아르기닌", "코엔자임Q10", "글루타티온", "루테인"
   ]
@@ -93,6 +96,9 @@ struct SearchView: View {
     .navigationBarBackButtonHidden(true)
     .toolbar(.hidden, for: .navigationBar)
     .onAppear { loadRecentWords() }
+    .navigationDestination(isPresented: $pushToDetail) {
+      SearchDetailView(query: selectedQuery ?? "")
+    }
   }
 
   private var topBar: some View {
@@ -144,6 +150,9 @@ struct SearchView: View {
     }
 
     addRecentWord(query)
+
+    selectedQuery = query
+    pushToDetail = true
     print("검색 실행: \(query)")
   }
 }

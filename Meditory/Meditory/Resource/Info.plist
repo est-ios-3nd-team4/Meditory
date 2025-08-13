@@ -12,11 +12,7 @@
 		<string>NotoSansKR-Regular.ttf</string>
 	</array>
 	<key>googleCSEKey</key>
-	<string>$(GOOGLE_CSE_KEY)
-
-$(GOOGLE_CSE_KEY)
-
-$</string>
+	<string>$(GOOGLE_CSE_KEY)</string>
 	<key>googleCSE_CX</key>
 	<string>$(GOOGLE_CSE_CX)</string>
 </dict>

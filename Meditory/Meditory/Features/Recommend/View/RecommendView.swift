@@ -2,38 +2,44 @@ import SwiftUI
 import SwiftData
 
 struct RecommendView: View {
+  @State private var isOverlappingHeader = false
+  // 헤더의 global maxY
+  @State private var headerBottomY: CGFloat = 0
+  // 첫 카드의 global minY
+  @State private var firstCardTopY: CGFloat = .infinity
+  
   @State private var searchText = ""
-
+  
   @State private var selectedScene: SceneTab = .recommend
-
+  
   @Environment(\.colorScheme) private var colorScheme
-
+  
   @Environment(\.modelContext) private var context
-
+  
   @State private var didSeedNutrients = false
-
+  
   @State private var refreshID = UUID()
-
+  
   @State private var items: [Product] = [
     Product(imageName: "", brand: "스포츠리서치", name: "트리플 스트렝스 오메가3 피쉬오일"),
-    Product(imageName: "", brand: "동아제약", name: "써큐란 알파"),
-    Product(imageName: "", brand: "정관장", name: "홍삼정 에브리타임 10ml"),
-    Product(imageName: "", brand: "종근당건강", name: "락토핏 생유산균 코어맥스"),
+    // Product(imageName: "", brand: "동아제약", name: "써큐란 알파"),
+    //Product(imageName: "", brand: "정관장", name: "홍삼정 에브리타임 10ml"),
+    //Product(imageName: "", brand: "종근당건강", name: "락토핏 생유산균 코어맥스"),
     //  Product(imageName: "", brand: "바이오일레븐", name: "드시모네 데일리"),
     // Product(imageName: "", brand: "덴프스", name: "덴마크 유산균이야기"),
     //  Product(imageName: "", brand: "일동제약", name: "지큐랩 장건강 포스트 솔루션"),
     // Product(imageName: "", brand: "자로우포뮬라", name: "자로우도필러스 EPS 100억 유산균")
   ]
-
+  
   private let imageService = GoogleCSEImageClient()
-
+  
   private func hydrateImagesForCurrentItems() {
     let current = items
     Task {
       // id -> url 매핑으로 받아오기
       var results: [UUID: String] = [:]
       var errors: [Error] = []
-
+      
       try? await withThrowingTaskGroup(of: (UUID, String?, Error?).self) { group in
         for product in current {
           group.addTask { [imageService] in
@@ -50,7 +56,7 @@ struct RecommendView: View {
           if let err { errors.append(err) }
         }
       }
-
+      
       await MainActor.run {
         // 기존 brand/name/id는 유지하고 image만 채움
         self.items = current.map { product in
@@ -60,15 +66,14 @@ struct RecommendView: View {
       }
     }
   }
-
+  
   enum SceneTab {
     case recommend
     case scrap
   }
-
+  
   var body: some View {
     NavigationStack {
-
       VStack(alignment: .leading) {
         ZStack {
           VStack(alignment: .leading) {
@@ -80,6 +85,10 @@ struct RecommendView: View {
                     .foregroundColor(searchText.isEmpty ? .gray : .black)
                     .font(.notoSans(weight: .medium, size: 15))
                     .frame(maxWidth: .infinity, alignment: .leading)
+                  
+                  Image(systemName: "magnifyingglass")
+                    .foregroundColor(.gray)
+                  
                 }
                 .padding(.vertical, 8)
                 .padding(.horizontal, 16)
@@ -89,16 +98,8 @@ struct RecommendView: View {
                 .modifier(UnifiedShadow())
               }
               .buttonStyle(PlainButtonStyle())
-
-              Button {
-
-              } label: {
-                Image(systemName: "magnifyingglass")
-                  .foregroundColor(.gray)
-                  .padding(.trailing, 24)
-              }
             }
-
+            
             // 추천 / 스크랩
             HStack {
               Button {
@@ -111,7 +112,7 @@ struct RecommendView: View {
                 }
               }
               .padding(.trailing, 16)
-
+              
               Button {
                 selectedScene = .scrap
               } label: {
@@ -124,22 +125,43 @@ struct RecommendView: View {
             }
             .padding(.horizontal, 32)
           }
+          .background(
+            GeometryReader { proxy in
+              let headerBottom = proxy.frame(in: .global).maxY
+              Color.clear
+                .onAppear { headerBottomY = headerBottom }
+                .onChange(of: headerBottom) { _, new in
+                  headerBottomY = new
+                }
+            }
+          )
         }
+        .allowsHitTesting(!(isOverlappingHeader && selectedScene == .recommend))
         .zIndex(0)
-
-
+        
         GeometryReader { geo in
           ScrollView(.vertical, showsIndicators: false) {
             ZStack {
               RoundedRectangle(cornerRadius: .defaultRadius)
-                .fill(colorScheme == .dark ? Color.black : Color.white.opacity(0.98))
-                .modifier(UnifiedShadow())
-                .padding(.bottom, -80)
-                .ignoresSafeArea(.container, edges: .bottom)
+                .fill(colorScheme == .dark ? Color.black : Color.customBackground)
+              //.modifier(UnifiedShadow())
                 .frame(minHeight: geo.size.height)
-
+              
               if selectedScene == .recommend {
                 VStack(spacing: 24) {
+                  
+                  Color.clear
+                    .frame(height: 1)
+                    .background(
+                      GeometryReader { proxy in
+                        let cardTop = proxy.frame(in: .global).minY
+                        Color.clear
+                          .onAppear { firstCardTopY = cardTop }
+                          .onChange(of: cardTop) { _, new in
+                            firstCardTopY = new
+                          }
+                      }
+                    )
                   // 맞춤 추천 셀
                   CardView(
                     title: "@@님 맞춤 추천",
@@ -149,21 +171,21 @@ struct RecommendView: View {
                   )
                   .font(.notoSans(weight: .medium, size: 15))
                   .modifier(UnifiedShadow())
-                  .padding(.top, 24)
                   .padding(.horizontal, 16)
-
-
+                  
+                  
                   // 맞춤 영양소 추천 셀
                   NutrientCardView(nutrients: ["아연", "밀크씨슬", "히알루론산"])
                     .padding(.horizontal, 16)
                     .modifier(UnifiedShadow())
-
+                  
                   ScoreView()
                     .padding(.horizontal, 16)
                     .modifier(UnifiedShadow())
+                    .padding(.bottom, .defaultSpacing)
                 }
               }
-
+              
               else if selectedScene == .scrap {
                 VStack {
                   ScrapView()
@@ -173,26 +195,45 @@ struct RecommendView: View {
               }
             }
           }
+          .onChange(of: headerBottomY) {
+            isOverlappingHeader = firstCardTopY < (headerBottomY - 2)
+          }
+          .onChange(of: firstCardTopY) {
+            isOverlappingHeader = firstCardTopY < (headerBottomY - 2)
+          }
           .scrollClipDisabled(true)
           .zIndex(1)
         }
       }
-      .background(colorScheme == .dark ? Color.black : Color.main)
-
+      .background {
+        GeometryReader { geo in
+          let topH = geo.size.height * 0.5 + geo.safeAreaInsets.top
+          VStack(spacing: 0) {
+            (colorScheme == .dark ? Color.black : Color.main)
+              .frame(height: topH)
+              .ignoresSafeArea(edges: .top)
+            
+            (colorScheme == .dark ? Color.black : Color.customBackground)
+              .ignoresSafeArea()
+          }
+          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        }
+      }
+      
     }
     .onAppear {
       guard !didSeedNutrients else { return }
       didSeedNutrients = true
       hydrateImagesForCurrentItems()
-
+      
       let existingNutrients = try? context.fetch(FetchDescriptor<Nutrient>())
       existingNutrients?.forEach { context.delete($0) }
       
 #if DEBUG
-print("apiKey len:", GoogleKey.apiKey.count, "cx:", GoogleKey.cx)
+      print("apiKey len:", GoogleKey.apiKey.count, "cx:", GoogleKey.cx)
 #endif
-
-
+      
+      
       let dummyNutrients = [
         Nutrient(
           id: "zinc",
