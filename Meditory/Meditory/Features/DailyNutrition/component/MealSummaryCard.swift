@@ -10,18 +10,12 @@ import SwiftUI
 struct MealSummaryView: View {
   
   let macros = [
-    MacroModel(id: 0,
-               color: .customCarbohydrate,
-               label: "탄",
-               gram: 150),
-    MacroModel(id: 1,
-               color: .customProtein,
-               label: "단",
-               gram: 120),
-    MacroModel(id: 2,
-               color: .customFat,
-               label: "지",
-               gram: 80)
+    MacroModel(macro: .carbohydrate,
+               gram: 180),
+    MacroModel(macro: .protein,
+               gram: 30),
+    MacroModel(macro: .fat,
+               gram: 10)
   ]
   
   var body: some View {
@@ -44,7 +38,13 @@ struct MealSummaryView: View {
                   .fill(macro.color)
                   .frame(width: 15, height: 15)
                 
-                Text(macro.label + " \(macro.gram)g")
+                HStack {
+                  Text(macro.label)
+                    .font(.custom("NotoSansKR-Bold", size: 17))
+                  
+                  Text("\(Int(macro.gram))g")
+                    .font(.custom("NotoSansCJKkr-Medium", size: 18))
+                }
               }
             }
           }
