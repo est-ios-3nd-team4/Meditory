@@ -37,15 +37,19 @@ struct OnboardingView: View {
       .padding(.top, 60)
       setContent(for: currentStep)
       Button {
+        if currentStep == .base {
+          vm.validateAllField()
+        }
         if let next = currentStep.nextView() {
           currentStep = next
         }
         if currentStep == .concern {
           print(vm.selectionSet)
         }
+        print(vm.validateAllField())
       } label: {
         RoundedRectangle(cornerRadius: .smallRadius)
-          .fill(vm.isValid != true ? Color.gray.opacity(0.4) : .main)
+          .fill(vm.isNextButtonOn != true ? Color.gray.opacity(0.2) : .main)
           .frame(height: 50)
           .overlay {
             Text(currentStep != .concern ? "다음" : "완료")
