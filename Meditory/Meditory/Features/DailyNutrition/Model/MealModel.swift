@@ -12,25 +12,24 @@ struct MealModel: Identifiable {
   var mealName: String // 식단 이름 (ex: 아침, 점심, 저녁)
   var date: Date // 날짜
   
-  var carbohydrate: Double
-  var protein: Double
-  var fat: Double
+  var carbohydrate: Double // 탄수화물
+  var protein: Double // 단백질
+  var fat: Double // 지방
   
   var foods: [FoodModel] // 식단에 포함된 음식
 }
 
 extension MealModel {
-  // MacroModel로 변환하는 작업이 가독성을 해치지 않을까?
   var carbohydrateModel: MacroModel {
-    MacroModel(macro: .carbohydrate,
+    MacroModel(macroType: .carbohydrate,
                gram: carbohydrate)
   }
   var proteinModel: MacroModel {
-    MacroModel(macro: .protein,
+    MacroModel(macroType: .protein,
                gram: protein)
   }
   var fatModel: MacroModel {
-    MacroModel(macro: .fat,
+    MacroModel(macroType: .fat,
                gram: fat)
   }
 }
@@ -38,5 +37,24 @@ extension MealModel {
 struct FoodModel {
   var foodName: String // 음식 이름
   var totalGram: Double // 음식의 총 g 수
-  var macros: [MacroModel] // 음식의 탄, 단, 지 g
+  
+  var carbohydrate: Double // 탄수화물
+  var protein: Double // 단백질
+  var fat: Double // 지방
 }
+
+extension FoodModel {
+  var carbohydrateModel: MacroModel {
+    MacroModel(macroType: .carbohydrate,
+               gram: carbohydrate)
+  }
+  var proteinModel: MacroModel {
+    MacroModel(macroType: .protein,
+               gram: protein)
+  }
+  var fatModel: MacroModel {
+    MacroModel(macroType: .fat,
+               gram: fat)
+  }
+}
+

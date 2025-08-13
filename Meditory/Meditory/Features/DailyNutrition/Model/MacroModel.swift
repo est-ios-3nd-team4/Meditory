@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum Macro: String {
+enum MacroType: String {
   case carbohydrate = "carbohydrate"
   case protein = "protein"
   case fat = "fat"
@@ -25,9 +25,9 @@ enum Macro: String {
 }
 
 struct MacroModel: Identifiable {
-  var id: String { macro.rawValue }
-  let macro: Macro
+  var id: String { macroType.rawValue }
+  let macroType: MacroType
   let gram: Double
-  var label: String { macro.info.name }
-  var color: Color { macro.info.color }
+  var label: String { macroType.info.name }
+  var color: Color { macroType.info.color }
 }
