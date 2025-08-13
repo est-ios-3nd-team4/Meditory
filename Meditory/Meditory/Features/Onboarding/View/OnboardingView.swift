@@ -23,10 +23,10 @@ struct OnboardingView: View {
             Text(String(index.rawValue + 1))
               .font(.notoSans(size: 13))
               .foregroundStyle(index == currentStep ? Color.white : Color.gray)
+              .frame(width: 25, height: 25)
               .background {
                 Circle()
-                  .fill(index == currentStep ? Color.main : Color.gray.opacity(0.4))
-                  .frame(width: 25, height: 25)
+                  .fill(index == currentStep ? Color.main : Color.gray.opacity(0.2))
               }
           }
         }
@@ -64,9 +64,6 @@ struct OnboardingView: View {
       switch step {
       case .base:
         OnboardingBasicInfoView(vm: vm, prompt: prompt)
-          .onAppear {
-            print(prompt)
-          }
       case .gender:
         OnboardingGenderView(
           vm: vm,

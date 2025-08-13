@@ -20,6 +20,7 @@ struct OnboardingDiseaseView: View {
   @Binding var isSelected: Bool
   var onAction: ((QuestionModel) -> Void)?
   var body: some View {
+    ScrollView {
     HStack {
       VStack(alignment: .leading) {
         Text(prompt.title(name: name))
@@ -33,9 +34,7 @@ struct OnboardingDiseaseView: View {
       }
       Spacer()
     }
-    .padding(.horizontal, .defaultSpacing + 4)
-    .padding(.vertical, .defaultSpacing)
-    ScrollView {
+    .padding([.horizontal], .defaultSpacing + 4)
       LazyVGrid(columns: columns) {
         ForEach(items, id: \.title) { item in
           CollectionItemCell(model: item, isSelected: selections.contains(item))

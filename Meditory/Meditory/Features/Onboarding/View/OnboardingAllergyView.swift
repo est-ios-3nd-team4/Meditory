@@ -29,8 +29,7 @@ struct OnboardingAllergyView: View {
         }
         Spacer()
       }
-      .padding(.vertical, .defaultSpacing)
-      .padding(.horizontal, .defaultSpacing + 4)
+      .padding([.bottom,.horizontal],.defaultSpacing + 4)
       ForEach(questions, id: \.self) { item in
         RowItemCell(model: item, isSelected: selections.contains(item))
           .onTapGesture {

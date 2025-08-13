@@ -36,20 +36,20 @@ struct OnboardingGenderView: View {
             .padding(.bottom, 10)
           if let info = prompt.subtitle {
             Text(info)
-              .font(.notoSans(weight: .medium, size: 16))
+              .font(.notoSans(weight: .bold, size: 16))
               .foregroundStyle(.textGray)
           }
         }
         Spacer()
       }
-      .padding(.vertical, .defaultSpacing)
+      .padding(.bottom, .defaultSpacing + 4)
       HStack(spacing: .defaultSpacing * 2) {
         Spacer()
         VStack(spacing: .defaultSpacing + 8) {
           Image(image)
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .frame(width: 100, height: 100)
+            .frame(width: 80, height: 80)
             .background(
               RoundedRectangle(cornerRadius: .defaultRadius)
                 .stroke(Color.gray.opacity(0.6), lineWidth: 1)
@@ -71,11 +71,12 @@ struct OnboardingGenderView: View {
           Text(title)
             .font(.headline)
         }
+        Spacer()
         VStack(spacing: .defaultSpacing + 8) {
           Image(secondImage)
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .frame(width: 100, height: 100)
+            .frame(width: 80, height: 80)
             .background(
               RoundedRectangle(cornerRadius: .defaultRadius)
                 .stroke(Color.gray.opacity(0.6), lineWidth: 1)
@@ -108,7 +109,7 @@ struct OnboardingGenderView: View {
     .padding(.bottom, 20)
     VStack(alignment: .leading, spacing: .defaultSpacing) {
       Text("아래에 해당하는 상태가 있다면 선택해주세요")
-        .font(.notoSans(weight: .medium, size: 16))
+        .font(.notoSans(weight: .bold, size: 16))
         .foregroundStyle(.textGray)
       ForEach(question, id: \.self) { item in
         RowItemCell(model: item, isSelected: selections.contains(item))

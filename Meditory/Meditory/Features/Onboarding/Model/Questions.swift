@@ -176,7 +176,7 @@ struct QuestionModel: Hashable {
       subtitle: "젤라틴, 꿀, 버섯, 초콜릿, 인공 색소·첨가물",
       symptom: "두드러기, 복통, 구토",
       treatment: "원인 회피, 항히스타민제 복용",
-      toggleImage: .name(base: "")
+      toggleImage: .name(base: "etc_allergy")
     ),
   ]
   static let femineModel: [QuestionModel] = [

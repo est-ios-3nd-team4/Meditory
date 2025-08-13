@@ -28,7 +28,7 @@ struct OnboardingBasicInfoView: View {
         }
         Spacer()
       }
-      .padding(.vertical, .defaultSpacing)
+      .padding(.bottom, .defaultSpacing + 4)
       VStack(spacing: .defaultSpacing) {
         TextInputView(
           placeholder: "이름",

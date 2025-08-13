@@ -28,7 +28,7 @@ struct RowItemCell: View {
             Text(model.title)
               .font(.notoSans(weight: .semiBold, size: 16))
             Text(model.subtitle)
-              .font(.notoSans(weight: .regular, size: 10))
+              .font(.notoSans(weight: .regular, size: 14))
               .foregroundStyle(.textGray)
           }
         }
