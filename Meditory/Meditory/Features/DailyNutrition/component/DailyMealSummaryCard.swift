@@ -10,18 +10,12 @@ import SwiftUI
 struct DailyMealSummaryView: View {
   
   let macros = [
-    MacroModel(id: 0,
-               color: .customCarbohydrate,
-               label: "탄",
-               gram: 150),
-    MacroModel(id: 1,
-               color: .customProtein,
-               label: "단",
-               gram: 120),
-    MacroModel(id: 2,
-               color: .customFat,
-               label: "지",
-               gram: 80)
+    MacroModel(macroType: .carbohydrate,
+               gram: 180),
+    MacroModel(macroType: .protein,
+               gram: 30),
+    MacroModel(macroType: .fat,
+               gram: 10)
   ]
   
   var body: some View {
@@ -34,7 +28,7 @@ struct DailyMealSummaryView: View {
       
       HStack {
         Text("오늘 하루 식단")
-          .font(.custom("NotoSansKR-Bold", size: 18))
+          .font(.notoSans(weight: .bold, size: 18))
           .foregroundStyle(.black)
           .padding(.leading, 16)
         
@@ -56,17 +50,22 @@ struct DailyMealSummaryView: View {
   /// 탄, 단, 지 오늘 하루 목표치 대비 퍼센트값을 나타냄
   func macroPercentageView() -> some View {
     VStack(alignment: .leading) {
-      ForEach(macros) { macro in
-        HStack {
-          Circle()
-            .fill(macro.color)
-            .frame(width: 15, height: 15)
-          
-          Text(macro.label + " \(macro.gram)%")
-            .font(.custom("NotoSansCJKkr-Medium", size: 18))
-            .foregroundStyle(.black)
+        ForEach(macros) { macro in
+          HStack {
+            Circle()
+              .fill(macro.color)
+              .frame(width: 15, height: 15)
+            
+            HStack {
+              Text(macro.label)
+                .font(.notoSans(weight: .bold, size: 17))
+                .foregroundStyle(.black)
+              
+              Text("\(Int(macro.gram))%")
+                .font(.notoSans(weight: .medium, size: 18))
+            }
+          }
         }
-      }
     }
   }
 }

@@ -31,7 +31,7 @@ struct MainTabView: View {
               case .add:
                 Color.red
               case .dailyNutrition:
-                Color.green
+                NutritionHomeView()
               case .settings:
                 SettingView()
               }
