@@ -1,17 +1,12 @@
-//
-//  FlowLayout2.swift
-//
-//	기존 FlowLayout 으로는 최대3줄 제한이 안되어서 새로 제작
-//
-//
-
 import SwiftUI
 
-struct FlowLayout2<Content: View>: View {
+struct FlowLayoutLineLimit<Content: View>: View {
   let items: [String]
   let spacing: CGFloat
   let lineSpacing: CGFloat
   let lineLimit: Int?
+  let containerPadding: CGFloat  // 화면 여백 파라미터
+  let itemPadding: CGFloat       // 칩 패딩 파라미터
   let content: (String) -> Content
 
   init(
@@ -19,12 +14,16 @@ struct FlowLayout2<Content: View>: View {
     spacing: CGFloat = 8,
     lineSpacing: CGFloat = 8,
     lineLimit: Int? = nil,
+    containerPadding: CGFloat = 32,  // 기본값 32 (좌우 16씩)
+    itemPadding: CGFloat = 32,       // 기본값 32 (좌우 16씩)
     @ViewBuilder content: @escaping (String) -> Content
   ) {
     self.items = items
     self.spacing = spacing
     self.lineSpacing = lineSpacing
     self.lineLimit = lineLimit
+    self.containerPadding = containerPadding
+    self.itemPadding = itemPadding
     self.content = content
   }
 
@@ -50,10 +49,10 @@ struct FlowLayout2<Content: View>: View {
     var currentRow: [String] = []
     var currentWidth: CGFloat = 0
 
-    let maxWidth = containerWidth - 32
+    let maxWidth = containerWidth - containerPadding
 
     for item in items {
-      let itemWidth = textWidth(for: item) + 32
+      let itemWidth = textWidth(for: item) + itemPadding
       let totalWidthWithSpacing = currentWidth + itemWidth + (currentRow.isEmpty ? 0 : spacing)
 
       if totalWidthWithSpacing > maxWidth && !currentRow.isEmpty {
