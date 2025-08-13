@@ -29,8 +29,6 @@ struct OnboardingConcernView: View {
           Text(info)
             .font(.notoSans(weight: .bold, size: 16))
             .foregroundStyle(.textGray)
-        } else {
-          Color.clear.frame(height: 23)
         }
       }
       Spacer()
