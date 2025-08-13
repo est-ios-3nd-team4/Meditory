@@ -38,7 +38,8 @@ struct CSEProduct: Decodable {
     init(from decoder: Decoder) throws {
       let container = try decoder.singleValueContainer()
       if let string = try? container.decode(String.self) {
-        value = string; return
+        value = string
+        return
       }
       if let dictionary = try? container.decode([String:String].self), let name = dictionary["name"] {
         value = name; return
