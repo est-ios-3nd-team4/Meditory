@@ -2,35 +2,41 @@ import SwiftUI
 
 struct Product: Identifiable {
   let id = UUID()
-  let imageName: String
+  var imageName: String
   let brand: String
   let name: String
+
+  init(imageName: String, brand: String, name: String) {
+    self.imageName = imageName
+    self.brand = brand
+    self.name = name
+  }
 }
 
 struct CardView: View {
-  var title: String
-  var categories: [String]
-  var desciption: String
+  let title: String
+  let categories: [String]
+  let desc: String
   let products: [Product]
+  var onCategoryTap: ((String) -> Void)? = nil
 
   @State private var selectedCategory: String?
-
   @Environment(\.colorScheme) private var colorScheme
 
-  init(title: String, categories: [String], desciption: String, products: [Product]) {
+  init(title: String, categories: [String], desc: String, products: [Product]) {
     self.title = title
     self.categories = categories
-    self.desciption = desciption
+    self.desc = desc
     self.products = products
     _selectedCategory = State(initialValue: categories.first)
   }
 
+
   var body: some View {
-    VStack(alignment: .leading, spacing: .smallSpacing) {
+    VStack(alignment: .leading, spacing: 12) {
       HStack {
         Text(title)
           .font(.notoSans(weight: .medium, size: 18))
-
         Spacer()
 
         Button {
@@ -38,7 +44,6 @@ struct CardView: View {
         } label: {
           Text("수정하기")
             .font(.notoSans(weight: .medium, size: 12))
-
         }
       }
 
@@ -46,6 +51,7 @@ struct CardView: View {
         HStack {
           ForEach(categories, id: \.self) { category in
             Button {
+              onCategoryTap?(category)
               selectedCategory = category
             } label: {
               Text(category)
@@ -69,58 +75,59 @@ struct CardView: View {
                     )
                 }
                 .cornerRadius(.defaultRadius)
-
             }
           }
-        }
+        }.padding(.vertical, 4)
       }
 
-      ZStack {
-        RoundedRectangle(cornerRadius: .smallRadius)
-          .fill(Color(.systemGray5))
-          .frame(height: 40)
+      Text(desc)
+        .font(.notoSans(weight: .medium, size: 12))
+        .foregroundColor(.gray)
 
-
-        Text(desciption)
-          .font(.notoSans(weight: .medium, size: 12))
-          .foregroundColor(.gray)
-      }
 
       ScrollView(.horizontal, showsIndicators: false) {
-        HStack(alignment: .top, spacing: .smallSpacing) {
+        HStack(spacing: .smallSpacing) {
           ForEach(products) { product in
             VStack(alignment: .leading, spacing: .smallSpacing) {
-              Image(product.imageName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 100, height: 100)
-                .cornerRadius(.smallRadius)
+              if let url = URL(string: product.imageName), !product.imageName.isEmpty {
+                AsyncImage(url: URL(string: product.imageName)) { phase in
+                  switch phase {
+                  case .success(let img): img.resizable().scaledToFill()
+                  case .failure: Color.gray.opacity(0.2)
+                  default: Color.gray.opacity(0.1)
+                  }
+                }
+                .frame(width: 110, height: 110, alignment: .center)
+                .clipShape(RoundedRectangle(cornerRadius: .smallRadius))
+              } else {
+                Color.gray
+                  .frame(width: 110, height: 110, alignment: .center)
+                  .clipShape(RoundedRectangle(cornerRadius: .smallRadius))
+              }
 
               Text(product.brand)
-                .font(.notoSans(weight: .medium, size: 15))
-                .foregroundColor(.gray)
-                .frame(width: 90, alignment: .leading)
+                .padding(.leading, 2)
+                .font(.notoSans(weight: .medium, size: 13))
+                .foregroundStyle(.gray)
+                .frame(width: 110, height: 16, alignment: .topLeading)
 
               Text(product.name)
-                .font(.notoSans(weight: .medium, size: 15))
-                .frame(width: 90, height: 50, alignment: .leading)
-                .multilineTextAlignment(.leading)
+                .padding(.leading, 2)
+                .font(.notoSans(weight: .medium, size: 12))
                 .lineLimit(2)
-
+                .frame(width: 110, height: 40, alignment: .topLeading)
             }
-            .frame(width: 100)
           }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
       }
-
     }
     .padding()
-    .background(colorScheme == .dark ? Color.white.opacity(0.3) : Color.white)
+    .background(colorScheme == .dark ? Color.white.opacity(0.2) : Color.white)
     .cornerRadius(.defaultRadius)
-
   }
 }
+
+
 
 //#Preview {
 //    CardView()

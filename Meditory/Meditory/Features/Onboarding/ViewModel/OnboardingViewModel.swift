@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 class OnboardingViewModel: ObservableObject {
   @Published var name = ""
@@ -15,12 +16,34 @@ class OnboardingViewModel: ObservableObject {
   @Published var gender = ""
   @Published var isViewApearing = false
   @Published var isSelected = false
+  @Published var isGenderSelected = false
   @Published var select = ""
-  @Published var selectionSet: Set<String> = []
+  @Published var selectionSet: Set<QuestionModel> = []
   @Published var isPregnancy = false
   @Published var isBreastfeeding = false
   @Published var hasDisease = false
   @Published var hasAllergy = false
   @Published var takingMedication = false
+  @Published var needValidation = false
+  @Published var isFormValid:Bool? = false
+  @Published var isValid:Bool? = false
+  @Published var birthDate:Date?
+  
+  func validateName(context:String)->Bool{
+    let result = !context.trimmingCharacters(in: .whitespaces).isEmpty && context.count > 2
+    return result
+  }
+  
+  func validateHeightAndWeight(context:String)->Bool{
+    if !context.trimmingCharacters(in: .whitespaces).isEmpty {
+      if let value = Double(context),value > 0 , value < 300 {
+        let decimalPart = context.split(separator: ".").last ?? ""
+        if decimalPart.count < 3 {
+          return true
+        }
+      }
+    }
+    return false
+  }
 }
 

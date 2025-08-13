@@ -32,11 +32,11 @@ struct HomeView: View {
       vm.loadIntake(on: newDate)
     }
   }
-  
+
   private var achiveMentSection: some View {
-    VStack(spacing: 16) {
+    VStack(spacing: .defaultSpacing) {
       Text("오늘 복용 달성률")
-        .font(.notoSans(size: 18))
+        .font(.notoSans(size: 20))
         .frame(maxWidth: .infinity, alignment: .leading)
 
       CircularProgressView(progress: vm.progress)
@@ -50,11 +50,11 @@ struct HomeView: View {
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
 
-        LazyVStack(spacing: 8) {
+        LazyVStack(spacing: .smallSpacing) {
           ForEach(vm.items.indices.sorted { vm.items[$0].time < vm.items[$1].time }, id: \.self) { index in
             let item = vm.items[index]
 
-            HStack(alignment: .center, spacing: 16) {
+            HStack(alignment: .center, spacing: .defaultSpacing) {
               Button {
                 vm.toggleCompleted(at: index, for: selectedDate)
               } label: {
@@ -63,10 +63,25 @@ struct HomeView: View {
               }
               .buttonStyle(.plain)
 
-              NavigationLink(destination: EmptyView()) {
-                HStack(spacing: 16) {
+              NavigationLink(
+                destination: SupplementDetailView(
+                  dto: SupplementDetailDTO(
+                    name: item.routine.name,
+                    subtitle: item.routine.productDescription ?? "",
+                    userTimes: item.routine.routineTimes.map { $0.time.timeFormatter },
+                    userCycle: RoutineFormatter.renderCycle(
+                      cycleType: item.routine.cycleType,
+                      cycleValue: item.routine.cycleValue
+                    ),
+                    recTimes: ["오전 7시", "오후 7시"], // AI 추천값
+                    recCycle: "매일"
+                  ),
+                  routine: item.routine
+                )
+              ) {
+                HStack(spacing: .defaultSpacing) {
                   Text(item.name)
-                    .font(.notoSans(size: 20))
+                    .font(.notoSans(size: 18))
                     .foregroundColor(.primary)
 
                   Spacer()
@@ -82,12 +97,12 @@ struct HomeView: View {
               }
               .buttonStyle(.plain)
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, .smallSpacing)
           }
         }
       }
     }
-    .padding(16)
+    .padding(.defaultSpacing)
     .background(
       colorScheme == .dark
       ? Color.white.opacity(0.3)
@@ -95,7 +110,7 @@ struct HomeView: View {
     )
     .cornerRadius(20)
     .modifier(UnifiedShadow())
-    .padding(.bottom, 16)
+    .padding(.bottom, .defaultSpacing)
   }
 }
 
@@ -112,7 +127,7 @@ struct HomeView_Previews: PreviewProvider {
       type: 1,
       name: "비타민C",
       cycleType: 1,
-      cycleValue: [0],
+      cycleValue: "0",
       startDate: Date(),
       timesPerDay: 3,
       pillsPerDose: 1,
@@ -138,7 +153,7 @@ struct HomeView_Previews: PreviewProvider {
       type: 1,
       name: "오메가-3",
       cycleType: 1,
-      cycleValue: [1, 3, 5], // 월, 수, 금
+      cycleValue: "1, 3, 5", // 월, 수, 금
       startDate: Date().addingTimeInterval(-86400 * 7),
       timesPerDay: 1,
       pillsPerDose: 2,
@@ -164,7 +179,7 @@ struct HomeView_Previews: PreviewProvider {
       type: 1,
       name: "비타민D",
       cycleType: 2,
-      cycleValue: [2], // 이틀 간격
+      cycleValue: "2", // 이틀 간격
       startDate: Date().addingTimeInterval(-86400 * 14),
       timesPerDay: 1,
       pillsPerDose: 1,
@@ -190,7 +205,7 @@ struct HomeView_Previews: PreviewProvider {
       type: 1,
       name: "프로바이오틱스",
       cycleType: 1,
-      cycleValue: [2, 4, 6], // 화, 목, 토
+      cycleValue: "2, 4, 6", // 화, 목, 토
       startDate: Date().addingTimeInterval(-86400 * 3),
       timesPerDay: 2,
       pillsPerDose: 1,

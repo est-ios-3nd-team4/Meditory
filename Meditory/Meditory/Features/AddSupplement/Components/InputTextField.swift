@@ -15,6 +15,9 @@ struct InputTextField: UIViewRepresentable {
   let placHolderTextColor: UIColor = .textGray
   let tintColor: UIColor = .textGray
   
+  var didBeginEditing: (() -> Void)? = nil
+  var shouldReturn: (() -> Void)? = nil
+  
   func makeUIView(context: Context) -> some UIView {
     let textField = UITextField()
     textField.delegate = context.coordinator
@@ -49,7 +52,12 @@ struct InputTextField: UIViewRepresentable {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
       textField.resignFirstResponder()
+      parent.shouldReturn?()
       return true
+    }
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+      parent.didBeginEditing?()
     }
   }
 }

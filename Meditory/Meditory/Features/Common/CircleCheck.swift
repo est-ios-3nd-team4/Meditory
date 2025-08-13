@@ -10,7 +10,7 @@ import SwiftUI
 struct CircleCheck: View {
   var isCompleted: Bool
   var size: CGFloat = 20
-  
+  var defaultWidthWitGray: Bool = true
   var body: some View {
     ZStack {
       Circle()
@@ -24,8 +24,13 @@ struct CircleCheck: View {
           .foregroundColor(.white)
           .fontWeight(.bold)
       } else {
-        Circle()
-          .strokeBorder(Color.gray, lineWidth: size * 0.08)
+        if defaultWidthWitGray {
+          Circle()
+            .strokeBorder(Color.gray.opacity(0.4))
+        } else {
+          Circle()
+            .strokeBorder(Color.gray, lineWidth: size * 0.08)
+        }
       }
     }
     .frame(width: size, height: size)

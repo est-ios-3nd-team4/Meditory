@@ -36,23 +36,23 @@ struct ScrapView: View {
 
   var body: some View {
     ScrollView {
-      LazyVStack(spacing: .defaultSpacing) {
-            ForEach(scrappedNutrients, id: \.id) { nutrient in
-              NavigationLink(value: nutrient) {
-                NutrientCardCell(nutrient: nutrient, colorScheme: colorScheme) {
-                  removeScrap(for: nutrient)
-                }
-              }
-              .buttonStyle(.plain)
+      LazyVStack(spacing: .defaultSpacing + 8) {
+        ForEach(scrappedNutrients, id: \.id) { nutrient in
+          NavigationLink(value: nutrient) {
+            NutrientCardCell(nutrient: nutrient, colorScheme: colorScheme) {
+              removeScrap(for: nutrient)
             }
           }
-        }
-        .navigationDestination(for: Nutrient.self) { nutrient in
-          NutrientDetailSectionView(nutrient: nutrient)
-            .padding(.horizontal, 16)
+          .buttonStyle(.plain)
         }
       }
     }
+    .navigationDestination(for: Nutrient.self) { nutrient in
+      NutrientDetailSectionView(nutrient: nutrient)
+        .padding(.horizontal, 16)
+    }
+  }
+}
 
 struct NutrientCardCell: View {
   let nutrient: Nutrient
@@ -72,6 +72,7 @@ struct NutrientCardCell: View {
             onUnscrap()
           } label: {
             Image(systemName: "star.fill")
+              .padding(.trailing, 8)
           }
         }
 
@@ -93,7 +94,7 @@ struct NutrientCardCell: View {
     .background(
       RoundedRectangle(cornerRadius: .defaultRadius)
         .fill(colorScheme == .dark ? Color.white.opacity(0.3)
-                    : Color.white)
+              : Color.white)
     )
     .modifier(UnifiedShadow())
   }

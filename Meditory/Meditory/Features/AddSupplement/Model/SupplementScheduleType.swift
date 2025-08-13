@@ -7,9 +7,16 @@
 
 import Foundation
 
-enum SupplementScheduleType: String, CaseIterable, Identifiable {
-  var id: String { rawValue }
+enum SupplementScheduleType: Int, CaseIterable {
+  case weekday = 1
+  case interval
   
-  case weekday = "요일별"
-  case interval = "주기별"
+  var title: String {
+    switch self {
+    case .weekday:
+      return "요일별"
+    case .interval:
+      return "주기별"
+    }
+  }
 }

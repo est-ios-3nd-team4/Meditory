@@ -22,9 +22,9 @@ enum Gender: String, CaseIterable {
   var image:String {
     switch self {
       case .male:
-        "male_icon"
+        "icon_male"
       case .female:
-        "female_icon"
+        "icon_female"
     }
   }
 }

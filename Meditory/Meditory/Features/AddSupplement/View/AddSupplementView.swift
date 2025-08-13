@@ -14,9 +14,15 @@ struct AddSupplementView: View {
     case edit
   }
   
+  enum FieldType {
+    case name
+    case memo
+  }
+  
   var type: Mode = .add
   
-  @Environment(\.dismiss) var dismiss
+  @Environment(\.modelContext) private var context
+  @Environment(\.dismiss) private var dismiss
   
   @State private var selectedScheduleType: SupplementScheduleType = .weekday
   @StateObject private var addSupplementVM = AddSupplementViewModel()
@@ -26,51 +32,81 @@ struct AddSupplementView: View {
       showSchedulePicker()
     }
   }
+  @State private var fieldType: FieldType? = nil
+  @State private var selectedTimeIndex = 0
+  
+  private let defaultFontSize: CGFloat = 18
   
   var body: some View {
-    ZStack {
-      VStack(spacing: 20) {
-        supplementNameInput()
-        supplementCountSelector()
-        scheduleTypeSelector()
-        
-        switch selectedScheduleType {
-        case .weekday:
-          weekdayScheduleView()
-        case .interval:
-          intervalScheduleView()
-        }
-        
-        timeSelectionSection()
-        memoSection()
-        
-        Spacer()
-        
-        Button {
-          
-        } label: {
-          RoundedRectangle(cornerRadius: 10)
-            .fill(.main)
-            .frame(height: 50)
-            .overlay {
-              Text("완료")
-                .font(.notoSans(weight: .semiBold, size: 18))
-                .foregroundStyle(.white)
+    GeometryReader { geometry in
+      ScrollViewReader { proxy in
+        ScrollView {
+          VStack(spacing: 20) {
+            supplementNameInput()
+            supplementCountSelector()
+            scheduleTypeSelector()
+            
+            switch selectedScheduleType {
+            case .weekday:
+              weekdayScheduleView()
+            case .interval:
+              intervalScheduleView()
             }
-        }
-      }
-      .padding(.horizontal, .defaultSpacing + 4)
-      .navigationTitle("복용약 추가")
-      .navigationBarTitleDisplayMode(.inline)
-      .navigationBarBackButtonHidden(true)
-      .toolbar {
-        ToolbarItem(placement: .navigationBarLeading) {
-          Button {
-            dismiss()
-          } label: {
-            Image(systemName: "chevron.left")
-              .foregroundStyle(Color.label)
+            
+            timeSelectionSection()
+            memoSection()
+            
+            Spacer()
+            
+            Button {
+              addSupplementVM.save(selectedScheduleType)
+              dismiss()
+            } label: {
+              RoundedRectangle(cornerRadius: 10)
+                .fill(.main)
+                .frame(height: 50)
+                .overlay {
+                  Text("완료")
+                    .font(.notoSans(weight: .semiBold, size: defaultFontSize))
+                    .foregroundStyle(.white)
+                }
+            }
+            .id("confirmButton")
+            .padding(.bottom, fieldType == .memo ? 20 : 0)
           }
+          .frame(height: fieldType != nil ? nil : geometry.size.height)
+          .padding(.horizontal, .defaultSpacing + 4)
+          .navigationTitle("복용약 추가")
+          .navigationBarTitleDisplayMode(.inline)
+          .navigationBarBackButtonHidden(true)
+          .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+              Button {
+                dismiss()
+              } label: {
+                Image(systemName: "chevron.left")
+                  .foregroundStyle(Color.label)
+              }
+            }
+          }
+        }
+        .scrollIndicators(.hidden)
+        .onChange(of: fieldType) { oldValue, newValue in
+          switch fieldType {
+          case .memo:
+            let keyboardAnimationDuration = 0.3
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + keyboardAnimationDuration) {
+              withAnimation {
+                proxy.scrollTo("confirmButton", anchor: .bottom)
+              }
+            }
+          default:
+            break
+          }
+        }
+        .onAppear {
+          addSupplementVM.updateContext(context)
         }
       }
     }
@@ -95,7 +131,7 @@ extension AddSupplementView {
   private func supplementNameInput() -> some View {
     VStack(alignment: .leading, spacing: .defaultSpacing) {
       Text("섭취 제품 이름")
-        .font(.notoSans(size: 20))
+        .font(.notoSans(size: defaultFontSize))
       
       ZStack {
         RoundedRectangle(cornerRadius: 20)
@@ -117,7 +153,15 @@ extension AddSupplementView {
               }
           }
           
-          InputTextField(placeHolder: "사진 촬영 및 텍스트로 검색")
+          InputTextField(
+            placeHolder: "사진 촬영 및 텍스트로 검색",
+            didBeginEditing: {
+              fieldType = .name
+            },
+            shouldReturn: {
+              fieldType = nil
+            }
+          )
         }
         .padding(.horizontal, 8)
       }
@@ -128,7 +172,7 @@ extension AddSupplementView {
   private func supplementCountSelector() -> some View {
     VStack(alignment: .leading, spacing: .defaultSpacing) {
       Text("섭취 횟수")
-        .font(.notoSans(size: 20))
+        .font(.notoSans(size: defaultFontSize))
       
       HStack {
         Button {
@@ -139,15 +183,15 @@ extension AddSupplementView {
             .foregroundStyle(.main)
             .overlay {
               Image(systemName: "minus")
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: defaultFontSize, weight: .semibold))
                 .foregroundStyle(.white)
             }
         }
         
         Spacer()
         
-        Text("\(addSupplementVM.routineTimes.count)")
-          .font(.notoSans(size: 20))
+        Text("\(addSupplementVM.times.count)")
+          .font(.notoSans(size: defaultFontSize))
         
         Spacer()
         
@@ -169,14 +213,14 @@ extension AddSupplementView {
   
   private func scheduleTypeSelector() -> some View {
     HStack(spacing: 8) {
-      ForEach(SupplementScheduleType.allCases) { type in
+      ForEach(SupplementScheduleType.allCases, id: \.self) { type in
         Button {
           selectedScheduleType = type
         } label: {
           RoundedRectangle(cornerRadius: 10)
             .fill(backgroundColor(for: type))
             .overlay {
-              Text(type.rawValue)
+              Text(type.title)
                 .font(.notoSans(size: 17))
                 .foregroundStyle(textColor(for: type))
             }
@@ -189,7 +233,7 @@ extension AddSupplementView {
   private func weekdayScheduleView() -> some View {
     HStack {
       Text("복용 요일")
-        .font(.notoSans(size: 20))
+        .font(.notoSans(size: defaultFontSize))
       
       Spacer()
       
@@ -197,11 +241,11 @@ extension AddSupplementView {
         selectedPicker = .weekday
       } label: {
         HStack(spacing: 8) {
-          Text("매일")
-            .font(.notoSans(size: 20))
+          Text(addSupplementVM.weekdaysString)
+            .font(.notoSans(size: defaultFontSize))
           
           Image(systemName: "chevron.right")
-            .font(.system(size: 18, weight: .medium))
+            .font(.system(size: defaultFontSize, weight: .medium))
         }
       }
       .foregroundStyle(.textGray)
@@ -212,7 +256,7 @@ extension AddSupplementView {
     VStack {
       HStack(spacing: 8) {
         Text("시작 날짜")
-          .font(.notoSans(size: 20))
+          .font(.notoSans(size: defaultFontSize))
         
         Spacer()
         
@@ -223,14 +267,14 @@ extension AddSupplementView {
             .fill(.backgroundGray)
             .frame(width: 48, height: 36)
             .overlay {
-              Text("8")
-                .font(.notoSans(size: 18))
+              Text("\(addSupplementVM.startMonth)")
+                .font(.notoSans(size: defaultFontSize))
                 .foregroundStyle(.textGray)
             }
         }
         
         Text("월")
-          .font(.notoSans(weight: .regular, size: 20))
+          .font(.notoSans(weight: .regular, size: defaultFontSize))
           .padding(.trailing, 8)
         
         Button {
@@ -240,19 +284,19 @@ extension AddSupplementView {
             .fill(.backgroundGray)
             .frame(width: 48, height: 36)
             .overlay {
-              Text("5")
-                .font(.notoSans(size: 18))
+              Text("\(addSupplementVM.startDay)")
+                .font(.notoSans(size: defaultFontSize))
                 .foregroundStyle(.textGray)
             }
         }
         
         Text("일")
-          .font(.notoSans(weight: .regular, size: 20))
+          .font(.notoSans(weight: .regular, size: defaultFontSize))
       }
       
       HStack(spacing: 8) {
         Text("복용 주기")
-          .font(.notoSans(size: 20))
+          .font(.notoSans(size: defaultFontSize))
         
         Spacer()
         
@@ -263,14 +307,14 @@ extension AddSupplementView {
             .fill(.backgroundGray)
             .frame(width: 48, height: 36)
             .overlay {
-              Text("5")
-                .font(.notoSans(size: 18))
+              Text("\(addSupplementVM.duration)")
+                .font(.notoSans(size: defaultFontSize))
                 .foregroundStyle(.textGray)
             }
         }
         
         Text("일")
-          .font(.notoSans(weight: .regular, size: 20))
+          .font(.notoSans(weight: .regular, size: defaultFontSize))
       }
     }
   }
@@ -278,10 +322,10 @@ extension AddSupplementView {
   private func timeSelectionSection() -> some View {
     VStack(alignment: .leading){
       Text("복용 시간")
-        .font(.notoSans(size: 20))
+        .font(.notoSans(size: defaultFontSize))
       
-      ForEach(addSupplementVM.routineTimes.indices, id: \.self) { index in
-        let routine = addSupplementVM.routineTimes[index]
+      ForEach(addSupplementVM.times.indices, id: \.self) { index in
+        let routine = addSupplementVM.times[index]
         
         HStack(spacing: .defaultSpacing) {
           ZStack {
@@ -296,16 +340,18 @@ extension AddSupplementView {
           }
           
           Text(routine.timeString)
-            .font(.notoSans(weight: .regular, size: 20))
+            .font(.notoSans(weight: .regular, size: defaultFontSize))
             .padding(.bottom, 2)
           
           Spacer()
           
           Image(systemName: "chevron.right")
-            .font(.system(size: 18, weight: .medium))
+            .font(.system(size: defaultFontSize, weight: .medium))
             .foregroundStyle(.textGray)
         }
         .onTapGesture {
+          selectedTimeIndex = index
+          scheduleVM.selectedTime = routine.time
           selectedPicker = .time
         }
       }
@@ -315,15 +361,24 @@ extension AddSupplementView {
   private func memoSection() -> some View {
     VStack(alignment: .leading, spacing: .defaultSpacing) {
       Text("메모")
-        .font(.notoSans(size: 20))
+        .font(.notoSans(size: defaultFontSize))
       
-      InputTextField(placeHolder: "ex) 따듯한 물과 함께 먹기")
-        .padding(.defaultSpacing)
-        .background {
-          RoundedRectangle(cornerRadius: 10)
-            .fill(.backgroundGray)
+      InputTextField(
+        placeHolder: "ex) 따듯한 물과 함께 먹기",
+        didBeginEditing: {
+          fieldType = .memo
+        },
+        shouldReturn: {
+          fieldType = nil
         }
-        .frame(height: 30)
+      )
+      .padding(.smallSpacing)
+      .padding(.horizontal, .smallSpacing)
+      .background {
+        RoundedRectangle(cornerRadius: 10)
+          .fill(.backgroundGray)
+      }
+      .frame(height: 50)
       
       Spacer()
     }
@@ -333,8 +388,19 @@ extension AddSupplementView {
     guard let selectedPicker else { return }
     let vc = SchedulePickerViewController(type: selectedPicker, scheduleVM: scheduleVM)
     vc.modalPresentationStyle = .overFullScreen
-    vc.onDismiss = { type, scheduleVM in
-      self.scheduleVM.setValue(type: type, vm: scheduleVM)
+    vc.onDismiss = {
+      switch selectedPicker {
+      case .month:
+        addSupplementVM.setValue(.month(scheduleVM.selectedMonth))
+      case .day:
+        addSupplementVM.setValue(.day(scheduleVM.selectedDay))
+      case .duration:
+        addSupplementVM.setValue(.duration(scheduleVM.selectedDuration))
+      case .weekday:
+        addSupplementVM.setValue(.weekday(scheduleVM.selectedDays))
+      case .time:
+        addSupplementVM.setValue(.time(scheduleVM.selectedTime), index: selectedTimeIndex)
+      }
     }
     
     if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
