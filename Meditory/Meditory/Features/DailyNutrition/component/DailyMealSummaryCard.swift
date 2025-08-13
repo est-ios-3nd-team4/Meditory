@@ -28,7 +28,7 @@ struct DailyMealSummaryView: View {
       
       HStack {
         Text("오늘 하루 식단")
-          .font(.custom("NotoSansKR-Bold", size: 18))
+          .font(Font.notoSans(weight: .bold, size: 18))
           .foregroundStyle(.black)
           .padding(.leading, 16)
         
@@ -58,11 +58,11 @@ struct DailyMealSummaryView: View {
             
             HStack {
               Text(macro.label)
-                .font(.custom("NotoSansKR-Bold", size: 17))
+                .font(Font.notoSans(weight: .bold, size: 17))
                 .foregroundStyle(.black)
               
               Text("\(Int(macro.gram))%")
-                .font(.custom("NotoSansCJKkr-Medium", size: 18))
+                .font(Font.notoSans(weight: .medium, size: 18))
             }
           }
         }
