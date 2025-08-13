@@ -32,51 +32,33 @@ struct OnboardingBasicInfoView: View {
       VStack(spacing: .defaultSpacing) {
         TextInputView(
           placeholder: "이름",
-          inputText: $vm.name,
+          inputText: vm.binding(for: .name),
           needValidation: true,
-          validator: { vm.validateName(context: vm.name) },
-          isValid: $vm.isValid
+          validator: {vm.isValid(for: .name)},
         )
         TextInputView(
           placeholder: "출생년도",
           unit: "년",
           keyboardType: .decimalPad,
-          inputText: $vm.age,
+          inputText: vm.binding(for: .birthDate),
           needValidation: true,
-          validator: {
-            if vm.age.contains(".") { return true }
-            guard vm.age.count == 8 else { return true }
-            let (formatted, date) = DateFormatter.plainStringToDate(plainString: vm.age)
-            if let date = date {
-              Task {
-                await MainActor.run { vm.age = formatted }
-              }
-              vm.birthDate = date
-              return true
-            } else {
-              vm.birthDate = nil
-              return false
-            }
-          },
-          isValid: $vm.isValid
+          validator: {vm.isValid(for: .birthDate)},
         )
         TextInputView(
           placeholder: "키",
           unit: "cm",
           keyboardType: .decimalPad,
-          inputText: $vm.height,
+          inputText: vm.binding(for: .height),
           needValidation: true,
-          validator: { vm.validateHeightAndWeight(context: vm.height) },
-          isValid: $vm.isValid
+          validator: { vm.isValid(for: .height) },
         )
         TextInputView(
           placeholder: "체중",
           unit: "kg",
           keyboardType: .decimalPad,
-          inputText: $vm.weight,
+          inputText: vm.binding(for: .weight),
           needValidation: true,
-          validator: { vm.validateHeightAndWeight(context: vm.weight) },
-          isValid: $vm.isValid
+          validator: { vm.isValid(for: .weight) }
         )
       }
       Spacer()

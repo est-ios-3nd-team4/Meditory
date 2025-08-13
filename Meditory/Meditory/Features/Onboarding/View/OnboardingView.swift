@@ -9,12 +9,13 @@ import SwiftUI
 
 struct OnboardingView: View {
   @State private var currentStep: Step = .base
-  @State private var chosen: Bool = false
 
   @StateObject var vm: OnboardingViewModel = OnboardingViewModel()
-
+  @StateObject private var keyboardObserver = KeyboardObserver()
+  
   private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: Step.totalCount)
-
+  private let buttonGap: CGFloat = 130
+  
   var body: some View {
     VStack {
       HStack {
@@ -36,28 +37,25 @@ struct OnboardingView: View {
       }
       .padding(.top, 60)
       setContent(for: currentStep)
-      Button {
-        if currentStep == .base {
-          vm.validateAllField()
+      Spacer(minLength: 0)
+      VStack(spacing: .smallSpacing) {
+        Button {
+          if currentStep == .base { vm.validateAllField() }
+          if let next = currentStep.nextView() { currentStep = next }
+        } label: {
+          RoundedRectangle(cornerRadius: .smallRadius)
+            .fill(vm.isNextButtonOn ? Color.main : Color.gray.opacity(0.4))
+            .frame(height: 50)
+            .overlay {
+              Text(currentStep != .concern ? "다음" : "완료")
+                .font(.notoSans(weight: .semiBold, size: 18))
+                .foregroundStyle(.white)
+            }
         }
-        if let next = currentStep.nextView() {
-          currentStep = next
-        }
-        if currentStep == .concern {
-          print(vm.selectionSet)
-        }
-        print(vm.validateAllField())
-      } label: {
-        RoundedRectangle(cornerRadius: .smallRadius)
-          .fill(vm.isNextButtonOn != true ? Color.gray.opacity(0.2) : .main)
-          .frame(height: 50)
-          .overlay {
-            Text(currentStep != .concern ? "다음" : "완료")
-              .font(.notoSans(weight: .semiBold, size: 18))
-              .foregroundStyle(.white)
-          }
+        .disabled(!vm.isNextButtonOn)
       }
       .padding(.horizontal, .defaultSpacing + 4)
+      .padding(.bottom,max(0, keyboardObserver.bottomInset-buttonGap))
     }
   }
 

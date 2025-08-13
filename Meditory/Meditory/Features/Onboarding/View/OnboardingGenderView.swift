@@ -67,6 +67,7 @@ struct OnboardingGenderView: View {
               action?()
               isGenderSelected = true
               hasInteracted = true
+              vm.gender = Gender.male.title
             }
           Text(title)
             .font(.headline)
@@ -94,6 +95,7 @@ struct OnboardingGenderView: View {
               secondAction?()
               isGenderSelected = false
               hasInteracted = true
+              vm.gender = Gender.female.title
             }
           Text(secondTitle)
             .font(.headline)
@@ -117,6 +119,7 @@ struct OnboardingGenderView: View {
             onAction?(item)
           }
       }
+      .disabled(vm.gender == Gender.male.title)
     }
     .padding(.horizontal, .defaultSpacing + 4)
     Spacer()
