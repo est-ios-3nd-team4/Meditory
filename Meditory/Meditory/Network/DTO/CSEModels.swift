@@ -1,7 +1,5 @@
 import Foundation
 
-struct CSEResponse: Decodable { let items: [CSEItem]? }
-
 struct CSEItem: Decodable {
   let title: String?
   let displayLink: String?
