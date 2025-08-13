@@ -66,8 +66,8 @@ struct HomeView: View {
               NavigationLink(
                 destination: SupplementDetailView(
                   dto: SupplementDetailDTO(
-                    name: item.routine.name,
-                    subtitle: item.routine.productDescription ?? "",
+                    name: item.routine.category ?? "",
+                    subtitle: item.routine.desc ?? "",
                     userTimes: item.routine.routineTimes.map { $0.time.timeFormatter },
                     userCycle: RoutineFormatter.renderCycle(
                       cycleType: item.routine.cycleType,
@@ -125,19 +125,16 @@ struct HomeView_Previews: PreviewProvider {
     // 비타민 C 루틴
     let routine1 = Routine(
       type: 1,
-      name: "비타민C",
+      displayName: "비타민C",
+      desc: "면역력 강화",
+      category: "비타민C",
       cycleType: 1,
-      cycleValue: "0",
+      cycleValue: "0", // 월=0
       startDate: Date(),
-      timesPerDay: 3,
       pillsPerDose: 1,
       memo: nil,
       hasPush: true,
-      imageData: nil,
-      productName: "Vit C",
-      productDescription: "면역력 강화",
-      notWith: nil,
-      whenToTake: "아침 식후"
+      imageData: nil
     )
     let hours1 = [8, 13, 20]
     let times1 = hours1.compactMap { h in
@@ -151,19 +148,16 @@ struct HomeView_Previews: PreviewProvider {
     // 오메가-3 루틴
     let routine2 = Routine(
       type: 1,
-      name: "오메가-3",
+      displayName: "오메가-3",
+      desc: "혈행 개선",
+      category: "Omega-3",
       cycleType: 1,
-      cycleValue: "1, 3, 5", // 월, 수, 금
+      cycleValue: "1, 3, 5", // 월·수·금
       startDate: Date().addingTimeInterval(-86400 * 7),
-      timesPerDay: 1,
       pillsPerDose: 2,
       memo: "심장 건강",
       hasPush: false,
-      imageData: nil,
-      productName: "Omega-3",
-      productDescription: "혈행 개선",
-      notWith: nil,
-      whenToTake: "아침 식전"
+      imageData: nil
     )
     let hours2 = [9]
     let times2 = hours2.compactMap { h in
@@ -177,19 +171,16 @@ struct HomeView_Previews: PreviewProvider {
     // 비타민 D 루틴
     let routine3 = Routine(
       type: 1,
-      name: "비타민D",
+      displayName: "비타민D",
+      desc: "뼈 건강",
+      category: "비타민D",
       cycleType: 2,
-      cycleValue: "2", // 이틀 간격
+      cycleValue: "2", // 2일 간격
       startDate: Date().addingTimeInterval(-86400 * 14),
-      timesPerDay: 1,
       pillsPerDose: 1,
       memo: nil,
       hasPush: true,
-      imageData: nil,
-      productName: "Vit D",
-      productDescription: "뼈 건강",
-      notWith: nil,
-      whenToTake: "점심 식후"
+      imageData: nil
     )
     let hours3 = [12]
     let times3 = hours3.compactMap { h in
@@ -203,19 +194,16 @@ struct HomeView_Previews: PreviewProvider {
     // 프로바이오틱스 루틴
     let routine4 = Routine(
       type: 1,
-      name: "프로바이오틱스",
+      displayName: "프로바이오틱스",
+      desc: "소화 개선",
+      category: "프로바이오틱스",
       cycleType: 1,
-      cycleValue: "2, 4, 6", // 화, 목, 토
+      cycleValue: "2, 4, 6", // 화·목·토
       startDate: Date().addingTimeInterval(-86400 * 3),
-      timesPerDay: 2,
       pillsPerDose: 1,
       memo: "장 건강",
       hasPush: false,
-      imageData: nil,
-      productName: "Probiotics",
-      productDescription: "소화 개선",
-      notWith: nil,
-      whenToTake: "식전"
+      imageData: nil
     )
     let hours4 = [7, 19]
     let times4 = hours4.compactMap { h in
