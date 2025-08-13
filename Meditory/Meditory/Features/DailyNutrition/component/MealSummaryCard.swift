@@ -29,7 +29,7 @@ struct MealSummaryView: View {
       HStack {
         VStack(alignment: .leading, spacing: 16) {
           Text("아침")
-            .font(Font.notoSans(weight: .bold, size: 18))
+            .font(.notoSans(weight: .bold, size: 18))
           
           HStack(spacing: 40) {
             ForEach(macros) { macro in
@@ -40,10 +40,10 @@ struct MealSummaryView: View {
                 
                 HStack {
                   Text(macro.label)
-                    .font(Font.notoSans(weight: .bold, size: 17))
+                    .font(.notoSans(weight: .bold, size: 17))
                   
                   Text("\(Int(macro.gram))g")
-                    .font(Font.notoSans(weight: .medium, size: 18))
+                    .font(.notoSans(weight: .medium, size: 18))
                 }
               }
             }
