@@ -10,11 +10,11 @@ import SwiftUI
 struct MealSummaryView: View {
   
   let macros = [
-    MacroModel(macro: .carbohydrate,
+    MacroModel(macroType: .carbohydrate,
                gram: 180),
-    MacroModel(macro: .protein,
+    MacroModel(macroType: .protein,
                gram: 30),
-    MacroModel(macro: .fat,
+    MacroModel(macroType: .fat,
                gram: 10)
   ]
   
