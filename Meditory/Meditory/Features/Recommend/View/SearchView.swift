@@ -74,7 +74,7 @@ struct SearchView: View {
               .font(.title3).bold()
               .padding(.horizontal)
 
-            FlowLayout2(
+            FlowLayoutLineLimit(
               items: recommendedForAges,
               spacing: 8,
               lineSpacing: 8,
