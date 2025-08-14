@@ -42,7 +42,7 @@ struct TextInputView: View {
           .foregroundStyle(.gray)
       }
       HStack {
-        TextField("", text: $inputText)
+        NoQuickTypeTextField(text: $inputText, placeholder: "")
           .keyboardType(keyboardType)
           .font(.notoSans(weight: .semiBold, size: 16))
           .padding(.horizontal)
