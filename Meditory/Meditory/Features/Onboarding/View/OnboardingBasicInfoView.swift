@@ -81,9 +81,8 @@ struct OnboardingBasicInfoView: View {
         .onChange(of: focusedField.wrappedValue) {
           scroll(proxy)
         }
-        .scrollIndicators(.hidden)
-
       }
+      .scrollIndicators(.never)
       .onAppear {
         scroll(proxy)
       }

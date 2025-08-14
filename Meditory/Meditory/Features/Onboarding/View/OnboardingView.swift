@@ -152,7 +152,7 @@ struct OnboardingView: View {
           }
       }
       //        .disabled(!vm.isNextButtonOn)
-      .padding(.top, buttonTopSpacing)
+      .padding(.vertical, buttonTopSpacing)
     }
     .padding(.horizontal, .defaultSpacing + 4)
   }

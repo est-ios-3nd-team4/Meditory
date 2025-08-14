@@ -37,8 +37,7 @@ final class KeyboardObserver: ObservableObject {
     guard
       let windowScene = UIApplication.shared.connectedScenes
         .compactMap({ $0 as? UIWindowScene })
-        .first(where: { $0.activationState == .foregroundActive }),
-      let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow })
+        .first(where: { $0.activationState == .foregroundActive })
     else { return }
 
     //    let needed = max(0, safeAreaBottomY - keyboardTopY)
