@@ -351,7 +351,7 @@ extension AddSupplementView {
             }
         }
         
-        Text("\(addSupplementVM.times.count)")
+        Text("\(addSupplementVM.doseSchedules.count)")
           .font(.notoSans(size: defaultFontSize))
           .padding(.bottom, 3)
         
@@ -376,8 +376,8 @@ extension AddSupplementView {
       Text("복용 시간")
         .font(.notoSans(size: defaultFontSize))
       
-      ForEach(addSupplementVM.times.indices, id: \.self) { index in
-        let routine = addSupplementVM.times[index]
+      ForEach(addSupplementVM.doseSchedules.indices, id: \.self) { index in
+        let routine = addSupplementVM.doseSchedules[index]
         
         HStack(spacing: .defaultSpacing) {
           ZStack {
@@ -398,7 +398,7 @@ extension AddSupplementView {
           Spacer()
           
           HStack(spacing: .smallSpacing) {
-            Text("1정")
+            Text(routine.doseString)
               .font(.notoSans(weight: .regular, size: defaultFontSize))
               .foregroundStyle(.textGray)
               .padding(.bottom, 2)
@@ -410,7 +410,7 @@ extension AddSupplementView {
         }
         .onTapGesture {
           selectedTimeIndex = index
-          scheduleVM.selectedTime = routine.time
+          scheduleVM.time = routine.time
           selectedPicker = .time
         }
       }
@@ -446,15 +446,15 @@ extension AddSupplementView {
     vc.onDismiss = {
       switch selectedPicker {
       case .month:
-        addSupplementVM.setValue(.month(scheduleVM.selectedMonth))
+        addSupplementVM.setValue(.month(scheduleVM.month))
       case .day:
-        addSupplementVM.setValue(.day(scheduleVM.selectedDay))
+        addSupplementVM.setValue(.day(scheduleVM.day))
       case .duration:
-        addSupplementVM.setValue(.duration(scheduleVM.selectedDuration))
+        addSupplementVM.setValue(.duration(scheduleVM.duration))
       case .weekday:
-        addSupplementVM.setValue(.weekday(scheduleVM.selectedDays))
+        addSupplementVM.setValue(.weekday(scheduleVM.days))
       case .time:
-        addSupplementVM.setValue(.time(scheduleVM.selectedTime), index: selectedTimeIndex)
+        addSupplementVM.setValue(.time(scheduleVM.time, scheduleVM.pillsPerDose), index: selectedTimeIndex)
       }
     }
     

@@ -9,15 +9,15 @@ import Foundation
 
 class SupplementScheduleViewModel: ObservableObject {
   
-  @Published var selectedDays: [Weekday: Bool] = Weekday.allCases.reduce(into: [:]) { $0[$1] = true }
+  @Published var days: [Weekday: Bool] = Weekday.allCases.reduce(into: [:]) { $0[$1] = true }
   
-  @Published var selectedMonth = Calendar.current.component(.month, from: .now)
-  @Published var selectedDay = Calendar.current.component(.day, from: .now)
+  @Published var month = Calendar.current.component(.month, from: .now)
+  @Published var day = Calendar.current.component(.day, from: .now)
   var daysInMonth: Range<Int> {
     let calendar = Calendar.current
     var components = DateComponents()
     components.year = calendar.component(.year, from: .now)
-    components.month = selectedMonth
+    components.month = month
     
     if let date = calendar.date(from: components),
        let range = calendar.range(of: .day, in: .month, for: date) {
@@ -27,13 +27,13 @@ class SupplementScheduleViewModel: ObservableObject {
     return 1..<32
   }
   
-  @Published var selectedDuration = 1
+  @Published var duration = 1
   
-  @Published var selectedMeridiem: Meridiem = .am
-  @Published var selectedTime: Date = .now
+  @Published var time: Date = .now
+  @Published var pillsPerDose = 1
   
   func selectedDayToggle(weekDay: Weekday) {
-    selectedDays[weekDay]?.toggle()
+    days[weekDay]?.toggle()
   }
   
   func numberOfRows(for type: SchedulePickerType) -> Int {
@@ -80,11 +80,11 @@ class SupplementScheduleViewModel: ObservableObject {
   func index(type: SchedulePickerType) -> Int {
     switch type {
     case .month:
-      return selectedMonth - 1
+      return month - 1
     case .day:
-      return selectedDay - 1
+      return day - 1
     case .duration:
-      return selectedDuration - 1
+      return duration - 1
     default:
       return 0
     }
@@ -93,14 +93,24 @@ class SupplementScheduleViewModel: ObservableObject {
   func setValue(for row: Int, type: SchedulePickerType) {
     switch type {
     case .month:
-      self.selectedMonth = row + 1
+      self.month = row + 1
     case .day:
       let day = Array(daysInMonth)[row]
-      self.selectedDay = day
+      self.day = day
     case .duration:
-      self.selectedDuration = row + 1
+      self.duration = row + 1
     default:
       break
+    }
+  }
+  
+  func setPillPerDose(type: CircleIconButton.ButtonType) {
+    switch type {
+    case .plus:
+      pillsPerDose += 1
+    case .minus:
+      guard pillsPerDose > 1 else { return }
+      pillsPerDose -= 1
     }
   }
 }
