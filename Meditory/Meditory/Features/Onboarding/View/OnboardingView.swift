@@ -21,62 +21,23 @@ struct OnboardingView: View {
   @StateObject private var keyboardObserver = KeyboardObserver()
   @FocusState private var focusedField: FormField?
 
-  private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: Step.totalCount)
-  private let fixedBottomPadding: CGFloat = 130
   private let buttonHeight: CGFloat = 50
-  private let buttonTopGap: CGFloat = 8
+  private let buttonTopSpacing: CGFloat = 8
 
   var body: some View {
     VStack {
-      HStack {
-        LazyVGrid(columns: columns) {
-          ForEach(Step.allCases, id: \.self) { index in
-            Text(String(index.rawValue + 1))
-              .font(.notoSans(size: 13))
-              .foregroundStyle(index == currentStep ? Color.white : Color.gray)
-              .frame(width: 25, height: 25)
-              .background {
-                Circle()
-                  .fill(index == currentStep ? Color.main : Color.gray.opacity(0.2))
-              }
-          }
-        }
-        .frame(width: 160)
-        .padding(.horizontal, .defaultSpacing + 4)
-        Spacer()
-      }
-      .padding(.top, 60)
+      progressIndicator()
       if currentStep == .base {
         OnboardingBasicInfoView(
           vm: vm,
           focusedField: $focusedField,
-          bottomSpacing: keyboardObserver.bottomInset + 50 + 8
+          bottomSpacing: keyboardObserver.bottomInset + 50
         )
       } else {
         setContent(for: currentStep)
-          .padding(.horizontal, .defaultSpacing + 4)
       }
       Spacer(minLength: 0)
-      VStack(spacing: .smallSpacing) {
-        Button {
-          if currentStep == .base { vm.validateAllField() }
-          if let next = currentStep.nextView() { currentStep = next }
-        } label: {
-          RoundedRectangle(cornerRadius: .smallRadius)
-            .fill(vm.isNextButtonOn ? Color.main : Color.gray.opacity(0.4))
-            .frame(height: 50)
-            .overlay {
-              Text(currentStep != .concern ? "다음" : "완료")
-                .font(.notoSans(weight: .semiBold, size: 18))
-                .foregroundStyle(.white)
-            }
-        }
-        .disabled(!vm.isNextButtonOn)
-        .padding(.bottom,8)
-      }
-      .padding(.horizontal, .defaultSpacing + 4)
-      .padding(.top, 8)
-      .padding(.bottom, currentStep == .base ? 0 : fixedBottomPadding)
+      nextButton()
     }
   }
 
@@ -85,8 +46,6 @@ struct OnboardingView: View {
     if let prompt = Step.prompt[step] {
       let name = vm.name
       switch step {
-      //      case .base:
-      //        OnboardingBasicInfoView(vm: vm, prompt: prompt)
       case .gender:
         OnboardingGenderView(
           vm: vm,
@@ -151,6 +110,51 @@ struct OnboardingView: View {
         EmptyView()
       }
     }
+  }
+
+  @ViewBuilder
+  func progressIndicator() -> some View {
+    let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: Step.totalCount)
+    HStack {
+      LazyVGrid(columns: columns) {
+        ForEach(Step.allCases, id: \.self) { index in
+          Text(String(index.rawValue + 1))
+            .font(.notoSans(size: 13))
+            .foregroundStyle(index == currentStep ? Color.white : Color.gray)
+            .frame(width: 25, height: 25)
+            .background {
+              Circle()
+                .fill(index == currentStep ? Color.main : Color.gray.opacity(0.2))
+            }
+        }
+      }
+      .frame(width: 160)
+      .padding(.horizontal, .defaultSpacing + 4)
+      Spacer()
+    }
+    .padding(.top, 60)
+  }
+
+  @ViewBuilder
+  func nextButton() -> some View {
+    VStack(spacing: .smallSpacing) {
+      Button {
+        if currentStep == .base { vm.validateAllField() }
+        if let next = currentStep.nextView() { currentStep = next }
+      } label: {
+        RoundedRectangle(cornerRadius: .smallRadius)
+          .fill(vm.isNextButtonOn ? Color.main : Color.gray.opacity(0.4))
+          .frame(height: 50)
+          .overlay {
+            Text(currentStep != .concern ? "다음" : "완료")
+              .font(.notoSans(weight: .semiBold, size: 18))
+              .foregroundStyle(.white)
+          }
+      }
+      //        .disabled(!vm.isNextButtonOn)
+      .padding(.top, buttonTopSpacing)
+    }
+    .padding(.horizontal, .defaultSpacing + 4)
   }
 }
 
