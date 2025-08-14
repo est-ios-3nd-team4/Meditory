@@ -36,7 +36,7 @@ struct ScoreView: View {
 
         Spacer()
 
-        NavigationLink(destination: ScoredetailView()) {
+        NavigationLink(destination: ScoreDetailView()) {
           Image(systemName: "chevron.right")
             .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
         }

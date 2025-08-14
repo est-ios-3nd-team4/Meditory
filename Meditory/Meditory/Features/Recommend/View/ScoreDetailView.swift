@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ScoredetailView: View {
+struct ScoreDetailView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.colorScheme) private var colorScheme
 
@@ -47,10 +47,7 @@ struct ScoredetailView: View {
 
       ZStack {
         RoundedRectangle(cornerRadius: .defaultRadius)
-          .fill(colorScheme == .dark ? Color.black : Color.white.opacity(0.98))
-          .modifier(UnifiedShadow())
-          .padding(.bottom, -80)
-          .ignoresSafeArea(.container, edges: .bottom)
+          .fill(colorScheme == .dark ? Color.black : Color.customBackground)
 
         VStack(spacing: .defaultSpacing) {
           ZStack(alignment: .center) {
@@ -225,7 +222,20 @@ struct ScoredetailView: View {
       }
     }
     .navigationBarHidden(true)
-    .background(colorScheme == .dark ? Color.black : Color.main)
+    .background {
+      GeometryReader { geo in
+        let topH = geo.size.height * 0.5 + geo.safeAreaInsets.top
+        VStack(spacing: 0) {
+          (colorScheme == .dark ? Color.black : Color.main)
+            .frame(height: topH)
+            .ignoresSafeArea(edges: .top)
+
+          (colorScheme == .dark ? Color.black : Color.customBackground)
+            .ignoresSafeArea()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+      }
+    }
 
     .onAppear {
       animatedProgress = 0
@@ -237,5 +247,5 @@ struct ScoredetailView: View {
 }
 
 #Preview {
-  ScoredetailView()
+  ScoreDetailView()
 }

@@ -1,22 +1,26 @@
 import Foundation
 
+// 이미지만 구글에서 가지고오기
 protocol ImageSearchService {
   func firstImageURL(for brand: String, name: String) async throws -> String?
 }
 
 final class GoogleCSEImageClient: ImageSearchService {
-  private let apiKey: String
+  let apiKey: String
 
-  private let cx: String
+  let cx: String
 
-  private let session: URLSession
+  let session: URLSession
 
-  private var cache: [String: String] = [:]   // 간단 캐시
+  var cache: [String: String] = [:]   // 간단 캐시
+
+  let titleParser: TitleParsing       // 파서 주입
 
   init(apiKey: String = GoogleKey.apiKey,
-       cx: String = GoogleKey.cx) {
+       cx: String = GoogleKey.cx, titleParser: TitleParsing = DefaultTitleParser()) {
     self.apiKey = apiKey
     self.cx = cx
+    self.titleParser = titleParser
     let conf = URLSessionConfiguration.default
     conf.waitsForConnectivity = true
     conf.timeoutIntervalForRequest = 30
@@ -25,9 +29,17 @@ final class GoogleCSEImageClient: ImageSearchService {
   }
 
   func firstImageURL(for brand: String, name: String) async throws -> String? {
-    guard !apiKey.isEmpty, !cx.isEmpty else { throw CSEError.missingKeyOrCX }
+    guard !apiKey.isEmpty, !cx.isEmpty else {
+      print("Google API Key 또는 CX 없음 — 이미지 검색 건너뜀")
+      return nil
+    }
 
-    let query = "\"\(brand)\" \"\(name)\""
+    let rawQuery = "\"\(brand)\" \"\(name)\""
+    let query = rawQuery
+      .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .lowercased()
+
     if let hit = cache[query] { return hit }
 
     var comps = URLComponents(string: "https://www.googleapis.com/customsearch/v1")!
@@ -38,7 +50,8 @@ final class GoogleCSEImageClient: ImageSearchService {
       .init(name: "searchType", value: "image"),
       .init(name: "num", value: "1"),
       .init(name: "gl",  value: "kr"),
-      .init(name: "hl",  value: "ko")
+      .init(name: "hl",  value: "ko"),
+      .init(name: "fields", value: "items(link,image/thumbnailLink)")
     ]
     guard let url = comps.url else { throw CSEError.badURL }
 
@@ -55,7 +68,10 @@ final class GoogleCSEImageClient: ImageSearchService {
     do {
       let res = try JSONDecoder().decode(ImageSearchResponse.self, from: data)
       let url = res.items?.first?.link ?? res.items?.first?.image?.thumbnailLink
-      if let url { cache[query] = url }
+      if let url {
+        if cache.count > 200 { cache.removeAll(keepingCapacity: true) }
+        cache[query] = url
+      }
       return url
     } catch {
       throw CSEError.decode(error)
@@ -76,3 +92,13 @@ struct ImageInfo: Decodable {
   let contextLink: String?
   let thumbnailLink: String?
 }
+
+struct ProductSummary {
+  var imageURL: String?
+  var brand: String?
+  var name: String?
+  var link: String?
+}
+
+
+

@@ -8,6 +8,7 @@ import SwiftUI
 
 struct CalendarBackgroundView<Content: View>: View {
   @Binding var selectedDate: Date
+  @Environment(\.colorScheme) private var colorScheme
 
   private let content: (Date) -> Content
   private let columns: [GridItem] = Array(
@@ -80,44 +81,45 @@ struct CalendarBackgroundView<Content: View>: View {
 
   var body: some View {
     GeometryReader { geo in
-      let safeTop = geo.safeAreaInsets.top
+      let topH = geo.size.height * 0.5 + geo.safeAreaInsets.top
 
       ZStack(alignment: .top) {
-        Color.customBackground.ignoresSafeArea()
-
-        Color.main
-          .frame(height: safeTop)
-          .ignoresSafeArea(edges: .top)
+        VStack(spacing: 0) {
+          (colorScheme == .dark ? Color.black : Color.main)
+            .frame(height: topH)
+            .ignoresSafeArea(edges: .top)
+          (colorScheme == .dark ? Color.black : Color.customBackground)
+            .ignoresSafeArea()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .zIndex(0)
 
         ScrollView(showsIndicators: false) {
           VStack(spacing: 0) {
             headerView
-              .background(Color.main, ignoresSafeAreaEdges: .top)
+              .hidden()
+              .allowsHitTesting(false)
 
             ZStack {
-              Color.customBackground
+              (colorScheme == .dark ? Color.black : Color.customBackground)
               content(selectedDate)
             }
             .clipShape(RoundedCorner(radius: 20, corners: [.topLeft, .topRight]))
-            .background(Color.main)
           }
         }
-        .background {
-          GeometryReader { proxy in
-            ZStack(alignment: .top) {
-              Color.customBackground.ignoresSafeArea()
+        .zIndex(2)
 
-              Color.main
-                .frame(height: safeTop + 400) 
-                .ignoresSafeArea(edges: .top)
-            }
-          }
-        }
+
+        headerView
+          .background(Color.clear)
+          .zIndex(1)
       }
     }
   }
-
 }
+
+
+
 #Preview {
   CalendarBackgroundView(selectedDate: .constant(Date())) { _ in
     VStack(spacing: .defaultSpacing) {
@@ -131,7 +133,7 @@ struct CalendarBackgroundView<Content: View>: View {
                 .font(.notoSans(size: 16))
               Spacer()
             }
-            .padding(.horizontal)
+              .padding(.horizontal)
           )
           .modifier(UnifiedShadow())
       }

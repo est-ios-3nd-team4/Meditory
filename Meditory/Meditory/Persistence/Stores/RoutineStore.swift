@@ -34,45 +34,6 @@ final class RoutineStore {
     try? context.save()
   }
 
-  /// 새로운 Routine 객체를 생성하고 DB에 추가하는 함수
-  @MainActor
-  func createRoutine(
-    type: Int,
-    name: String,
-    cycleType: Int,
-    cycleValue: String,
-    startDate: Date,
-    timesPerDay: Int,
-    pillsPerDose: Int,
-    memo: String? = nil,
-    hasPush: Bool,
-    imageData: Data? = nil,
-    productName: String? = nil,
-    productDescription: String? = nil,
-    notWith: String? = nil,
-    whenToTake: String? = nil,
-    context: ModelContext
-  ) {
-    let routine = Routine(
-      type: type,
-      name: name,
-      cycleType: cycleType,
-      cycleValue: cycleValue,
-      startDate: startDate,
-      timesPerDay: timesPerDay,
-      pillsPerDose: pillsPerDose,
-      memo: memo,
-      hasPush: hasPush,
-      imageData: imageData,
-      productName: productName,
-      productDescription: productDescription,
-      notWith: notWith,
-      whenToTake: whenToTake
-    )
-    context.insert(routine)
-    try? context.save()
-  }
-
   /// Routine 하나만 삭제하는 함수
   @MainActor
   func deleteRoutine(_ routine: Routine, context: ModelContext) {

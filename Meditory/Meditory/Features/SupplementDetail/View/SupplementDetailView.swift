@@ -127,19 +127,16 @@ struct SupplementDetailView_Previews: PreviewProvider {
 
     let routine1 = Routine(
       type: 1,
-      name: "비타민C",
+      displayName: "비타민C",
+      desc: "면역력 강화",
+      category: "비타민C",
       cycleType: 1,
       cycleValue: "0", // 월=0
       startDate: Date(),
-      timesPerDay: 3,
       pillsPerDose: 1,
       memo: nil,
       hasPush: true,
-      imageData: nil,
-      productName: "Vit C",
-      productDescription: "면역력 강화",
-      notWith: nil,
-      whenToTake: "아침 식후"
+      imageData: nil
     )
     routine1.routineTimes = [8, 13, 20].compactMap {
       Calendar.current.date(bySettingHour: $0, minute: 0, second: 0, of: Date())
@@ -149,19 +146,16 @@ struct SupplementDetailView_Previews: PreviewProvider {
     // 오메가-3
     let routine2 = Routine(
       type: 1,
-      name: "오메가-3",
+      displayName: "오메가-3",
+      desc: "혈행 개선",
+      category: "Omega-3",
       cycleType: 1,
       cycleValue: "1, 3, 5", // 월·수·금
       startDate: Date().addingTimeInterval(-86400 * 7),
-      timesPerDay: 1,
       pillsPerDose: 2,
       memo: "심장 건강",
       hasPush: false,
-      imageData: nil,
-      productName: "Omega-3",
-      productDescription: "혈행 개선",
-      notWith: nil,
-      whenToTake: "아침 식전"
+      imageData: nil
     )
     routine2.routineTimes = [9].compactMap {
       Calendar.current.date(bySettingHour: $0, minute: 30, second: 0, of: Date())
@@ -171,19 +165,16 @@ struct SupplementDetailView_Previews: PreviewProvider {
     // 비타민 D
     let routine3 = Routine(
       type: 1,
-      name: "비타민D",
+      displayName: "비타민D",
+      desc: "뼈 건강",
+      category: "비타민D",
       cycleType: 2,
       cycleValue: "2", // 2일 간격
       startDate: Date().addingTimeInterval(-86400 * 14),
-      timesPerDay: 1,
       pillsPerDose: 1,
       memo: nil,
       hasPush: true,
-      imageData: nil,
-      productName: "Vit D",
-      productDescription: "뼈 건강",
-      notWith: nil,
-      whenToTake: "점심 식후"
+      imageData: nil
     )
     routine3.routineTimes = [12].compactMap {
       Calendar.current.date(bySettingHour: $0, minute: 0, second: 0, of: Date())
@@ -193,19 +184,16 @@ struct SupplementDetailView_Previews: PreviewProvider {
     // 프로바이오틱스
     let routine4 = Routine(
       type: 1,
-      name: "프로바이오틱스",
+      displayName: "프로바이오틱스",
+      desc: "소화 개선",
+      category: "프로바이오틱스",
       cycleType: 1,
       cycleValue: "2, 4, 6", // 화·목·토
       startDate: Date().addingTimeInterval(-86400 * 3),
-      timesPerDay: 2,
       pillsPerDose: 1,
       memo: "장 건강",
       hasPush: false,
-      imageData: nil,
-      productName: "Probiotics",
-      productDescription: "소화 개선",
-      notWith: nil,
-      whenToTake: "식전"
+      imageData: nil
     )
     routine4.routineTimes = [7, 19].compactMap {
       Calendar.current.date(bySettingHour: $0, minute: 15, second: 0, of: Date())
@@ -218,8 +206,8 @@ struct SupplementDetailView_Previews: PreviewProvider {
   // DTO 생성 헬퍼
   static func makeDTO(from r: Routine) -> SupplementDetailDTO {
     SupplementDetailDTO(
-      name: r.name,
-      subtitle: r.productDescription ?? "",
+      name: r.category ?? "",
+      subtitle: r.desc ?? "",
       userTimes: r.routineTimes.map { $0.time.timeFormatter },
       userCycle: RoutineFormatter.renderCycle(
         cycleType: r.cycleType,
@@ -233,7 +221,7 @@ struct SupplementDetailView_Previews: PreviewProvider {
   static var previews: some View {
     let ctx = container.mainContext
     let omega = (try? ctx.fetch(
-      FetchDescriptor<Routine>(predicate: #Predicate { $0.name == "오메가-3" })
+      FetchDescriptor<Routine>(predicate: #Predicate { $0.category == "오메가-3" })
     ).first) ?? (try! ctx.fetch(FetchDescriptor<Routine>())).first!
 
     let dto = makeDTO(from: omega)

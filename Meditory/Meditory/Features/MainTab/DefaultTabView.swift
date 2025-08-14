@@ -21,7 +21,7 @@ struct DefaultTabView: View {
           Text(TabItem.recommend.title)
         }
       
-      Color.green
+      NutritionHomeView()
         .tabItem {
           Text(TabItem.dailyNutrition.title)
         }

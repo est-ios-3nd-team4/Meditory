@@ -12,7 +12,7 @@ final class User {
     @Relationship var userProfiles: [UserProfile] = []
     @Relationship var userStatuses: [UserStatus] = []
     @Relationship var userExtraInfos: [UserExtraInfo] = []
-
+    @Relationship var userLifeStyle: UserLifeStyle?
 
     var currentProfile: UserProfile? {
         userProfiles.sorted { $0.createdAt > $1.createdAt }.first
