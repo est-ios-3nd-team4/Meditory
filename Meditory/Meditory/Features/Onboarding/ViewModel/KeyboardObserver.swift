@@ -9,9 +9,11 @@ import SwiftUI
 
 final class KeyboardObserver: ObservableObject {
   @Published var bottomInset: CGFloat = 0
-  @Published var isVisible = false
-
-  init() {
+  @Published var shift: CGFloat = 0
+  private var desiredGap: CGFloat
+  
+  init(gap: CGFloat = 8) {
+    self.desiredGap = gap
     NotificationCenter.default.addObserver(
       self,
       selector: #selector(handleKeyboard),
@@ -39,29 +41,21 @@ final class KeyboardObserver: ObservableObject {
       let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow })
     else { return }
 
-    let safeAreaBottomY = keyWindow.bounds.maxY - keyWindow.safeAreaInsets.bottom
+    //    let needed = max(0, safeAreaBottomY - keyboardTopY)
+        let duration = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.25
+    //    let safeAreaBottomY = keyWindow.bounds.maxY - keyWindow.safeAreaInsets.bottom
+    
+    let screenBottomY: CGFloat = UIScreen.main.bounds.maxY
     let keyboardTopY = endFrame.minY
-    let needed = max(0, safeAreaBottomY - keyboardTopY)
-    //    let duration = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.25
-    let duration = 0.3
+    let overlay: CGFloat = max(0,screenBottomY - keyboardTopY)
+//    let duration = 0.3
 
+    let newShift: CGFloat = max(0,overlay-desiredGap)
     Task {
       await MainActor.run {
         withAnimation(.easeInOut(duration: duration)) {
-          self.bottomInset = needed
+          self.shift = newShift
         }
-      }
-    }
-  }
-
-  @objc private func handle(_ note: Notification) {
-    guard let end = (note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect) else { return }
-    let screenH = UIScreen.main.bounds.height
-    let visible = end.minY < screenH
-    let duration = (note.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.25
-    Task {
-      await MainActor.run {
-        withAnimation(.easeOut(duration: duration)) { self.isVisible = visible }
       }
     }
   }

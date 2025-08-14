@@ -7,15 +7,25 @@
 
 import SwiftUI
 
+enum FormField: Hashable {
+  case name
+  case birthDate
+  case height
+  case weight
+}
+
 struct OnboardingView: View {
   @State private var currentStep: Step = .base
 
   @StateObject var vm: OnboardingViewModel = OnboardingViewModel()
   @StateObject private var keyboardObserver = KeyboardObserver()
-  
+  @FocusState private var focusedField: FormField?
+
   private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: Step.totalCount)
-  private let buttonGap: CGFloat = 130
-  
+  private let fixedBottomPadding: CGFloat = 130
+  private let buttonHeight: CGFloat = 50
+  private let buttonTopGap: CGFloat = 8
+
   var body: some View {
     VStack {
       HStack {
@@ -36,7 +46,16 @@ struct OnboardingView: View {
         Spacer()
       }
       .padding(.top, 60)
-      setContent(for: currentStep)
+      if currentStep == .base {
+        OnboardingBasicInfoView(
+          vm: vm,
+          focusedField: $focusedField,
+          bottomSpacing: keyboardObserver.bottomInset + 50 + 8
+        )
+      } else {
+        setContent(for: currentStep)
+          .padding(.horizontal, .defaultSpacing + 4)
+      }
       Spacer(minLength: 0)
       VStack(spacing: .smallSpacing) {
         Button {
@@ -53,9 +72,11 @@ struct OnboardingView: View {
             }
         }
         .disabled(!vm.isNextButtonOn)
+        .padding(.bottom,8)
       }
       .padding(.horizontal, .defaultSpacing + 4)
-      .padding(.bottom,max(0, keyboardObserver.bottomInset-buttonGap))
+      .padding(.top, 8)
+      .padding(.bottom, currentStep == .base ? 0 : fixedBottomPadding)
     }
   }
 
@@ -64,8 +85,8 @@ struct OnboardingView: View {
     if let prompt = Step.prompt[step] {
       let name = vm.name
       switch step {
-      case .base:
-        OnboardingBasicInfoView(vm: vm, prompt: prompt)
+      //      case .base:
+      //        OnboardingBasicInfoView(vm: vm, prompt: prompt)
       case .gender:
         OnboardingGenderView(
           vm: vm,
@@ -126,6 +147,8 @@ struct OnboardingView: View {
             vm.selectionSet.insert(item)
           }
         }
+      default:
+        EmptyView()
       }
     }
   }
