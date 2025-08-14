@@ -23,6 +23,7 @@ struct AddSupplementView: View {
   
   @Environment(\.modelContext) private var context
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.colorScheme) private var colorScheme
   
   @State private var selectedScheduleType: SupplementScheduleType = .weekday
   @StateObject private var addSupplementVM = AddSupplementViewModel()
@@ -32,9 +33,12 @@ struct AddSupplementView: View {
       showSchedulePicker()
     }
   }
+  @State private var supplementName = ""
+  @State private var memo = ""
   @State private var fieldType: FieldType? = nil
   @State private var selectedTimeIndex = 0
   @State private var showScanner = false
+  @State private var scheduleTypeRectPosition: CGPoint = .zero
   
   private let defaultFontSize: CGFloat = 18
   
@@ -44,15 +48,18 @@ struct AddSupplementView: View {
         ScrollView {
           VStack(spacing: 20) {
             supplementNameInput()
-            supplementCountSelector()
             scheduleTypeSelector()
             
-            switch selectedScheduleType {
-            case .weekday:
-              weekdayScheduleView()
-            case .interval:
-              intervalScheduleView()
+            VStack {
+              switch selectedScheduleType {
+              case .weekday:
+                weekdayScheduleView()
+              case .interval:
+                intervalScheduleView()
+              }
+              supplementCountSelector()
             }
+            .modifier(CardStyle(padding: .defaultSpacing))
             
             timeSelectionSection()
             memoSection()
@@ -124,11 +131,20 @@ struct AddSupplementView: View {
 // MARK: - Colors
 extension AddSupplementView {
   func backgroundColor(for type: SupplementScheduleType) -> Color {
-    type == selectedScheduleType ? .main : .backgroundGray
+    type == selectedScheduleType ? .main : .clear
   }
   
   func textColor(for type: SupplementScheduleType) -> Color {
     type == selectedScheduleType ? .white : .textGray
+  }
+  
+  func rectPosition(for type: SupplementScheduleType, width: CGFloat) -> CGFloat {
+    switch type {
+    case .weekday:
+      return width * 0.25
+    case .interval:
+      return width * 0.75
+    }
   }
 }
 
@@ -136,103 +152,90 @@ extension AddSupplementView {
 // MARK: - Subviews
 extension AddSupplementView {
   private func supplementNameInput() -> some View {
-    VStack(alignment: .leading, spacing: .defaultSpacing) {
-      Text("섭취 제품 이름")
-        .font(.notoSans(size: defaultFontSize))
-      
-      ZStack {
-        RoundedRectangle(cornerRadius: 20)
-          .fill(.backgroundGray)
-        
-        HStack(spacing: 8) {
-          Button {
-            showScanner = true
-          } label: {
-            Circle()
-              .frame(width: 25, height: 25)
-              .foregroundStyle(.main)
-              .overlay {
-                Image(systemName: "camera.fill")
-                  .resizable()
-                  .scaledToFit()
-                  .frame(width: 14, height: 14)
-                  .foregroundStyle(.white)
-              }
-          }
-          
-          InputTextField(
-            placeHolder: "사진 촬영 및 텍스트로 검색",
-            didBeginEditing: {
-              fieldType = .name
-            },
-            shouldReturn: {
-              fieldType = nil
-            }
-          )
-        }
-        .padding(.horizontal, 8)
-      }
-      .frame(height: 42)
-    }
-  }
-  
-  private func supplementCountSelector() -> some View {
-    VStack(alignment: .leading, spacing: .defaultSpacing) {
-      Text("섭취 횟수")
-        .font(.notoSans(size: defaultFontSize))
-      
-      HStack {
+    HStack(spacing: 8) {
+      if supplementName.isEmpty {
         Button {
-          addSupplementVM.removeRoutineTime()
+          showScanner = true
         } label: {
           Circle()
             .frame(width: 25, height: 25)
             .foregroundStyle(.main)
             .overlay {
-              Image(systemName: "minus")
-                .font(.system(size: defaultFontSize, weight: .semibold))
-                .foregroundStyle(.white)
-            }
-        }
-        
-        Spacer()
-        
-        Text("\(addSupplementVM.times.count)")
-          .font(.notoSans(size: defaultFontSize))
-        
-        Spacer()
-        
-        Button {
-          addSupplementVM.addRoutineTime()
-        } label: {
-          Circle()
-            .frame(width: 25, height: 25)
-            .foregroundStyle(.main)
-            .overlay {
-              Image(systemName: "plus")
-                .font(.system(size: 16, weight: .semibold))
+              Image(systemName: "camera.fill")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 14, height: 14)
                 .foregroundStyle(.white)
             }
         }
       }
+      
+      InputTextField(
+        text: $supplementName,
+        placeHolder: "사진 촬영 및 텍스트로 검색",
+        didBeginEditing: {
+          fieldType = .name
+        },
+        shouldReturn: {
+          fieldType = nil
+        }
+      )
+      
+      if !supplementName.isEmpty {
+        Button {
+          print("검색")
+        } label: {
+          Image(systemName: "magnifyingglass")
+            .foregroundColor(.gray)
+            .padding(.trailing, 24)
+        }
+      }
     }
+    .cardStyle(padding: .defaultSpacing)
+    .frame(height: 55)
+    .padding(.top, .defaultSpacing)
   }
   
   private func scheduleTypeSelector() -> some View {
-    HStack(spacing: 8) {
-      ForEach(SupplementScheduleType.allCases, id: \.self) { type in
-        Button {
-          selectedScheduleType = type
-        } label: {
-          RoundedRectangle(cornerRadius: 10)
-            .fill(backgroundColor(for: type))
-            .overlay {
-              Text(type.title)
-                .font(.notoSans(size: 17))
-                .foregroundStyle(textColor(for: type))
-            }
+    GeometryReader { geometry in
+      ZStack {
+        let buttonSize = CGSize(
+          width: (geometry.size.width / 2) - 6,
+          height: geometry.size.height - 6
+        )
+        RoundedRectangle(cornerRadius: 10)
+          .fill(.main)
+          .frame(width: buttonSize.width, height: buttonSize.height)
+          .position(
+            x: scheduleTypeRectPosition.x,
+            y: scheduleTypeRectPosition.y
+          )
+          .onAppear {
+            print(geometry.size.width)
+            scheduleTypeRectPosition.x = geometry.size.width * 0.25
+            scheduleTypeRectPosition.y = geometry.size.height / 2
+          }
+        
+        HStack {
+          ForEach(SupplementScheduleType.allCases, id: \.self) { type in
+            Text(type.title)
+              .font(.notoSans(size: 15))
+              .foregroundStyle(textColor(for: type))
+              .frame(width: buttonSize.width, height: buttonSize.height)
+              .contentShape(Rectangle())
+              .onTapGesture {
+                withAnimation(.easeInOut) {
+                  scheduleTypeRectPosition.x = rectPosition(for: type, width: geometry.size.width)
+                }
+                
+                if selectedScheduleType != type {
+                  selectedScheduleType = type
+                }
+              }
+          }
         }
       }
+      .cardStyle(cornerRadius: 10)
     }
     .frame(height: 40)
   }
@@ -250,6 +253,7 @@ extension AddSupplementView {
         HStack(spacing: 8) {
           Text(addSupplementVM.weekdaysString)
             .font(.notoSans(size: defaultFontSize))
+            .padding(.bottom, 2)
           
           Image(systemName: "chevron.right")
             .font(.system(size: defaultFontSize, weight: .medium))
@@ -326,6 +330,47 @@ extension AddSupplementView {
     }
   }
   
+  private func supplementCountSelector() -> some View {
+    HStack {
+      Text("섭취 횟수")
+        .font(.notoSans(size: defaultFontSize))
+      
+      Spacer()
+      
+      HStack(spacing: 25) {
+        Button {
+          addSupplementVM.removeRoutineTime()
+        } label: {
+          Circle()
+            .frame(width: 23, height: 23)
+            .foregroundStyle(.main)
+            .overlay {
+              Image(systemName: "minus")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(.white)
+            }
+        }
+        
+        Text("\(addSupplementVM.times.count)")
+          .font(.notoSans(size: defaultFontSize))
+          .padding(.bottom, 3)
+        
+        Button {
+          addSupplementVM.addRoutineTime()
+        } label: {
+          Circle()
+            .frame(width: 23, height: 23)
+            .foregroundStyle(.main)
+            .overlay {
+              Image(systemName: "plus")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(.white)
+            }
+        }
+      }
+    }
+  }
+  
   private func timeSelectionSection() -> some View {
     VStack(alignment: .leading){
       Text("복용 시간")
@@ -352,9 +397,16 @@ extension AddSupplementView {
           
           Spacer()
           
-          Image(systemName: "chevron.right")
-            .font(.system(size: defaultFontSize, weight: .medium))
-            .foregroundStyle(.textGray)
+          HStack(spacing: .smallSpacing) {
+            Text("1정")
+              .font(.notoSans(weight: .regular, size: defaultFontSize))
+              .foregroundStyle(.textGray)
+              .padding(.bottom, 2)
+            
+            Image(systemName: "chevron.right")
+              .font(.system(size: defaultFontSize, weight: .medium))
+              .foregroundStyle(.textGray)
+          }
         }
         .onTapGesture {
           selectedTimeIndex = index
@@ -363,14 +415,16 @@ extension AddSupplementView {
         }
       }
     }
+    .cardStyle(padding: .defaultSpacing)
   }
   
   private func memoSection() -> some View {
-    VStack(alignment: .leading, spacing: .defaultSpacing) {
+    VStack(alignment: .leading) {
       Text("메모")
         .font(.notoSans(size: defaultFontSize))
       
       InputTextField(
+        text: $memo,
         placeHolder: "ex) 따듯한 물과 함께 먹기",
         didBeginEditing: {
           fieldType = .memo
@@ -379,16 +433,10 @@ extension AddSupplementView {
           fieldType = nil
         }
       )
-      .padding(.smallSpacing)
-      .padding(.horizontal, .smallSpacing)
-      .background {
-        RoundedRectangle(cornerRadius: 10)
-          .fill(.backgroundGray)
-      }
-      .frame(height: 50)
-      
-      Spacer()
+      .padding(.horizontal, 4)
     }
+    .cardStyle(padding: .defaultSpacing)
+    .frame(height: 95)
   }
   
   func showSchedulePicker() {
