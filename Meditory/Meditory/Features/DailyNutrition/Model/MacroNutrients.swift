@@ -1,26 +1,11 @@
 //
-//  FoodModel.swift
+//  MacroNutrients.swift
 //  Meditory
 //
-//  Created by 이치훈 on 8/13/25.
+//  Created by 이치훈 on 8/15/25.
 //
 
 import Foundation
-
-struct FoodInfo: Identifiable, Codable {
-  var id = UUID()
-  var name: String // 음식 이름
-  var weight: Double // 음식의 총 g 수
-  var macros: MacroNutrients
-  
-  var macroItems: [MacroItem] {
-    MacroType.allCases.map { type in
-      MacroItem(type: type,
-                gram: macros[type])
-    }
-  }
-
-}
 
 struct MacroNutrients: Codable {
   var carbohydrate: Double // 탄수화물

@@ -11,12 +11,12 @@ struct MealDetailView: View {
   @Environment(\.dismiss) var dismiss
   
   let macros = [
-    MacroItem(macroType: .carbohydrate,
-               gram: 180),
-    MacroItem(macroType: .protein,
-               gram: 30),
-    MacroItem(macroType: .fat,
-               gram: 10)
+//    MacroItem(macroType: .carbohydrate,
+//               gram: 180),
+//    MacroItem(macroType: .protein,
+//               gram: 30),
+//    MacroItem(macroType: .fat,
+//               gram: 10)
   ]
   
   var body: some View {
