@@ -8,10 +8,7 @@
 import Foundation
 
 /// 요일별(1) / 주기별(2)
-enum CycleType: Int, Codable {
-  case weekdays = 1   // 요일별
-  case interval = 2   // 주기별(며칠 간격)
-}
+extension SupplementScheduleType: Codable {}
 
 enum TimeSpec: Codable, Equatable {
   case absolute(hour: Int, minute: Int)
@@ -54,7 +51,7 @@ enum TimeSpec: Codable, Equatable {
 
 /// 복용 스케줄
 struct DoseSchedule: Codable {
-  var cycleType: CycleType // 요일별, 주기별
+  var cycleType: SupplementScheduleType // 요일별, 주기별
   var times: [TimeSpec]
   /// cycleType == .weekdays(요일 인덱스: 일=0 ~ 토=6)
   var weekdays: [Int]?
