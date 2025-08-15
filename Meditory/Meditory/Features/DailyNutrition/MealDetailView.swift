@@ -10,23 +10,21 @@ import SwiftUI
 struct MealDetailView: View {
   @Environment(\.dismiss) var dismiss
   
-  let macros = [
+  let meal: MealInfo
 //    MacroItem(macroType: .carbohydrate,
 //               gram: 180),
 //    MacroItem(macroType: .protein,
 //               gram: 30),
 //    MacroItem(macroType: .fat,
 //               gram: 10)
-  ]
+  
   
   var body: some View {
     VStack(spacing: 50) {
       FoodSearchTextFieldView()
         .padding(.horizontal, 16)
       
-      MacroChartView(carbohydrateGram:                            macros[0].gram,
-                     proteinGram: macros[1].gram,
-                     fatGram: macros[2].gram)
+      MacroChartView(macros: meal.macros)
       .frame(width: 200, height: 200)
       
       macroCompositionView()
@@ -57,16 +55,16 @@ struct MealDetailView: View {
   
   func macroCompositionView() -> some View {
     HStack(spacing: 50) {
-      ForEach(macros) { macro in
+      ForEach(meal.macroItems) { item in
         VStack {
-          Text(macro.label)
+          Text(item.label)
             .font(.notoSans(weight: .bold, size: 18))
           
           Circle()
-            .fill(macro.color)
+            .fill(item.color)
             .frame(width: 20, height: 20)
           
-          Text("\(Int(macro.gram))%")
+          Text("\(Int(item.gram))%")
             .font(.notoSans(weight: .medium, size: 17))
         }
       }
@@ -76,5 +74,16 @@ struct MealDetailView: View {
 }
 
 #Preview {
-    MealDetailView()
+  MealDetailView(meal: MealInfo(name: "아침",
+                                foods: [FoodInfo(name: "짜장면",
+                                                 weight: 120,
+                                                 macros: .init(carbohydrate: 30,
+                                                               protein: 10,
+                                                               fat: 5)),
+                                        FoodInfo(name: "스파게티",
+                                                 weight: 150,
+                                                 macros: .init(carbohydrate: 40,
+                                                               protein: 50,
+                                                               fat: 10))
+                                ]))
 }

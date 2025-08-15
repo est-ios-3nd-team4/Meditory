@@ -87,10 +87,10 @@ struct MacroChartView: View {
   @State private var proteinProgress: Double = 0
   @State private var fatProgress: Double = 0
   
-  init(carbohydrateGram carbohydrateProgressTarget: Double, proteinGram proteinProgressTarget: Double, fatGram fatProgressTarget: Double) {
-    self.carbohydrateProgressTarget = Double(carbohydrateProgressTarget) / 100
-    self.proteinProgressTarget = Double(proteinProgressTarget) / 100
-    self.fatProgressTarget = Double(fatProgressTarget) / 100
+  init(macros: MacroNutrients) {
+    self.carbohydrateProgressTarget = Double(macros.carbohydrate) / 100
+    self.proteinProgressTarget = Double(macros.protein) / 100
+    self.fatProgressTarget = Double(macros.fat) / 100
   }
   
   var body: some View {
@@ -183,7 +183,5 @@ struct MacroChartView: View {
 }
 
 #Preview {
-  MacroChartView(carbohydrateGram: 1.5,
-                 proteinGram: 1.2,
-                 fatGram: 1.1)
+  MacroChartView(macros: .init(carbohydrate: 180, protein: 25, fat: 30))
 }

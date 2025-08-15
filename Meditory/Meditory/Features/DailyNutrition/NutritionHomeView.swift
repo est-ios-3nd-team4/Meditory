@@ -12,39 +12,21 @@ struct NutritionHomeView: View {
   @State private var path = NavigationPath()
   @State private var selectedDate: Date = Date()
   
-  var mealModel: [MealInfo] = []
-//  [
-//    MealModel(mealName: "아침",
-//              carbohydrate: 120,
-//              protein: 80,
-//              fat: 20,
-//              foods: []),
-//    MealModel(mealName: "점심",
-//              carbohydrate: 120,
-//              protein: 80,
-//              fat: 20,
-//              foods: [])
-//  ]
-  
-//    MealModel(mealName: "아침",
-//                  carbohydrate: 120,
-//                  protein: 80,
-//                  fat: 20,
-//                  foods: [])
+  var meals: [MealInfo] = []
     
   var body: some View {
     NavigationStack(path: $path) {
       CalendarBackgroundView(selectedDate: $selectedDate) { _ in
         ScrollView {
           VStack {
-            DailyMealSummaryCard()
+            DailyMealSummaryCard(meal: meals[0])
             
-            if !mealModel.isEmpty {
-              ForEach(mealModel, id: \.id) { meal in
-                MealSummaryCard()
+            if !meals.isEmpty {
+              ForEach(meals, id: \.id) { meal in
+                MealSummaryCard(meal: meal)
               }
             } else {
-              NavigationLink(destination: MealDetailView()) {
+              NavigationLink(destination: MealDetailView(meal: MealInfo(name: "", foods: []))) {
                 emptyMealView()
               }
             }
@@ -80,5 +62,18 @@ extension NutritionHomeView {
 }
 
 #Preview {
-  NutritionHomeView()
+  NutritionHomeView(meals: [])
+  
+  //  [
+  //    MealModel(mealName: "아침",
+  //              carbohydrate: 120,
+  //              protein: 80,
+  //              fat: 20,
+  //              foods: []),
+  //    MealModel(mealName: "점심",
+  //              carbohydrate: 120,
+  //              protein: 80,
+  //              fat: 20,
+  //              foods: [])
+  //  ]
 }

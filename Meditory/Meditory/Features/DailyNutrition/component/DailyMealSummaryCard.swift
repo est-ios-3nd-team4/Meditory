@@ -9,14 +9,7 @@ import SwiftUI
 
 struct DailyMealSummaryCard: View {
   
-  let macros = [
-    MacroItem(macroType: .carbohydrate,
-               gram: 180),
-    MacroItem(macroType: .protein,
-               gram: 30),
-    MacroItem(macroType: .fat,
-               gram: 10)
-  ]
+  let meal: MealInfo
   
   var body: some View {
     ZStack {
@@ -38,11 +31,7 @@ struct DailyMealSummaryCard: View {
         
         Spacer()
         
-        MacroChartView(carbohydrateGram:                                              macros[0].gram,
-                       proteinGram:
-                        macros[1].gram,
-                       fatGram:
-                        macros[2].gram)
+        MacroChartView(macros: meal.macros)
         .frame(width: 80, height: 80)
         .padding(.trailing, 16)
       }
@@ -52,18 +41,18 @@ struct DailyMealSummaryCard: View {
   /// 탄, 단, 지 오늘 하루 목표치 대비 퍼센트값을 나타냄
   func macroPercentageView() -> some View {
     VStack(alignment: .leading) {
-        ForEach(macros) { macro in
+      ForEach(meal.macroItems) { item in
           HStack {
             Circle()
-              .fill(macro.color)
+              .fill(item.color)
               .frame(width: 15, height: 15)
             
             HStack {
-              Text(macro.label)
+              Text(item.label)
                 .font(.notoSans(weight: .bold, size: 17))
                 .foregroundStyle(.black)
               
-              Text("\(Int(macro.gram))%")
+              Text("\(Int(item.gram))%")
                 .font(.notoSans(weight: .medium, size: 18))
             }
           }
@@ -73,5 +62,16 @@ struct DailyMealSummaryCard: View {
 }
 
 #Preview {
-    DailyMealSummaryCard()
+  DailyMealSummaryCard(meal: MealInfo(name: "아침",
+                                      foods: [FoodInfo(name: "짜장면",
+                                                       weight: 120,
+                                                       macros: .init(carbohydrate: 30,
+                                                                     protein: 10,
+                                                                     fat: 5)),
+                                              FoodInfo(name: "스파게티",
+                                                       weight: 150,
+                                                       macros: .init(carbohydrate: 40,
+                                                                     protein: 50,
+                                                                     fat: 10))
+                                      ]))
 }

@@ -8,11 +8,11 @@
 import Foundation
 
 // MacroItemService vs Macroable vs MacroProtocol
-protocol Macroable {
+protocol MacroRepresentable {
   var macros: MacroNutrients { get }
 }
 
-extension Macroable {
+extension MacroRepresentable {
   var macroItems: [MacroItem] {
     MacroType.allCases.map { type in
       MacroItem(type: type,
