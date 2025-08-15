@@ -77,7 +77,7 @@ struct CircularKnobAnimationModifier: AnimatableModifier {
   }
 }
 
-struct MacroNutrientChartView: View {
+struct MacroChartView: View {
   
   var carbohydrateProgressTarget: Double
   var proteinProgressTarget: Double
@@ -86,6 +86,12 @@ struct MacroNutrientChartView: View {
   @State private var carbohydrateProgress: Double = 0
   @State private var proteinProgress: Double = 0
   @State private var fatProgress: Double = 0
+  
+  init(carbohydrateGram carbohydrateProgressTarget: Double, proteinGram proteinProgressTarget: Double, fatGram fatProgressTarget: Double) {
+    self.carbohydrateProgressTarget = Double(carbohydrateProgressTarget) / 100
+    self.proteinProgressTarget = Double(proteinProgressTarget) / 100
+    self.fatProgressTarget = Double(fatProgressTarget) / 100
+  }
   
   var body: some View {
     /// MacroNutrientChartView 컴포넌트를 담는 view의 geo(height, width)값을 받아옵니다.
@@ -177,7 +183,7 @@ struct MacroNutrientChartView: View {
 }
 
 #Preview {
-  MacroNutrientChartView(carbohydrateProgressTarget: 1.5,
-                         proteinProgressTarget: 1.2,
-                         fatProgressTarget: 1.1)
+  MacroChartView(carbohydrateGram: 1.5,
+                 proteinGram: 1.2,
+                 fatGram: 1.1)
 }

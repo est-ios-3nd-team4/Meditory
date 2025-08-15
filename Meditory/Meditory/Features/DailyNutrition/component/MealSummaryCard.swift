@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-struct MealSummaryView: View {
+struct MealSummaryCard: View {
   
   let macros = [
-    MacroModel(macroType: .carbohydrate,
+    MacroItem(macroType: .carbohydrate,
                gram: 180),
-    MacroModel(macroType: .protein,
+    MacroItem(macroType: .protein,
                gram: 30),
-    MacroModel(macroType: .fat,
+    MacroItem(macroType: .fat,
                gram: 10)
   ]
   
@@ -59,5 +59,5 @@ struct MealSummaryView: View {
 }
 
 #Preview {
-    MealSummaryView()
+    MealSummaryCard()
 }

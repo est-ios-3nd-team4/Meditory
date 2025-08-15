@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-struct DailyMealSummaryView: View {
+struct DailyMealSummaryCard: View {
   
   let macros = [
-    MacroModel(macroType: .carbohydrate,
+    MacroItem(macroType: .carbohydrate,
                gram: 180),
-    MacroModel(macroType: .protein,
+    MacroItem(macroType: .protein,
                gram: 30),
-    MacroModel(macroType: .fat,
+    MacroItem(macroType: .fat,
                gram: 10)
   ]
   
@@ -38,9 +38,11 @@ struct DailyMealSummaryView: View {
         
         Spacer()
         
-        MacroNutrientChartView(carbohydrateProgressTarget: Double(macros[0].gram) / 100,
-                               proteinProgressTarget: Double(macros[1].gram) / 100,
-                               fatProgressTarget: Double(macros[2].gram) / 100)
+        MacroChartView(carbohydrateGram:                                              macros[0].gram,
+                       proteinGram:
+                        macros[1].gram,
+                       fatGram:
+                        macros[2].gram)
         .frame(width: 80, height: 80)
         .padding(.trailing, 16)
       }
@@ -71,5 +73,5 @@ struct DailyMealSummaryView: View {
 }
 
 #Preview {
-    DailyMealSummaryView()
+    DailyMealSummaryCard()
 }
