@@ -55,7 +55,7 @@ struct CameraPickerSheet: UIViewControllerRepresentable {
       
       let handler = VNImageRequestHandler(cgImage: cgImage)
       
-      DispatchQueue.global().async {
+      Task {
         do {
           try handler.perform([request])
           if let observation = request.results {
