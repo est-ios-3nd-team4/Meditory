@@ -44,7 +44,7 @@ struct AddSupplementView: View {
   private let defaultFontSize: CGFloat = 18
   
   var body: some View {
-    GeometryReader { geometry in
+    GeometryReader { scrollView in
       ScrollViewReader { proxy in
         ScrollView {
           VStack(spacing: 20) {
@@ -95,7 +95,6 @@ struct AddSupplementView: View {
             .id("confirmButton")
             .padding(.bottom, fieldType == .memo ? 20 : 0)
           }
-          .frame(height: fieldType != nil ? nil : geometry.size.height)
           .padding(.horizontal, .defaultSpacing + 4)
           .navigationTitle("복용약 추가")
           .navigationBarTitleDisplayMode(.inline)
@@ -225,7 +224,6 @@ extension AddSupplementView {
             y: scheduleTypeRectPosition.y
           )
           .onAppear {
-            print(geometry.size.width)
             scheduleTypeRectPosition.x = geometry.size.width * 0.25
             scheduleTypeRectPosition.y = geometry.size.height / 2
           }
