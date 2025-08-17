@@ -21,6 +21,14 @@ extension Date {
     return dateFormatter.string(from: self)
   }
   
+  var hour: Int {
+    Calendar.current.component(.hour, from: self)
+  }
+  
+  var minute: Int {
+    Calendar.current.component(.minute, from: self)
+  }
+  
   func formattedDate(_ date: Date, _ format: String) -> String {
     let df = DateFormatter()
     df.dateFormat = format
@@ -51,5 +59,21 @@ extension Date {
     default:
       return "70대 이상"
     }
+  }
+
+  static func makeTime(hour: Int, minute: Int = .zero) -> Date {
+    var components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+    components.hour = hour
+    components.minute = minute
+
+    return Calendar.current.date(from: components) ?? Date()
+  }
+  
+  static func makeDate(month: Int, day: Int) -> Date {
+    var components = Calendar.current.dateComponents([.year], from: Date())
+    components.month = month
+    components.day = day
+
+    return Calendar.current.date(from: components) ?? Date()
   }
 }
