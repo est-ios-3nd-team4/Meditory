@@ -35,7 +35,7 @@ class AddSupplementViewModel: ObservableObject {
   
   init() {
     doseSchedules = [
-      SupplementDoseSchedule(time: makeTime(hour: 8), pillsPerDose: 1)
+      SupplementDoseSchedule(time: Date.makeTime(hour: 8), pillsPerDose: 1)
     ]
   }
 
@@ -46,7 +46,7 @@ class AddSupplementViewModel: ObservableObject {
       
       doseSchedules.append(
         SupplementDoseSchedule(
-          time: makeTime(hour: hour + 1, minute: minute),
+          time: Date.makeTime(hour: hour + 1, minute: minute),
           pillsPerDose: 1
         )
       )
@@ -57,22 +57,6 @@ class AddSupplementViewModel: ObservableObject {
     guard doseSchedules.count > 1 else { return }
     
     doseSchedules.removeLast()
-  }
-  
-  func makeTime(hour: Int, minute: Int = .zero) -> Date {
-    var components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-    components.hour = hour
-    components.minute = minute
-
-    return Calendar.current.date(from: components) ?? Date()
-  }
-  
-  func makeDate(month: Int, day: Int) -> Date {
-    var components = Calendar.current.dateComponents([.year], from: Date())
-    components.month = month
-    components.day = day
-
-    return Calendar.current.date(from: components) ?? Date()
   }
   
   func setValue(_ value: SchedulePickerValue, index: Int = 0) {
