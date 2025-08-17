@@ -76,6 +76,9 @@ struct AddSupplementView: View {
             .modifier(CardStyle(padding: .defaultSpacing))
             
             timeSelectionSection()
+            
+            AIRecommendedScheduleView(defaultFontSize: defaultFontSize)
+            
             memoSection()
             
             Spacer()
