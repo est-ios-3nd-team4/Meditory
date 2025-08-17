@@ -28,6 +28,7 @@ struct AddSupplementView: View {
   @State private var selectedScheduleType: SupplementScheduleType = .weekday
   @StateObject private var addSupplementVM = AddSupplementViewModel()
   @StateObject private var scheduleVM = SupplementScheduleViewModel()
+  @State private var lifestyleTimeVM = LifestyleTimeViewModel()
   @State private var selectedPicker: SchedulePickerType? {
     didSet {
       showSchedulePicker()
@@ -48,6 +49,19 @@ struct AddSupplementView: View {
         ScrollView {
           VStack(spacing: 20) {
             supplementNameInput()
+            
+            LifestyleTimeView(
+              type: .dailyCycle,
+              defaultFontSize: defaultFontSize,
+              lifestyleTimeVM: lifestyleTimeVM
+            )
+            
+            LifestyleTimeView(
+              type: .meal,
+              defaultFontSize: defaultFontSize,
+              lifestyleTimeVM: lifestyleTimeVM
+            )
+            
             scheduleTypeSelector()
             
             VStack {
@@ -391,7 +405,7 @@ extension AddSupplementView {
               .padding(.bottom, 1)
           }
           
-          Text(routine.timeString)
+          Text(routine.time.timeFormatter)
             .font(.notoSans(weight: .regular, size: defaultFontSize))
             .padding(.bottom, 2)
           
