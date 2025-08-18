@@ -8,23 +8,16 @@
 import SwiftUI
 
 struct MealDetailView: View {
+  
   @Environment(\.dismiss) var dismiss
-  
-  let meal: MealInfo
-//    MacroItem(macroType: .carbohydrate,
-//               gram: 180),
-//    MacroItem(macroType: .protein,
-//               gram: 30),
-//    MacroItem(macroType: .fat,
-//               gram: 10)
-  
+  @EnvironmentObject var viewModel: NutritionMainViewModel
   
   var body: some View {
     VStack(spacing: 50) {
       FoodSearchTextFieldView()
         .padding(.horizontal, 16)
       
-      MacroChartView(macros: meal.macros)
+      MacroChartView(macros: viewModel.selectedMeal?.macros)
       .frame(width: 200, height: 200)
       
       macroCompositionView()
@@ -54,8 +47,10 @@ struct MealDetailView: View {
   // MARK: Disposable Components
   
   func macroCompositionView() -> some View {
-    HStack(spacing: 50) {
-      ForEach(meal.macroItems) { item in
+    let macro = viewModel.selectedMeal?.macros ?? MacroNutrients(carbohydrate: 0, protein: 0, fat: 0)
+    
+    return HStack(spacing: 50) {
+      ForEach(macro.macroItems) { item in
         VStack {
           Text(item.label)
             .font(.notoSans(weight: .bold, size: 18))
@@ -74,16 +69,5 @@ struct MealDetailView: View {
 }
 
 #Preview {
-  MealDetailView(meal: MealInfo(name: "아침",
-                                foods: [FoodInfo(name: "짜장면",
-                                                 weight: 120,
-                                                 macros: .init(carbohydrate: 30,
-                                                               protein: 10,
-                                                               fat: 5)),
-                                        FoodInfo(name: "스파게티",
-                                                 weight: 150,
-                                                 macros: .init(carbohydrate: 40,
-                                                               protein: 50,
-                                                               fat: 10))
-                                ]))
+  MealDetailView()
 }

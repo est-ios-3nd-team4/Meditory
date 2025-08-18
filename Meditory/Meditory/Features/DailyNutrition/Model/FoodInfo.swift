@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct FoodInfo: Identifiable, MacroRepresentable, Codable {
+struct FoodInfo: Identifiable, Codable {
   // TODO: UUID 갖다 버리기
   var id = UUID()
   var name: String // 음식 이름

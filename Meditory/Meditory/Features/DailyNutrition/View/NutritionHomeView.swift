@@ -10,23 +10,23 @@ import SwiftUI
 struct NutritionHomeView: View {
   
   @State private var path = NavigationPath()
-  @State private var selectedDate: Date = Date()
-  
-  var meals: [MealInfo] = []
+//  @State private var selectedDate: Date = Date()
+  @StateObject private var viewModel = NutritionMainViewModel()
     
   var body: some View {
     NavigationStack(path: $path) {
-      CalendarBackgroundView(selectedDate: $selectedDate) { _ in
+      CalendarBackgroundView(selectedDate: $viewModel.selectedDate) { _ in
         ScrollView {
           VStack {
-            DailyMealSummaryCard(meal: meals[0])
+            DailyMealSummaryCard(meal: viewModel.todayTotalMacros)
             
-            if !meals.isEmpty {
-              ForEach(meals, id: \.id) { meal in
+            if !viewModel.meals.isEmpty {
+              ForEach(viewModel.meals, id: \.id) { meal in
                 MealSummaryCard(meal: meal)
               }
             } else {
-              NavigationLink(destination: MealDetailView(meal: MealInfo(name: "", foods: []))) {
+              NavigationLink(destination: MealDetailView()
+                .environmentObject(viewModel)) {
                 emptyMealView()
               }
             }
@@ -62,18 +62,5 @@ extension NutritionHomeView {
 }
 
 #Preview {
-  NutritionHomeView(meals: [])
-  
-  //  [
-  //    MealModel(mealName: "아침",
-  //              carbohydrate: 120,
-  //              protein: 80,
-  //              fat: 20,
-  //              foods: []),
-  //    MealModel(mealName: "점심",
-  //              carbohydrate: 120,
-  //              protein: 80,
-  //              fat: 20,
-  //              foods: [])
-  //  ]
+  NutritionHomeView()
 }

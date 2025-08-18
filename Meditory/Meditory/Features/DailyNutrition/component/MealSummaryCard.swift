@@ -25,7 +25,7 @@ struct MealSummaryCard: View {
             .font(.notoSans(weight: .bold, size: 18))
           
           HStack(spacing: 40) {
-            ForEach(meal.macroItems) { item in
+            ForEach(meal.macros.macroItems) { item in
               HStack {
                 Circle()
                   .fill(item.color)

@@ -87,10 +87,13 @@ struct MacroChartView: View {
   @State private var proteinProgress: Double = 0
   @State private var fatProgress: Double = 0
   
-  init(macros: MacroNutrients) {
-    self.carbohydrateProgressTarget = Double(macros.carbohydrate) / 100
-    self.proteinProgressTarget = Double(macros.protein) / 100
-    self.fatProgressTarget = Double(macros.fat) / 100
+  /// macros인자 값으로 MacroNutrients gram 데이터를 받아야 합니다.
+  init(macros: MacroNutrients?) {
+    let safeMacros = macros ?? MacroNutrients(carbohydrate: 0, protein: 0, fat: 0)
+    
+    self.carbohydrateProgressTarget = Double(safeMacros.carbohydrate) / 100
+    self.proteinProgressTarget = Double(safeMacros.protein) / 100
+    self.fatProgressTarget = Double(safeMacros.fat) / 100
   }
   
   var body: some View {

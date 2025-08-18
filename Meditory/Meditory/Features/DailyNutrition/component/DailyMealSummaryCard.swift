@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DailyMealSummaryCard: View {
   
-  let meal: MealInfo
+  let meal: MacroNutrients
   
   var body: some View {
     ZStack {
@@ -31,7 +31,7 @@ struct DailyMealSummaryCard: View {
         
         Spacer()
         
-        MacroChartView(macros: meal.macros)
+        MacroChartView(macros: meal)
         .frame(width: 80, height: 80)
         .padding(.trailing, 16)
       }
@@ -62,16 +62,7 @@ struct DailyMealSummaryCard: View {
 }
 
 #Preview {
-  DailyMealSummaryCard(meal: MealInfo(name: "아침",
-                                      foods: [FoodInfo(name: "짜장면",
-                                                       weight: 120,
-                                                       macros: .init(carbohydrate: 30,
-                                                                     protein: 10,
-                                                                     fat: 5)),
-                                              FoodInfo(name: "스파게티",
-                                                       weight: 150,
-                                                       macros: .init(carbohydrate: 40,
-                                                                     protein: 50,
-                                                                     fat: 10))
-                                      ]))
+  DailyMealSummaryCard(meal: MacroNutrients(carbohydrate: 180,
+                                            protein: 40,
+                                            fat: 30))
 }
