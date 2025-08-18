@@ -19,4 +19,13 @@ enum LifestyleTimeType {
       return "식사 시간"
     }
   }
+  
+  var subtitle: String {
+    switch self {
+    case .dailyCycle:
+      return "생활 패턴에 맞는 추천 섭취 시간을 알려드릴게요!"
+    case .meal:
+      return "식습관에 맞는 추천 섭취 시간을 알려드릴게요!"
+    }
+  }
 }

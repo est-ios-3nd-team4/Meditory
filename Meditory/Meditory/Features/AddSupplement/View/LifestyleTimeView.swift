@@ -13,6 +13,8 @@ struct LifestyleTimeView: View {
   let defaultFontSize: CGFloat
   @State var lifestyleTimeVM: LifestyleTimeViewModel
   
+  let onTapGesture: ((any LifestyleTime) -> Void)?
+  
   @State private var isExpanded: Bool = false
   
   var body: some View {
@@ -37,19 +39,25 @@ struct LifestyleTimeView: View {
           switch type {
           case .dailyCycle:
             ForEach(DailyCycleType.allCases, id:\.self) { type in
-              row(
+              lifestyleTimeRow(
                 title: type.title,
                 imageName: type.imageName,
                 time: lifestyleTimeVM.time(for: type)
               )
+              .onTapGesture {
+                onTapGesture?(type)
+              }
             }
           case .meal:
             ForEach(MealType.allCases, id:\.self) { type in
-              row(
+              lifestyleTimeRow(
                 title: type.title,
                 imageName: type.imageName,
                 time: lifestyleTimeVM.time(for: type)
               )
+              .onTapGesture {
+                onTapGesture?(type)
+              }
             }
           }
         }
@@ -62,7 +70,7 @@ struct LifestyleTimeView: View {
 
 // MARK: - Subviews
 extension LifestyleTimeView {
-  private func row(title: String, imageName: String, time: String) -> some View {
+  private func lifestyleTimeRow(title: String, imageName: String, time: String) -> some View {
     HStack {
       Image(imageName)
         .resizable()

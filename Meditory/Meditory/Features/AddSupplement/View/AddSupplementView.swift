@@ -40,96 +40,122 @@ struct AddSupplementView: View {
   @State private var selectedTimeIndex = 0
   @State private var showScanner = false
   @State private var scheduleTypeRectPosition: CGPoint = .zero
+  @State private var showTimePicker = false
+  @State private var selectedLifestyleCategory: LifestyleTimeType? = nil
+  @State private var selectedLifestyleOption: (any LifestyleTime)?
   
   private let defaultFontSize: CGFloat = 18
   
   var body: some View {
     GeometryReader { scrollView in
-      ScrollViewReader { proxy in
-        ScrollView {
-          VStack(spacing: 20) {
-            supplementNameInput()
-            
-            LifestyleTimeView(
-              type: .dailyCycle,
-              defaultFontSize: defaultFontSize,
-              lifestyleTimeVM: lifestyleTimeVM
-            )
-            
-            LifestyleTimeView(
-              type: .meal,
-              defaultFontSize: defaultFontSize,
-              lifestyleTimeVM: lifestyleTimeVM
-            )
-            
-            scheduleTypeSelector()
-            
-            VStack {
-              switch selectedScheduleType {
-              case .weekday:
-                weekdayScheduleView()
-              case .interval:
-                intervalScheduleView()
-              }
-              supplementCountSelector()
-            }
-            .modifier(CardStyle(padding: .defaultSpacing))
-            
-            timeSelectionSection()
-            
-            AIRecommendedScheduleView(defaultFontSize: defaultFontSize)
-            
-            memoSection()
-            
-            Spacer()
-            
-            Button {
-              dismiss()
-            } label: {
-              RoundedRectangle(cornerRadius: 10)
-                .fill(.main)
-                .frame(height: 50)
-                .overlay {
-                  Text("완료")
-                    .font(.notoSans(weight: .semiBold, size: defaultFontSize))
-                    .foregroundStyle(.white)
+      ZStack {
+        ScrollViewReader { proxy in
+          ScrollView {
+            VStack(spacing: 20) {
+              supplementNameInput()
+              
+              LifestyleTimeView(
+                type: .dailyCycle,
+                defaultFontSize: defaultFontSize,
+                lifestyleTimeVM: lifestyleTimeVM,
+              ) { option in
+                selectedLifestyleCategory = .dailyCycle
+                selectedLifestyleOption = option
+                Task { @MainActor in
+                  // 다음 runloop에서 실행됨 → 값 세팅 이후 showTimePicker 켜짐
+                  showTimePicker = true
                 }
-            }
-            .id("confirmButton")
-            .padding(.bottom, fieldType == .memo ? 20 : 0)
-          }
-          .padding(.horizontal, .defaultSpacing + 4)
-          .navigationTitle("복용약 추가")
-          .navigationBarTitleDisplayMode(.inline)
-          .navigationBarBackButtonHidden(true)
-          .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+              }
+              
+              LifestyleTimeView(
+                type: .meal,
+                defaultFontSize: defaultFontSize,
+                lifestyleTimeVM: lifestyleTimeVM
+              ) { option in
+                selectedLifestyleCategory = .meal
+                selectedLifestyleOption = option
+                showTimePicker = true
+              }
+              
+              scheduleTypeSelector()
+              
+              VStack {
+                switch selectedScheduleType {
+                case .weekday:
+                  weekdayScheduleView()
+                case .interval:
+                  intervalScheduleView()
+                }
+                supplementCountSelector()
+              }
+              .modifier(CardStyle(padding: .defaultSpacing))
+              
+              timeSelectionSection()
+              
+              AIRecommendedScheduleView(defaultFontSize: defaultFontSize)
+              
+              memoSection()
+              
+              Spacer()
+              
               Button {
                 dismiss()
               } label: {
-                Image(systemName: "chevron.left")
-                  .foregroundStyle(Color.label)
+                RoundedRectangle(cornerRadius: 10)
+                  .fill(.main)
+                  .frame(height: 50)
+                  .overlay {
+                    Text("완료")
+                      .font(.notoSans(weight: .semiBold, size: defaultFontSize))
+                      .foregroundStyle(.white)
+                  }
+              }
+              .id("confirmButton")
+              .padding(.bottom, fieldType == .memo ? 20 : 0)
+            }
+            .padding(.horizontal, .defaultSpacing + 4)
+            .navigationTitle("복용약 추가")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+              ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                  dismiss()
+                } label: {
+                  Image(systemName: "chevron.left")
+                    .foregroundStyle(Color.label)
+                }
               }
             }
           }
-        }
-        .scrollIndicators(.hidden)
-        .onChange(of: fieldType) { oldValue, newValue in
-          switch fieldType {
-          case .memo:
-            let keyboardAnimationDuration = 0.3
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + keyboardAnimationDuration) {
-              withAnimation {
-                proxy.scrollTo("confirmButton", anchor: .bottom)
+          .scrollIndicators(.hidden)
+          .onChange(of: fieldType) { oldValue, newValue in
+            switch fieldType {
+            case .memo:
+              let keyboardAnimationDuration = 0.3
+              
+              DispatchQueue.main.asyncAfter(deadline: .now() + keyboardAnimationDuration) {
+                withAnimation {
+                  proxy.scrollTo("confirmButton", anchor: .bottom)
+                }
               }
+            default:
+              break
             }
-          default:
-            break
+          }
+          .onAppear {
+            addSupplementVM.updateContext(context)
           }
         }
-        .onAppear {
-          addSupplementVM.updateContext(context)
+        
+        if showTimePicker {
+          LifestyleTimePickerSheet(
+            type: selectedLifestyleCategory ?? .dailyCycle,
+            option: selectedLifestyleOption ?? DailyCycleType.wakeUp,
+            lifestyleTimeVM: lifestyleTimeVM
+          ) {
+            showTimePicker = false
+          }
         }
       }
       .fullScreenCover(isPresented: $showScanner) {
