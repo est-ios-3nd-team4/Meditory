@@ -60,16 +60,16 @@ extension RoutineStore {
   /// cycletype 따라서 변환
   private static func makeCycleFields(from s: DoseSchedule) -> (cycleType: Int, cycleValue: String) {
     switch s.cycleType {
-    case .weekdays:
+    case .weekday:
       let list = (s.weekdays ?? [])
-      return (CycleType.weekdays.rawValue, list.map(String.init).joined(separator: ","))
+      return (SupplementScheduleType.weekday.rawValue, list.map(String.init).joined(separator: ","))
 
     case .interval:
       if let d = s.intervalDays {
-        return (CycleType.interval.rawValue, String(10 + d))
+        return (SupplementScheduleType.interval.rawValue, String(10 + d))
       }
 
-      return (CycleType.interval.rawValue, "")
+      return (SupplementScheduleType.interval.rawValue, "")
     }
   }
 
