@@ -16,7 +16,8 @@ class AddSupplementViewModel: ObservableObject {
   @Published var duration: Int = 1
   @Published var doseSchedules = [SupplementDoseSchedule]()
   @Published var memo: String = ""
-  
+  @Published var supplemtSummary: SupplementSummary?
+
   private var context: ModelContext?
   
   var weekdaysString: String {
@@ -82,5 +83,30 @@ class AddSupplementViewModel: ObservableObject {
 extension AddSupplementViewModel {
   func updateContext(_ context: ModelContext) {
     self.context = context
+  }
+}
+
+
+// MARK: - Network
+extension AddSupplementViewModel {
+  func request(productNameInput: String, nameSource: SupplementNameSource) async throws {
+    print("✅ 요청", Date.now)
+    
+    Task { @MainActor in
+      self.supplemtSummary = nil
+    }
+    
+    let prompt = SupplementSummaryPrompt.makePrompt(
+      productNameInput: productNameInput,
+      nameSource: nameSource
+    )
+    
+    let response = try await AlanAPIClient().request(content: prompt)
+    
+    Task { @MainActor in
+      self.supplemtSummary = try JSONDecoder().decode(SupplementSummary.self, from: Data(response.utf8))
+      
+      print("✅ 응답", Date.now)
+    }
   }
 }
