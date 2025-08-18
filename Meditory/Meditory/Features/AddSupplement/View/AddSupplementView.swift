@@ -28,6 +28,7 @@ struct AddSupplementView: View {
   @State private var selectedScheduleType: SupplementScheduleType = .weekday
   @StateObject private var addSupplementVM = AddSupplementViewModel()
   @StateObject private var scheduleVM = SupplementScheduleViewModel()
+  @State private var lifestyleTimeVM = LifestyleTimeViewModel()
   @State private var selectedPicker: SchedulePickerType? {
     didSet {
       showSchedulePicker()
@@ -39,81 +40,128 @@ struct AddSupplementView: View {
   @State private var selectedTimeIndex = 0
   @State private var showScanner = false
   @State private var scheduleTypeRectPosition: CGPoint = .zero
+  @State private var showTimePicker = false
+  @State private var selectedLifestyleCategory: LifestyleTimeType? = nil
+  @State private var selectedLifestyleOption: (any LifestyleTime)?
   
   private let defaultFontSize: CGFloat = 18
   
   var body: some View {
-    GeometryReader { geometry in
-      ScrollViewReader { proxy in
-        ScrollView {
-          VStack(spacing: 20) {
-            supplementNameInput()
-            scheduleTypeSelector()
-            
-            VStack {
-              switch selectedScheduleType {
-              case .weekday:
-                weekdayScheduleView()
-              case .interval:
-                intervalScheduleView()
-              }
-              supplementCountSelector()
-            }
-            .modifier(CardStyle(padding: .defaultSpacing))
-            
-            timeSelectionSection()
-            memoSection()
-            
-            Spacer()
-            
-            Button {
-              dismiss()
-            } label: {
-              RoundedRectangle(cornerRadius: 10)
-                .fill(.main)
-                .frame(height: 50)
-                .overlay {
-                  Text("완료")
-                    .font(.notoSans(weight: .semiBold, size: defaultFontSize))
-                    .foregroundStyle(.white)
+    GeometryReader { scrollView in
+      ZStack {
+        ScrollViewReader { proxy in
+          ScrollView {
+            VStack(spacing: 20) {
+              supplementNameInput()
+              
+              LifestyleTimeView(
+                type: .dailyCycle,
+                defaultFontSize: defaultFontSize,
+                lifestyleTimeVM: lifestyleTimeVM,
+              ) { option in
+                selectedLifestyleCategory = .dailyCycle
+                selectedLifestyleOption = option
+                Task { @MainActor in
+                  // 다음 runloop에서 실행됨 → 값 세팅 이후 showTimePicker 켜짐
+                  showTimePicker = true
                 }
-            }
-            .id("confirmButton")
-            .padding(.bottom, fieldType == .memo ? 20 : 0)
-          }
-          .frame(height: fieldType != nil ? nil : geometry.size.height)
-          .padding(.horizontal, .defaultSpacing + 4)
-          .navigationTitle("복용약 추가")
-          .navigationBarTitleDisplayMode(.inline)
-          .navigationBarBackButtonHidden(true)
-          .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+              }
+              
+              LifestyleTimeView(
+                type: .meal,
+                defaultFontSize: defaultFontSize,
+                lifestyleTimeVM: lifestyleTimeVM
+              ) { option in
+                selectedLifestyleCategory = .meal
+                selectedLifestyleOption = option
+                showTimePicker = true
+              }
+              
+              scheduleTypeSelector()
+              
+              VStack {
+                switch selectedScheduleType {
+                case .weekday:
+                  weekdayScheduleView()
+                case .interval:
+                  intervalScheduleView()
+                }
+                supplementCountSelector()
+              }
+              .modifier(CardStyle(padding: .defaultSpacing))
+              
+              timeSelectionSection()
+              
+              AIRecommendedScheduleView(defaultFontSize: defaultFontSize)
+              
+              memoSection()
+              
+              Spacer()
+              
               Button {
                 dismiss()
               } label: {
-                Image(systemName: "chevron.left")
-                  .foregroundStyle(Color.label)
+                RoundedRectangle(cornerRadius: 10)
+                  .fill(.main)
+                  .frame(height: 50)
+                  .overlay {
+                    Text("완료")
+                      .font(.notoSans(weight: .semiBold, size: defaultFontSize))
+                      .foregroundStyle(.white)
+                  }
+              }
+              .id("confirmButton")
+              .padding(.bottom, fieldType == .memo ? 20 : 0)
+            }
+            .padding(.horizontal, .defaultSpacing + 4)
+            .navigationTitle("복용약 추가")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+              ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                  dismiss()
+                } label: {
+                  Image(systemName: "chevron.left")
+                    .foregroundStyle(Color.label)
+                }
               }
             }
           }
-        }
-        .scrollIndicators(.hidden)
-        .onChange(of: fieldType) { oldValue, newValue in
-          switch fieldType {
-          case .memo:
-            let keyboardAnimationDuration = 0.3
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + keyboardAnimationDuration) {
-              withAnimation {
-                proxy.scrollTo("confirmButton", anchor: .bottom)
+          .scrollIndicators(.hidden)
+          .onChange(of: fieldType) { oldValue, newValue in
+            switch fieldType {
+            case .memo:
+              let keyboardAnimationDuration = 0.3
+              
+              Task { @MainActor in
+                do {
+                  try await Task.sleep(for: .seconds(keyboardAnimationDuration))
+                  withAnimation {
+                    proxy.scrollTo("confirmButton", anchor: .bottom)
+                  }
+                } catch {
+                  print("❌ Error is \(error)")
+                }
               }
+              
+            default:
+              break
             }
-          default:
-            break
+          }
+          .onAppear {
+            addSupplementVM.updateContext(context)
           }
         }
-        .onAppear {
-          addSupplementVM.updateContext(context)
+        
+        if showTimePicker {
+          LifestyleTimePickerSheet(
+            type: selectedLifestyleCategory ?? .dailyCycle,
+            option: selectedLifestyleOption ?? DailyCycleType.wakeUp,
+            lifestyleTimeVM: lifestyleTimeVM
+          ) {
+            showTimePicker = false
+          }
         }
       }
       .fullScreenCover(isPresented: $showScanner) {
@@ -211,7 +259,6 @@ extension AddSupplementView {
             y: scheduleTypeRectPosition.y
           )
           .onAppear {
-            print(geometry.size.width)
             scheduleTypeRectPosition.x = geometry.size.width * 0.25
             scheduleTypeRectPosition.y = geometry.size.height / 2
           }
@@ -250,14 +297,9 @@ extension AddSupplementView {
       Button {
         selectedPicker = .weekday
       } label: {
-        HStack(spacing: 8) {
-          Text(addSupplementVM.weekdaysString)
-            .font(.notoSans(size: defaultFontSize))
-            .padding(.bottom, 2)
-          
-          Image(systemName: "chevron.right")
-            .font(.system(size: defaultFontSize, weight: .medium))
-        }
+        Text(addSupplementVM.weekdaysString)
+          .font(.notoSans(size: defaultFontSize))
+          .padding(.bottom, 2)
       }
       .foregroundStyle(.textGray)
     }
@@ -391,22 +433,16 @@ extension AddSupplementView {
               .padding(.bottom, 1)
           }
           
-          Text(routine.timeString)
+          Text(routine.time.timeFormatter)
             .font(.notoSans(weight: .regular, size: defaultFontSize))
             .padding(.bottom, 2)
           
           Spacer()
           
-          HStack(spacing: .smallSpacing) {
-            Text(routine.doseString)
-              .font(.notoSans(weight: .regular, size: defaultFontSize))
-              .foregroundStyle(.textGray)
-              .padding(.bottom, 2)
-            
-            Image(systemName: "chevron.right")
-              .font(.system(size: defaultFontSize, weight: .medium))
-              .foregroundStyle(.textGray)
-          }
+          Text(routine.doseString)
+            .font(.notoSans(weight: .regular, size: defaultFontSize))
+            .foregroundStyle(.textGray)
+            .padding(.bottom, 2)
         }
         .onTapGesture {
           selectedTimeIndex = index

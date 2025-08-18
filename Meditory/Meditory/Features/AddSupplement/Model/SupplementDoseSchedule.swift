@@ -12,19 +12,11 @@ struct SupplementDoseSchedule {
   var pillsPerDose: Int
   
   var hour: Int {
-    Calendar.current.component(.hour, from: time)
+    time.hour
   }
   
   var minute: Int {
-    Calendar.current.component(.minute, from: time)
-  }
-  
-  var timeString: String {
-    let period = hour >= 12 ? "오후" : "오전"
-    let hourIn12 = hour % 12 == 0 ? 12 : hour % 12
-    let formattedMinute = String(format: "%02d", minute)
-    
-    return "\(period) \(hourIn12):\(formattedMinute)"
+    time.minute
   }
   
   var doseString: String {
