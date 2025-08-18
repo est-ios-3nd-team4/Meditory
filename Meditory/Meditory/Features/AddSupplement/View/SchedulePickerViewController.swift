@@ -46,6 +46,12 @@ final class SchedulePickerViewController: UIViewController {
     label.translatesAutoresizingMaskIntoConstraints = false
     return label
   }()
+  private let doseLabel: UILabel = {
+    let label = UILabel()
+    label.translatesAutoresizingMaskIntoConstraints = false
+    label.font = .notoSans(size: 20)
+    return label
+  }()
   private let confirmButton: UIButton = {
     var config = UIButton.Configuration.filled()
     config.baseBackgroundColor = .main
@@ -182,11 +188,61 @@ extension SchedulePickerViewController {
     picker.preferredDatePickerStyle = .wheels
     picker.translatesAutoresizingMaskIntoConstraints = false
     picker.addTarget(self, action: #selector(timeDidChange(_:)), for: .valueChanged)
-    picker.date = scheduleVM.selectedTime
+    picker.date = scheduleVM.time
+    
+    let divider = UIView()
+    divider.translatesAutoresizingMaskIntoConstraints = false
+    divider.backgroundColor = .init(red: 241, green: 241, blue: 241)
+    
+    let doseTitleLabel = UILabel()
+    doseTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+    doseTitleLabel.text = "섭취 량"
+    doseTitleLabel.font = .notoSans(size: 16)
+    
+    let minusButton = CircleIconButton(type: .minus)
+    minusButton.translatesAutoresizingMaskIntoConstraints = false
+    minusButton.addTarget(self, action: #selector(pillPerDoseChange), for: .touchUpInside)
+    let plusButton = CircleIconButton(type: .plus)
+    plusButton.translatesAutoresizingMaskIntoConstraints = false
+    plusButton.addTarget(self, action: #selector(pillPerDoseChange), for: .touchUpInside)
+    
+    doseLabel.text = "\(scheduleVM.pillsPerDose) 정"
     
     containerView.addSubview(picker)
-    
-    NSLayoutConstraint.activate(commonConstraints(for: picker))
+    containerView.addSubview(divider)
+    containerView.addSubview(doseTitleLabel)
+    containerView.addSubview(doseLabel)
+    containerView.addSubview(minusButton)
+    containerView.addSubview(plusButton)
+
+    NSLayoutConstraint.activate([
+      picker.topAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+      picker.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+      picker.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+      
+      divider.topAnchor.constraint(equalTo: picker.bottomAnchor, constant: .smallSpacing),
+      divider.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: titleHorizontalPadding),
+      divider.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -titleHorizontalPadding),
+      divider.heightAnchor.constraint(equalToConstant: 1),
+      
+      doseTitleLabel.topAnchor.constraint(equalTo: divider.bottomAnchor, constant: .defaultSpacing),
+      doseTitleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: titleHorizontalPadding),
+      doseTitleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -titleHorizontalPadding),
+      
+      minusButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: titleHorizontalPadding),
+      minusButton.centerYAnchor.constraint(equalTo: doseLabel.centerYAnchor),
+      minusButton.widthAnchor.constraint(equalToConstant: 30),
+      minusButton.heightAnchor.constraint(equalTo: minusButton.widthAnchor),
+      
+      doseLabel.topAnchor.constraint(equalTo: doseTitleLabel.bottomAnchor, constant: 25),
+      doseLabel.bottomAnchor.constraint(equalTo:confirmButton.topAnchor, constant: -25),
+      doseLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+      
+      plusButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -titleHorizontalPadding),
+      plusButton.centerYAnchor.constraint(equalTo: doseLabel.centerYAnchor),
+      plusButton.widthAnchor.constraint(equalToConstant: 30),
+      plusButton.heightAnchor.constraint(equalTo: plusButton.widthAnchor)
+    ])
   }
   
   private func setupWeekdayTableView() {
@@ -259,7 +315,12 @@ extension SchedulePickerViewController {
   }
   
   @objc private func timeDidChange(_ sender: UIDatePicker) {
-    scheduleVM.selectedTime = sender.date
+    scheduleVM.time = sender.date
+  }
+  
+  @objc private func pillPerDoseChange(_ sender: CircleIconButton) {
+    scheduleVM.setPillPerDose(type: sender.type)
+    doseLabel.text = "\(scheduleVM.pillsPerDose) 정"
   }
 }
 
@@ -300,7 +361,7 @@ extension SchedulePickerViewController: UITableViewDataSource {
     
     cell.configure(
       weekDay: weekday.title,
-      isChecked: scheduleVM.selectedDays[weekday] ?? false
+      isChecked: scheduleVM.days[weekday] ?? false
     )
     
     return cell
