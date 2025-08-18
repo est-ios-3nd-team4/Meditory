@@ -43,9 +43,13 @@ struct AddSupplementView: View {
   @State private var showTimePicker = false
   @State private var selectedLifestyleCategory: LifestyleTimeType? = nil
   @State private var selectedLifestyleOption: (any LifestyleTime)?
+  @State private var isSearchingSupplementSummary = false
   
+  private var shouldShowSupplementInfo: Bool {
+    addSupplementVM.supplemtSummary != nil || isSearchingSupplementSummary
+  }
   private let defaultFontSize: CGFloat = 18
-  
+
   var body: some View {
     GeometryReader { scrollView in
       ZStack {
@@ -53,6 +57,14 @@ struct AddSupplementView: View {
           ScrollView {
             VStack(spacing: 20) {
               supplementNameInput()
+              
+              if shouldShowSupplementInfo {
+                SupplementInfoView(
+                  defaultFontSize: defaultFontSize,
+                  addSupplementVM: addSupplementVM,
+                  isSearchingSupplementSummary: $isSearchingSupplementSummary
+                )
+              }
               
               LifestyleTimeView(
                 type: .dailyCycle,
@@ -169,7 +181,10 @@ struct AddSupplementView: View {
       }
       .fullScreenCover(isPresented: $showScanner) {
         CameraPickerSheet(isPresented: $showScanner) { text in
-          print(text)
+          searchSupplementSummary(
+            productNameInput: text,
+            nameSource: .cameraOCR
+          )
         }
         .statusBarHidden(true)
         .ignoresSafeArea()
@@ -196,6 +211,28 @@ extension AddSupplementView {
     case .interval:
       return width * 0.75
     }
+  }
+}
+
+
+// MARK: - Network
+extension AddSupplementView {
+  private func searchSupplementSummary(productNameInput: String, nameSource: SupplementNameSource) {
+    guard !isSearchingSupplementSummary else { return }
+    
+    Task {
+      do {
+        try await addSupplementVM.request(
+          productNameInput: productNameInput,
+          nameSource: nameSource
+        )
+      } catch {
+        print("❌ Error is \(error)")
+      }
+    }
+    
+    isSearchingSupplementSummary = true
+    supplementName = ""
   }
 }
 
@@ -229,16 +266,23 @@ extension AddSupplementView {
         },
         shouldReturn: {
           fieldType = nil
+          
+          searchSupplementSummary(
+            productNameInput: supplementName,
+            nameSource: .manual
+          )
         }
       )
       
       if !supplementName.isEmpty {
         Button {
-          print("검색")
+          searchSupplementSummary(
+            productNameInput: supplementName,
+            nameSource: .manual
+          )
         } label: {
           Image(systemName: "magnifyingglass")
             .foregroundColor(.gray)
-            .padding(.trailing, 24)
         }
       }
     }
