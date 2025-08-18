@@ -14,7 +14,7 @@ class AddSupplementViewModel: ObservableObject {
   @Published var startMonth: Int = Calendar.current.component(.month, from: .now)
   @Published var startDay: Int = Calendar.current.component(.day, from: .now)
   @Published var duration: Int = 1
-  @Published var times = [SupplementIntakeTime]()
+  @Published var doseSchedules = [SupplementDoseSchedule]()
   @Published var memo: String = ""
   
   private var context: ModelContext?
@@ -34,40 +34,29 @@ class AddSupplementViewModel: ObservableObject {
   }
   
   init() {
-    times = [
-      SupplementIntakeTime(time: makeTime(hour: 8))
+    doseSchedules = [
+      SupplementDoseSchedule(time: Date.makeTime(hour: 8), pillsPerDose: 1)
     ]
   }
 
   func addRoutineTime() {
-    if let latestRoutine = times.last {
+    if let latestRoutine = doseSchedules.last {
       let hour = min(latestRoutine.hour, 23)
       let minute = latestRoutine.minute
       
-      times.append(SupplementIntakeTime(time: makeTime(hour: hour + 1, minute: minute)))
+      doseSchedules.append(
+        SupplementDoseSchedule(
+          time: Date.makeTime(hour: hour + 1, minute: minute),
+          pillsPerDose: 1
+        )
+      )
     }
   }
   
   func removeRoutineTime() {
-    guard times.count > 1 else { return }
+    guard doseSchedules.count > 1 else { return }
     
-    times.removeLast()
-  }
-  
-  func makeTime(hour: Int, minute: Int = .zero) -> Date {
-    var components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-    components.hour = hour
-    components.minute = minute
-
-    return Calendar.current.date(from: components) ?? Date()
-  }
-  
-  func makeDate(month: Int, day: Int) -> Date {
-    var components = Calendar.current.dateComponents([.year], from: Date())
-    components.month = month
-    components.day = day
-
-    return Calendar.current.date(from: components) ?? Date()
+    doseSchedules.removeLast()
   }
   
   func setValue(_ value: SchedulePickerValue, index: Int = 0) {
@@ -80,8 +69,11 @@ class AddSupplementViewModel: ObservableObject {
       self.duration = duration
     case .weekday(let days):
       self.weekdays = days
-    case .time(let time):
-      times[index].time = time
+    case .time(let time, let pillsPerDose):
+      doseSchedules[index].time = time
+      doseSchedules[index].pillsPerDose = pillsPerDose
+      
+      doseSchedules.sort(by: { $0.time < $1.time })
     }
   }
 }
