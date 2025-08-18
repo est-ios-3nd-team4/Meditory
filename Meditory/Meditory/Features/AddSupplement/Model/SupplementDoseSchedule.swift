@@ -1,14 +1,15 @@
 //
-//  SupplementIntakeTime.swift
+//  SupplementDoseSchedule.swift
 //  Meditory
 //
-//  Created by 홍승아 on 8/11/25.
+//  Created by 홍승아 on 8/14/25.
 //
 
 import Foundation
 
-struct SupplementIntakeTime {
+struct SupplementDoseSchedule {
   var time: Date
+  var pillsPerDose: Int
   
   var hour: Int {
     Calendar.current.component(.hour, from: time)
@@ -24,5 +25,9 @@ struct SupplementIntakeTime {
     let formattedMinute = String(format: "%02d", minute)
     
     return "\(period) \(hourIn12):\(formattedMinute)"
+  }
+  
+  var doseString: String {
+    "\(pillsPerDose)정"
   }
 }
