@@ -36,6 +36,6 @@ struct CollectionItemCell: View {
 }
 
 #Preview {
-  CollectionItemCell(model: .init(title: "간", image: "icon_clear_lung"), isSelected: true)
-  CollectionItemCell(model: .init(title: "간", image: "icon_clear_lung"), isSelected: false)
+//  CollectionItemCell(model: .init(title: "간", image: "icon_clear_lung"), isSelected: true)
+//  CollectionItemCell(model: .init(title: "간", image: "icon_clear_lung"), isSelected: false)
 }

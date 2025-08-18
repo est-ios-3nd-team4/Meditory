@@ -60,17 +60,27 @@ struct MeditoryApp: App {
 
     }
   }()
+  @AppStorage("needOnboarding") private var needOnboarding: Bool = true
 
   var body: some Scene {
     WindowGroup {
-      MainTabView()
-      //      UserTestView()//          SwiftData 테스트용
-        .onAppear {
-          // ExtraInfo 의 데이터는 변경이 일어나기 쉬우므로 앱을 켤때마다 기존 데이터 날리고 스크립트로 새로인서트하기 위한 코드
-          let context = ModelContext(sharedModelContainer)
-          userStore.resetExtraInfos(context: context)
+      Group{
+        if needOnboarding {
+          OnboardingView(userStore: userStore) {
+            needOnboarding = false
+          }
+        } else {
+          MainTabView()
+          //      UserTestView()//          SwiftData 테스트용
         }
-        .modelContainer(sharedModelContainer)
+      }
+      .onAppear {
+        // ExtraInfo 의 데이터는 변경이 일어나기 쉬우므로 앱을 켤때마다 기존 데이터 날리고 스크립트로 새로인서트하기 위한 코드
+        let context = ModelContext(sharedModelContainer)
+//        userStore.resetExtraInfos(context: context)
+        print(#line,"온보딩이 필요한가요? \(needOnboarding)")
+      }
+      .modelContainer(sharedModelContainer)
     }
   }
 }

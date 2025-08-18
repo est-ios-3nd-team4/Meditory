@@ -5,6 +5,7 @@
 //  Created by hyunsic on 8/11/25.
 //
 
+import SwiftData
 import SwiftUI
 
 enum FormField: Hashable {
@@ -15,14 +16,22 @@ enum FormField: Hashable {
 }
 
 struct OnboardingView: View {
+  let onFinished: () -> Void
   @State private var currentStep: Step = .base
 
-  @StateObject var vm: OnboardingViewModel = OnboardingViewModel()
+  @StateObject var vm: OnboardingViewModel
   @StateObject private var keyboardObserver = KeyboardObserver()
   @FocusState private var focusedField: FormField?
 
+  @Environment(\.modelContext) var context: ModelContext
+
   private let buttonHeight: CGFloat = 50
   private let buttonTopSpacing: CGFloat = 8
+
+  init(userStore: UserStore, onFinished: @escaping () -> Void = {}) {
+    self.onFinished = onFinished
+    _vm = StateObject(wrappedValue: OnboardingViewModel(userStore: userStore))
+  }
 
   var body: some View {
     VStack {
@@ -52,7 +61,6 @@ struct OnboardingView: View {
           prompt: prompt,
           name: name,
           isSelected: $vm.isSelected,
-          isGenderSelected: $vm.isGenderSelected,
           isValid: $vm.isValid,
           selections: $vm.selectionSet,
           image: Gender.male.image,
@@ -139,8 +147,17 @@ struct OnboardingView: View {
   func nextButton() -> some View {
     VStack(spacing: .smallSpacing) {
       Button {
-        if currentStep == .base { vm.validateAllField() }
-        if let next = currentStep.nextView() { currentStep = next }
+        if let next = currentStep.nextView() {
+          if currentStep == .base {
+            vm.validateAllField()
+          }
+          withAnimation {
+            currentStep = next
+          }
+        } else {
+          onFinished()
+          vm.signUp(context: context)
+        }
       } label: {
         RoundedRectangle(cornerRadius: .smallRadius)
           .fill(vm.isNextButtonOn ? Color.main : Color.gray.opacity(0.4))
@@ -151,7 +168,7 @@ struct OnboardingView: View {
               .foregroundStyle(.white)
           }
       }
-      //        .disabled(!vm.isNextButtonOn)
+      .disabled(!vm.isNextButtonOn)
       .padding(.vertical, buttonTopSpacing)
     }
     .padding(.horizontal, .defaultSpacing + 4)
@@ -159,5 +176,5 @@ struct OnboardingView: View {
 }
 
 #Preview {
-  OnboardingView()
+  //  OnboardingView()
 }

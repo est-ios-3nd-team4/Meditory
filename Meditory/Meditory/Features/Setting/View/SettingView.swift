@@ -9,7 +9,7 @@ struct SettingView: View {
   // DB의 User 목록 자동 바인딩
   @Query private var users: [User]
   private let userStore = UserStore()
-
+  
 
   var body: some View {
     List {
@@ -19,7 +19,7 @@ struct SettingView: View {
       NavigationLink(destination: SettingSubView()) {
         HStack {
           VStack(alignment: .leading, spacing: 4) {
-            Text(currentUser?.displayName ?? "사용자 미등록")
+            Text(/*currentUser?.displayName*/currentUser?.name ?? "사용자 미등록")
               .font(.title3)
               .foregroundColor(.primary)
             Text("내 정보 ∙ 건강 정보 관리")

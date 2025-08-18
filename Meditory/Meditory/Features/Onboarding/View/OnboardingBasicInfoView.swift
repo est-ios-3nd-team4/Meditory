@@ -20,9 +20,6 @@ struct OnboardingBasicInfoView: View {
               VStack(alignment: .leading) {
                 Text(prompt.title)
                   .font(.notoSans(weight: .bold, size: 28))
-                  .lineLimit(2)
-                  .fixedSize(horizontal: false, vertical: true)
-                  .layoutPriority(1)
                   .padding(.vertical, 10)
                 if let info = prompt.info {
                   Text(info)
@@ -33,6 +30,7 @@ struct OnboardingBasicInfoView: View {
               Spacer()
             }
             .padding(.bottom, .defaultSpacing + 4)
+//            TopTitleView(prompt: prompt)
           }
           VStack(spacing: .defaultSpacing) {
             TextInputView(

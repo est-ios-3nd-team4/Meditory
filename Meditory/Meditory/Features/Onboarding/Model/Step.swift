@@ -12,7 +12,6 @@ enum Step: Int, CaseIterable {
   case disease
   case concern
   
-  
   static var totalCount: Int {
     return Self.allCases.count
   }

@@ -16,8 +16,8 @@ struct NoQuickTypeTextField: UIViewRepresentable {
     func makeUIView(context: Context) -> UITextField {
         let tf = UITextField()
         tf.placeholder = placeholder
-        tf.autocorrectionType = .no     // 자동완성 비활성화
-        tf.spellCheckingType = .no      // 맞춤법 비활성화
+        tf.autocorrectionType = .no
+        tf.spellCheckingType = .no
         tf.keyboardType = .default
         tf.delegate = context.coordinator
         return tf
