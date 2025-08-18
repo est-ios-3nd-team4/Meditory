@@ -291,14 +291,9 @@ extension AddSupplementView {
       Button {
         selectedPicker = .weekday
       } label: {
-        HStack(spacing: 8) {
-          Text(addSupplementVM.weekdaysString)
-            .font(.notoSans(size: defaultFontSize))
-            .padding(.bottom, 2)
-          
-          Image(systemName: "chevron.right")
-            .font(.system(size: defaultFontSize, weight: .medium))
-        }
+        Text(addSupplementVM.weekdaysString)
+          .font(.notoSans(size: defaultFontSize))
+          .padding(.bottom, 2)
       }
       .foregroundStyle(.textGray)
     }
@@ -438,16 +433,10 @@ extension AddSupplementView {
           
           Spacer()
           
-          HStack(spacing: .smallSpacing) {
-            Text(routine.doseString)
-              .font(.notoSans(weight: .regular, size: defaultFontSize))
-              .foregroundStyle(.textGray)
-              .padding(.bottom, 2)
-            
-            Image(systemName: "chevron.right")
-              .font(.system(size: defaultFontSize, weight: .medium))
-              .foregroundStyle(.textGray)
-          }
+          Text(routine.doseString)
+            .font(.notoSans(weight: .regular, size: defaultFontSize))
+            .foregroundStyle(.textGray)
+            .padding(.bottom, 2)
         }
         .onTapGesture {
           selectedTimeIndex = index
