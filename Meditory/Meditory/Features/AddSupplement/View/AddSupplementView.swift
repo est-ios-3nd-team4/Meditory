@@ -61,10 +61,7 @@ struct AddSupplementView: View {
               ) { option in
                 selectedLifestyleCategory = .dailyCycle
                 selectedLifestyleOption = option
-                Task { @MainActor in
-                  // 다음 runloop에서 실행됨 → 값 세팅 이후 showTimePicker 켜짐
-                  showTimePicker = true
-                }
+                showTimePicker = true
               }
               
               LifestyleTimeView(
@@ -154,12 +151,18 @@ struct AddSupplementView: View {
           }
         }
         
-        if showTimePicker {
+        if let category = selectedLifestyleCategory,
+           let option = selectedLifestyleOption,
+            showTimePicker {
           LifestyleTimePickerSheet(
-            type: selectedLifestyleCategory ?? .dailyCycle,
-            option: selectedLifestyleOption ?? DailyCycleType.wakeUp,
-            lifestyleTimeVM: lifestyleTimeVM
-          ) {
+            type: category,
+            option: option,
+            dates: lifestyleTimeVM.times(for: category),
+            mealSelections: lifestyleTimeVM.mealSelections(for: category)
+          ) { result in
+            if let result {
+              lifestyleTimeVM.setTime(result)
+            }
             showTimePicker = false
           }
         }
