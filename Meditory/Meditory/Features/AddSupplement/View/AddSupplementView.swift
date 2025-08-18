@@ -134,11 +134,17 @@ struct AddSupplementView: View {
             case .memo:
               let keyboardAnimationDuration = 0.3
               
-              DispatchQueue.main.asyncAfter(deadline: .now() + keyboardAnimationDuration) {
-                withAnimation {
-                  proxy.scrollTo("confirmButton", anchor: .bottom)
+              Task { @MainActor in
+                do {
+                  try await Task.sleep(for: .seconds(keyboardAnimationDuration))
+                  withAnimation {
+                    proxy.scrollTo("confirmButton", anchor: .bottom)
+                  }
+                } catch {
+                  print("❌ Error is \(error)")
                 }
               }
+              
             default:
               break
             }

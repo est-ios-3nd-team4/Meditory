@@ -125,8 +125,15 @@ struct LifestyleTimePickerSheet: View {
                     sheetOpacity = 0
                   }
                   
-                  DispatchQueue.main.asyncAfter(deadline: .now() + anaimaionDuration) {
-                    onDismiss?()
+                  Task { @MainActor in
+                    do {
+                      try await Task.sleep(for: .seconds(anaimaionDuration))
+                      withAnimation {
+                        onDismiss?()
+                      }
+                    } catch {
+                      print("❌ Error is \(error)")
+                    }
                   }
                 } else {
                   dragOffset.height = .zero
