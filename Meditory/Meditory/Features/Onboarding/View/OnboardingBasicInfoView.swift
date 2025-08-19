@@ -38,6 +38,9 @@ struct OnboardingBasicInfoView: View {
               inputText: vm.binding(for: .name),
               needValidation: true,
               validator: { vm.isValid(for: .name) },
+              onAction:{
+                focusedField.wrappedValue = .birthDate
+              }
             )
             .id(FormField.name)
             .focused(focusedField, equals: .name)
