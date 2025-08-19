@@ -15,7 +15,7 @@ final class SupplementRoutineAIViewModel: ObservableObject {
   private let userStore: UserStore
   private let lifestyle: UserLifeStyle
   private let routineStore: RoutineStore
-
+  
   init(
     client: AlanAPIClient = AlanAPIClient(),
     context: ModelContext,
@@ -28,10 +28,10 @@ final class SupplementRoutineAIViewModel: ObservableObject {
     self.userStore = userStore
     self.lifestyle = lifestyle
     self.routineStore = routineStore
-
+    
     userStore.loadUser(context: context)
   }
-
+  
   /// 상세 진입 전에 AI 추천을 적용합니다.
   /// - Parameters:
   ///   - routine: 대상 루틴
@@ -40,7 +40,7 @@ final class SupplementRoutineAIViewModel: ObservableObject {
   func apply(for routine: Routine, skipIfExists: Bool = true) async -> Bool {
     if skipIfExists, hasAIData(in: routine) { return true }
     guard let prompt = makePrompt(for: routine) else { return false }
-
+    
     do {
       let result = try await client.request(content: prompt)
       let dto = try SupplementDecoder.decode(result)
@@ -50,11 +50,11 @@ final class SupplementRoutineAIViewModel: ObservableObject {
       return false
     }
   }
-
+  
   private func hasAIData(in routine: Routine) -> Bool {
     !routine.recommendedRoutineTimes.isEmpty || !routine.usage.isEmpty || !routine.precautions.isEmpty
   }
-
+  
   /// 실패하지 않도록 기본값을 사용해 프롬프트를 생성
   private func makePrompt(for routine: Routine) -> String? {
     let user = userStore.currentUser
@@ -68,13 +68,13 @@ final class SupplementRoutineAIViewModel: ObservableObject {
       guard let t = firstTime(of: r) else { return nil }
       return "\(r.displayName)(\(t.toHHmmString()))"
     }
-
+    
     let cycleHint: String? = {
       let base = routines.first ?? routine
       let rendered = RoutineFormatter.renderCycle(cycleType: base.cycleType, cycleValue: base.cycleValue)
       return (rendered == "설정 없음") ? nil : rendered
     }()
-
+    
     let input = SupplementInfoPrompt.UserInput(
       gender: gender,
       birthDate: birth,
@@ -86,26 +86,26 @@ final class SupplementRoutineAIViewModel: ObservableObject {
       dosageCycleHint: cycleHint,
       lifestyle: SupplementInfoPrompt.LifestyleLoad.from(lifestyle)
     )
-
+    
     return SupplementInfoPrompt.makePrompt(user: input, productName: routine.displayName)
   }
-
+  
   private func firstTime(of routine: Routine) -> Date? {
     routine.routineTimes.first?.time ?? routine.recommendedRoutineTimes.first?.time
   }
-
+  
   private func loadExtraHealthInfo()
-    -> (diseases: [String], allergies: [String], isPregnant: Bool, isBreastfeeding: Bool)
+  -> (diseases: [String], allergies: [String], isPregnant: Bool, isBreastfeeding: Bool)
   {
     var diseases: Set<String> = []
     var allergies: Set<String> = []
     var isPregnant = false
     var isBreastfeeding = false
-
+    
     let all = userStore.fetchExtraInfos(context: context)
     let currentID = userStore.currentUser?.persistentModelID
     let mine = all.filter { $0.user?.persistentModelID == currentID }
-
+    
     for info in mine {
       info.disease.forEach { diseases.formUnion(parseList($0.value)) }
       info.allergy.forEach { allergies.formUnion(parseList($0.value)) }
@@ -117,15 +117,15 @@ final class SupplementRoutineAIViewModel: ObservableObject {
     }
     return (Array(diseases), Array(allergies), isPregnant, isBreastfeeding)
   }
-}
+  
+  private func parseList(_ s: String) -> [String] {
+    s.split(whereSeparator: { ",/|;".contains($0) })
+      .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+      .filter { !$0.isEmpty }
+  }
 
-private func parseList(_ s: String) -> [String] {
-  s.split(whereSeparator: { ",/|;".contains($0) })
-    .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
-    .filter { !$0.isEmpty }
-}
-
-private func parseBool(_ s: String) -> Bool {
-  let v = s.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-  return v == "1" || v == "true" || v == "예" || v == "y" || v == "yes"
+  private func parseBool(_ s: String) -> Bool {
+    let v = s.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    return v == "1" || v == "true" || v == "예" || v == "y" || v == "yes"
+  }
 }
