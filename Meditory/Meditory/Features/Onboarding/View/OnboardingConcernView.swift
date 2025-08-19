@@ -24,7 +24,7 @@ struct OnboardingConcernView: View {
     HStack {
       VStack(alignment: .leading) {
         Text(prompt.title(name: name))
-          .font(.notoSans(weight: .bold, size: 24))
+          .font(.notoSans(weight: .bold, size: 28))
           .padding(.vertical, 10)
         if let info = prompt.info {
           Text(info)
@@ -35,7 +35,7 @@ struct OnboardingConcernView: View {
       Spacer()
     }
     .padding([.horizontal], .defaultSpacing + 4)
-      LazyVGrid(columns: columns) {
+      LazyVGrid(columns: columns,spacing: 24) {
         ForEach(items, id: \.title) { item in
           CollectionItemCell(model: item, isSelected: selections.contains(item))
             .onTapGesture {
@@ -43,6 +43,7 @@ struct OnboardingConcernView: View {
             }
         }
       }
+      .padding(.horizontal,.defaultSpacing + 4)
     }
     .scrollIndicators(.never)
   }

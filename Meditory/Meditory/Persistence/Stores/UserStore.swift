@@ -136,23 +136,37 @@ final class UserStore {
     context.insert(info)
     try? context.save()
   }
+  
+//  @MainActor
+//  func addUserExtraInfos(_ infos: [UserExtraInfo], context:ModelContext){
+//    
+//    guard let user = currentUser else { return }
+//    for info in infos {
+//      info.user = user
+//      if info.modelContext == nil {
+//        context.insert(info)
+//      }
+//    }
+//    user.userExtraInfos = infos
+//    try? context.save()
+//  }
 
   /// ExtraInfo 변경을 대비해서 ExtraInfo의 모든 데이터 삭제, 새로insert 하는 함수
-  func resetExtraInfos(context: ModelContext) {
-    // 1. 기존 ExtraInfo 삭제
-    let fetch = FetchDescriptor<ExtraInfo>()
-    if let all = try? context.fetch(fetch) {
-      for info in all {
-        context.delete(info)
-      }
-    }
-    // 2. 새로운 객체를 생성해서 insert
-    for info in allInitialExtraInfos {
-      let newInfo = ExtraInfo(key: info.key, value: info.value, type: info.type)
-      context.insert(newInfo)
-    }
-    try? context.save()
-  }
+//  func resetExtraInfos(context: ModelContext) {
+//    // 1. 기존 ExtraInfo 삭제
+//    let fetch = FetchDescriptor<ExtraInfo>()
+//    if let all = try? context.fetch(fetch) {
+//      for info in all {
+//        context.delete(info)
+//      }
+//    }
+//    // 2. 새로운 객체를 생성해서 insert
+//    for info in allInitialExtraInfos {
+//      let newInfo = ExtraInfo(key: info.key, value: info.value, type: info.type)
+//      context.insert(newInfo)
+//    }
+//    try? context.save()
+//  }
 
 
 }

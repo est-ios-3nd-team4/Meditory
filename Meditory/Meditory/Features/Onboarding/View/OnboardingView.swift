@@ -5,55 +5,48 @@
 //  Created by hyunsic on 8/11/25.
 //
 
+import SwiftData
 import SwiftUI
 
+enum FormField: Hashable {
+  case name
+  case birthDate
+  case height
+  case weight
+}
+
 struct OnboardingView: View {
+  let onFinished: () -> Void
   @State private var currentStep: Step = .base
-  @State private var chosen: Bool = false
 
-  @StateObject var vm: OnboardingViewModel = OnboardingViewModel()
+  @StateObject var vm: OnboardingViewModel
+  @StateObject private var keyboardObserver = KeyboardObserver()
+  @FocusState private var focusedField: FormField?
 
-  private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: Step.totalCount)
+  @Environment(\.modelContext) var context: ModelContext
+
+  private let buttonHeight: CGFloat = 50
+  private let buttonTopSpacing: CGFloat = 8
+
+  init(userStore: UserStore, onFinished: @escaping () -> Void = {}) {
+    self.onFinished = onFinished
+    _vm = StateObject(wrappedValue: OnboardingViewModel(userStore: userStore))
+  }
 
   var body: some View {
     VStack {
-      HStack {
-        LazyVGrid(columns: columns) {
-          ForEach(Step.allCases, id: \.self) { index in
-            Text(String(index.rawValue + 1))
-              .font(.notoSans(size: 13))
-              .foregroundStyle(index == currentStep ? Color.white : Color.gray)
-              .frame(width: 25, height: 25)
-              .background {
-                Circle()
-                  .fill(index == currentStep ? Color.main : Color.gray.opacity(0.2))
-              }
-          }
-        }
-        .frame(width: 160)
-        .padding(.horizontal, .defaultSpacing + 4)
-        Spacer()
+      progressIndicator()
+      if currentStep == .base {
+        OnboardingBasicInfoView(
+          vm: vm,
+          focusedField: $focusedField,
+          bottomSpacing: keyboardObserver.bottomInset + 50
+        )
+      } else {
+        setContent(for: currentStep)
       }
-      .padding(.top, 60)
-      setContent(for: currentStep)
-      Button {
-        if let next = currentStep.nextView() {
-          currentStep = next
-        }
-        if currentStep == .concern {
-          print(vm.selectionSet)
-        }
-      } label: {
-        RoundedRectangle(cornerRadius: .smallRadius)
-          .fill(vm.isValid != true ? Color.gray.opacity(0.4) : .main)
-          .frame(height: 50)
-          .overlay {
-            Text(currentStep != .concern ? "다음" : "완료")
-              .font(.notoSans(weight: .semiBold, size: 18))
-              .foregroundStyle(.white)
-          }
-      }
-      .padding(.horizontal, .defaultSpacing + 4)
+      Spacer(minLength: 0)
+      nextButton()
     }
   }
 
@@ -62,15 +55,12 @@ struct OnboardingView: View {
     if let prompt = Step.prompt[step] {
       let name = vm.name
       switch step {
-      case .base:
-        OnboardingBasicInfoView(vm: vm, prompt: prompt)
       case .gender:
         OnboardingGenderView(
           vm: vm,
           prompt: prompt,
           name: name,
           isSelected: $vm.isSelected,
-          isGenderSelected: $vm.isGenderSelected,
           isValid: $vm.isValid,
           selections: $vm.selectionSet,
           image: Gender.male.image,
@@ -124,11 +114,67 @@ struct OnboardingView: View {
             vm.selectionSet.insert(item)
           }
         }
+      default:
+        EmptyView()
       }
     }
+  }
+
+  @ViewBuilder
+  func progressIndicator() -> some View {
+    let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: Step.totalCount)
+    HStack {
+      LazyVGrid(columns: columns) {
+        ForEach(Step.allCases, id: \.self) { index in
+          Text(String(index.rawValue + 1))
+            .font(.notoSans(size: 13))
+            .foregroundStyle(index == currentStep ? Color.white : Color.gray)
+            .frame(width: 25, height: 25)
+            .background {
+              Circle()
+                .fill(index == currentStep ? Color.main : Color.gray.opacity(0.2))
+            }
+        }
+      }
+      .frame(width: 160)
+      .padding(.horizontal, .defaultSpacing + 4)
+      Spacer()
+    }
+    .padding(.top, 60)
+  }
+
+  @ViewBuilder
+  func nextButton() -> some View {
+    VStack(spacing: .smallSpacing) {
+      Button {
+        if let next = currentStep.nextView() {
+          if currentStep == .base {
+            vm.validateAllField()
+          }
+          withAnimation {
+            currentStep = next
+          }
+        } else {
+          onFinished()
+          vm.signUp(context: context)
+        }
+      } label: {
+        RoundedRectangle(cornerRadius: .smallRadius)
+          .fill(vm.isNextButtonOn ? Color.main : Color.gray.opacity(0.4))
+          .frame(height: 50)
+          .overlay {
+            Text(currentStep != .concern ? "다음" : "완료")
+              .font(.notoSans(weight: .semiBold, size: 18))
+              .foregroundStyle(.white)
+          }
+      }
+      .disabled(!vm.isNextButtonOn)
+      .padding(.vertical, buttonTopSpacing)
+    }
+    .padding(.horizontal, .defaultSpacing + 4)
   }
 }
 
 #Preview {
-  OnboardingView()
+  //  OnboardingView()
 }

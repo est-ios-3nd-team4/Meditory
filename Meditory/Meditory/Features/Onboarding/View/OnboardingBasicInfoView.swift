@@ -8,80 +8,91 @@ import SwiftUI
 
 struct OnboardingBasicInfoView: View {
   @ObservedObject var vm: OnboardingViewModel
-  var prompt: PromptMessage
+  let focusedField: FocusState<FormField?>.Binding
+  let bottomSpacing: CGFloat
 
   var body: some View {
-    VStack {
-      HStack {
-        VStack(alignment: .leading) {
-          Text(prompt.title)
-            .font(.notoSans(weight: .bold, size: 24))
-            .lineLimit(2)
-            .fixedSize(horizontal: false, vertical: true)
-            .layoutPriority(1)
-            .padding(.vertical,10)
-          if let info = prompt.info {
-            Text(info)
-              .font(.notoSans(weight: .medium, size: 16))
-              .foregroundStyle(.textGray)
-          }
-        }
-        Spacer()
-      }
-      .padding(.bottom, .defaultSpacing + 4)
-      VStack(spacing: .defaultSpacing) {
-        TextInputView(
-          placeholder: "이름",
-          inputText: $vm.name,
-          needValidation: true,
-          validator: { vm.validateName(context: vm.name) },
-          isValid: $vm.isValid
-        )
-        TextInputView(
-          placeholder: "출생년도",
-          unit: "년",
-          keyboardType: .decimalPad,
-          inputText: $vm.age,
-          needValidation: true,
-          validator: {
-            if vm.age.contains(".") { return true }
-            guard vm.age.count == 8 else { return true }
-            let (formatted, date) = DateFormatter.plainStringToDate(plainString: vm.age)
-            if let date = date {
-              Task {
-                await MainActor.run { vm.age = formatted }
+    ScrollViewReader { proxy in
+      ScrollView(.vertical) {
+        VStack {
+          if let prompt = Step.prompt[.base] {
+            HStack {
+              VStack(alignment: .leading) {
+                Text(prompt.title)
+                  .font(.notoSans(weight: .bold, size: 28))
+                  .padding(.vertical, 10)
+                if let info = prompt.info {
+                  Text(info)
+                    .font(.notoSans(weight: .medium, size: 16))
+                    .foregroundStyle(.textGray)
+                }
               }
-              vm.birthDate = date
-              return true
-            } else {
-              vm.birthDate = nil
-              return false
+              Spacer()
             }
-          },
-          isValid: $vm.isValid
-        )
-        TextInputView(
-          placeholder: "키",
-          unit: "cm",
-          keyboardType: .decimalPad,
-          inputText: $vm.height,
-          needValidation: true,
-          validator: { vm.validateHeightAndWeight(context: vm.height) },
-          isValid: $vm.isValid
-        )
-        TextInputView(
-          placeholder: "체중",
-          unit: "kg",
-          keyboardType: .decimalPad,
-          inputText: $vm.weight,
-          needValidation: true,
-          validator: { vm.validateHeightAndWeight(context: vm.weight) },
-          isValid: $vm.isValid
-        )
+            .padding(.bottom, .defaultSpacing + 4)
+//            TopTitleView(prompt: prompt)
+          }
+          VStack(spacing: .defaultSpacing) {
+            TextInputView(
+              placeholder: "이름",
+              inputText: vm.binding(for: .name),
+              needValidation: true,
+              validator: { vm.isValid(for: .name) },
+              onAction:{
+                focusedField.wrappedValue = .birthDate
+              }
+            )
+            .id(FormField.name)
+            .focused(focusedField, equals: .name)
+            TextInputView(
+              placeholder: "출생년도",
+              unit: "년",
+              keyboardType: .decimalPad,
+              inputText: vm.binding(for: .birthDate),
+              needValidation: true,
+              validator: { vm.isValid(for: .birthDate) },
+            )
+            .id(FormField.birthDate)
+            .focused(focusedField, equals: .birthDate)
+            TextInputView(
+              placeholder: "키",
+              unit: "cm",
+              keyboardType: .decimalPad,
+              inputText: vm.binding(for: .height),
+              needValidation: true,
+              validator: { vm.isValid(for: .height) },
+            )
+            .id(FormField.height)
+            .focused(focusedField, equals: .height)
+            TextInputView(
+              placeholder: "체중",
+              unit: "kg",
+              keyboardType: .decimalPad,
+              inputText: vm.binding(for: .weight),
+              needValidation: true,
+              validator: { vm.isValid(for: .weight) }
+            )
+            .id(FormField.weight)
+            .focused(focusedField, equals: .weight)
+          }
+          Spacer()
+        }
+        .padding(.horizontal, .defaultSpacing + 4)
+        .padding(.bottom, bottomSpacing)
+        .onChange(of: focusedField.wrappedValue) {
+          scroll(proxy)
+        }
       }
-      Spacer()
+      .scrollIndicators(.never)
+      .onAppear {
+        scroll(proxy)
+      }
     }
-    .padding(.horizontal,.defaultSpacing+4)
-    .frame(maxWidth: .infinity)
+  }
+  private func scroll(_ proxy: ScrollViewProxy) {
+    guard let id = focusedField.wrappedValue else { return }
+    withAnimation(.easeOut(duration: 0.2)) {
+      proxy.scrollTo(id, anchor: .bottom)
+    }
   }
 }
