@@ -10,53 +10,33 @@ import Foundation
 enum SupplementInfoPrompt {
 
   struct LifestyleLoad: Sendable {
-    var wakeTimeWeekday: String?
-    var sleepTimeWeekday: String?
-    var wakeTimeWeekend: String?
-    var sleepTimeWeekend: String?
-    var breakfastWeekday: String?
-    var lunchWeekday: String?
-    var dinnerWeekday: String?
-    var breakfastWeekend: String?
-    var lunchWeekend: String?
-    var dinnerWeekend: String?
+    var wakeTime: String?
+    var sleepTime: String?
+    var breakfast: String?
+    var lunch: String?
+    var dinner: String?
 
     init(
-      wakeTimeWeekday: String? = nil,
-      sleepTimeWeekday: String? = nil,
-      wakeTimeWeekend: String? = nil,
-      sleepTimeWeekend: String? = nil,
-      breakfastWeekday: String? = nil,
-      lunchWeekday: String? = nil,
-      dinnerWeekday: String? = nil,
-      breakfastWeekend: String? = nil,
-      lunchWeekend: String? = nil,
-      dinnerWeekend: String? = nil
+      wakeTime: String? = nil,
+      sleepTime: String? = nil,
+      breakfast: String? = nil,
+      lunch: String? = nil,
+      dinner: String? = nil,
     ) {
-      self.wakeTimeWeekday = wakeTimeWeekday
-      self.sleepTimeWeekday = sleepTimeWeekday
-      self.wakeTimeWeekend = wakeTimeWeekend
-      self.sleepTimeWeekend = sleepTimeWeekend
-      self.breakfastWeekday = breakfastWeekday
-      self.lunchWeekday = lunchWeekday
-      self.dinnerWeekday = dinnerWeekday
-      self.breakfastWeekend = breakfastWeekend
-      self.lunchWeekend = lunchWeekend
-      self.dinnerWeekend = dinnerWeekend
+      self.wakeTime = wakeTime
+      self.sleepTime = sleepTime
+      self.breakfast = breakfast
+      self.lunch = lunch
+      self.dinner = dinner
     }
 
     static func from(_ ls: UserLifeStyle) -> LifestyleLoad {
       .init(
-        wakeTimeWeekday: ls.wakeTimeWeekday,
-        sleepTimeWeekday: ls.sleepTimeWeekday,
-        wakeTimeWeekend: ls.wakeTimeWeekend,
-        sleepTimeWeekend: ls.sleepTimeWeekend,
-        breakfastWeekday: ls.breakfastWeekday,
-        lunchWeekday: ls.lunchWeekday,
-        dinnerWeekday: ls.dinnerWeekday,
-        breakfastWeekend: ls.breakfastWeekend,
-        lunchWeekend: ls.lunchWeekend,
-        dinnerWeekend: ls.dinnerWeekend
+        wakeTime: ls.wakeTime,
+        sleepTime: ls.sleepTime,
+        breakfast: ls.breakfast,
+        lunch: ls.lunch,
+        dinner: ls.dinner
       )
     }
   }
@@ -172,30 +152,20 @@ enum SupplementInfoPrompt {
 
     // user의 lifestyle이 입력되어 있지 않다면 한국 직장인 평균(GPT 피셜) 기준으로 넣음
     let defaultLifestyle = LifestyleLoad(
-      wakeTimeWeekday: "07:00",
-      sleepTimeWeekday: "23:30",
-      wakeTimeWeekend: "08:30",
-      sleepTimeWeekend: "00:30",
-      breakfastWeekday: "07:30",
-      lunchWeekday: "12:30",
-      dinnerWeekday: "19:00",
-      breakfastWeekend: "09:00",
-      lunchWeekend: "13:00",
-      dinnerWeekend: "19:00"
+      wakeTime: "07:00",
+      sleepTime: "23:30",
+      breakfast: "07:30",
+      lunch: "12:30",
+      dinner: "19:00"
     )
 
     let ls = user.lifestyle ?? defaultLifestyle
     let lifestyleBlock = """
-     - 평일 기상: \(show(ls.wakeTimeWeekday))
-     - 평일 취침: \(show(ls.sleepTimeWeekday))
-     - 평일 아침: \(show(ls.breakfastWeekday))
-     - 평일 점심: \(show(ls.lunchWeekday))
-     - 평일 저녁: \(show(ls.dinnerWeekday))
-     - 주말 기상: \(show(ls.wakeTimeWeekend))
-     - 주말 취침: \(show(ls.sleepTimeWeekend))
-     - 주말 아침: \(show(ls.breakfastWeekend))
-     - 주말 점심: \(show(ls.lunchWeekend))
-     - 주말 저녁: \(show(ls.dinnerWeekend))
+     - 기상 시간: \(show(ls.wakeTime))
+     - 취침 시간: \(show(ls.sleepTime))
+     - 아침 식사 시간: \(show(ls.breakfast))
+     - 점심 식사 시간: \(show(ls.lunch))
+     - 저녁 식사 시간: \(show(ls.dinner))
      """
 
     return """

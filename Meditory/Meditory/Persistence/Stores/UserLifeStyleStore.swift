@@ -34,16 +34,11 @@ final class UserLifeStyleStore {
     let newLifestyle = UserLifeStyle(
       id: UUID(),
       user: currentUser,
-      wakeTimeWeekday: "07:00",
-      sleepTimeWeekday: "23:30",
-      wakeTimeWeekend: nil,
-      sleepTimeWeekend: nil,
-      breakfastWeekday: nil,
-      lunchWeekday: "12:00",
-      dinnerWeekday: "19:00",
-      breakfastWeekend: nil,
-      lunchWeekend: "12:30",
-      dinnerWeekend: "19:30"
+      wakeTime: "07:00",
+      sleepTime: "23:30",
+      breakfast: nil,
+      lunch: "12:30",
+      dinner: "19:30"
     )
     context.insert(newLifestyle)
     try? context.save()
@@ -61,29 +56,18 @@ final class UserLifeStyleStore {
   func setLifestyleTimes(
     _ lifestyle: UserLifeStyle,
     context: ModelContext,
-    wakeWeekday: String? = nil,
-    sleepWeekday: String? = nil,
-    wakeWeekend: String? = nil,
-    sleepWeekend: String? = nil,
-    breakfastWeekday: String? = nil,
-    lunchWeekday: String? = nil,
-    dinnerWeekday: String? = nil,
-    breakfastWeekend: String? = nil,
-    lunchWeekend: String? = nil,
-    dinnerWeekend: String? = nil
+    wakeTime: String? = nil,
+    sleepTime: String? = nil,
+    breakfast: String? = nil,
+    lunch: String? = nil,
+    dinner: String? = nil
   ) {
-    if let value = wakeWeekday { lifestyle.wakeTimeWeekday = value }
-    if let value = sleepWeekday { lifestyle.sleepTimeWeekday = value }
-    if let value = wakeWeekend  { lifestyle.wakeTimeWeekend  = value }
-    if let value = sleepWeekend { lifestyle.sleepTimeWeekend = value }
+    if let value = wakeTime { lifestyle.wakeTime = value }
+    if let value = sleepTime { lifestyle.sleepTime = value }
 
-    if let value = breakfastWeekday { lifestyle.breakfastWeekday = value }
-    if let value = lunchWeekday     { lifestyle.lunchWeekday     = value }
-    if let value = dinnerWeekday    { lifestyle.dinnerWeekday    = value }
-
-    if let value = breakfastWeekend { lifestyle.breakfastWeekend = value }
-    if let value = lunchWeekend     { lifestyle.lunchWeekend     = value }
-    if let value = dinnerWeekend    { lifestyle.dinnerWeekend    = value }
+    if let value = breakfast { lifestyle.breakfast = value }
+    if let value = lunch { lifestyle.lunch = value }
+    if let value = dinner { lifestyle.dinner = value }
 
     try? context.save()
   }
@@ -93,29 +77,18 @@ final class UserLifeStyleStore {
   func setLifestyleTimesDate(
     _ lifestyle: UserLifeStyle,
     context: ModelContext,
-    wakeWeekday: Date? = nil,
-    sleepWeekday: Date? = nil,
-    wakeWeekend: Date? = nil,
-    sleepWeekend: Date? = nil,
-    breakfastWeekday: Date? = nil,
-    lunchWeekday: Date? = nil,
-    dinnerWeekday: Date? = nil,
-    breakfastWeekend: Date? = nil,
-    lunchWeekend: Date? = nil,
-    dinnerWeekend: Date? = nil
+    wakeTime: Date? = nil,
+    sleepTime: Date? = nil,
+    breakfast: Date? = nil,
+    lunch: Date? = nil,
+    dinner: Date? = nil,
   ) {
-    if let date = wakeWeekday { lifestyle.wakeTimeWeekday = date.toHHmmString()}
-    if let date = sleepWeekday { lifestyle.sleepTimeWeekday = date.toHHmmString() }
-    if let date = wakeWeekend  { lifestyle.wakeTimeWeekend  = date.toHHmmString() }
-    if let date = sleepWeekend { lifestyle.sleepTimeWeekend = date.toHHmmString() }
+    if let date = wakeTime { lifestyle.wakeTime = date.toHHmmString()}
+    if let date = sleepTime { lifestyle.sleepTime = date.toHHmmString() }
 
-    if let date = breakfastWeekday { lifestyle.breakfastWeekday = date.toHHmmString() }
-    if let date = lunchWeekday     { lifestyle.lunchWeekday     = date.toHHmmString() }
-    if let date = dinnerWeekday    { lifestyle.dinnerWeekday    = date.toHHmmString() }
-
-    if let date = breakfastWeekend { lifestyle.breakfastWeekend = date.toHHmmString() }
-    if let date = lunchWeekend     { lifestyle.lunchWeekend     = date.toHHmmString() }
-    if let date = dinnerWeekend    { lifestyle.dinnerWeekend    = date.toHHmmString() }
+    if let date = breakfast { lifestyle.breakfast = date.toHHmmString() }
+    if let date = lunch { lifestyle.lunch = date.toHHmmString() }
+    if let date = dinner { lifestyle.dinner = date.toHHmmString() }
 
     try? context.save()
   }
