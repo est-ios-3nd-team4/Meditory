@@ -81,7 +81,7 @@ final class Routine {
     category: String? = nil,
     cycleType: Int,
     cycleValue: String,
-    startDate: Date,
+    startDate: Date = .now,
     memo: String? = nil,
     hasPush: Bool = true,
     imageData: Data? = nil,
