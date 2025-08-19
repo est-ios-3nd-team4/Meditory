@@ -53,7 +53,7 @@ final class ScheduleAIPromptTests: XCTestCase {
           ExtraInfo(key: "allergy1", value: "갑각류", type: .allergy),
           ExtraInfo(key: "allergy2", value: "유제품", type: .allergy),
         ],
-        concern: dataConcern,
+        concern: [],
         user: user
       )
     )
