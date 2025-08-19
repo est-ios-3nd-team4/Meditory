@@ -19,7 +19,6 @@ extension RoutineStore {
   /// AI 추천 결과 Ruotine 반영
   func applyRecommendation(from dto: SupplementDTO, to routine: Routine, start: Date = Date(), context: ModelContext) {
     routine.type = dto.type
-    routine.pillsPerDose = dto.pillsPerDose
     routine.usage = dto.usage
     routine.precautions = dto.precautions
 

@@ -40,9 +40,6 @@ final class Routine {
   
   /// 루틴 시작 날짜
   var startDate: Date
-    
-  /// 1회당 복용 알약 수
-  var pillsPerDose: Int
   
   /// 메모 (예: "아침 식사 후 복용")
   var memo: String?
@@ -85,7 +82,6 @@ final class Routine {
     cycleType: Int,
     cycleValue: String,
     startDate: Date,
-    pillsPerDose: Int,
     memo: String? = nil,
     hasPush: Bool = true,
     imageData: Data? = nil,
@@ -102,7 +98,6 @@ final class Routine {
     self.cycleType = cycleType
     self.cycleValue = cycleValue
     self.startDate = startDate
-    self.pillsPerDose = pillsPerDose
     self.memo = memo
     self.hasPush = hasPush
     self.imageData = imageData
