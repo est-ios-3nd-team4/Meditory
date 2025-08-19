@@ -7,16 +7,9 @@
 
 import SwiftUI
 
-struct DailyMealSummaryView: View {
+struct DailyMealSummaryCard: View {
   
-  let macros = [
-    MacroModel(macroType: .carbohydrate,
-               gram: 180),
-    MacroModel(macroType: .protein,
-               gram: 30),
-    MacroModel(macroType: .fat,
-               gram: 10)
-  ]
+  let meal: MacroNutrients
   
   var body: some View {
     ZStack {
@@ -38,9 +31,7 @@ struct DailyMealSummaryView: View {
         
         Spacer()
         
-        MacroNutrientChartView(carbohydrateProgressTarget: Double(macros[0].gram) / 100,
-                               proteinProgressTarget: Double(macros[1].gram) / 100,
-                               fatProgressTarget: Double(macros[2].gram) / 100)
+        MacroChartView(macros: meal)
         .frame(width: 80, height: 80)
         .padding(.trailing, 16)
       }
@@ -50,18 +41,18 @@ struct DailyMealSummaryView: View {
   /// 탄, 단, 지 오늘 하루 목표치 대비 퍼센트값을 나타냄
   func macroPercentageView() -> some View {
     VStack(alignment: .leading) {
-        ForEach(macros) { macro in
+      ForEach(meal.macroItems) { item in
           HStack {
             Circle()
-              .fill(macro.color)
+              .fill(item.color)
               .frame(width: 15, height: 15)
             
             HStack {
-              Text(macro.label)
+              Text(item.label)
                 .font(.notoSans(weight: .bold, size: 17))
                 .foregroundStyle(.black)
               
-              Text("\(Int(macro.gram))%")
+              Text("\(Int(item.gram))%")
                 .font(.notoSans(weight: .medium, size: 18))
             }
           }
@@ -71,5 +62,7 @@ struct DailyMealSummaryView: View {
 }
 
 #Preview {
-    DailyMealSummaryView()
+  DailyMealSummaryCard(meal: MacroNutrients(carbohydrate: 180,
+                                            protein: 40,
+                                            fat: 30))
 }

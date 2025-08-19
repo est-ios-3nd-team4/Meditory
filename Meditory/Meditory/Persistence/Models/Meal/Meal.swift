@@ -12,8 +12,8 @@ final class Macro {
     set { macroTypeRawValue = newValue.rawValue }
   }
   
-  var label: String { macroType.info.name }
-  var color: Color { macroType.info.color }
+//  var label: String { macroType.info.name }
+//  var color: Color { macroType.info.color }
   
   init(macroType: MacroType, gram: Double) {
     self.macroTypeRawValue = macroType.rawValue
