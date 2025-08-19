@@ -25,6 +25,7 @@ struct SheetDayCell: View {
   var body: some View {
     let clamped = max(0, min(1, progress))
     let size = isSelected ? selectedSize : baseSize
+    let layoutSize = max(baseSize, selectedSize)
 
     VStack(spacing: .smallSpacing) {
       ZStack {
@@ -85,7 +86,7 @@ struct SheetDayCell: View {
             .foregroundStyle(.primary)
         }
       }
-      .frame(width: size, height: size)
+      .frame(width: layoutSize, height: layoutSize)
       .opacity(isCurrentMonth ? 1.0 : 0.35)
 
       // 오늘 + 미완료 + 비선택: 언더라인
