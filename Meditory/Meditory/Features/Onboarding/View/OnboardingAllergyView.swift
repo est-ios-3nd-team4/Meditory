@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct OnboardingAllergyView: View {
-  let prompt:PromptMessage
+  let prompt:Prompt
   let name:String
   var questions = QuestionModel.allergyModel
   @Binding var selections: Set<QuestionModel>

@@ -14,7 +14,7 @@ struct OnboardingDiseaseView: View {
     GridItem(.flexible()),
     GridItem(.flexible()),
   ]
-  let prompt: PromptMessage
+  let prompt: Prompt
   let name: String
   @Binding var selections: Set<QuestionModel>
   @Binding var isSelected: Bool
@@ -39,7 +39,7 @@ struct OnboardingDiseaseView: View {
 
 #Preview {
   OnboardingDiseaseView(
-    prompt: PromptMessage(title: "고민되시거나 개선하고 싶은 건강 고민을 선택해주세요"),
+    prompt: Prompt(title: "고민되시거나 개선하고 싶은 건강 고민을 선택해주세요"),
     name: "Jason",
     selections: .constant(.init()),
     isSelected: .constant(false)

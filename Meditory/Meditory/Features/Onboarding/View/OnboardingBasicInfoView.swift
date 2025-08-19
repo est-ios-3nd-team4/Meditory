@@ -15,7 +15,7 @@ struct OnboardingBasicInfoView: View {
     ScrollViewReader { proxy in
       ScrollView(.vertical) {
         VStack {
-          if let prompt = Step.prompt[.base] {
+          if let prompt = Prompt.promptMessage[.base] {
             TitleView(prompt: prompt)
           }
           VStack(spacing: .defaultSpacing) {
@@ -61,7 +61,7 @@ struct OnboardingBasicInfoView: View {
             .id(FormField.weight)
             .focused(focusedField, equals: .weight)
           }
-          Spacer()
+          .padding(.top,-18)
         }
         .padding(.horizontal, .defaultSpacing + 4)
         .padding(.bottom, bottomSpacing)
