@@ -92,9 +92,9 @@ struct CalendarBackgroundView<Content: View>: View {
         selectedDate: $selectedDate,
         completionMap: completionMap
       )
-      .presentationDetents([.fraction(0.6)])
+      .presentationDetents([.fraction(0.7), .large])
       .presentationDragIndicator(.visible)
-      .presentationCornerRadius(24)
+      .presentationCornerRadius(.defaultRadius)
     }
   }
 }
