@@ -21,21 +21,21 @@ struct OnboardingDiseaseView: View {
   var onAction: ((QuestionModel) -> Void)?
   var body: some View {
     ScrollView {
-    HStack {
-      VStack(alignment: .leading) {
-        Text(prompt.title(name: name))
-          .font(.notoSans(weight: .bold, size: 24))
-          .padding(.vertical, 10)
-        if let info = prompt.info {
-          Text(info)
-            .font(.notoSans(weight: .bold, size: 16))
-            .foregroundStyle(.textGray)
+      HStack {
+        VStack(alignment: .leading) {
+          Text(prompt.title(name: name))
+            .font(.notoSans(weight: .bold, size: 28))
+            .padding(.vertical, 10)
+          if let info = prompt.info {
+            Text(info)
+              .font(.notoSans(weight: .bold, size: 16))
+              .foregroundStyle(.textGray)
+          }
         }
+        Spacer()
       }
-      Spacer()
-    }
-    .padding([.horizontal], .defaultSpacing + 4)
-      LazyVGrid(columns: columns) {
+      .padding([.horizontal], .defaultSpacing + 4)
+      LazyVGrid(columns: columns, spacing: 24) {
         ForEach(items, id: \.title) { item in
           CollectionItemCell(model: item, isSelected: selections.contains(item))
             .onTapGesture {
@@ -43,6 +43,7 @@ struct OnboardingDiseaseView: View {
             }
         }
       }
+      .padding(.horizontal,.defaultSpacing + 4)
     }
     .scrollIndicators(.never)
   }

@@ -12,7 +12,7 @@ struct OnboardingGenderView: View {
   var prompt:PromptMessage
   var name:String
   @Binding var isSelected: Bool
-  @Binding var isGenderSelected: Bool
+  @State var isGenderSelected: Bool = false
   @Binding var isValid: Bool?
   @State private var hasInteracted = false
   @Binding var selections: Set<QuestionModel>
@@ -23,7 +23,7 @@ struct OnboardingGenderView: View {
   var secondTitle: String
   var secondAction: (() -> Void)?
   var onAction: ((QuestionModel) -> Void)?
-  var question = QuestionModel.femineModel
+  var question = QuestionModel.feminineModel
   @Environment(\.colorScheme) var colorScheme
 
   var body: some View {
@@ -31,10 +31,13 @@ struct OnboardingGenderView: View {
       HStack {
         VStack(alignment: .leading) {
           Text(prompt.title(name: name))
-            .font(.notoSans(weight: .bold, size: 24))
+            .font(.notoSans(weight: .bold, size: 28))
             .padding(.vertical, 10)
-            .padding(.bottom, 10)
-          if let info = prompt.subtitle {
+          if let subtitle = prompt.subtitle {
+            Text(subtitle)
+              .font(.notoSans(weight: .bold, size: 16))
+              .foregroundStyle(.textGray)
+          } else if let info = prompt.info {
             Text(info)
               .font(.notoSans(weight: .bold, size: 16))
               .foregroundStyle(.textGray)
@@ -43,6 +46,7 @@ struct OnboardingGenderView: View {
         Spacer()
       }
       .padding(.bottom, .defaultSpacing + 4)
+//        TopTitleView(prompt: prompt)
       HStack(spacing: .defaultSpacing * 2) {
         Spacer()
         VStack(spacing: .defaultSpacing + 8) {
@@ -67,6 +71,7 @@ struct OnboardingGenderView: View {
               action?()
               isGenderSelected = true
               hasInteracted = true
+              vm.gender = Gender.male.title
             }
           Text(title)
             .font(.headline)
@@ -94,6 +99,7 @@ struct OnboardingGenderView: View {
               secondAction?()
               isGenderSelected = false
               hasInteracted = true
+              vm.gender = Gender.female.title
             }
           Text(secondTitle)
             .font(.headline)
@@ -108,15 +114,18 @@ struct OnboardingGenderView: View {
     .frame(maxWidth: .infinity)
     .padding(.bottom, 20)
     VStack(alignment: .leading, spacing: .defaultSpacing) {
-      Text("아래에 해당하는 상태가 있다면 선택해주세요")
-        .font(.notoSans(weight: .bold, size: 16))
-        .foregroundStyle(.textGray)
+      if let info = prompt.info {
+        Text(info)
+          .font(.notoSans(weight: .bold, size: 16))
+          .foregroundStyle(.textGray)
+      }
       ForEach(question, id: \.self) { item in
         RowItemCell(model: item, isSelected: selections.contains(item))
           .onTapGesture {
             onAction?(item)
           }
       }
+      .disabled(vm.gender != Gender.female.title)
     }
     .padding(.horizontal, .defaultSpacing + 4)
     Spacer()
@@ -125,18 +134,18 @@ struct OnboardingGenderView: View {
 }
 
 #Preview {
-  OnboardingGenderView(
-    vm: OnboardingViewModel(), prompt: PromptMessage(title: "성별"), name: "Jason",
-    isSelected: .constant(true),
-    isGenderSelected: .constant(true),
-    isValid: .constant(true),
-    selections: .constant(.init()),
-    image: "male_icon",
-    title: "남성",
-    action: nil,
-    secondImage: "female_icon",
-    secondTitle: "여성",
-    secondAction: nil,
-
-  )
+//  OnboardingGenderView(
+//    vm: OnboardingViewModel(), prompt: PromptMessage(title: "성별"), name: "Jason",
+//    isSelected: .constant(true),
+//    isGenderSelected: false,
+//    isValid: .constant(true),
+//    selections: .constant(.init()),
+//    image: "male_icon",
+//    title: "남성",
+//    action: nil,
+//    secondImage: "female_icon",
+//    secondTitle: "여성",
+//    secondAction: nil,
+//
+//  )
 }

@@ -10,8 +10,6 @@ struct SettingView: View {
   // DB의 User 목록 자동 바인딩
   @Query private var users: [User]
   private let userStore = UserStore()
-  
-  
   var body: some View {
     
     ZStack(alignment: .top) {
