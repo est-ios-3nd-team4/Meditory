@@ -22,6 +22,7 @@ struct MealDetailView: View {
       
       macroCompositionView()
       
+      FoodGridView(foods: viewModel.selectedMeal?.foods)
       Spacer()
     }
     .navigationBarBackButtonHidden(true)
