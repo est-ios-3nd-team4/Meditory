@@ -36,7 +36,7 @@ struct NutrientDetailSectionView: View {
         HStack {
           Text("🧪 \(nutrient.name)")
             .font(.notoSans(weight: .bold, size: 30))
-            
+
 
           Spacer()
 

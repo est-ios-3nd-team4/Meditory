@@ -93,3 +93,10 @@ struct DefaultTitleParser: TitleParsing {
     return title.trimmingCharacters(in: .whitespacesAndNewlines)
   }
 }
+
+// 테스트를 단순하게 만들기 위한 고정값
+struct StubTitleParser: TitleParsing {
+  func extractBrandAndName(fromTitle rawTitle: String, metaBrand: String?) -> (brand: String?, name: String?) {
+    return ("TITLE_BRAND", "TITLE_NAME")
+  }
+}

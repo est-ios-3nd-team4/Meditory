@@ -6,7 +6,7 @@ final class SearchDetailViewModel: ObservableObject {
   @Published var hasMore = true
 
   private let client: GoogleCSEImageClient
-  private let query: String
+  private var query: String
   private var nextStart = 1
   private let pageSize = 10
   private var seenLinks = Set<String>()
@@ -15,6 +15,22 @@ final class SearchDetailViewModel: ObservableObject {
     self.query = query
     self.client = client
   }
+
+  @MainActor
+  func restart(with newQuery: String) async {
+    let trimmed = newQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return }
+
+    query = trimmed
+    items.removeAll()
+    seenLinks.removeAll()
+    nextStart = 1
+    hasMore = true
+    isLoading = false
+
+    await loadMore()
+  }
+
 
   @MainActor
   func loadFirstPage() async {
