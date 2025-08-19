@@ -64,20 +64,7 @@ struct HomeView: View {
               .buttonStyle(.plain)
 
               NavigationLink(
-                destination: SupplementDetailView(
-                  dto: SupplementDetailDTO(
-                    name: item.routine.category ?? "",
-                    subtitle: item.routine.desc ?? "",
-                    userTimes: item.routine.routineTimes.map { $0.time.timeFormatter },
-                    userCycle: RoutineFormatter.renderCycle(
-                      cycleType: item.routine.cycleType,
-                      cycleValue: item.routine.cycleValue
-                    ),
-                    recTimes: ["오전 7시", "오후 7시"], // AI 추천값
-                    recCycle: "매일"
-                  ),
-                  routine: item.routine
-                )
+                destination: SupplementDetailView(routine: item.routine)
               ) {
                 HStack(spacing: .defaultSpacing) {
                   Text(item.name)

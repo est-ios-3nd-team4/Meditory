@@ -10,6 +10,8 @@ import SwiftUI
 
 struct InputTextField: UIViewRepresentable {
   
+  @Binding var text: String
+  
   let font: UIFont? = .notoSans(size: 16)
   let placeHolder: String
   let placHolderTextColor: UIColor = .textGray
@@ -31,6 +33,12 @@ struct InputTextField: UIViewRepresentable {
     textField.tintColor = tintColor
     textField.font = font
     textField.clearButtonMode = .whileEditing
+    
+    textField.addTarget(
+      context.coordinator,
+      action: #selector(Coordinator.textDidChange(_:)),
+      for: .editingChanged
+    )
     
     return textField
   }
@@ -58,6 +66,10 @@ struct InputTextField: UIViewRepresentable {
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
       parent.didBeginEditing?()
+    }
+    
+    @objc func textDidChange(_ textField: UITextField) {
+      parent.text = textField.text ?? ""
     }
   }
 }
