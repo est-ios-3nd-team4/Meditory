@@ -1,5 +1,5 @@
 //
-//  SupplementInfoPrompt.swift
+//  ScheduleAIPrompt.swift
 //  Meditory
 //
 //  Created by 윤혜주 on 8/14/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum SupplementInfoPrompt {
+enum ScheduleAIPrompt {
 
   struct LifestyleLoad: Sendable {
     var wakeTime: String?
@@ -49,7 +49,6 @@ enum SupplementInfoPrompt {
     var isPregnant: Bool
     var isBreastfeeding: Bool
     var supplementSchedule: [String]
-    var dosageCycleHint: String?
     var lifestyle: LifestyleLoad?
 
     init(
@@ -60,7 +59,6 @@ enum SupplementInfoPrompt {
       isPregnant: Bool,
       isBreastfeeding: Bool,
       supplementSchedule: [String],
-      dosageCycleHint: String? = nil,
       lifestyle: LifestyleLoad? = nil
     ) {
       self.gender = gender
@@ -70,7 +68,6 @@ enum SupplementInfoPrompt {
       self.isPregnant = isPregnant
       self.isBreastfeeding = isBreastfeeding
       self.supplementSchedule = supplementSchedule
-      self.dosageCycleHint = dosageCycleHint
       self.lifestyle = lifestyle
     }
 
@@ -93,7 +90,6 @@ enum SupplementInfoPrompt {
         isPregnant: isPregnant,
         isBreastfeeding: isBreastfeeding,
         supplementSchedule: supplementSchedule,
-        dosageCycleHint: dosageCycleHint,
         lifestyle: lifestyle.map { LifestyleLoad.from($0) }
       )
     }
@@ -148,7 +144,6 @@ enum SupplementInfoPrompt {
     let preg = user.isPregnant ? "예" : "아니오"
     let breast = user.isBreastfeeding ? "예" : "아니오"
     let items = user.supplementSchedule.isEmpty ? "없음" : user.supplementSchedule.joined(separator: ", ")
-    let cycle = user.dosageCycleHint ?? "미입력"
 
 
     // user의 lifestyle이 입력되어 있지 않다면 한국 직장인 평균(GPT 피셜) 기준으로 넣음
@@ -178,7 +173,6 @@ enum SupplementInfoPrompt {
      * 임신: \(preg)
      * 수유: \(breast)
      * 복용 중 항목 및 시간: \(items)
-     * 복용 주기: \(cycle)
      
      [LifeStyle]
      \(lifestyleBlock)
