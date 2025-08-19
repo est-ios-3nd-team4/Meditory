@@ -12,7 +12,7 @@ struct FoodGridView: View {
   let foods: [FoodInfo]
   
   let columns = [
-    GridItem(.adaptive(minimum: 100, maximum: 150), spacing: 16)
+    GridItem(.adaptive(minimum: 100, maximum: 300), spacing: 16),
   ]
   
   init(foods: [FoodInfo]?) {
@@ -20,10 +20,9 @@ struct FoodGridView: View {
   }
   
   var body: some View {
-    LazyVGrid(columns: columns, spacing: 16) {
-      ForEach(foods) { food in
+    FlowLayout(spacing: 8, lineSpacing: 8) {
+      ForEach(foods, id: \.id) { food in
         capsuleTag(food)
-        
       }
     }
   }
@@ -65,7 +64,7 @@ struct FoodGridView: View {
                                                      macros: .init(carbohydrate: 40,
                                                                                              protein: 20,
                                                                                              fat: 30)),
-                       FoodInfo(name: "짜장면",
+                       FoodInfo(name: "칼국수맛 짜장면",
                                                      weight: 200,
                                                      macros: .init(carbohydrate: 40,
                                                                                              protein: 20,
@@ -80,12 +79,12 @@ struct FoodGridView: View {
                                                      macros: .init(carbohydrate: 40,
                                                                                              protein: 20,
                                                                                              fat: 30)),
-                       FoodInfo(name: "짜장면",
+                       FoodInfo(name: "짜장",
                                                      weight: 200,
                                                      macros: .init(carbohydrate: 40,
                                                                                              protein: 20,
                                                                                              fat: 30)),
-                       FoodInfo(name: "짜장면",
+                       FoodInfo(name: "짜",
                                                      weight: 200,
                                                      macros: .init(carbohydrate: 40,
                                                                                              protein: 20,
