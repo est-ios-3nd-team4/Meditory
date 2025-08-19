@@ -11,15 +11,15 @@ import SwiftData
 @MainActor
 final class SupplementRoutineAIViewModel: ObservableObject {
   private let client: AlanAPIClient
-  private let context: ModelContext
+  private let context: ModelContext // TODO: 나머지 Store 수정하면서 얘도 삭제
   private let userStore: UserStore
   private let lifeStore: UserLifeStyleStore
   private let routineStore: RoutineStore
 
   init(
     client: AlanAPIClient = AlanAPIClient(),
-    context: ModelContext,
-    userStore: UserStore = UserStore(),
+    context: ModelContext, // TODO: 나머지 Store 수정하면서 얘도 삭제
+    userStore: UserStore, // Store 는 이것처럼 View 에서 넘겨받는다. ViewModel 이 직접 생성하지 않음.
     lifeStore: UserLifeStyleStore = UserLifeStyleStore(),
     routineStore: RoutineStore = RoutineStore()
   ) {
@@ -29,8 +29,11 @@ final class SupplementRoutineAIViewModel: ObservableObject {
     self.lifeStore = lifeStore
     self.routineStore = routineStore
 
-    userStore.loadUser(context: context)
-    lifeStore.currentUser = userStore.currentUser
+    Task { // Store의 메서드를 쓸때는 await 필수
+      await userStore.loadUser()
+      lifeStore.currentUser = try? await userStore.currentUser()
+    }
+    
   }
 
   /// 상세 진입 전에 AI 추천을 적용합니다.
@@ -40,7 +43,7 @@ final class SupplementRoutineAIViewModel: ObservableObject {
   /// - Returns: 저장 성공 여부
   func apply(for routine: Routine, skipIfExists: Bool = true) async -> Bool {
     if skipIfExists, hasAIData(in: routine) { return true }
-    guard let prompt = makePrompt(for: routine) else { return false }
+    guard let prompt = await makePrompt(for: routine) else { return false }
 
     do {
       let result = try await client.request(content: prompt)
@@ -57,11 +60,11 @@ final class SupplementRoutineAIViewModel: ObservableObject {
   }
 
   /// 실패하지 않도록 기본값을 사용해 프롬프트를 생성
-  private func makePrompt(for routine: Routine) -> String? {
-    let user = userStore.currentUser
+  private func makePrompt(for routine: Routine) async -> String? { // async 추가
+    let user = try? await userStore.currentUser()  //  await 사용
     let gender = user?.gender ?? "미입력"
     let birth = user?.birthDate ?? Date(timeIntervalSince1970: 0)
-    let (diseases, allergies, preg, breast) = loadExtraHealthInfo()
+    let (diseases, allergies, preg, breast) = await loadExtraHealthInfo()
 
     let lifestyle = lifeStore.fetchOrCreateLifestyle(context: context)
 
@@ -97,7 +100,7 @@ final class SupplementRoutineAIViewModel: ObservableObject {
     routine.routineTimes.first?.time ?? routine.recommendedRoutineTimes.first?.time
   }
 
-  private func loadExtraHealthInfo()
+  private func loadExtraHealthInfo() async
     -> (diseases: [String], allergies: [String], isPregnant: Bool, isBreastfeeding: Bool)
   {
     var diseases: Set<String> = []
@@ -105,8 +108,8 @@ final class SupplementRoutineAIViewModel: ObservableObject {
     var isPregnant = false
     var isBreastfeeding = false
 
-    let all = userStore.fetchExtraInfos(context: context)
-    let currentID = userStore.currentUser?.persistentModelID
+    let all = await userStore.fetchExtraInfos()
+    let currentID = try? await userStore.currentUser().persistentModelID
     let mine = all.filter { $0.user?.persistentModelID == currentID }
 
     for info in mine {
