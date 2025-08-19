@@ -61,7 +61,7 @@ struct OnboardingBasicInfoView: View {
             .id(FormField.weight)
             .focused(focusedField, equals: .weight)
           }
-          Spacer()
+          .padding(.top,-18)
         }
         .padding(.horizontal, .defaultSpacing + 4)
         .padding(.bottom, bottomSpacing)

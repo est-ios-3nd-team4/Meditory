@@ -14,11 +14,23 @@ struct CapsuleShappedText: View {
   var body: some View {
     Text("\(title)")
       .font(.notoSans(weight: .medium, size: 15))
+      .foregroundStyle(isSelected ? Color.white: .sub)
       .padding(.horizontal, 12)
       .padding(.vertical, 6)
+      .background {
+        RoundedRectangle(cornerRadius: .defaultRadius)
+          .fill(isSelected ? .main : .clear)
+      }
       .overlay {
         RoundedRectangle(cornerRadius: .defaultRadius)
-          .stroke(isSelected ? Color.main.opacity(0.7) : Color.gray.opacity(0.5), lineWidth: 1)
+          .stroke(isSelected ? Color.main : Color.gray.opacity(0.4),lineWidth: 1)
       }
+      .animation(.easeInOut(duration: 0.3), value: isSelected)
   }
+}
+
+
+#Preview {
+  CapsuleShappedText(title: "Test", isSelected: false)
+  CapsuleShappedText(title: "Test", isSelected: true)
 }
