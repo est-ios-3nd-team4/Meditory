@@ -32,7 +32,7 @@ struct QuestionModel: Hashable {
     .init(code: "concern_14", title: "수면장애", type: .concern),
     .init(code: "concern_15", title: "대장 질환", type: .concern),
     .init(code: "concern_16", title: "비만", type: .concern),
-    .init(code: "concern_17", title: "대사증후관", type: .concern),
+    .init(code: "concern_17", title: "대사증후군", type: .concern),
   ]
   static let diseaseModel: [QuestionModel] = [
     .init(code: "disease_1", title: "간 질환", type: .disease, image: "icon_lung"),
