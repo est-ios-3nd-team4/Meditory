@@ -15,13 +15,13 @@ struct TodayHealthView: View {
     VStack(alignment: .leading) {
       Text("오늘의 건강 상식?!")
         .font(.notoSans(size: 18))
-        .padding(.bottom, 8)
+        .padding(.bottom, .smallSpacing)
       
       Text(vm.healthContent)
         .font(.notoSans(size: 15))
         .foregroundStyle(.secondary)
     }
-    .padding(16)
+    .padding(.defaultSpacing)
     .frame(maxWidth: .infinity, alignment: .leading)
     .frame(maxHeight: .infinity, alignment: .top)
     .background(
@@ -29,7 +29,7 @@ struct TodayHealthView: View {
       ? Color.white.opacity(0.3)
       : Color.white
     )
-    .cornerRadius(20)
+    .cornerRadius(.defaultRadius)
     .modifier(UnifiedShadow())
     .onAppear {
       //vm.fetchHealthContent()
