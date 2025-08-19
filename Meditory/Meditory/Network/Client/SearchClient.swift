@@ -58,37 +58,22 @@ final class GoogleCSEImageClient: ImageSearchService {
       print("Google API Key 또는 CX 없음 — 이미지 검색 건너뜀")
       return nil
     }
+    let endpoint = SearchEndpoint.cseImage(brand: brand, name: name, apiKey: apiKey, cx: cx)
 
-    let rawQuery = "\"\(brand)\" \"\(name)\""
-    let query = rawQuery
-      .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
-      .trimmingCharacters(in: .whitespacesAndNewlines)
-      .lowercased()
+    guard let request = endpoint.makeURLRequest(),
+          let cacheKey = request.url?.absoluteString else {
+      throw CSEError.badURL
+    }
 
-    if let cached = await imageCache.get(query) {
-          return cached
-        }
+    if let cached = await imageCache.get(cacheKey) {
+      return cached
+    }
 
-    var comps = URLComponents(string: "https://www.googleapis.com/customsearch/v1")!
-    comps.queryItems = [
-      .init(name: "key", value: apiKey),
-      .init(name: "cx",  value: cx),
-      .init(name: "q",   value: query),
-      .init(name: "searchType", value: "image"),
-      .init(name: "num", value: "1"),
-      .init(name: "gl",  value: "kr"),
-      .init(name: "hl",  value: "ko"),
-      .init(name: "fields", value: "items(link,image/contextLink,image/thumbnailLink)")
-    ]
-    guard let url = comps.url else { throw CSEError.badURL }
-
-    let (data, resp) = try await session.data(from: url)
-
-    let str = String(data: data, encoding: .utf8)
+    let (data, resp) = try await session.data(for: request)
 
     let code = (resp as? HTTPURLResponse)?.statusCode ?? -1
 
-    if code != 200 {
+    guard code == 200  else {
       let body = String(data: data, encoding: .utf8) ?? "<non-utf8>"
 #if DEBUG
       print("[CSE] HTTP \(code)\n\(body)")
@@ -106,7 +91,7 @@ final class GoogleCSEImageClient: ImageSearchService {
 
       let result = ImageResult(imageURL: imageURL, productLink: productLink)
 
-      await imageCache.set(query, value: result)
+      await imageCache.set(cacheKey, value: result)
 
       return result
     } catch {

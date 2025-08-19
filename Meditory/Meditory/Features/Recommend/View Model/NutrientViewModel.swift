@@ -24,17 +24,17 @@ final class NutrientViewModel: ObservableObject {
       var byId: [String: Nutrient] = [:]
       for item in stored { byId[item.id] = item }
 
-      for n in recommend {
-        if let existing = byId[n.id] {
-          existing.name = n.name
-          existing.hashtags = n.hashtags
-          existing.desc = n.desc
-          existing.title = n.title
-          existing.content = n.content
-          existing.positiveKeywords = n.positiveKeywords
-          existing.negativeKeywords = n.negativeKeywords
+      for nutrient in recommend {
+        if let existing = byId[nutrient.id] {
+          existing.name = nutrient.name
+          existing.hashtags = nutrient.hashtags
+          existing.desc = nutrient.desc
+          existing.title = nutrient.title
+          existing.content = nutrient.content
+          existing.positiveKeywords = nutrient.positiveKeywords
+          existing.negativeKeywords = nutrient.negativeKeywords
         } else {
-          context.insert(n)
+          context.insert(nutrient)
         }
       }
       try context.save()
@@ -78,56 +78,56 @@ final class NutrientViewModel: ObservableObject {
   }
 
   private func prompt(userName: String?) -> String {
-//    let display = userName ?? "@@"
-//    return """
-//      [역할]
-//      - 당신은 한국 사용자에게 식단/생활습관/건강정보를 바탕으로 영양성분을 추천하는 영양 코치입니다.
-//      - 의학적 진단이나 처방을 대체하지 않습니다. 위험 신호가 있으면 전문의 상담을 권고합니다.
-//      
-//      [목표]
-//      - 사용자 입력을 분석하여 "중복되지 않는" 영양성분 최대 3가지를 추천합니다.
-//      - 각 성분에 대해 간결한 해시태그(최대 2개), 한 문장 헤드라인(title), 3~6문장 설명(content)을 제공합니다.
-//      
-//      [출력 형식(중요)]
-//      - **JSON 배열만** 출력하세요. 다른 텍스트/코드블록/주석 금지.
-//      - 각 원소 스키마:
-//        - id: string (영문 스네이크/케밥 케이스, 고유)
-//        - name: string (한국어 성분명, 예: "아연")
-//        - hashtags: string[] (0~2개, 짧은 근거 키워드, 예: "면역 기능", "간 건강")
-//        - title: string (한 문장 요약, 확정 표현 금지: "~에 도움을 줄 수 있음" 톤)
-//        - content: string (이유/권장량 범위/식품 급원/주의·금기 포함, 3~6문장, 단위 표기)
-//      
-//      [품질 규칙]
-//      - 과대광고·확정적 표현 금지(“~에 도움을 줄 수 있음”).
-//      - 금기(알레르기/질환/복용약)와 중복 효능 회피(예: 오메가3 vs 크릴오일 동시 추천 지양).
-//      - 식품 급원 1~2개 예시 포함(예: 굴, 붉은살코기 등).
-//      - 불확실하거나 위험 신호 시 “전문의 상담 권고” 문구 포함.
-//      
-//      [금지]
-//      - description, positiveKeywords, negativeKeywords 등 **스키마 외 필드 출력 금지**.
-//      - 제품/브랜드 추천 금지.
-//      
-//      [예시]
-//      [
-//        {
-//          "id": "zinc",
-//          "name": "아연",
-//          "hashtags": ["면역 기능", "세포분열"],
-//          "title": "아연은 해산물 섭취가 적을 때 부족해지기 쉬우며 면역에 도움을 줄 수 있습니다.",
-//          "content": "아연은 면역 반응과 세포분열에 관여합니다. 한국 성인 권장량은 대략 8~11㎎/일입니다. 굴·붉은살코기·콩류에 풍부합니다. 과다 섭취는 구리 결핍을 유발할 수 있어 상한섭취량(40㎎/일)을 넘지 않도록 하세요."
-//        }
-//      ]
-//      
-//      [사용자]
-//        - 대상: \(display)
-//      
-//        [최종 지시]
-//        - 오직 유효한 JSON 배열 **문자열만** 반환하세요. 앞뒤 설명/마크다운/코드블록을 절대 추가하지 마세요.
-//      """
+    //    let display = userName ?? "@@"
+    //    return """
+    //      [역할]
+    //      - 당신은 한국 사용자에게 식단/생활습관/건강정보를 바탕으로 영양성분을 추천하는 영양 코치입니다.
+    //      - 의학적 진단이나 처방을 대체하지 않습니다. 위험 신호가 있으면 전문의 상담을 권고합니다.
+    //
+    //      [목표]
+    //      - 사용자 입력을 분석하여 "중복되지 않는" 영양성분 최대 3가지를 추천합니다.
+    //      - 각 성분에 대해 간결한 해시태그(최대 2개), 한 문장 헤드라인(title), 3~6문장 설명(content)을 제공합니다.
+    //
+    //      [출력 형식(중요)]
+    //      - **JSON 배열만** 출력하세요. 다른 텍스트/코드블록/주석 금지.
+    //      - 각 원소 스키마:
+    //        - id: string (영문 스네이크/케밥 케이스, 고유)
+    //        - name: string (한국어 성분명, 예: "아연")
+    //        - hashtags: string[] (0~2개, 짧은 근거 키워드, 예: "면역 기능", "간 건강")
+    //        - title: string (한 문장 요약, 확정 표현 금지: "~에 도움을 줄 수 있음" 톤)
+    //        - content: string (이유/권장량 범위/식품 급원/주의·금기 포함, 3~6문장, 단위 표기)
+    //
+    //      [품질 규칙]
+    //      - 과대광고·확정적 표현 금지(“~에 도움을 줄 수 있음”).
+    //      - 금기(알레르기/질환/복용약)와 중복 효능 회피(예: 오메가3 vs 크릴오일 동시 추천 지양).
+    //      - 식품 급원 1~2개 예시 포함(예: 굴, 붉은살코기 등).
+    //      - 불확실하거나 위험 신호 시 “전문의 상담 권고” 문구 포함.
+    //
+    //      [금지]
+    //      - description, positiveKeywords, negativeKeywords 등 **스키마 외 필드 출력 금지**.
+    //      - 제품/브랜드 추천 금지.
+    //
+    //      [예시]
+    //      [
+    //        {
+    //          "id": "zinc",
+    //          "name": "아연",
+    //          "hashtags": ["면역 기능", "세포분열"],
+    //          "title": "아연은 해산물 섭취가 적을 때 부족해지기 쉬우며 면역에 도움을 줄 수 있습니다.",
+    //          "content": "아연은 면역 반응과 세포분열에 관여합니다. 한국 성인 권장량은 대략 8~11㎎/일입니다. 굴·붉은살코기·콩류에 풍부합니다. 과다 섭취는 구리 결핍을 유발할 수 있어 상한섭취량(40㎎/일)을 넘지 않도록 하세요."
+    //        }
+    //      ]
+    //
+    //      [사용자]
+    //        - 대상: \(display)
+    //
+    //        [최종 지시]
+    //        - 오직 유효한 JSON 배열 **문자열만** 반환하세요. 앞뒤 설명/마크다운/코드블록을 절대 추가하지 마세요.
+    //      """
     let display = (userName?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false) ? userName! : "@@"
-      let isDemo = (display == "@@")
+    let isDemo = (display == "@@")
 
-      let demoBlock = isDemo ? """
+    let demoBlock = isDemo ? """
       [입력 없음 처리(데모)]
       - 사용자 데이터가 없으므로 아래 디폴트 프로필을 가정해 결과를 생성하세요.
       - 디폴트 프로필:
@@ -137,15 +137,15 @@ final class NutrientViewModel: ObservableObject {
       - 반드시 3개 성분을 추천하세요(중복 효능/유사 원료 동시 추천 금지).
       """ : ""
 
-      return """
+    return """
       [역할]
       - 당신은 한국 사용자에게 식단/생활습관/건강정보를 바탕으로 영양성분을 추천하는 영양 코치입니다.
       - 의학적 진단이나 처방을 대체하지 않습니다. 위험 신호가 있으면 전문의 상담을 권고합니다.
-
+      
       [목표]
       - 사용자 입력을 분석하여 "중복되지 않는" 영양성분 최대 3가지를 추천합니다.
       - 각 성분에 대해 간결한 해시태그(최대 2개), 한 문장 헤드라인(title), 3~6문장 설명(content)을 제공합니다.
-
+      
       [출력 형식(중요)]
       - JSON 배열만 출력하세요. 다른 텍스트/코드블록/주석 금지.
       - 각 원소 스키마:
@@ -154,22 +154,22 @@ final class NutrientViewModel: ObservableObject {
         - hashtags: string[] (0~2개, 짧은 근거 키워드, 예: "면역 기능", "간 건강")
         - title: string (한 문장 요약, 확정 표현 금지: "~에 도움을 줄 수 있음" 톤)
         - content: string (이유/권장량 범위/식품 급원/주의·금기 포함, 3~6문장, 단위 표기)
-
+      
       [품질 규칙]
       - 과대광고·확정적 표현 금지(“~에 도움을 줄 수 있음”).
       - 금기(알레르기/질환/복용약)와 중복 효능 회피(예: 오메가3 vs 크릴오일 동시 추천 지양).
       - 식품 급원 1~2개 예시 포함(예: 굴, 붉은살코기 등).
       - 불확실하거나 위험 신호 시 “전문의 상담 권고” 문구 포함.
-
+      
       [금지]
       - description, positiveKeywords, negativeKeywords 등 스키마 외 필드 출력 금지.
       - 제품/브랜드 추천 금지.
-
+      
       \(demoBlock)
-
+      
       [사용자]
       - 대상: \(display)
-
+      
       [최종 지시]
       - 오직 유효한 JSON 배열 **문자열만** 반환하세요. 앞뒤 설명/마크다운/코드블록을 절대 추가하지 마세요.
       """
