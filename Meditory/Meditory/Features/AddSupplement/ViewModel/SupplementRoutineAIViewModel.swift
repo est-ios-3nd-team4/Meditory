@@ -50,10 +50,14 @@ final class SupplementRoutineAIViewModel: ObservableObject {
     
     let routines = routineStore.fetchAllRoutines(context: context)
     let scheduleList: [String] = (routines.isEmpty ? [] : routines).map { routine in
-      let times = routine.routineTimes.map { $0.time.toHHmmString() }.joined(separator: ",")
+      let timeDoseSummary = routine.routineTimes.map { "\($0.time.toHHmmString())(\($0.pillsPerDose)정)" }.joined(separator: ", ")
       let cycleHint = RoutineFormatter.renderCycle(cycleType: routine.cycleType, cycleValue: routine.cycleValue)
 
-      return "\(routine.displayName) (\(times)/\(cycleHint))"
+      return """
+        \(routine.displayName) 
+        - 요일: \(cycleHint)
+        - 복용시간: \(timeDoseSummary)
+      """
     }
 
     let input = ScheduleAIPrompt.UserInput(
