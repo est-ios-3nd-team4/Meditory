@@ -54,22 +54,14 @@ struct AIRecommendedScheduleView: View {
       }
       
       if isSkeletonVisible {
-        let rectangleHeight: CGFloat = 15
         let scales: [CGFloat] = [0.4, 0.6, 0.5]
-        let saclesCount = CGFloat(scales.count)
-        let spacing: CGFloat = 8
         
-        GeometryReader { geometry in
-          let width = geometry.size.width
-          
-          VStack(alignment: .leading, spacing: spacing) {
-            ForEach(Array(scales.enumerated()), id: \.offset) { idx, scale in
-              ShimmerView(scale: scale)
-                .frame(height: 15)
-            }
+        VStack(alignment: .leading, spacing: .smallSpacing) {
+          ForEach(Array(scales.enumerated()), id: \.offset) { idx, scale in
+            ShimmerView(widthRatio: scale)
+              .frame(height: 15)
           }
         }
-        .frame(height: rectangleHeight * saclesCount + spacing * (saclesCount - 1))
       }
       
       Spacer()

@@ -50,14 +50,14 @@ struct SupplementInfoView: View {
     
     if isSearchingSupplementSummary {
       VStack(alignment: .leading, spacing: .smallSpacing) {
-        ShimmerView(scale: 0.6)
+        ShimmerView(widthRatio: 0.6)
           .frame(height: 20)
         
         VStack(spacing: .smallSpacing / 2) {
-          ShimmerView(scale: 0.8)
+          ShimmerView(widthRatio: 0.8)
             .frame(height: 15)
           
-          ShimmerView(scale: 0.6)
+          ShimmerView(widthRatio: 0.6)
             .frame(height: 15)
         }
       }
