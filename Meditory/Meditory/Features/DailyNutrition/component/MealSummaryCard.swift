@@ -7,17 +7,10 @@
 
 import SwiftUI
 
-struct MealSummaryView: View {
+struct MealSummaryCard: View {
   
-  let macros = [
-    MacroModel(macroType: .carbohydrate,
-               gram: 180),
-    MacroModel(macroType: .protein,
-               gram: 30),
-    MacroModel(macroType: .fat,
-               gram: 10)
-  ]
-  
+  let meal: MealInfo
+  // TODO: Food로 변경
   var body: some View {
     ZStack {
       Rectangle()
@@ -32,17 +25,17 @@ struct MealSummaryView: View {
             .font(.notoSans(weight: .bold, size: 18))
           
           HStack(spacing: 40) {
-            ForEach(macros) { macro in
+            ForEach(meal.macros.macroItems) { item in
               HStack {
                 Circle()
-                  .fill(macro.color)
+                  .fill(item.color)
                   .frame(width: 15, height: 15)
                 
                 HStack {
-                  Text(macro.label)
+                  Text(item.label)
                     .font(.notoSans(weight: .bold, size: 17))
                   
-                  Text("\(Int(macro.gram))g")
+                  Text("\(Int(item.gram))g")
                     .font(.notoSans(weight: .medium, size: 18))
                 }
               }
@@ -59,5 +52,16 @@ struct MealSummaryView: View {
 }
 
 #Preview {
-    MealSummaryView()
+  MealSummaryCard(meal: MealInfo(name: "아침",
+                                 foods: [FoodInfo(name: "짜장면",
+                                                  weight: 120,
+                                                  macros: .init(carbohydrate: 30,
+                                                                protein: 10,
+                                                                fat: 5)),
+                                         FoodInfo(name: "스파게티",
+                                                  weight: 150,
+                                                  macros: .init(carbohydrate: 40,
+                                                                protein: 50,
+                                                                fat: 10))
+                                 ]))
 }
