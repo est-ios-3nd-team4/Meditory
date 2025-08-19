@@ -56,14 +56,14 @@ final class GoogleCSEClientTests: XCTestCase {
     }
 
     // when
-    let r1 = try await client.fetchImageAndLink(for: brand, name: name)
-    let r2 = try await client.fetchImageAndLink(for: brand, name: name) // 같은 쿼리 -> 캐시 적중
+    let firstResult = try await client.fetchImageAndLink(for: brand, name: name)
+    let cachedResult = try await client.fetchImageAndLink(for: brand, name: name) // 같은 쿼리 -> 캐시 적중
 
     // then
     XCTAssertEqual(hitCount, 1, "같은 쿼리는 캐시 사용으로 한 번만 네트워크 호출되어야 함")
-    XCTAssertEqual(r1?.imageURL, "https://img.example.com/a.jpg")
-    XCTAssertEqual(r1?.productLink, "https://shop.example.com/p/1")
-    XCTAssertEqual(r2?.imageURL, "https://img.example.com/a.jpg")
+    XCTAssertEqual(firstResult?.imageURL, "https://img.example.com/a.jpg")
+    XCTAssertEqual(firstResult?.productLink, "https://shop.example.com/p/1")
+    XCTAssertEqual(cachedResult?.imageURL, "https://img.example.com/a.jpg")
   }
 
   func test_fetchImageAndLink_non200_throwsHTTPError() async {
