@@ -13,24 +13,23 @@ final class SupplementRoutineAIViewModel: ObservableObject {
   private let client: AlanAPIClient
   private let context: ModelContext
   private let userStore: UserStore
-  private let lifeStore: UserLifeStyleStore
+  private let lifestyle: UserLifeStyle
   private let routineStore: RoutineStore
 
   init(
     client: AlanAPIClient = AlanAPIClient(),
     context: ModelContext,
     userStore: UserStore = UserStore(),
-    lifeStore: UserLifeStyleStore = UserLifeStyleStore(),
+    lifestyle: UserLifeStyle,
     routineStore: RoutineStore = RoutineStore()
   ) {
     self.client = client
     self.context = context
     self.userStore = userStore
-    self.lifeStore = lifeStore
+    self.lifestyle = lifestyle
     self.routineStore = routineStore
 
     userStore.loadUser(context: context)
-    lifeStore.currentUser = userStore.currentUser
   }
 
   /// 상세 진입 전에 AI 추천을 적용합니다.
@@ -62,9 +61,7 @@ final class SupplementRoutineAIViewModel: ObservableObject {
     let gender = user?.gender ?? "미입력"
     let birth = user?.birthDate ?? Date(timeIntervalSince1970: 0)
     let (diseases, allergies, preg, breast) = loadExtraHealthInfo()
-
-    let lifestyle = lifeStore.fetchOrCreateLifestyle(context: context)
-
+    
     let today = Date()
     let routines = routineStore.fetchRoutines(for: today, context: context)
     let scheduleList: [String] = (routines.isEmpty ? [routine] : routines).compactMap { r in
@@ -87,7 +84,7 @@ final class SupplementRoutineAIViewModel: ObservableObject {
       isBreastfeeding: breast,
       supplementSchedule: scheduleList,
       dosageCycleHint: cycleHint,
-      lifestyle: lifestyle.map { SupplementInfoPrompt.LifestyleLoad.from($0) }
+      lifestyle: SupplementInfoPrompt.LifestyleLoad.from(lifestyle)
     )
 
     return SupplementInfoPrompt.makePrompt(user: input, productName: routine.displayName)
