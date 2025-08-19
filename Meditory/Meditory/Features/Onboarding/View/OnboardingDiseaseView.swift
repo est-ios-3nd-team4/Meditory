@@ -21,19 +21,7 @@ struct OnboardingDiseaseView: View {
   var onAction: ((QuestionModel) -> Void)?
   var body: some View {
     ScrollView {
-      HStack {
-        VStack(alignment: .leading) {
-          Text(prompt.title(name: name))
-            .font(.notoSans(weight: .bold, size: 28))
-            .padding(.vertical, 10)
-          if let info = prompt.info {
-            Text(info)
-              .font(.notoSans(weight: .bold, size: 16))
-              .foregroundStyle(.textGray)
-          }
-        }
-        Spacer()
-      }
+      TitleView(prompt: prompt)
       .padding([.horizontal], .defaultSpacing + 4)
       LazyVGrid(columns: columns, spacing: 24) {
         ForEach(items, id: \.title) { item in
