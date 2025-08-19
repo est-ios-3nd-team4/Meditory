@@ -5,11 +5,13 @@ import SwiftData
 struct SettingView: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.modelContext) private var context
+  
+  @Environment(\.userStore) private var userStore
+  
   @StateObject private var viewModel = SettingViewModel()
   
   // DB의 User 목록 자동 바인딩
   @Query private var users: [User]
-  private let userStore = UserStore()
   
   
   var body: some View {
@@ -56,12 +58,28 @@ struct SettingView: View {
             .font(.notoSans(size: 18))
         }
         
+        
+        // 임시 버튼들 (테스트용)
+        VStack {
+          Button("샘플 유저 생성") {
+            createSampleUser()
+          }
+          .buttonStyle(.borderedProminent)
+          
+          Button("모든 유저 삭제") {
+            deleteAllUsers()
+          }
+          .buttonStyle(.bordered)
+        }
+        
       }
       .padding()
       
       
     }
   }
+  
+  
   
   // 임시 함수라 나중에 삭제할 예정임
   // 샘플 유저 생성
@@ -72,15 +90,19 @@ struct SettingView: View {
       gender: "M",
       displayName: "샘플유저맨"
     )
-    userStore.addUser(sample, context: context)
-    userStore.loadUser(context: context)
+    Task {
+      await userStore.addUser(sample)
+    }
   }
   
   // 모든 유저 삭제
   private func deleteAllUsers() {
-    userStore.deleteAllUsers(context: context)
-    userStore.currentUser = nil
+    Task {
+      await userStore.deleteAllUsers()
+    }
   }
+  
+  
   
   // 둥근네모 만드는 함수
   @ViewBuilder
@@ -98,11 +120,8 @@ struct SettingView: View {
 }
 
 
-
 #Preview {
-  let container = try! ModelContainer(for: Setting.self, User.self)
-  return SettingView()
-    .modelContainer(container)
+  SettingView()
+    .modelContainer(DataController.shared.container)
+    .environment(\.userStore, UserStore.shared)
 }
-
-
