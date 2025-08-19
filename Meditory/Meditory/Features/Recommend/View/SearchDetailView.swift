@@ -1,10 +1,3 @@
-//
-//  SearchDetailView.swift
-//  Meditory
-//
-//  Created by Jaehun Kim on 8/12/25.
-//
-
 import SwiftUI
 
 struct SearchDetailView: View {
@@ -15,43 +8,75 @@ struct SearchDetailView: View {
 
   @State private var didSeedNutrients = false
   @State private var searchText = ""
+  @State private var presentedURL: URL?
+  @State private var isWebPresented = false
 
   init(query: String? = nil) {
     let safeQuery = query?.trimmingCharacters(in: .whitespacesAndNewlines)
     _searchVM = StateObject(
       wrappedValue: SearchDetailViewModel(query: safeQuery?.isEmpty == false ? safeQuery! : "비타민D")
     )
+    _searchText = State(initialValue: safeQuery?.isEmpty == false ? safeQuery! : "비타민D")
+  }
+
+  private func triggerSearch() {
+    Task { await searchVM.restart(with: searchText) }
   }
 
   var body: some View {
-    VStack {
+    VStack(spacing: 0) {
       ZStack {
         VStack(alignment: .leading) {
           ZStack(alignment: .trailing) {
-            // 검색창
-            NavigationLink(destination: SearchView()) {
-              HStack {
-                Text(searchText.isEmpty ? "영양성분 및 영양제를 검색해보세요!" : searchText)
-                  .foregroundColor(searchText.isEmpty ? .gray : .black)
-                  .font(.notoSans(weight: .medium, size: 15))
-                  .frame(maxWidth: .infinity, alignment: .leading)
+            HStack(spacing: 12) {
+              Button(action: { dismiss() }) {
+                Image(systemName: "chevron.left")
+                  .font(.title3)
+                  .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
+              }
 
+              HStack {
+              TextField("영양성분 또는 영양제를 검색해보세요!", text: $searchText)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled(true)
+                .submitLabel(.search)
+                .onSubmit { triggerSearch() }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .overlay(
+                  HStack {
+                    Spacer()
+
+                    if !searchText.isEmpty {
+                      Button {
+                        searchText = ""
+                      } label: {
+                        Image(systemName: "xmark.circle.fill")
+                          .foregroundColor(Color(.systemGray4))
+                          .padding(.trailing, .smallSpacing)
+                      }
+                    }
+                  }
+                )
+
+              Button {
+                triggerSearch()
+              } label: {
                 Image(systemName: "magnifyingglass")
-                  .foregroundColor(.gray)
+                  .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
 
               }
-              .padding(.vertical, 8)
-              .padding(.horizontal, 16)
-              .background(Color.white)
-              .cornerRadius(.defaultRadius)
-              .padding(16)
-              .modifier(UnifiedShadow())
+             }
+              .padding(.horizontal, 12)
+              .padding(.vertical, 10)
             }
-            .buttonStyle(PlainButtonStyle())
+            .padding(.vertical, 12)
+            .padding(.horizontal)
           }
         }
       }
-      .zIndex(0)
+      .background(colorScheme == .dark ? Color.black : Color.white)
+      .zIndex(1)
+      Divider()
 
       GeometryReader { geo in
         ScrollView(.vertical, showsIndicators: false) {
@@ -68,7 +93,11 @@ struct SearchDetailView: View {
                   imageURL: item.imageURL ?? "",
                   brand: item.brand ?? "브랜드 없음",
                   productName: item.name ?? "제품명 없음",
-                  link: item.link
+                  link: item.link,
+                  onOpen: { url in
+                    presentedURL = url
+                    isWebPresented = true
+                  }
                 )
                 .padding(.horizontal, 16)
                 .modifier(UnifiedShadow())
@@ -89,7 +118,7 @@ struct SearchDetailView: View {
                     .padding(.vertical, .defaultSpacing)
                 }
               }
-              .padding(.top, .smallSpacing)
+              .padding(.top, .defaultSpacing)
             }
           }
         }
@@ -100,25 +129,17 @@ struct SearchDetailView: View {
         await searchVM.loadFirstPage()
       }
     }
-    .background {
-      GeometryReader { geo in
-        let topH = geo.size.height * 0.5 + geo.safeAreaInsets.top
-        VStack(spacing: 0) {
-          (colorScheme == .dark ? Color.black : Color.main)
-            .frame(height: topH)
-            .ignoresSafeArea(edges: .top)
-
-          (colorScheme == .dark ? Color.black : Color.customBackground)
-            .ignoresSafeArea()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    .background(colorScheme == .dark ? Color.black : Color.customBackground)
+    .navigationBarHidden(true)
+    .sheet(isPresented: $isWebPresented, onDismiss: { presentedURL = nil }) {
+      if let url = presentedURL {
+        WebView(url: url)
       }
     }
-    .navigationBarHidden(true)
   }
 }
 
 
-//#Preview {
-//    SearchDetailView(query: "콜라겐")
-//}
+#Preview {
+  SearchDetailView(query: "콜라겐")
+}

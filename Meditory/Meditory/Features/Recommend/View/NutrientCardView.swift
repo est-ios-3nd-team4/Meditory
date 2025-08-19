@@ -17,6 +17,7 @@ struct NutrientChip: View {
 
 struct NutrientCardView: View {
   let nutrients: [String]
+  let onSeeDetail: () -> Void
   @Environment(\.colorScheme) private var colorScheme
 
   var body: some View {
@@ -27,10 +28,11 @@ struct NutrientCardView: View {
 
         Spacer()
 
-        NavigationLink(destination: RecommendNutrientsView()) {
+        Button {
+          onSeeDetail()
+        } label: {
           Image(systemName: "chevron.right")
             .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
-
         }
         .buttonStyle(PlainButtonStyle())
       }
@@ -55,6 +57,6 @@ struct NutrientCardView: View {
   }
 }
 
-#Preview {
-  NutrientCardView(nutrients: ["아연", "밀크씨슬", "히알루론산"])
-}
+//#Preview {
+//  NutrientCardView(nutrients: ["아연", "밀크씨슬", "히알루론산"])
+//}

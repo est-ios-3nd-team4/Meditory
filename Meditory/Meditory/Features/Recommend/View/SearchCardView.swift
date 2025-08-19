@@ -1,10 +1,3 @@
-//
-//  SearchCardView.swift
-//  Meditory
-//
-//  Created by Jaehun Kim on 8/12/25.
-//
-
 import SwiftUI
 
 struct SearchCardView: View {
@@ -12,6 +5,7 @@ struct SearchCardView: View {
   let brand: String
   let productName: String
   let link: String?
+  let onOpen: (URL) -> Void
 
   let imgSize: CGFloat = 100
 
@@ -56,7 +50,7 @@ struct SearchCardView: View {
 
       if let link = link, let url = URL(string: link) {
         Button {
-          openURL(url)
+          onOpen(url)
         } label: {
           Image(systemName: "chevron.right")
             .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
@@ -70,11 +64,11 @@ struct SearchCardView: View {
   }
 }
 
-#Preview {
-  SearchCardView(
-    imageURL: "https://pillyze.com/images/sample.jpg",
-    brand: "세라엑스",
-    productName: "혈당콜레스테롤 프로케어",
-    link: "https://pillyze.com/product/123"
-  )
-}
+//#Preview {
+//  SearchCardView(
+//    imageURL: "https://pillyze.com/images/sample.jpg",
+//    brand: "세라엑스",
+//    productName: "혈당콜레스테롤 프로케어",
+//    link: "https://pillyze.com/product/123", onOpen: <#(URL) -> Void#>
+//  )
+//}
