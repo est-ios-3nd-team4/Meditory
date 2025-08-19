@@ -18,7 +18,6 @@ extension RoutineStore {
 
   /// AI 추천 결과 Ruotine 반영
   func applyRecommendation(from dto: SupplementDTO, to routine: Routine, start: Date = Date(), context: ModelContext) {
-    routine.type = dto.type
     routine.usage = dto.usage
     routine.precautions = dto.precautions
 
@@ -37,17 +36,19 @@ extension RoutineStore {
 
     let newTimes: [RoutineTime] = timeSpecs.compactMap { spec in
       switch spec {
-      case let .absolute(h, m):
+      case let .absolute(h, m, pillsPerDose):
         return RoutineTime(
           time: Self.dateOn(startDate, hour: h, minute: m),
+          pillsPerDose: pillsPerDose,
           routine: routine
         )
 
-      case let .relative(ref, offset):
+      case let .relative(ref, offset, pillsPerDose):
         return RoutineTime(
           time: Self.dateOn(startDate, hour: 0, minute: 0),
           intakeTiming: Self.formattedOffset(for: ref, offset: offset),
           intakeOffsetMinutes: offset,
+          pillsPerDose: pillsPerDose,
           routine: routine
         )
       }

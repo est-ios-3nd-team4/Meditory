@@ -113,13 +113,14 @@ enum SupplementInfoPrompt {
   static let outputSchema = """
     [출력 JSON 형식]
     {
-      "type": Int, // 1=영양제, 2=약
-      "pillsPerDose": Int,
       "schedule": {
         "cycleType": Int, // 1=요일별, 2=주기별
         "times": [
-          { "hour": Int, "minute": Int }, // 절대 시각
-          { "relativeTo": String, "offsetMinutes": Int } // relativeTo=["기상","취침","아침","점심","저녁"]
+          { "hour": Int, "minute": Int, "pillsPerDose": Int }, // 절대 시각 및 1회 복용량 (ex: 오전 8시, 2정)
+          { "relativeTo": String, "offsetMinutes": Int, "pillsPerDose": Int } 
+            // relativeTo=["기상","취침","아침","점심","저녁"]
+            // 기준 이벤트(기상, 취침, 아침, 점심, 저녁)으로부터의 상대 시각 및 1회 복용량
+            // ex: 아침 식사 후 +30분, 1정
         ],
         "weekdays": [Int] | null, // cycleType=1이면 "weekdays": ["Int"]를 포함하고 "intervalDays"는 쓰지 않음, 월=0~일=6
         "intervalDays": Int | null  // cycleType=2이면 "intervalDays": "Int"를 포함하고 "weekdays"는 쓰지 않음, 며칠 간격
