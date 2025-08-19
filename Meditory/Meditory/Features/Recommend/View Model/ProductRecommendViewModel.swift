@@ -28,7 +28,7 @@ final class ProductRecommendViewModel: ObservableObject {
 
   private func makePrompt(for category: String) -> String {
     return """
-      다음과 같은 건강/영양제 카테고리에 적절한 제품(최소 5개이상)을 추천해줘.
+      다음과 같은 건강/영양제 카테고리에 적절한 제품(최소 5개이상 최대 10개이하)을 추천해줘.
           각 제품은 브랜드명과 제품명으로 구성해줘.
       
           카테고리: "\(category)"

@@ -8,25 +8,19 @@
 import SwiftData
 import SwiftUI
 
-enum FormField: Hashable {
-  case name
-  case birthDate
-  case height
-  case weight
-}
-
 struct OnboardingView: View {
-  let onFinished: () -> Void
-  @State private var currentStep: Step = .base
+  @Environment(\.modelContext) var context: ModelContext
 
   @StateObject var vm: OnboardingViewModel
   @StateObject private var keyboardObserver = KeyboardObserver()
   @FocusState private var focusedField: FormField?
 
-  @Environment(\.modelContext) var context: ModelContext
+  @State private var currentStep: Step = .base
+  @State private var isSelected: Bool = false
 
   private let buttonHeight: CGFloat = 50
   private let buttonTopSpacing: CGFloat = 8
+  private let onFinished: () -> Void
 
   init(userStore: UserStore, onFinished: @escaping () -> Void = {}) {
     self.onFinished = onFinished
@@ -36,15 +30,7 @@ struct OnboardingView: View {
   var body: some View {
     VStack {
       progressIndicator()
-      if currentStep == .base {
-        OnboardingBasicInfoView(
-          vm: vm,
-          focusedField: $focusedField,
-          bottomSpacing: keyboardObserver.bottomInset + 50
-        )
-      } else {
-        setContent(for: currentStep)
-      }
+      setContent(for: currentStep)
       Spacer(minLength: 0)
       nextButton()
     }
@@ -52,27 +38,19 @@ struct OnboardingView: View {
 
   @ViewBuilder
   func setContent(for step: Step) -> some View {
-    if let prompt = Step.prompt[step] {
+    if let prompt = Prompt.promptMessage[step] {
       let name = vm.name
       switch step {
+      case .base:
+        OnboardingBasicInfoView(vm: vm, focusedField: $focusedField, bottomSpacing: keyboardObserver.bottomInset + 50)
       case .gender:
         OnboardingGenderView(
           vm: vm,
+          isSelected: $isSelected,
           prompt: prompt,
           name: name,
-          isSelected: $vm.isSelected,
-          isValid: $vm.isValid,
-          selections: $vm.selectionSet,
-          image: Gender.male.image,
-          title: Gender.male.title,
-          secondImage: Gender.female.image,
-          secondTitle: Gender.female.title,
-          onAction: { model in
-            if vm.selectionSet.contains(model) {
-              vm.selectionSet.remove(model)
-            } else {
-              vm.selectionSet.insert(model)
-            }
+          onAction: {
+            selectItem(item: $0, vm: vm)
           }
         )
       case .allergy:
@@ -80,42 +58,26 @@ struct OnboardingView: View {
           prompt: prompt,
           name: name,
           selections: $vm.selectionSet,
-          isSelected: $vm.isSelected
-        ) { item in
-          if vm.selectionSet.contains(item) {
-            vm.selectionSet.remove(item)
-          } else {
-            vm.selectionSet.insert(item)
-          }
+          isSelected: $isSelected
+        ) {
+          selectItem(item: $0, vm: vm)
         }
       case .disease:
         OnboardingDiseaseView(
           prompt: prompt,
           name: name,
           selections: $vm.selectionSet,
-          isSelected: $vm.isSelected
-        ) { item in
-          if vm.selectionSet.contains(item) {
-            vm.selectionSet.remove(item)
-          } else {
-            vm.selectionSet.insert(item)
-          }
+          isSelected: $isSelected
+        ) {
+          selectItem(item: $0, vm: vm)
         }
       case .concern:
         OnboardingConcernView(
           prompt: prompt,
           name: name,
           selections: $vm.selectionSet,
-          isSelected: $vm.isSelected
-        ) { item in
-          if vm.selectionSet.contains(item) {
-            vm.selectionSet.remove(item)
-          } else {
-            vm.selectionSet.insert(item)
-          }
-        }
-      default:
-        EmptyView()
+          isSelected: $isSelected
+        ) { selectItem(item: $0, vm: vm) }
       }
     }
   }
@@ -151,12 +113,11 @@ struct OnboardingView: View {
           if currentStep == .base {
             vm.validateAllField()
           }
-          withAnimation {
-            currentStep = next
-          }
+          currentStep = next
         } else {
           onFinished()
           vm.signUp(context: context)
+          print(vm.selectionSet)
         }
       } label: {
         RoundedRectangle(cornerRadius: .smallRadius)
@@ -168,10 +129,18 @@ struct OnboardingView: View {
               .foregroundStyle(.white)
           }
       }
-      .disabled(!vm.isNextButtonOn)
+      //      .disabled(!vm.isNextButtonOn)
       .padding(.vertical, buttonTopSpacing)
     }
     .padding(.horizontal, .defaultSpacing + 4)
+  }
+
+  func selectItem(item: QuestionModel, vm: OnboardingViewModel) {
+    if vm.selectionSet.contains(item) {
+      vm.selectionSet.remove(item)
+    } else {
+      vm.selectionSet.insert(item)
+    }
   }
 }
 
