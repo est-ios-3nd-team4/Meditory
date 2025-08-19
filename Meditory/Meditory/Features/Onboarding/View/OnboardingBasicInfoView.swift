@@ -15,7 +15,7 @@ struct OnboardingBasicInfoView: View {
     ScrollViewReader { proxy in
       ScrollView(.vertical) {
         VStack {
-          if let prompt = Step.prompt[.base] {
+          if let prompt = Prompt.promptMessage[.base] {
             TitleView(prompt: prompt)
           }
           VStack(spacing: .defaultSpacing) {

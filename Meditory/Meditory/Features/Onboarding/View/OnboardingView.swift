@@ -38,7 +38,7 @@ struct OnboardingView: View {
 
   @ViewBuilder
   func setContent(for step: Step) -> some View {
-    if let prompt = Step.prompt[step] {
+    if let prompt = Prompt.promptMessage[step] {
       let name = vm.name
       switch step {
       case .base:
@@ -117,6 +117,7 @@ struct OnboardingView: View {
         } else {
           onFinished()
           vm.signUp(context: context)
+          print(vm.selectionSet)
         }
       } label: {
         RoundedRectangle(cornerRadius: .smallRadius)

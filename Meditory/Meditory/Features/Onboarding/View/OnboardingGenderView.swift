@@ -13,7 +13,7 @@ struct OnboardingGenderView: View {
   @Binding var isSelected: Bool
   @State var isGenderSelected: Bool = false
   @State private var hasInteracted = false
-  var prompt: PromptMessage
+  var prompt: Prompt
   var name: String
   var onAction: ((QuestionModel) -> Void)?
   var question = QuestionModel.feminineModel
@@ -107,7 +107,7 @@ struct OnboardingGenderView: View {
 
 #Preview {
   //  OnboardingGenderView(
-  //    vm: OnboardingViewModel(), prompt: PromptMessage(title: "성별"), name: "Jason",
+  //    vm: OnboardingViewModel(), prompt: promptMessage(title: "성별"), name: "Jason",
   //    isSelected: .constant(true),
   //    isGenderSelected: false,
   //    isValid: .constant(true),

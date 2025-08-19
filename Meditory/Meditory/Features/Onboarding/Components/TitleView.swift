@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TitleView: View {
-  var prompt:PromptMessage
+  var prompt:Prompt
   var name: String = ""
   var body: some View {
     HStack {
