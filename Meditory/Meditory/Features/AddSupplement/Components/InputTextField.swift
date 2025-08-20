@@ -44,7 +44,11 @@ struct InputTextField: UIViewRepresentable {
   }
   
   func updateUIView(_ uiView: UIViewType, context: Context) {
+    guard let textField = uiView as? UITextField else { return }
     
+    if textField.text != text {
+      textField.text = text
+    }
   }
   
   func makeCoordinator() -> Coordinator {

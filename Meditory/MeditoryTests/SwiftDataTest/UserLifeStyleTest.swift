@@ -78,26 +78,26 @@ final class UserLifeStyleTest: XCTestCase {
 
     // Then: 새 레코드가 생성되고 기본값이 세팅됨
     XCTAssertEqual(lifeStyle.user?.id, user.id)
-    XCTAssertEqual(lifeStyle.wakeTimeWeekday, "07:00")
-    XCTAssertEqual(lifeStyle.sleepTimeWeekday, "23:30")
-    XCTAssertEqual(lifeStyle.lunchWeekday, "12:00")
-    XCTAssertEqual(lifeStyle.dinnerWeekday, "19:00")
-    XCTAssertEqual(lifeStyle.lunchWeekend, "12:30")
-    XCTAssertEqual(lifeStyle.dinnerWeekend, "19:30")
+    XCTAssertEqual(lifeStyle.wakeTime, "07:00")
+    XCTAssertEqual(lifeStyle.sleepTime, "23:30")
+    XCTAssertEqual(lifeStyle.lunch, "12:00")
+    XCTAssertEqual(lifeStyle.dinner, "19:00")
+    XCTAssertEqual(lifeStyle.lunch, "12:30")
+    XCTAssertEqual(lifeStyle.dinner, "19:30")
   }
 
   /// 이미 있으면 같은 레코드를 반환해야 함
   func testFetchOrCreate_fetchWhenExisting() throws {
     // Given: 기존 레코드가 존재
     var lifeStyle = fetchOrCreate()
-    lifeStyle.wakeTimeWeekday = "08:00"
+    lifeStyle.wakeTime = "08:00"
     try context.save()
 
     // When: 다시 fetchOrCreate 호출
     lifeStyle = fetchOrCreate()
 
     // Then: 동일 레코드가 반환되고 값이 유지됨
-    XCTAssertEqual(lifeStyle.wakeTimeWeekday, "08:00")
+    XCTAssertEqual(lifeStyle.wakeTime, "08:00")
   }
 
   /// 같은 유저로 여러 번 호출해도 중복 생성 금지(1:1 보장)
@@ -135,39 +135,39 @@ final class UserLifeStyleTest: XCTestCase {
     store.setLifestyleTimes(
       lifeStyle,
       context: context,
-      breakfastWeekday: "08:00",
-      lunchWeekday: "12:30",
-      dinnerWeekday: "19:10"
+      breakfast: "08:00",
+      lunch: "12:30",
+      dinner: "19:10"
     )
 
     // Then: 값이 그대로 저장됨
     let fetched = fetchOrCreate()
-    XCTAssertEqual(fetched.breakfastWeekday, "08:00")
-    XCTAssertEqual(fetched.lunchWeekday, "12:30")
-    XCTAssertEqual(fetched.dinnerWeekday, "19:10")
+    XCTAssertEqual(fetched.breakfast, "08:00")
+    XCTAssertEqual(fetched.lunch, "12:30")
+    XCTAssertEqual(fetched.dinner, "19:10")
   }
 
   /// 일부 파라미터만 전달했을 때, 나머지는 보존되어야 함
   func testSetLifestyleTimes_partialUpdateKeepsExisting() throws {
     // Given: 기존에 lunchWeekday = "12:10" 저장
     let lifeStyle = fetchOrCreate()
-    lifeStyle.lunchWeekday = "12:10"
+    lifeStyle.lunch = "12:10"
     try context.save()
 
     // When: 일부만 업데이트(lunchWeekday는 nil → 보존)
     store.setLifestyleTimes(
       lifeStyle,
       context: context,
-      breakfastWeekday: "08:05",
-      lunchWeekday: nil,
-      dinnerWeekday: "19:20"
+      breakfast: "08:05",
+      lunch: nil,
+      dinner: "19:20"
     )
 
     // Then: 지정 필드만 바뀌고 나머지 보존
     let again = fetchOrCreate()
-    XCTAssertEqual(again.breakfastWeekday, "08:05")
-    XCTAssertEqual(again.lunchWeekday, "12:10")
-    XCTAssertEqual(again.dinnerWeekday, "19:20")
+    XCTAssertEqual(again.breakfast, "08:05")
+    XCTAssertEqual(again.lunch, "12:10")
+    XCTAssertEqual(again.dinner, "19:20")
   }
 
   /// Date 기반 업데이트가 저장되는지 (Date → "HH:mm" 제로패딩 확인)
@@ -179,14 +179,14 @@ final class UserLifeStyleTest: XCTestCase {
     store.setLifestyleTimesDate(
       lifeStyle,
       context: context,
-      breakfastWeekday: makeDate(7, 50),
-      lunchWeekend: makeDate(13, 5)
+      breakfast: makeDate(7, 50),
+      lunch: makeDate(13, 5)
     )
 
     // Then: "HH:mm" 제로패딩으로 저장
     let re = fetchOrCreate()
-    XCTAssertEqual(re.breakfastWeekday, "07:50")
-    XCTAssertEqual(re.lunchWeekend, "13:05")
+    XCTAssertEqual(re.breakfast, "07:50")
+    XCTAssertEqual(re.lunch, "13:05")
   }
 
   /// Date → "HH:mm" 변환이 09:07 형태로 제로패딩되는지
@@ -196,11 +196,11 @@ final class UserLifeStyleTest: XCTestCase {
 
     // When: 9:07을 Date로 설정
     store.setLifestyleTimesDate(lifeStyle, context: context,
-                                wakeWeekend: makeDate(9, 7))
+                                wakeTime: makeDate(9, 7))
 
     // Then: "09:07"로 저장
     let again = fetchOrCreate()
-    XCTAssertEqual(again.wakeTimeWeekend, "09:07")
+    XCTAssertEqual(again.wakeTime, "09:07")
   }
 
   /// 주말 오버라이드가 정상적으로 반영되는지
@@ -212,13 +212,13 @@ final class UserLifeStyleTest: XCTestCase {
     store.setLifestyleTimes(
       lifeStyle,
       context: context,
-      wakeWeekend: "09:30",
-      dinnerWeekend: "19:45"
+      wakeTime: "09:30",
+      dinner: "19:45"
     )
 
     // Then: 주말 오버라이드가 반영됨
     let again = fetchOrCreate()
-    XCTAssertEqual(again.wakeTimeWeekend, "09:30")
-    XCTAssertEqual(again.dinnerWeekend, "19:45")
+    XCTAssertEqual(again.wakeTime, "09:30")
+    XCTAssertEqual(again.dinner, "19:45")
   }
 }

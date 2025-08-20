@@ -75,6 +75,7 @@ struct OnboardingView: View {
         OnboardingConcernView(
           prompt: prompt,
           name: name,
+          itemCount: vm.selectionColunt,
           selections: $vm.selectionSet,
           isSelected: $isSelected
         ) { selectItem(item: $0, vm: vm) }
@@ -116,8 +117,8 @@ struct OnboardingView: View {
           currentStep = next
         } else {
           onFinished()
-          vm.signUp(context: context)
-          print(vm.selectionSet)
+          print(vm.printBasicInformation())
+
         }
       } label: {
         RoundedRectangle(cornerRadius: .smallRadius)
@@ -129,7 +130,7 @@ struct OnboardingView: View {
               .foregroundStyle(.white)
           }
       }
-      //      .disabled(!vm.isNextButtonOn)
+            .disabled(!vm.isNextButtonOn)
       .padding(.vertical, buttonTopSpacing)
     }
     .padding(.horizontal, .defaultSpacing + 4)

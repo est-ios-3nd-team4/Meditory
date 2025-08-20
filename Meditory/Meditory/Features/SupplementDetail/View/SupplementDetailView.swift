@@ -23,14 +23,11 @@ struct SupplementDetailView: View {
     ZStack {
       ScrollView(showsIndicators: false) {
         VStack(spacing: .defaultSpacing + 8) {
-          SupplementHeaderCard(title: vm.name, subtitle: vm.subtitle, emoji: "🩸")
+          SupplementHeaderCard(routine: vm.routine)
 
-          SplitScheduleCard(
-            selectedTab: $vm.selectedTab,
-            userTimes: vm.userTimes,
-            userCycle: vm.userCycle,
-            recTimes: vm.recTimes,
-            recCycle: vm.recCycle
+          SchedulePanel(
+            times: vm.userTimes,
+            cycle: vm.userCycle
           )
 
           if !vm.usage.isEmpty {
@@ -68,7 +65,7 @@ struct SupplementDetailView: View {
               .stroke(Color.red.opacity(0.2), lineWidth: 1.5)
           )
         }
-        .padding(.horizontal, .smallSpacing)
+        .padding(.horizontal, .defaultSpacing)
         .padding(.top, .defaultSpacing)
       }
     }
@@ -116,7 +113,6 @@ struct SupplementDetailView_Previews: PreviewProvider {
       cycleType: 1,
       cycleValue: "0", // 일요일
       startDate: Date(),
-      pillsPerDose: 1,
       memo: nil,
       hasPush: true,
       imageData: nil
@@ -135,7 +131,6 @@ struct SupplementDetailView_Previews: PreviewProvider {
       cycleType: 1,
       cycleValue: "1,3,5", // 월·수·금
       startDate: Date().addingTimeInterval(-86400 * 7),
-      pillsPerDose: 2,
       memo: "심장 건강",
       hasPush: false,
       imageData: nil

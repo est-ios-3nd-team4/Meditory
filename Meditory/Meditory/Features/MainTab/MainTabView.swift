@@ -29,7 +29,8 @@ struct MainTabView: View {
               case .recommend:
                 RecommendView()
               case .add:
-                Color.red
+                // 테스트를 위해 임시로 추가해두었습니다. 추후 수정 예정입니다.
+                AddSupplementView()
               case .dailyNutrition:
                 NutritionHomeView()
               case .settings:
