@@ -31,7 +31,8 @@ extension RoutineStore {
   }
 
   /// 추천 복용 시간 대체
-  private func replaceRecommendedTimes(of routine: Routine, with timeSpecs: [TimeSpec], startDate: Date) {
+  private func replaceRecommendedTimes(of routine: Routine, with doseTimes: [DoseTime], startDate: Date) {
+    /*
     routine.recommendedRoutineTimes.removeAll()
 
     let newTimes: [RoutineTime] = timeSpecs.compactMap { spec in
@@ -55,6 +56,7 @@ extension RoutineStore {
     }
 
     routine.recommendedRoutineTimes = newTimes
+     */
   }
 
   /// cycletype 따라서 변환
