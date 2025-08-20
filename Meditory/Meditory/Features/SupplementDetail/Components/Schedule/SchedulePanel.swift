@@ -36,7 +36,7 @@ struct SchedulePanel: View {
 
         VStack(spacing: 0) {
           ForEach(times.indices, id: \.self) { index in
-            TimeRow(timeText: times[index], accent: .orange)
+            TimeRow(timeText: times[index], prointColor: .orange)
           }
         }
       }

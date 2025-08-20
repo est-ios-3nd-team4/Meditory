@@ -9,14 +9,14 @@ import SwiftUI
 
 struct TimeRow: View {
   let timeText: String
-  let accent: Color
+  let prointColor: Color
 
   var body: some View {
     HStack(spacing: .defaultSpacing) {
       IconBadge(
         systemName: "clock.fill",
-        backgroundColor: accent.opacity(0.12),
-        foregroundColor: accent
+        backgroundColor: prointColor.opacity(0.12),
+        foregroundColor: prointColor
       )
 
       let comps = timeText.split(separator: " ").map(String.init)
@@ -35,7 +35,7 @@ struct TimeRow: View {
       Text(hm.isEmpty ? timeText : hm)
         .font(.notoSans(size: 15))
         .fontWeight(.bold)
-        .foregroundStyle(accent)
+        .foregroundStyle(prointColor)
     }
     .padding(.vertical, .smallSpacing)
   }
