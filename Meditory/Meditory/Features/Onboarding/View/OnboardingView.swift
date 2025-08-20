@@ -116,7 +116,9 @@ struct OnboardingView: View {
           currentStep = next
         } else {
           onFinished()
-          vm.signUp(context: context)
+          Task {
+            await vm.signUp(context: context)
+          }
           print(vm.selectionSet)
         }
       } label: {

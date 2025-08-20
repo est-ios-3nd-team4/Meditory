@@ -10,10 +10,10 @@ import SwiftData
 import Foundation
 
 @Model
-final class UserLifeStyle {
+final class UserLifeStyle: @unchecked Sendable {
   @Attribute(.unique) var id: UUID
   @Relationship(inverse: \User.userLifeStyle) var user: User?
-
+  
   // 수면/기상
   var wakeTime: String
   var sleepTime: String
