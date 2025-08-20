@@ -91,7 +91,6 @@ struct SupplementHeaderCard: View {
       cycleType: 1,
       cycleValue: "0",
       startDate: Date(),
-      pillsPerDose: 1
     )
   )
   .padding()
@@ -108,7 +107,6 @@ struct SupplementHeaderCard: View {
       cycleType: 1,
       cycleValue: "1,3,5",
       startDate: Date(),
-      pillsPerDose: 2
     )
   )
   .padding()
@@ -126,7 +124,6 @@ struct SupplementHeaderCard: View {
       cycleType: 1,
       cycleValue: "2,4,6",
       startDate: Date(),
-      pillsPerDose: 1
     )
   )
   .padding()
@@ -143,7 +140,6 @@ struct SupplementHeaderCard: View {
       cycleType: 1,
       cycleValue: "매일",
       startDate: Date(),
-      pillsPerDose: 1
     )
   )
   .padding()
