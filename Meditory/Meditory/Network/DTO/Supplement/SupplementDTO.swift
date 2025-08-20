@@ -11,27 +11,29 @@ import Foundation
 extension SupplementScheduleType: Codable {}
 
 enum TimeSpec: Codable, Equatable {
-  case absolute(hour: Int, minute: Int)
-  case relative(relativeTo: String, offsetMinutes: Int)
+  case absolute(hour: Int, minute: Int, pillsPerDose: Int)
+  case relative(relativeTo: String, offsetMinutes: Int, pillsPerDose: Int)
 
   private struct AbsDTO: Codable {
     let hour: Int
     let minute: Int
+    let pillsPerDose: Int
   }
 
   private struct RelDTO: Codable {
     let relativeTo: String
     let offsetMinutes: Int
+    let pillsPerDose: Int
   }
 
   init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     if let abs = try? container.decode(AbsDTO.self) {
-      self = .absolute(hour: abs.hour, minute: abs.minute)
+      self = .absolute(hour: abs.hour, minute: abs.minute, pillsPerDose: abs.pillsPerDose)
       return
     }
     if let rel = try? container.decode(RelDTO.self) {
-      self = .relative(relativeTo: rel.relativeTo, offsetMinutes: rel.offsetMinutes)
+      self = .relative(relativeTo: rel.relativeTo, offsetMinutes: rel.offsetMinutes, pillsPerDose: rel.pillsPerDose)
       return
     }
     throw DecodingError.dataCorruptedError(in: container, debugDescription: "TimeSpec 형식 오류")
@@ -41,10 +43,10 @@ enum TimeSpec: Codable, Equatable {
     var container = encoder.singleValueContainer()
 
     switch self {
-    case let .absolute(h, m):
-      try container.encode(AbsDTO(hour: h, minute: m))
-    case let .relative(ref, off):
-      try container.encode(RelDTO(relativeTo: ref, offsetMinutes: off))
+    case let .absolute(h, m, pillsPerDose):
+      try container.encode(AbsDTO(hour: h, minute: m, pillsPerDose: pillsPerDose))
+    case let .relative(ref, off, pillsPerDose):
+      try container.encode(RelDTO(relativeTo: ref, offsetMinutes: off, pillsPerDose: pillsPerDose))
     }
   }
 }
@@ -61,8 +63,6 @@ struct DoseSchedule: Codable {
 
 /// LLM 응답 DTO
 struct SupplementDTO: Codable {
-  var type: Int // 1=영양제, 2=약
-  var pillsPerDose: Int // 몇 정
   var schedule: DoseSchedule // 추천 일정
   var usage: [String] // 복용법
   var precautions: [String] // 복용 시 주의 사항

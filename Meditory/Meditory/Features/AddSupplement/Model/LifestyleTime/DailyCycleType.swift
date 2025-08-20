@@ -8,14 +8,14 @@
 import Foundation
 
 enum DailyCycleType: String, LifestyleTime {
-  case wakeUp
-  case bedTime
+  case wakeTime
+  case sleepTime
   
   var title: String {
     switch self {
-    case .wakeUp:
+    case .wakeTime:
       return "기상 시간"
-    case .bedTime:
+    case .sleepTime:
       return "취침 시간"
     }
   }

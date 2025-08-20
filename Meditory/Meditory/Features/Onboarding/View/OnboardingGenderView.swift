@@ -9,48 +9,22 @@ import SwiftUI
 
 struct OnboardingGenderView: View {
   @ObservedObject var vm: OnboardingViewModel
-  var prompt:PromptMessage
-  var name:String
+  @Environment(\.colorScheme) var colorScheme
   @Binding var isSelected: Bool
   @State var isGenderSelected: Bool = false
-  @Binding var isValid: Bool?
   @State private var hasInteracted = false
-  @Binding var selections: Set<QuestionModel>
-  var image: String
-  var title: String
-  var action: (() -> Void)?
-  var secondImage: String
-  var secondTitle: String
-  var secondAction: (() -> Void)?
+  var prompt: Prompt
+  var name: String
   var onAction: ((QuestionModel) -> Void)?
   var question = QuestionModel.feminineModel
-  @Environment(\.colorScheme) var colorScheme
 
   var body: some View {
     VStack {
-      HStack {
-        VStack(alignment: .leading) {
-          Text(prompt.title(name: name))
-            .font(.notoSans(weight: .bold, size: 28))
-            .padding(.vertical, 10)
-          if let subtitle = prompt.subtitle {
-            Text(subtitle)
-              .font(.notoSans(weight: .bold, size: 16))
-              .foregroundStyle(.textGray)
-          } else if let info = prompt.info {
-            Text(info)
-              .font(.notoSans(weight: .bold, size: 16))
-              .foregroundStyle(.textGray)
-          }
-        }
-        Spacer()
-      }
-      .padding(.bottom, .defaultSpacing + 4)
-//        TopTitleView(prompt: prompt)
+      TitleView(prompt: prompt)
       HStack(spacing: .defaultSpacing * 2) {
         Spacer()
         VStack(spacing: .defaultSpacing + 8) {
-          Image(image)
+          Image(Gender.male.image)
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: 80, height: 80)
@@ -68,17 +42,16 @@ struct OnboardingGenderView: View {
                 }
             )
             .onTapGesture {
-              action?()
               isGenderSelected = true
               hasInteracted = true
               vm.gender = Gender.male.title
             }
-          Text(title)
+          Text(Gender.male.title)
             .font(.headline)
         }
         Spacer()
         VStack(spacing: .defaultSpacing + 8) {
-          Image(secondImage)
+          Image(Gender.female.image)
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: 80, height: 80)
@@ -96,18 +69,17 @@ struct OnboardingGenderView: View {
                 }
             )
             .onTapGesture {
-              secondAction?()
               isGenderSelected = false
               hasInteracted = true
               vm.gender = Gender.female.title
             }
-          Text(secondTitle)
+          Text(Gender.female.title)
             .font(.headline)
         }
         Spacer()
       }
       .onChange(of: isSelected) {
-        if isSelected { isValid = true }
+        if isSelected { vm.isValid = true }
       }
     }
     .padding(.horizontal, .defaultSpacing + 4)
@@ -120,7 +92,7 @@ struct OnboardingGenderView: View {
           .foregroundStyle(.textGray)
       }
       ForEach(question, id: \.self) { item in
-        RowItemCell(model: item, isSelected: selections.contains(item))
+        RowItemCell(model: item, isSelected: vm.selectionSet.contains(item))
           .onTapGesture {
             onAction?(item)
           }
@@ -134,18 +106,18 @@ struct OnboardingGenderView: View {
 }
 
 #Preview {
-//  OnboardingGenderView(
-//    vm: OnboardingViewModel(), prompt: PromptMessage(title: "성별"), name: "Jason",
-//    isSelected: .constant(true),
-//    isGenderSelected: false,
-//    isValid: .constant(true),
-//    selections: .constant(.init()),
-//    image: "male_icon",
-//    title: "남성",
-//    action: nil,
-//    secondImage: "female_icon",
-//    secondTitle: "여성",
-//    secondAction: nil,
-//
-//  )
+  //  OnboardingGenderView(
+  //    vm: OnboardingViewModel(), prompt: promptMessage(title: "성별"), name: "Jason",
+  //    isSelected: .constant(true),
+  //    isGenderSelected: false,
+  //    isValid: .constant(true),
+  //    selections: .constant(.init()),
+  //    image: "male_icon",
+  //    title: "남성",
+  //    action: nil,
+  //    secondImage: "female_icon",
+  //    secondTitle: "여성",
+  //    secondAction: nil,
+  //
+  //  )
 }

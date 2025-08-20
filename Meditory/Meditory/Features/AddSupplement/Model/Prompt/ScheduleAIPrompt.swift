@@ -1,5 +1,5 @@
 //
-//  SupplementInfoPrompt.swift
+//  ScheduleAIPrompt.swift
 //  Meditory
 //
 //  Created by 윤혜주 on 8/14/25.
@@ -7,56 +7,36 @@
 
 import Foundation
 
-enum SupplementInfoPrompt {
+enum ScheduleAIPrompt {
 
   struct LifestyleLoad: Sendable {
-    var wakeTimeWeekday: String?
-    var sleepTimeWeekday: String?
-    var wakeTimeWeekend: String?
-    var sleepTimeWeekend: String?
-    var breakfastWeekday: String?
-    var lunchWeekday: String?
-    var dinnerWeekday: String?
-    var breakfastWeekend: String?
-    var lunchWeekend: String?
-    var dinnerWeekend: String?
+    var wakeTime: String?
+    var sleepTime: String?
+    var breakfast: String?
+    var lunch: String?
+    var dinner: String?
 
     init(
-      wakeTimeWeekday: String? = nil,
-      sleepTimeWeekday: String? = nil,
-      wakeTimeWeekend: String? = nil,
-      sleepTimeWeekend: String? = nil,
-      breakfastWeekday: String? = nil,
-      lunchWeekday: String? = nil,
-      dinnerWeekday: String? = nil,
-      breakfastWeekend: String? = nil,
-      lunchWeekend: String? = nil,
-      dinnerWeekend: String? = nil
+      wakeTime: String? = nil,
+      sleepTime: String? = nil,
+      breakfast: String? = nil,
+      lunch: String? = nil,
+      dinner: String? = nil,
     ) {
-      self.wakeTimeWeekday = wakeTimeWeekday
-      self.sleepTimeWeekday = sleepTimeWeekday
-      self.wakeTimeWeekend = wakeTimeWeekend
-      self.sleepTimeWeekend = sleepTimeWeekend
-      self.breakfastWeekday = breakfastWeekday
-      self.lunchWeekday = lunchWeekday
-      self.dinnerWeekday = dinnerWeekday
-      self.breakfastWeekend = breakfastWeekend
-      self.lunchWeekend = lunchWeekend
-      self.dinnerWeekend = dinnerWeekend
+      self.wakeTime = wakeTime
+      self.sleepTime = sleepTime
+      self.breakfast = breakfast
+      self.lunch = lunch
+      self.dinner = dinner
     }
 
     static func from(_ ls: UserLifeStyle) -> LifestyleLoad {
       .init(
-        wakeTimeWeekday: ls.wakeTimeWeekday,
-        sleepTimeWeekday: ls.sleepTimeWeekday,
-        wakeTimeWeekend: ls.wakeTimeWeekend,
-        sleepTimeWeekend: ls.sleepTimeWeekend,
-        breakfastWeekday: ls.breakfastWeekday,
-        lunchWeekday: ls.lunchWeekday,
-        dinnerWeekday: ls.dinnerWeekday,
-        breakfastWeekend: ls.breakfastWeekend,
-        lunchWeekend: ls.lunchWeekend,
-        dinnerWeekend: ls.dinnerWeekend
+        wakeTime: ls.wakeTime,
+        sleepTime: ls.sleepTime,
+        breakfast: ls.breakfast,
+        lunch: ls.lunch,
+        dinner: ls.dinner
       )
     }
   }
@@ -69,7 +49,6 @@ enum SupplementInfoPrompt {
     var isPregnant: Bool
     var isBreastfeeding: Bool
     var supplementSchedule: [String]
-    var dosageCycleHint: String?
     var lifestyle: LifestyleLoad?
 
     init(
@@ -80,7 +59,6 @@ enum SupplementInfoPrompt {
       isPregnant: Bool,
       isBreastfeeding: Bool,
       supplementSchedule: [String],
-      dosageCycleHint: String? = nil,
       lifestyle: LifestyleLoad? = nil
     ) {
       self.gender = gender
@@ -90,7 +68,6 @@ enum SupplementInfoPrompt {
       self.isPregnant = isPregnant
       self.isBreastfeeding = isBreastfeeding
       self.supplementSchedule = supplementSchedule
-      self.dosageCycleHint = dosageCycleHint
       self.lifestyle = lifestyle
     }
 
@@ -113,7 +90,6 @@ enum SupplementInfoPrompt {
         isPregnant: isPregnant,
         isBreastfeeding: isBreastfeeding,
         supplementSchedule: supplementSchedule,
-        dosageCycleHint: dosageCycleHint,
         lifestyle: lifestyle.map { LifestyleLoad.from($0) }
       )
     }
@@ -133,13 +109,14 @@ enum SupplementInfoPrompt {
   static let outputSchema = """
     [출력 JSON 형식]
     {
-      "type": Int, // 1=영양제, 2=약
-      "pillsPerDose": Int,
       "schedule": {
         "cycleType": Int, // 1=요일별, 2=주기별
         "times": [
-          { "hour": Int, "minute": Int }, // 절대 시각
-          { "relativeTo": String, "offsetMinutes": Int } // relativeTo=["기상","취침","아침","점심","저녁"]
+          { "hour": Int, "minute": Int, "pillsPerDose": Int }, // 절대 시각 및 1회 복용량 (ex: 오전 8시, 2정)
+          { "relativeTo": String, "offsetMinutes": Int, "pillsPerDose": Int } 
+            // relativeTo=["기상","취침","아침","점심","저녁"]
+            // 기준 이벤트(기상, 취침, 아침, 점심, 저녁)으로부터의 상대 시각 및 1회 복용량
+            // ex: 아침 식사 후 +30분, 1정
         ],
         "weekdays": [Int] | null, // cycleType=1이면 "weekdays": ["Int"]를 포함하고 "intervalDays"는 쓰지 않음, 월=0~일=6
         "intervalDays": Int | null  // cycleType=2이면 "intervalDays": "Int"를 포함하고 "weekdays"는 쓰지 않음, 며칠 간격
@@ -167,35 +144,24 @@ enum SupplementInfoPrompt {
     let preg = user.isPregnant ? "예" : "아니오"
     let breast = user.isBreastfeeding ? "예" : "아니오"
     let items = user.supplementSchedule.isEmpty ? "없음" : user.supplementSchedule.joined(separator: ", ")
-    let cycle = user.dosageCycleHint ?? "미입력"
 
 
     // user의 lifestyle이 입력되어 있지 않다면 한국 직장인 평균(GPT 피셜) 기준으로 넣음
     let defaultLifestyle = LifestyleLoad(
-      wakeTimeWeekday: "07:00",
-      sleepTimeWeekday: "23:30",
-      wakeTimeWeekend: "08:30",
-      sleepTimeWeekend: "00:30",
-      breakfastWeekday: "07:30",
-      lunchWeekday: "12:30",
-      dinnerWeekday: "19:00",
-      breakfastWeekend: "09:00",
-      lunchWeekend: "13:00",
-      dinnerWeekend: "19:00"
+      wakeTime: "07:00",
+      sleepTime: "23:30",
+      breakfast: "07:30",
+      lunch: "12:30",
+      dinner: "19:00"
     )
 
     let ls = user.lifestyle ?? defaultLifestyle
     let lifestyleBlock = """
-     - 평일 기상: \(show(ls.wakeTimeWeekday))
-     - 평일 취침: \(show(ls.sleepTimeWeekday))
-     - 평일 아침: \(show(ls.breakfastWeekday))
-     - 평일 점심: \(show(ls.lunchWeekday))
-     - 평일 저녁: \(show(ls.dinnerWeekday))
-     - 주말 기상: \(show(ls.wakeTimeWeekend))
-     - 주말 취침: \(show(ls.sleepTimeWeekend))
-     - 주말 아침: \(show(ls.breakfastWeekend))
-     - 주말 점심: \(show(ls.lunchWeekend))
-     - 주말 저녁: \(show(ls.dinnerWeekend))
+     - 기상 시간: \(show(ls.wakeTime))
+     - 취침 시간: \(show(ls.sleepTime))
+     - 아침 식사 시간: \(show(ls.breakfast))
+     - 점심 식사 시간: \(show(ls.lunch))
+     - 저녁 식사 시간: \(show(ls.dinner))
      """
 
     return """
@@ -207,7 +173,6 @@ enum SupplementInfoPrompt {
      * 임신: \(preg)
      * 수유: \(breast)
      * 복용 중 항목 및 시간: \(items)
-     * 복용 주기: \(cycle)
      
      [LifeStyle]
      \(lifestyleBlock)

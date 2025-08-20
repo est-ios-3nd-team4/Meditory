@@ -19,7 +19,6 @@ class OnboardingViewModel: ObservableObject {
   var weight: Double = 0.0
   var gender = ""
   var isViewApearing = false
-  var isSelected = false
   var isGenderSelected = false
   var selectionSet: Set<QuestionModel> = []
   var isPregnancy = false

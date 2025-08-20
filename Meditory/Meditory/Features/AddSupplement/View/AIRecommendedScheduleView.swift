@@ -54,21 +54,14 @@ struct AIRecommendedScheduleView: View {
       }
       
       if isSkeletonVisible {
-        let rectangleHeight: CGFloat = 15
         let scales: [CGFloat] = [0.4, 0.6, 0.5]
-        let saclesCount = CGFloat(scales.count)
-        let spacing: CGFloat = 8
         
-        GeometryReader { geometry in
-          let width = geometry.size.width
-          
-          VStack(alignment: .leading, spacing: spacing) {
-            ForEach(Array(scales.enumerated()), id: \.offset) { idx, scale in
-              ShimmerBar(width: width, height: 15, scale: scale)
-            }
+        VStack(alignment: .leading, spacing: .smallSpacing) {
+          ForEach(Array(scales.enumerated()), id: \.offset) { idx, scale in
+            ShimmerView(widthRatio: scale)
+              .frame(height: 15)
           }
         }
-        .frame(height: rectangleHeight * saclesCount + spacing * (saclesCount - 1))
       }
       
       Spacer()
@@ -95,48 +88,5 @@ struct AIRecommendedScheduleView: View {
         )
         .modifier(UnifiedShadow())
     )
-  }
-}
-
-
-fileprivate struct ShimmerBar: View {
-  
-  @Environment(\.colorScheme) private var colorScheme
-
-  let width: CGFloat
-  let height: CGFloat
-  let scale: CGFloat
-  
-  @State private var phase: CGFloat = .zero
-  
-  var body: some View {
-    let whiteScale = colorScheme == .dark ? 0.25 : 0.92
-    
-    RoundedRectangle(cornerRadius: height / 2)
-      .fill(Color(white: whiteScale))
-      .frame(width: width * scale, height: height)
-      .overlay(
-        LinearGradient(
-          gradient: Gradient(colors: [
-            .clear,
-            .background.opacity(0.3),
-            .clear
-          ]),
-          startPoint: .leading,
-          endPoint: .trailing
-        )
-        .frame(width: width * 0.3)
-        .offset(x: phase)
-        .mask(
-          RoundedRectangle(cornerRadius: height / 2)
-            .frame(width: width * scale, height: height)
-        )
-      )
-      .onAppear {
-        phase = -(width * 0.3)
-        withAnimation(.linear(duration: 2).repeatForever(autoreverses: false)) {
-          phase = width
-        }
-      }
   }
 }

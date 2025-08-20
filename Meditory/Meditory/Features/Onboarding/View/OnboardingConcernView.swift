@@ -14,36 +14,22 @@ struct OnboardingConcernView: View {
     GridItem(.flexible()),
     GridItem(.flexible()),
   ]
-  let prompt: PromptMessage
+  let prompt: Prompt
   let name: String
   @Binding var selections: Set<QuestionModel>
   @Binding var isSelected: Bool
   var onAction: ((QuestionModel) -> Void)?
   var body: some View {
     ScrollView {
-    HStack {
-      VStack(alignment: .leading) {
-        Text(prompt.title(name: name))
-          .font(.notoSans(weight: .bold, size: 28))
-          .padding(.vertical, 10)
-        if let info = prompt.info {
-          Text(info)
-            .font(.notoSans(weight: .bold, size: 16))
-            .foregroundStyle(.textGray)
-        }
-      }
-      Spacer()
-    }
-    .padding([.horizontal], .defaultSpacing + 4)
-      LazyVGrid(columns: columns,spacing: 24) {
-        ForEach(items, id: \.title) { item in
-          CollectionItemCell(model: item, isSelected: selections.contains(item))
-            .onTapGesture {
-              onAction?(item)
-            }
-        }
-      }
-      .padding(.horizontal,.defaultSpacing + 4)
+      TitleView(prompt: prompt)
+        .padding([.horizontal], .defaultSpacing + 4)
+      OnboardingFlowLayoutLineLimit(items: items, content: { item in
+        CapsuleShappedText(title: item.title,isSelected: selections.contains(item))
+          .onTapGesture {
+            onAction?(item)
+          }
+      })
+      .padding(.horizontal, .defaultSpacing + 4)
     }
     .scrollIndicators(.never)
   }
@@ -51,7 +37,7 @@ struct OnboardingConcernView: View {
 
 #Preview {
   OnboardingConcernView(
-    prompt: PromptMessage(title: "고민되시거나 개선하고 싶은 건강 고민을 선택해주세요"),
+    prompt: Prompt(title: "고민되시거나 개선하고 싶은 건강 고민을 선택해주세요"),
     name: "Jason",
     selections: .constant(.init()),
     isSelected: .constant(false)

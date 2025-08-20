@@ -122,7 +122,6 @@ struct HomeView_Previews: PreviewProvider {
       cycleType: 1,
       cycleValue: "0", // 월=0
       startDate: Date(),
-      pillsPerDose: 1,
       memo: nil,
       hasPush: true,
       imageData: nil
@@ -145,7 +144,6 @@ struct HomeView_Previews: PreviewProvider {
       cycleType: 1,
       cycleValue: "1, 3, 5", // 월·수·금
       startDate: Date().addingTimeInterval(-86400 * 7),
-      pillsPerDose: 2,
       memo: "심장 건강",
       hasPush: false,
       imageData: nil
@@ -168,7 +166,6 @@ struct HomeView_Previews: PreviewProvider {
       cycleType: 2,
       cycleValue: "2", // 2일 간격
       startDate: Date().addingTimeInterval(-86400 * 14),
-      pillsPerDose: 1,
       memo: nil,
       hasPush: true,
       imageData: nil
@@ -191,7 +188,6 @@ struct HomeView_Previews: PreviewProvider {
       cycleType: 1,
       cycleValue: "2, 4, 6", // 화·목·토
       startDate: Date().addingTimeInterval(-86400 * 3),
-      pillsPerDose: 1,
       memo: "장 건강",
       hasPush: false,
       imageData: nil

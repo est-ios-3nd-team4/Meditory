@@ -30,7 +30,7 @@ final class GoogleCSEClientTests: XCTestCase {
   // MARK: - fetchImageAndLink
 
   func test_fetchImageAndLink_success_parsesAndCaches() async throws {
-    // given
+
     let brand = "스포츠리서치"
     let name  = "트리플 스트렝스 오메가3 피쉬오일"
 
@@ -55,11 +55,13 @@ final class GoogleCSEClientTests: XCTestCase {
       return (json.data(using: .utf8), resp, nil)
     }
 
-    // when
     let firstResult = try await client.fetchImageAndLink(for: brand, name: name)
-    let cachedResult = try await client.fetchImageAndLink(for: brand, name: name) // 같은 쿼리 -> 캐시 적중
 
-    // then
+      try await Task.sleep(nanoseconds: 50_000_000)
+
+    // 같은 쿼리 -> 캐시 적중
+    let cachedResult = try await client.fetchImageAndLink(for: brand, name: name)
+
     XCTAssertEqual(hitCount, 1, "같은 쿼리는 캐시 사용으로 한 번만 네트워크 호출되어야 함")
     XCTAssertEqual(firstResult?.imageURL, "https://img.example.com/a.jpg")
     XCTAssertEqual(firstResult?.productLink, "https://shop.example.com/p/1")
@@ -67,19 +69,15 @@ final class GoogleCSEClientTests: XCTestCase {
   }
 
   func test_fetchImageAndLink_non200_throwsHTTPError() async {
-    // given
     MockURLProtocol.requestHandler = { req in
       let resp = HTTPURLResponse(url: req.url!, statusCode: 500, httpVersion: nil, headerFields: nil)!
       return ("SERVER ERR".data(using: .utf8), resp, nil)
     }
 
-    // when
     do {
       _ = try await client.fetchImageAndLink(for: "A", name: "B")
       XCTFail("여기 오면 안 됨")
     } catch {
-      // then
-      // CSEError.http(status:body:) 형태일 것. 타입이 다르면 일반 오류로만 체크
       if case let CSEError.http(status, _) = error {
         XCTAssertEqual(status, 500)
       } else {
@@ -89,19 +87,16 @@ final class GoogleCSEClientTests: XCTestCase {
   }
 
   func test_fetchImageAndLink_decodeError_throwsDecode() async {
-    // given
     MockURLProtocol.requestHandler = { req in
       let resp = HTTPURLResponse(url: req.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
       return ("{ invalid json".data(using: .utf8), resp, nil)
     }
 
-    // when
     do {
       _ = try await client.fetchImageAndLink(for: "A", name: "B")
       XCTFail("여기 오면 안 됨")
     } catch {
       if case CSEError.decode = error {
-        // ok
       } else {
         XCTFail("CSEError.decode 가 나와야 함, got: \(error)")
       }
@@ -109,22 +104,19 @@ final class GoogleCSEClientTests: XCTestCase {
   }
 
   func test_fetchImageAndLink_noItems_returnsNil() async throws {
-    // given
     let json = #"{"items": []}"#
     MockURLProtocol.requestHandler = { req in
       let resp = HTTPURLResponse(url: req.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
       return (json.data(using: .utf8), resp, nil)
     }
 
-    // when
     let result = try await client.fetchImageAndLink(for: "X", name: "Y")
 
-    // then
     XCTAssertNil(result, "아이템이 없으면 nil 리턴")
   }
 
   func test_fetchImageAndLink_emptyAPIKeyOrCX_returnsNil_noRequest() async throws {
-    // given: 키/식별자 없음 -> 조기 반환
+    // 키/식별자 없음 -> 조기 반환
     let emptyClient = GoogleCSEImageClient(apiKey: "", cx: "", titleParser: StubTitleParser(), session: session)
 
     // 요청이 오면 실패하도록 핸들러 설정
@@ -134,17 +126,16 @@ final class GoogleCSEClientTests: XCTestCase {
       return (Data(), resp, nil)
     }
 
-    // when
+
     let result = try await emptyClient.fetchImageAndLink(for: "brand", name: "name")
 
-    // then
+
     XCTAssertNil(result)
   }
 
   // MARK: - fetchPillyzePage
 
   func test_fetchPillyzePage_success_parsesTwoProducts() async throws {
-    // given
     let json = """
     {
       "items": [

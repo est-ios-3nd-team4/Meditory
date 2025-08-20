@@ -1,5 +1,5 @@
 //
-//  TopTitleView.swift
+//  TitleView.swift
 //  Meditory
 //
 //  Created by hyunsic on 8/14/25.
@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct TopTitleView: View {
-  var prompt:PromptMessage
+struct TitleView: View {
+  var prompt:Prompt
   var name: String = ""
   var body: some View {
     HStack {
