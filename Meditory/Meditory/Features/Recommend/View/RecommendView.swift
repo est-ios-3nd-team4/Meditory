@@ -28,6 +28,8 @@ struct RecommendView: View {
 
   @State private var items: [Product] = []
 
+  @State private var latestScore: Int? = nil
+
   private let imageService = GoogleCSEImageClient()
 
   private let useDummy = true
@@ -191,7 +193,7 @@ struct RecommendView: View {
   }
 
   private var recommendContent: some View {
-    VStack(spacing: 24) {
+    VStack(spacing: 16) {
       Color.clear
         .frame(height: 1)
         .background(
@@ -230,10 +232,14 @@ struct RecommendView: View {
       )
       .id(nutrientVM.chip.joined(separator: "|"))
       .padding(.horizontal, 16)
+      .padding(.top, 8)
       .modifier(UnifiedShadow())
 
-      ScoreView()
+      ScoreView(onResultUpdate: { result in
+            latestScore = result.score
+          })
         .padding(.horizontal, 16)
+        .padding(.top, 8)
         .modifier(UnifiedShadow())
         .padding(.bottom, .defaultSpacing)
     }

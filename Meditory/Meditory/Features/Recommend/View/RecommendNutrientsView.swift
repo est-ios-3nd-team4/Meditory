@@ -76,10 +76,11 @@ struct RecommendNutrientsView: View {
             Text("추천하는 영양성분은 꼭 필요한 것만 추천되므로 아래 성분들을 모두 섭취하는것이 좋아요.")
               .font(.notoSans(weight: .medium, size: 15))
               .foregroundColor(Color.main)
+              .multilineTextAlignment(.leading)
 
           }
           .padding(12)
-          .frame(maxWidth: .infinity)
+          .frame(maxWidth: .infinity, alignment: .leading)
           .background(
             RoundedRectangle(cornerRadius: .smallRadius)
               .fill(Color.sub.opacity(0.2))
