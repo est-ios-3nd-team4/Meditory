@@ -16,7 +16,21 @@ struct SettingView: View {
   
   var body: some View {
     
-    ZStack(alignment: .top) {
+    
+    // 유저 등록 확인용 출력
+    func printUsers() -> Void {
+      
+      if users.isEmpty {
+        print("User가 없습니다.")
+      }
+      for user in users {
+        print("User: \(user.displayName), id: \(user.id)")
+      }
+    }
+    let _ = printUsers()
+    
+  
+    return ZStack(alignment: .top) {
       (colorScheme == .dark ? Color.black : Color.customBackground)
         .ignoresSafeArea(edges: .top)
       
