@@ -41,3 +41,22 @@ final class UserLifeStyle: @unchecked Sendable {
     self.dinner = dinner
   }
 }
+
+
+extension UserLifeStyle {
+  var wakeTimeDate: Date {
+    wakeTime.toDateFromHHmm() ?? Date.makeTime(hour: 7)
+  }
+  var sleepTimeDate: Date {
+    sleepTime.toDateFromHHmm() ?? Date.makeTime(hour: 23, minute: 30)
+  }
+  var breakfastDate: Date? {
+    breakfast?.toDateFromHHmm()
+  }
+  var lunchDate: Date? {
+    lunch?.toDateFromHHmm()
+  }
+  var dinnerDate: Date? {
+    dinner?.toDateFromHHmm()
+  }
+}

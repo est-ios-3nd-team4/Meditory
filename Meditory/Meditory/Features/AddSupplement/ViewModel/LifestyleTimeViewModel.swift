@@ -41,6 +41,15 @@ final class LifestyleTimeViewModel {
     }
   }
   
+  var userlifeStyle: UserLifeStyle {
+    UserLifeStyle(
+      wakeTime: wakeTime.toHHmmString(),
+      sleepTime: sleepTime.toHHmmString(),
+      breakfast: breakfastTime?.toHHmmString(),
+      lunch: lunchTime?.toHHmmString(),
+      dinner: dinnerTime?.toHHmmString()
+    )
+  }
   
   var mealTimes: [Date] {
     [

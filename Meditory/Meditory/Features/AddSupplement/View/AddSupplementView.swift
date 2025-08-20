@@ -46,6 +46,7 @@ struct AddSupplementView: View {
   @State private var showTimePicker = false
   @State private var selectedLifestyleCategory: LifestyleTimeType? = nil
   @State private var selectedLifestyleOption: (any LifestyleTime)?
+  @State private var lifestyle: UserLifeStyle
   @State private var isSearchingSupplementSummary = false
   
   private var shouldShowSupplementInfo: Bool {
@@ -58,6 +59,7 @@ struct AddSupplementView: View {
     
     let lifestyleTimeVM = LifestyleTimeViewModel(context: context)
     self.lifestyleTimeVM = lifestyleTimeVM
+    self.lifestyle = lifestyleTimeVM.userlifeStyle
   }
 
   var body: some View {
@@ -181,6 +183,7 @@ struct AddSupplementView: View {
           ) { result in
             if let result {
               lifestyleTimeVM.setTime(result)
+              lifestyle = lifestyleTimeVM.userlifeStyle
             }
             showTimePicker = false
           }
