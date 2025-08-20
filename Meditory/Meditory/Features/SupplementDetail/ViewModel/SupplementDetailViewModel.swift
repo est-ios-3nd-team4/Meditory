@@ -66,6 +66,31 @@ final class SupplementDetailViewModel: ObservableObject {
     if rendered.isEmpty { return "매일" }
     return rendered
   }
+
+  /// 시간별 복용 알약 수 정보
+  var pills: [String] {
+    // 1. 사용자 설정 복용 시간이 있는 경우
+    let userPills = routine.routineTimes
+      .sorted { $0.time < $1.time }
+      .map { "\($0.pillsPerDose)정" }
+
+    if !userPills.isEmpty {
+      return userPills
+    }
+
+    // 2. 사용자 설정이 없고 AI 추천 시간이 있는 경우
+    let recommendedPills = routine.recommendedRoutineTimes
+      .sorted { $0.time < $1.time }
+      .map { "\($0.pillsPerDose)정" }
+
+    if !recommendedPills.isEmpty {
+      return recommendedPills
+    }
+
+    // 3. 둘 다 없는 경우, 기본값으로 "1정" 반환
+    return ["1정"]
+  }
+
   var usage: [String] { routine.usage }
   var precautions: [String] { routine.precautions }
 
