@@ -18,13 +18,12 @@ class OnboardingViewModel: ObservableObject {
   var height: Double = 0.0
   var weight: Double = 0.0
   var gender = ""
-  var isViewApearing = false
-  var isGenderSelected = false
   var selectionSet: Set<QuestionModel> = []
-  var isPregnancy = false
-  var isBreastfeeding = false
   var isValid: Bool? = false
-  var birthDate: Date? = Date.now
+  var birthDate: Date = Date.now
+  var selectionColunt: String {
+    "\(selectionSet.lazy.filter{$0.type == .concern}.count)"
+  }
 
   let userStore: UserStore
 
@@ -66,23 +65,21 @@ class OnboardingViewModel: ObservableObject {
       if !content.isEmpty {
         let digits = content.filter(\.isNumber)
         if digits.count == 8 {
-          let (formatted, date) = DateFormatter.plainStringToDate(plainString: content)
-          //          if content.wholeMatch(of: /(?<year>\d{4})(?<month>0[1-9]|1[0-2])(?<day>0[1-9]|[12]\d|3[01])/) != nil {
-          //            target.isValid = true
-          //          } else {
-          //            target.isValid = false
-          //            return
-          //          }
-          if date != nil {
-            target.isValid = true
-            birthDate = date
-            if target.content != formatted {
-              target.content = formatted
+          if let date = content.wholeMatch(of: /(?<year>\d{4})(?<month>\d{2})(?<day>\d{2})/) {
+            let output = date.output
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "ko_KR")
+            formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+            formatter.dateFormat = "yyyyMMdd"
+            if let verifiedDate = formatter.date(from: content) {
+              birthDate = verifiedDate
+              target.isValid = true
             }
+            target.content = "\(output.year).\(output.month).\(output.day)"
+          } else {
+            target.isValid = false
+            return
           }
-        } else {
-          target.isValid = false
-          return
         }
       }
     case .height:
@@ -120,19 +117,38 @@ class OnboardingViewModel: ObservableObject {
   }
 
   func signUp(context: ModelContext) {
-    userStore.addUser(User(name: name, birthDate: birthDate!, gender: gender, displayName: ""), context: context)
+    userStore.addUser(User(name: name, birthDate: birthDate, gender: gender, displayName: ""), context: context)
     userStore.loadUser(context: context)
     userStore.addUserProfile(UserProfile(height: height, weight: weight, user: userStore.currentUser), context: context)
     let diseases = selectionSet.filter { $0.type == .disease }.compactMap {
-      ExtraInfo(key: $0.code, value: $0.title,type:$0.type)
+      ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
     }
     let concern = selectionSet.filter { $0.type == .concern }.compactMap {
-      ExtraInfo(key: $0.code, value: $0.title,type: $0.type)
+      ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
     }
     let allergy = selectionSet.filter { $0.type == .allergy }.compactMap {
-      ExtraInfo(key: $0.code, value: $0.title,type: $0.type)
+      ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
     }
-    userStore.addUserExtraInfo(UserExtraInfo(disease: diseases, allergy: allergy, concern: concern, user: userStore.currentUser), context: context)
+    userStore.addUserExtraInfo(
+      UserExtraInfo(disease: diseases, allergy: allergy, concern: concern, user: userStore.currentUser),
+      context: context
+    )
   }
 
+  func printBasicInformation() {
+    let dateFormatter = DateFormatter()
+    dateFormatter.locale = Locale(identifier: "ko_KR")
+    dateFormatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+    dateFormatter.dateFormat = "yyyy년MM월dd일"
+    print("name \(name)")
+    print("gender \(gender)")
+    print("weight \(weight)")
+    print("height \(height)")
+    print("bod1 \(dateFormatter.string(from: birthDate))")
+    print("birthDate type: \(type(of: birthDate))")
+    print("bod \(birthDate)")
+    for item in selectionSet {
+      print(item.title)
+    }
+  }
 }

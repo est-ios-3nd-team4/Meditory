@@ -20,7 +20,7 @@ struct OnboardingGenderView: View {
 
   var body: some View {
     VStack {
-      TitleView(prompt: prompt)
+      TitleView(prompt: prompt,name: name)
       HStack(spacing: .defaultSpacing * 2) {
         Spacer()
         VStack(spacing: .defaultSpacing + 8) {

@@ -16,7 +16,7 @@ struct OnboardingAllergyView: View {
   var onAction: ((QuestionModel) -> Void)?
   var body: some View {
     ScrollView {
-      TitleView(prompt: prompt)
+      TitleView(prompt: prompt,name: name)
       .padding([.horizontal],.defaultSpacing + 4)
       ForEach(questions, id: \.self) { item in
         RowItemCell(model: item, isSelected: selections.contains(item))
