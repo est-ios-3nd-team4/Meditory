@@ -152,22 +152,23 @@ actor UserStore {
     try? modelContext.save()
   }
   
+  //TODO: 이 방식을 지울거면 지우고 남길거면 남기고 확실히 해야함. 현재는 주석처리안하면 실행 안됨.
   /// ExtraInfo 변경을 대비해서 ExtraInfo의 모든 데이터 삭제, 새로insert 하는 함수
-  func resetExtraInfos() {
-    // 1. 기존 ExtraInfo 삭제
-    let fetch = FetchDescriptor<ExtraInfo>()
-    if let all = try? modelContext.fetch(fetch) {
-      for info in all {
-        modelContext.delete(info)
-      }
-    }
-    // 2. 새로운 객체를 생성해서 insert
-    for info in allInitialExtraInfos {
-      let newInfo = ExtraInfo(key: info.key, value: info.value, type: info.type)
-      modelContext.insert(newInfo)
-    }
-    try? modelContext.save()
-  }
+//  func resetExtraInfos() {
+//    // 1. 기존 ExtraInfo 삭제
+//    let fetch = FetchDescriptor<ExtraInfo>()
+//    if let all = try? modelContext.fetch(fetch) {
+//      for info in all {
+//        modelContext.delete(info)
+//      }
+//    }
+//    // 2. 새로운 객체를 생성해서 insert
+//    for info in allInitialExtraInfos {
+//      let newInfo = ExtraInfo(key: info.key, value: info.value, type: info.type)
+//      modelContext.insert(newInfo)
+//    }
+//    try? modelContext.save()
+//  }
   
   
   
