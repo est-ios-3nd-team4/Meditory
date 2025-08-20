@@ -11,6 +11,7 @@ struct SchedulePanel: View {
 
   let times: [String]
   let cycle: String
+  let pills: [String]
 
   var body: some View {
     UnifiedSectionCard(accentColor: Color.orange) {
@@ -36,7 +37,7 @@ struct SchedulePanel: View {
 
         VStack(spacing: 0) {
           ForEach(times.indices, id: \.self) { index in
-            TimeRow(timeText: times[index], prointColor: .orange)
+            TimeRow(timeText: times[index], pointColor: .orange, pills: pills[index])
           }
         }
       }
@@ -116,7 +117,8 @@ struct SchedulePanel: View {
     VStack(spacing: .defaultSpacing) {
       SchedulePanel(
         times: ["오전 8:00", "오후 8:00"],
-        cycle: "월·수·금"
+        cycle: "월·수·금",
+        pills: ["1정", "2정"]
       )
     }
   }
@@ -128,7 +130,8 @@ struct SchedulePanel: View {
     VStack(spacing: .defaultSpacing) {
       SchedulePanel(
         times: ["오전 8:00", "오후 8:00"],
-        cycle: "월요일"
+        cycle: "월요일",
+        pills: ["2", "3"]
       )
     }
   }

@@ -14,22 +14,23 @@ struct SupplementDetailView: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.modelContext) private var context
   @StateObject private var vm: SupplementDetailViewModel
-  
+
   init(routine: Routine) {
     _vm = StateObject(wrappedValue: SupplementDetailViewModel(routine: routine))
   }
-  
+
   var body: some View {
     ZStack {
       ScrollView(showsIndicators: false) {
         VStack(spacing: .defaultSpacing + 8) {
           SupplementHeaderCard(routine: vm.routine)
-          
+
           SchedulePanel(
             times: vm.userTimes,
-            cycle: vm.userCycle
+            cycle: vm.userCycle,
+            pills: vm.pills
           )
-          
+
           if !vm.usage.isEmpty {
             SupplementGuideCard(
               title: "복용법",
@@ -38,7 +39,7 @@ struct SupplementDetailView: View {
               guide: vm.usage
             )
           }
-          
+
           if !vm.precautions.isEmpty {
             SupplementGuideCard(
               title: "복용 주의 사항",
@@ -47,7 +48,7 @@ struct SupplementDetailView: View {
               guide: vm.precautions
             )
           }
-          
+
           Button(role: .destructive) {
             vm.requestDelete()
           } label: {
@@ -110,7 +111,7 @@ struct SupplementDetailView_Previews: PreviewProvider {
       configurations: .init(isStoredInMemoryOnly: true)
     )
     let ctx = container.mainContext
-    
+
     // Case 1: 비타민C (사용자 지정)
     let vitaminC = Routine(
       type: 1,
@@ -122,16 +123,17 @@ struct SupplementDetailView_Previews: PreviewProvider {
       startDate: Date(),
       memo: nil,
       hasPush: true,
-      imageData: nil
+      imageData: nil,
+      usage: ["식사 후 30분 이내 복용 권장"],
+      precautions: ["공복에 복용 시 위장 장애가 발생할 수 있습니다."]
     )
-    // 오전 8시, 오후 1시, 오후 8시
     vitaminC.routineTimes = [
-      Date.makeTime(hour: 8, minute: 0),
-      Date.makeTime(hour: 13, minute: 0),
-      Date.makeTime(hour: 20, minute: 0)
-    ].map { RoutineTime(time: $0) }
+      RoutineTime(time: Date.makeTime(hour: 8, minute: 0), pillsPerDose: 1),
+      RoutineTime(time: Date.makeTime(hour: 13, minute: 0), pillsPerDose: 1),
+      RoutineTime(time: Date.makeTime(hour: 20, minute: 0), pillsPerDose: 2)
+    ]
     ctx.insert(vitaminC)
-    
+
     // Case 2: 오메가-3 (사용자 지정 + AI 추천)
     let omega = Routine(
       type: 1,
@@ -143,31 +145,20 @@ struct SupplementDetailView_Previews: PreviewProvider {
       startDate: Date().addingTimeInterval(-86400 * 7),
       memo: "심장 건강",
       hasPush: false,
-      imageData: nil
+      imageData: nil,
+      usage: ["식사와 함께 충분한 물과 복용하세요."],
+      precautions: ["수술 예정인 경우 복용 전에 전문의와 상담하세요."]
     )
-    // 오전 9시 30분
     omega.routineTimes = [
-      Date.makeTime(hour: 9, minute: 30)
-    ].map { RoutineTime(time: $0) }
-    
-    // AI 추천: 오전 8시, 아침 식전 30분
-    omega.recommendedRoutineTimes = [
-      RoutineTime(time: Date.makeTime(hour: 8, minute: 0)),
-      RoutineTime(
-        time: Calendar.current.startOfDay(for: Date()),
-        intakeTiming: "아침 식전 30분",
-        intakeOffsetMinutes: 30
-      )
+      RoutineTime(time: Date.makeTime(hour: 9, minute: 30), pillsPerDose: 1)
     ]
-    omega.usage = ["식사와 함께 충분한 물과 복용하세요."]
-    omega.precautions = ["수술 예정인 경우 복용 전에 전문의와 상담하세요."]
     ctx.insert(omega)
-    
-    // Case 3: 빈 루틴
+
+    // Case 3: 빈 루틴 (사용자/추천 데이터 없음)
     let empty = Routine(
       type: 1,
       displayName: "새로운 영양제",
-      desc: nil,
+      desc: "아직 루틴을 설정하지 않았어요.",
       category: "기타",
       cycleType: 0,
       cycleValue: "",
@@ -176,14 +167,17 @@ struct SupplementDetailView_Previews: PreviewProvider {
       hasPush: false,
       imageData: nil
     )
+    // usage/precautions를 추가하여 디테일 화면에서 표시될 수 있도록 함
+    empty.usage = ["의사와 상의하여 복용 방법을 정하세요."]
+    empty.precautions = ["특이 체질이거나 알레르기가 있는 경우 성분을 확인하세요."]
     ctx.insert(empty)
-    
+
     return container
   }()
-  
+
   static var previews: some View {
     let ctx = container.mainContext
-    
+
     Group {
       NavigationStack {
         SupplementDetailView(
@@ -194,7 +188,7 @@ struct SupplementDetailView_Previews: PreviewProvider {
         .environment(\.modelContext, ctx)
       }
       .previewDisplayName("Detail - 비타민C")
-      
+
       NavigationStack {
         SupplementDetailView(
           routine: try! ctx.fetch(FetchDescriptor<Routine>(
@@ -204,7 +198,7 @@ struct SupplementDetailView_Previews: PreviewProvider {
         .environment(\.modelContext, ctx)
       }
       .previewDisplayName("Detail - 오메가-3")
-      
+
       NavigationStack {
         SupplementDetailView(
           routine: try! ctx.fetch(FetchDescriptor<Routine>(
@@ -218,4 +212,3 @@ struct SupplementDetailView_Previews: PreviewProvider {
     .environment(\.locale, Locale(identifier: "ko_KR"))
   }
 }
-
