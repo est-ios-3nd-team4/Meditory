@@ -59,49 +59,12 @@ struct SettingView: View {
         }
         
         
-        // 임시 버튼들 (테스트용)
-        VStack {
-          Button("샘플 유저 생성") {
-            createSampleUser()
-          }
-          .buttonStyle(.borderedProminent)
-          
-          Button("모든 유저 삭제") {
-            deleteAllUsers()
-          }
-          .buttonStyle(.bordered)
-        }
-        
       }
       .padding()
       
       
     }
   }
-  
-  
-  
-  // 임시 함수라 나중에 삭제할 예정임
-  // 샘플 유저 생성
-  private func createSampleUser() {
-    let sample = User(
-      name: "챝짚티",
-      birthDate: Date(),
-      gender: "M",
-      displayName: "샘플유저맨"
-    )
-    Task {
-      await userStore.addUser(sample)
-    }
-  }
-  
-  // 모든 유저 삭제
-  private func deleteAllUsers() {
-    Task {
-      await userStore.deleteAllUsers()
-    }
-  }
-  
   
   
   // 둥근네모 만드는 함수
