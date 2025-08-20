@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct AddSupplementView: View {
   
@@ -22,13 +23,15 @@ struct AddSupplementView: View {
   var type: Mode = .add
   
   @Environment(\.modelContext) private var context
+  @Environment(\.userStore) private var userStore
+
   @Environment(\.dismiss) private var dismiss
   @Environment(\.colorScheme) private var colorScheme
   
   @State private var selectedScheduleType: SupplementScheduleType = .weekday
   @StateObject private var addSupplementVM = AddSupplementViewModel()
   @StateObject private var scheduleVM = SupplementScheduleViewModel()
-  @State private var lifestyleTimeVM = LifestyleTimeViewModel()
+  @State private var lifestyleTimeVM: LifestyleTimeViewModel
   @State private var selectedPicker: SchedulePickerType? {
     didSet {
       showSchedulePicker()
@@ -49,6 +52,13 @@ struct AddSupplementView: View {
     addSupplementVM.supplemtSummary != nil || isSearchingSupplementSummary
   }
   private let defaultFontSize: CGFloat = 18
+  
+  init(type: Mode = .add, context: ModelContext) {
+    self.type = type
+    
+    let lifestyleTimeVM = LifestyleTimeViewModel(context: context)
+    self.lifestyleTimeVM = lifestyleTimeVM
+  }
 
   var body: some View {
     GeometryReader { scrollView in
@@ -157,9 +167,6 @@ struct AddSupplementView: View {
             default:
               break
             }
-          }
-          .onAppear {
-            addSupplementVM.updateContext(context)
           }
         }
         
@@ -546,8 +553,4 @@ extension AddSupplementView {
       rootVC.present(vc, animated: false)
     }
   }
-}
-
-#Preview {
-  AddSupplementView()
 }

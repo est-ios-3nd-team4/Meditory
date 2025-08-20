@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainTabView: View {
 
+  @Environment(\.modelContext) private var context
   @State var selectedTab: TabItem = .home
 
   private let customTabTopInset: CGFloat = 14
@@ -30,7 +31,7 @@ struct MainTabView: View {
                 RecommendView()
               case .add:
                 // 테스트를 위해 임시로 추가해두었습니다. 추후 수정 예정입니다.
-                AddSupplementView()
+                AddSupplementView(context: context)
               case .dailyNutrition:
                 NutritionHomeView()
               case .settings:

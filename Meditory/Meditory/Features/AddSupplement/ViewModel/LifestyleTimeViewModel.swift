@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftData
 
 final class LifestyleTimeViewModel {
   var wakeTime = Date.makeTime(hour: 7)
@@ -15,15 +16,37 @@ final class LifestyleTimeViewModel {
     [wakeTime, sleepTime]
   }
   
-  var breakfastTime: Date? = Date.makeTime(hour: 8, minute: 30)
-  var lunchTime: Date? = Date.makeTime(hour: 12, minute: 30)
-  var dinnerTime: Date? = Date.makeTime(hour: 18, minute: 30)
+  var breakfastTime: Date?
+  var lunchTime: Date?
+  var dinnerTime: Date?
+  
+  @MainActor
+  init(context: ModelContext) {
+    let lifestlyeStore = UserLifeStyleStore()
+    // TODO: CurrentUser 초기화 필요
+    // lifestlyeStore.currentUser
+    if let lifestyle = lifestlyeStore.fetchOrCreateLifestyle(context: context) {
+      self.wakeTime = lifestyle.wakeTimeDate
+      self.sleepTime = lifestyle.sleepTimeDate
+      self.breakfastTime = lifestyle.breakfastDate
+      self.lunchTime = lifestyle.lunchDate
+      self.dinnerTime = lifestyle.dinnerDate
+    } else {
+      // TODO: Test 코드 나중에 제거해야 함
+      self.wakeTime = Date.makeTime(hour: 7)
+      self.sleepTime = Date.makeTime(hour: 23)
+      self.breakfastTime = Date.makeTime(hour: 8, minute: 30)
+      self.lunchTime = Date.makeTime(hour: 12, minute: 00)
+      self.dinnerTime = Date.makeTime(hour: 19, minute: 00)
+    }
+  }
+  
   
   var mealTimes: [Date] {
     [
       breakfastTime ?? Date.makeTime(hour: 8, minute: 30),
-     lunchTime ?? Date.makeTime(hour: 12, minute: 30),
-     dinnerTime ?? Date.makeTime(hour: 18, minute: 30)
+      lunchTime ?? Date.makeTime(hour: 12, minute: 00),
+      dinnerTime ?? Date.makeTime(hour: 19, minute: 00)
     ]
   }
   
