@@ -118,7 +118,7 @@ class OnboardingViewModel: ObservableObject {
 
 
   func signUp(context: ModelContext) async {
-    await userStore.addUser(User(name: name, birthDate: birthDate!, gender: gender, displayName: ""))
+    await userStore.addUser(User(name: name, birthDate: birthDate, gender: gender, displayName: ""))
     await userStore.loadUser()
     try? await userStore.addUserProfile(UserProfile(height: height, weight: weight, user: userStore.currentUser()))
     let diseases = selectionSet.filter { $0.type == .disease }.compactMap {
@@ -130,7 +130,13 @@ class OnboardingViewModel: ObservableObject {
     let allergy = selectionSet.filter { $0.type == .allergy }.compactMap {
       ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
     }
-    try? await userStore.addUserExtraInfo(UserExtraInfo(disease: diseases, allergy: allergy, concern: co
+//    try? await userStore.addUserExtraInfo(UserExtraInfo(disease: diseases, allergy: allergy, concern: co))
+    
+    try? await userStore.addUserExtraInfo(
+       UserExtraInfo(disease: diseases, allergy: allergy, concern: concern, user: userStore.currentUser())
+     )
+                                                        
+                                                        
   }
 
   func printBasicInformation() {
