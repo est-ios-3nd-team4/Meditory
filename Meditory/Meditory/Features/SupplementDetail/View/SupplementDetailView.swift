@@ -23,14 +23,11 @@ struct SupplementDetailView: View {
     ZStack {
       ScrollView(showsIndicators: false) {
         VStack(spacing: .defaultSpacing + 8) {
-          SupplementHeaderCard(title: vm.name, subtitle: vm.subtitle, emoji: "🩸")
+          SupplementHeaderCard(routine: vm.routine)
 
-          SplitScheduleCard(
-            selectedTab: $vm.selectedTab,
-            userTimes: vm.userTimes,
-            userCycle: vm.userCycle,
-            recTimes: vm.recTimes,
-            recCycle: vm.recCycle
+          SchedulePanel(
+            times: vm.userTimes,
+            cycle: vm.userCycle
           )
 
           if !vm.usage.isEmpty {
@@ -68,7 +65,7 @@ struct SupplementDetailView: View {
               .stroke(Color.red.opacity(0.2), lineWidth: 1.5)
           )
         }
-        .padding(.horizontal, .smallSpacing)
+        .padding(.horizontal, .defaultSpacing)
         .padding(.top, .defaultSpacing)
       }
     }
