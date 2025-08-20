@@ -39,5 +39,9 @@ class NutritionMainViewModel: ObservableObject {
   func deSelectedMeal() {
     self.selectedMeal = nil
   }
+  
+}
 
+extension NutritionMainViewModel {
+  
 }
