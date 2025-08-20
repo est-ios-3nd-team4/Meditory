@@ -1,33 +1,44 @@
 import SwiftUI
 
-struct Product: Identifiable {
-  let id = UUID()
-  var imageName: String
-  let brand: String
-  let name: String
+// 이미지 캐싱해보기
+struct Product: Identifiable, Codable {
+  var id = UUID()
+  var imageName: String = ""
+  var brand: String
+  var name: String
+  var link: String?
 
-  init(imageName: String, brand: String, name: String) {
+  enum CodingKeys: String, CodingKey {
+      case brand, name
+    }
+
+  init(id: UUID = UUID(), imageName: String = "", brand: String, name: String, link: String? = nil) {
+    self.id = id
     self.imageName = imageName
     self.brand = brand
     self.name = name
+    self.link = link
   }
 }
 
-struct CardView: View {
+struct ImageCardView: View {
   let title: String
   let categories: [String]
   let desc: String
   let products: [Product]
-  var onCategoryTap: ((String) -> Void)? = nil
+  var onCategoryTap: ((String) -> Void)?
 
   @State private var selectedCategory: String?
+  @State private var didTriggerInitialLoad = false
+
   @Environment(\.colorScheme) private var colorScheme
 
-  init(title: String, categories: [String], desc: String, products: [Product]) {
+  init(title: String, categories: [String], desc: String, products: [Product], onCategoryTap: ((String) -> Void)? = nil) {
     self.title = title
     self.categories = categories
     self.desc = desc
     self.products = products
+    self.onCategoryTap = onCategoryTap
     _selectedCategory = State(initialValue: categories.first)
   }
 
@@ -88,35 +99,48 @@ struct CardView: View {
       ScrollView(.horizontal, showsIndicators: false) {
         HStack(spacing: .smallSpacing) {
           ForEach(products) { product in
-            VStack(alignment: .leading, spacing: .smallSpacing) {
-              if let url = URL(string: product.imageName), !product.imageName.isEmpty {
-                AsyncImage(url: URL(string: product.imageName)) { phase in
-                  switch phase {
-                  case .success(let img): img.resizable().scaledToFill()
-                  case .failure: Color.gray.opacity(0.2)
-                  default: Color.gray.opacity(0.1)
+            NavigationLink {
+              if let link = product.link,
+                 let url = URL(string: link) {
+                WebView(url: url)
+                  .navigationTitle(product.name)
+              }
+            } label: {
+              VStack(alignment: .leading, spacing: .smallSpacing) {
+                if let imageURL = URL(string: product.imageName), !product.imageName.isEmpty {
+                  AsyncImage(url: URL(string: product.imageName)) { phase in
+                    switch phase {
+                    case .success(let img):
+                      img.resizable().scaledToFill()
+                    case .failure:
+                      Color.gray.opacity(0.2)
+                    default:
+                      Color.gray.opacity(0.1)
+                    }
                   }
-                }
-                .frame(width: 110, height: 110, alignment: .center)
-                .clipShape(RoundedRectangle(cornerRadius: .smallRadius))
-              } else {
-                Color.gray
                   .frame(width: 110, height: 110, alignment: .center)
                   .clipShape(RoundedRectangle(cornerRadius: .smallRadius))
+                } else {
+                  Color.gray
+                    .frame(width: 110, height: 110, alignment: .center)
+                    .clipShape(RoundedRectangle(cornerRadius: .smallRadius))
+                }
+
+                Text(product.brand)
+                  .padding(.leading, 2)
+                  .font(.notoSans(weight: .medium, size: 13))
+                  .foregroundStyle(.gray)
+                  .frame(width: 110, height: 16, alignment: .topLeading)
+
+                Text(product.name)
+                  .padding(.leading, 2)
+                  .font(.notoSans(weight: .medium, size: 12))
+                  .lineLimit(2)
+                  .multilineTextAlignment(.leading) 
+                  .frame(width: 110, height: 40, alignment: .topLeading)
               }
-
-              Text(product.brand)
-                .padding(.leading, 2)
-                .font(.notoSans(weight: .medium, size: 13))
-                .foregroundStyle(.gray)
-                .frame(width: 110, height: 16, alignment: .topLeading)
-
-              Text(product.name)
-                .padding(.leading, 2)
-                .font(.notoSans(weight: .medium, size: 12))
-                .lineLimit(2)
-                .frame(width: 110, height: 40, alignment: .topLeading)
             }
+            .buttonStyle(PlainButtonStyle())
           }
         }
       }
@@ -124,11 +148,20 @@ struct CardView: View {
     .padding()
     .background(colorScheme == .dark ? Color.white.opacity(0.2) : Color.white)
     .cornerRadius(.defaultRadius)
+    .onAppear {
+      if let initial = selectedCategory {
+        guard !didTriggerInitialLoad else { return }
+        didTriggerInitialLoad = true
+        if let initial = selectedCategory {
+          onCategoryTap?(initial)
+        }
+      }
+    }
   }
 }
 
 
 
 //#Preview {
-//    CardView()
+//    ImageCardView()
 //}

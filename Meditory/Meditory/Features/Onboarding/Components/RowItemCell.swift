@@ -42,13 +42,13 @@ struct RowItemCell: View {
 }
 
 #Preview {
-  RowItemCell(model: .init(title: "땅콩", subtitle:"땅콩호두,아몬드,피스타치오,헤이즐넛",toggleImage: .name(base: "nuts_seeds")), isSelected: false)
-  RowItemCell(model: .init(title: "땅콩", subtitle:"땅콩호두,아몬드,피스타치오,헤이즐넛",toggleImage: .name(base: "nuts_seeds")), isSelected: true)
+//  RowItemCell(model: .init(title: "땅콩", subtitle:"땅콩호두,아몬드,피스타치오,헤이즐넛",toggleImage: .name(base: "nuts_seeds")), isSelected: false)
+//  RowItemCell(model: .init(title: "땅콩", subtitle:"땅콩호두,아몬드,피스타치오,헤이즐넛",toggleImage: .name(base: "nuts_seeds")), isSelected: true)
 }
 
 #Preview("dark") {
-  RowItemCell(model: .init(title: "간", image: "icon_clear_lung"), isSelected: true)
-    .preferredColorScheme(.dark)
-  RowItemCell(model: .init(title: "간", image: "icon_clear_lung"), isSelected: false)
-    .preferredColorScheme(.dark)
+//  RowItemCell(model: .init(title: "간", image: "icon_clear_lung"), isSelected: true)
+//    .preferredColorScheme(.dark)
+//  RowItemCell(model: .init(title: "간", image: "icon_clear_lung"), isSelected: false)
+//    .preferredColorScheme(.dark)
 }

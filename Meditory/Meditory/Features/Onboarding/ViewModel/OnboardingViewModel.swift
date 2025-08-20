@@ -5,45 +5,151 @@
 //  Created by hyunsic on 8/6/25.
 //
 
-import SwiftUI
+import Observation
 import SwiftData
+import SwiftUI
 
+@Observable
+@MainActor
 class OnboardingViewModel: ObservableObject {
-  @Published var name = ""
-  @Published var age = ""
-  @Published var height = ""
-  @Published var weight = ""
-  @Published var gender = ""
-  @Published var isViewApearing = false
-  @Published var isSelected = false
-  @Published var isGenderSelected = false
-  @Published var select = ""
-  @Published var selectionSet: Set<QuestionModel> = []
-  @Published var isPregnancy = false
-  @Published var isBreastfeeding = false
-  @Published var hasDisease = false
-  @Published var hasAllergy = false
-  @Published var takingMedication = false
-  @Published var needValidation = false
-  @Published var isFormValid:Bool? = false
-  @Published var isValid:Bool? = false
-  @Published var birthDate:Date?
-  
-  func validateName(context:String)->Bool{
-    let result = !context.trimmingCharacters(in: .whitespaces).isEmpty && context.count > 2
-    return result
+
+  var name: String = ""
+  var age: String = ""
+  var height: Double = 0.0
+  var weight: Double = 0.0
+  var gender = ""
+  var selectionSet: Set<QuestionModel> = []
+  var isValid: Bool? = false
+  var birthDate: Date = Date.now
+  var selectionColunt: String {
+    "\(selectionSet.lazy.filter{$0.type == .concern}.count)"
   }
-  
-  func validateHeightAndWeight(context:String)->Bool{
-    if !context.trimmingCharacters(in: .whitespaces).isEmpty {
-      if let value = Double(context),value > 0 , value < 300 {
-        let decimalPart = context.split(separator: ".").last ?? ""
-        if decimalPart.count < 3 {
-          return true
+
+  let userStore: UserStore
+
+  init(userStore: UserStore) {
+    self.userStore = userStore
+  }
+
+  var fieldStates: [ValidationField: ValidationState] = {
+    var state: [ValidationField: ValidationState] = [:]
+    ValidationField.allCases.forEach { state[$0] = ValidationState() }
+    return state
+  }()
+
+  var isNextButtonOn: Bool {
+    ValidationField.allCases.allSatisfy { fieldStates[$0]?.isValid == true }
+  }
+
+  func updateContent(_ field: ValidationField, context: String) {
+    var state = fieldStates[field] ?? ValidationState()
+    state.content = context
+    Task { @MainActor in
+      fieldStates[field] = state
+      validate(field)
+    }
+  }
+
+  func validate(_ field: ValidationField) {
+    guard var target = fieldStates[field] else { return }
+    let content = target.content.trimmingCharacters(in: .whitespaces)
+    switch field {
+    case .name:
+      if !content.isEmpty && content.count >= 2 {
+        target.isValid = true
+        name = target.content
+      } else {
+        target.isValid = false
+      }
+    case .birthDate:
+      if !content.isEmpty {
+        let digits = content.filter(\.isNumber)
+        if digits.count >= 4 {
+          let trimmedYear = content.prefix(4)
+          if let birthYear = Date().dateFromYearString(yearString: String(trimmedYear)) {
+            self.birthDate = birthYear
+            target.isValid = true
+          } else {
+            target.isValid = false
+          }
         }
       }
+    case .height:
+      if let height = Double(target.content), (60...250).contains(height) {
+        target.isValid = true
+        self.height = height
+      } else {
+        target.isValid = false
+      }
+    case .weight:
+      if let weight = Double(target.content), (20...300).contains(weight) {
+        target.isValid = true
+        self.weight = weight
+      } else {
+        target.isValid = false
+      }
     }
-    return false
+    fieldStates[field] = target
+  }
+
+  func validateAllField() {
+    ValidationField.allCases.forEach { validate($0) }
+  }
+
+  func binding(for field: ValidationField) -> Binding<String> {
+    Binding {
+      self.fieldStates[field]?.content ?? ""
+    } set: {
+      self.updateContent(field, context: $0)
+    }
+  }
+
+  func isValid(for field: ValidationField) -> Bool {
+    fieldStates[field]?.isValid == true
+  }
+
+  func signUp(context: ModelContext) async {
+    Task {
+      await userStore.addUser(User(name: name, birthDate: birthDate, gender: gender, displayName: ""))
+      await userStore.loadUser()
+      let currentUser = try? await userStore.currentUser()
+      try? await userStore.addUserProfile(UserProfile(height: height, weight: weight, user: userStore.currentUser()))
+
+      for item in selectionSet {
+        if item.type == .etc {
+          await userStore.addUserStatus(UserStatus(statusType: item.title, user: currentUser))
+        }
+      }
+
+      let diseases = selectionSet.filter { $0.type == .disease }.compactMap {
+        ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
+      }
+      let concern = selectionSet.filter { $0.type == .concern }.compactMap {
+        ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
+      }
+      let allergy = selectionSet.filter { $0.type == .allergy }.compactMap {
+        ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
+      }
+
+      try? await userStore.addUserExtraInfo(
+        UserExtraInfo(disease: diseases, allergy: allergy, concern: concern, user: userStore.currentUser())
+      )
+    }
+  }
+
+  func printBasicInformation() {
+    let dateFormatter = DateFormatter()
+    dateFormatter.locale = Locale(identifier: "ko_KR")
+    dateFormatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+    dateFormatter.dateFormat = "yyyy년MM월dd일"
+    print("name \(name)")
+    print("gender \(gender)")
+    print("weight \(weight)")
+    print("height \(height)")
+    print("birthDate type: \(type(of: birthDate))")
+    print("bod \(birthDate)")
+    for item in selectionSet {
+      print(item.title)
+    }
   }
 }
-
