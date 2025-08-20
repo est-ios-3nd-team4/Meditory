@@ -60,3 +60,15 @@ extension UserLifeStyle {
     dinner?.toDateFromHHmm()
   }
 }
+
+
+extension UserLifeStyle: Equatable {
+  static func == (lhs: UserLifeStyle, rhs: UserLifeStyle) -> Bool {
+    return lhs.id == rhs.id &&
+    lhs.wakeTime == rhs.wakeTime &&
+    lhs.sleepTime == rhs.sleepTime &&
+    lhs.breakfast == rhs.breakfast &&
+    lhs.lunch == rhs.lunch &&
+    lhs.dinner == rhs.dinner
+  }
+}

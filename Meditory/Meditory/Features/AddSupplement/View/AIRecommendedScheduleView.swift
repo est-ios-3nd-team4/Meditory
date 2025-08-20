@@ -48,6 +48,7 @@ struct AIRecommendedScheduleView: View {
   @State private var supplement: SupplementDTO?
   @State private var aiPlanState: AIPlanState = .idle(reason: .initial)
   @State private var trigger = false
+  @State private var isLifestyleUpdated = false
   
   init(
     defaultFontSize: CGFloat,
@@ -135,21 +136,23 @@ struct AIRecommendedScheduleView: View {
           }
         }
       case .created:
-        Button {
-          requestAISchedule()
-        } label: {
-          HStack(spacing: .zero) {
-            let fontSize: CGFloat = 13
-            Text("변경된 생활 패턴에 맞춰  ")
-              .font(.notoSans(weight: .regular, size: fontSize))
-              .foregroundStyle(.textGray)
-            
-            Text("스케줄 새로 추천받기")
-              .font(.notoSans(size: fontSize))
-              .foregroundStyle(.main)
+        if isLifestyleUpdated {
+          Button {
+            requestAISchedule()
+          } label: {
+            HStack(spacing: .zero) {
+              let fontSize: CGFloat = 13
+              Text("변경된 생활 패턴에 맞춰  ")
+                .font(.notoSans(weight: .regular, size: fontSize))
+                .foregroundStyle(.textGray)
+              
+              Text("스케줄 새로 추천받기")
+                .font(.notoSans(size: fontSize))
+                .foregroundStyle(.main)
+            }
+            .padding(.bottom, .smallSpacing)
+            .padding(.top, -4)
           }
-          .padding(.bottom, .smallSpacing)
-          .padding(.top, -4)
         }
         
         if let supplement {
@@ -183,6 +186,11 @@ struct AIRecommendedScheduleView: View {
         )
         .modifier(UnifiedShadow())
     )
+    .onChange(of: lifestyle) { oldValue, newValue in
+      if oldValue != newValue {
+        isLifestyleUpdated = true
+      }
+    }
   }
 }
 
@@ -245,6 +253,7 @@ extension AIRecommendedScheduleView {
     
     withAnimation {
       aiPlanState = .creating
+      isLifestyleUpdated = false
     }
     
     Task {
