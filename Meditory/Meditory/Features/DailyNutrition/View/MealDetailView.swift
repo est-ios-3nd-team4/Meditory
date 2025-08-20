@@ -20,6 +20,16 @@ struct MealDetailView: View {
       MacroChartView(macros: viewModel.selectedMeal?.macros)
       .frame(width: 200, height: 200)
       
+      HStack {
+        Spacer()
+        
+        Image(systemName: "info.circle")
+          .longPressPopover {
+            MacroGuidePopover()
+          }
+      }
+      .frame(width: 250)
+      
       macroCompositionView()
       
       FoodGridView(foods: viewModel.selectedMeal?.foods)

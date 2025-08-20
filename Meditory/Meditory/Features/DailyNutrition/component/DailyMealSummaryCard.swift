@@ -20,27 +20,38 @@ struct DailyMealSummaryCard: View {
         .modifier(UnifiedShadow())
       
       HStack {
-        Text("오늘 하루 식단")
-          .font(.notoSans(weight: .bold, size: 18))
-          .foregroundStyle(.black)
-          .padding(.leading, 16)
-        
-        Spacer()
-        
-        macroPercentageView()
+        VStack {
+          Text("오늘 하루 식단")
+            .font(.notoSans(weight: .bold, size: 15))
+            .foregroundStyle(.black)
+          
+          macroPercentageView()
+        }
         
         Spacer()
         
         MacroChartView(macros: meal)
-        .frame(width: 80, height: 80)
-        .padding(.trailing, 16)
+          .frame(width: 80, height: 80)
+        
+        HStack {
+          VStack {
+            Image(systemName: "info.circle")
+              .longPressPopover {
+                MacroGuidePopover()
+              }
+            
+            Spacer()
+          }
+        }
       }
+      .padding(16)
+      
     }
   }
   
   /// 탄, 단, 지 오늘 하루 목표치 대비 퍼센트값을 나타냄
   func macroPercentageView() -> some View {
-    VStack(alignment: .leading) {
+    VStack(alignment: .leading, spacing: 0) {
       ForEach(meal.macroItems) { item in
           HStack {
             Circle()
@@ -49,11 +60,11 @@ struct DailyMealSummaryCard: View {
             
             HStack {
               Text(item.label)
-                .font(.notoSans(weight: .bold, size: 17))
+                .font(.notoSans(weight: .regular, size: 15))
                 .foregroundStyle(.black)
               
               Text("\(Int(item.gram))%")
-                .font(.notoSans(weight: .medium, size: 18))
+                .font(.notoSans(weight: .semiBold, size: 17))
             }
           }
         }

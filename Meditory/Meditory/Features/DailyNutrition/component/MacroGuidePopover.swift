@@ -25,7 +25,6 @@ struct MacroGuidePopover: View {
                                  topTrailingRadius: 20)
         )
         .frame(width: 150, height: 100)
-        .modifier(UnifiedShadow())
       
       VStack(alignment: .leading, spacing: 5) {
         Text("오늘 섭취 권장량")
@@ -49,7 +48,7 @@ struct MacroGuidePopover: View {
               .font(.notoSans(weight: .regular, size: 13))
               .foregroundStyle(.black)
             
-            Text("\(Int(item.gram))%")
+            Text("\(Int(item.gram))g")
               .font(.notoSans(weight: .semiBold, size: 11))
           }
         }
