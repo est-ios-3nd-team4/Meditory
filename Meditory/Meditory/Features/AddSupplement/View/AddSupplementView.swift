@@ -49,6 +49,8 @@ struct AddSupplementView: View {
   @State private var lifestyle: UserLifeStyle
   @State private var isSearchingSupplementSummary = false
   @State private var supplement: SupplementDTO?
+  @State private var showAlert = false
+  @State private var routineSaveError: RoutineSaveError?
   
   private var shouldShowSupplementInfo: Bool {
     addSupplementVM.supplemtSummary != nil || isSearchingSupplementSummary
@@ -207,6 +209,18 @@ struct AddSupplementView: View {
         .statusBarHidden(true)
         .ignoresSafeArea()
       }
+      .overlay {
+        if showAlert, let routineSaveError {
+          AlertView(
+            alertType: .confirm,
+            title: routineSaveError.title,
+            message: routineSaveError.message,
+            onConfirm: {
+              showAlert = false
+            }
+          )
+        }
+      }
       .onAppear {
         addSupplementVM.updateContext(context)
       }
@@ -272,10 +286,10 @@ extension AddSupplementView {
         await MainActor.run {
           dismiss()
         }
-      } catch RoutineSaveError.supplementSummaryNotFound {
-        print("❌ supplementSummaryNotFound")
-      } catch RoutineSaveError.aiScheduleSaveInterrupted {
-        print("❌ aiScheduleSaveInterrupted")
+      } catch let error as RoutineSaveError {
+        routineSaveError = error
+        showAlert = true
+        print("❌ \(error)")
       } catch {
         print("❌ Error is \(error)")
       }
