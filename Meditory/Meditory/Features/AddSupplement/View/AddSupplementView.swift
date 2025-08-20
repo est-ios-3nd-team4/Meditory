@@ -117,7 +117,7 @@ struct AddSupplementView: View {
                 defaultFontSize: defaultFontSize,
                 context: context,
                 userStore: userStore,
-                supplementName: addSupplementVM.supplemtSummary?.name ?? "",
+                supplementSummary: addSupplementVM.supplemtSummary,
                 lifestyle: lifestyle
               )
               
