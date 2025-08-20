@@ -113,7 +113,13 @@ struct AddSupplementView: View {
               
               timeSelectionSection()
               
-              AIRecommendedScheduleView(defaultFontSize: defaultFontSize)
+              AIRecommendedScheduleView(
+                defaultFontSize: defaultFontSize,
+                context: context,
+                userStore: userStore,
+                supplementName: addSupplementVM.supplemtSummary?.name ?? "",
+                lifestyle: lifestyle
+              )
               
               memoSection()
               
