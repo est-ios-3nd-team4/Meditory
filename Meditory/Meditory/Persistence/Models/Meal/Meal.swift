@@ -1,53 +1,65 @@
 import SwiftData
-import SwiftUI
+import Foundation
 
-// MacroEntity
-@Model
-final class Macro {
-  var macroTypeRawValue: String
-  var gram: Double
-  
-  var macroType: MacroType {
-    get { MacroType(rawValue: macroTypeRawValue) ?? .carbohydrate }
-    set { macroTypeRawValue = newValue.rawValue }
-  }
-  
-//  var label: String { macroType.info.name }
-//  var color: Color { macroType.info.color }
-  
-  init(macroType: MacroType, gram: Double) {
-    self.macroTypeRawValue = macroType.rawValue
-    self.gram = gram
-  }
-}
-
-// FoodEntity
 @Model
 final class Food {
+  @Attribute(.unique) var id: UUID = UUID()   // 고유 아이디 추가
   var foodName: String
   var totalGram: Double
-  var macros: [Macro] = [] // Macro 1:N
   
-  init(foodName: String, totalGram: Double, macros: [Macro]) {
+  // MacroNutrients 필드를 SwiftData 모델로 표현
+  var carbohydrate: Double
+  var protein: Double
+  var fat: Double
+  
+  init(foodName: String, totalGram: Double,
+       carbohydrate: Double, protein: Double, fat: Double) {
     self.foodName = foodName
     self.totalGram = totalGram
-    self.macros = macros
+    self.carbohydrate = carbohydrate
+    self.protein = protein
+    self.fat = fat
+  }
+  
+  // 편의 생성자 (UI 모델 변환용)
+  convenience init(from foodInfo: FoodInfo) {
+    self.init(foodName: foodInfo.name,
+              totalGram: foodInfo.weight,
+              carbohydrate: foodInfo.macros.carbohydrate,
+              protein: foodInfo.macros.protein,
+              fat: foodInfo.macros.fat)
   }
 }
 
-// MealEntity
 @Model
 final class Meal {
-  @Attribute(.unique) var id: UUID   // 항상 고유
-  var mealName: String               // 식사명 (아침/점심/저녁 등)
+  @Attribute(.unique) var id: UUID = UUID()
+  var mealName: String
   var date: Date
   var foods: [Food] = []
   
-  init(id: UUID = UUID(), mealName: String, date: Date, foods: [Food]) {
-    self.id = id
+  init(mealName: String, date: Date, foods: [Food]) {
     self.mealName = mealName
     self.date = date
     self.foods = foods
   }
+  
+  // totalMacro 계산을 위한 편의 계산 프로퍼티 (readonly)
+  var carbohydrateTotal: Double {
+    foods.reduce(0) { $0 + $1.carbohydrate }
+  }
+  
+  var proteinTotal: Double {
+    foods.reduce(0) { $0 + $1.protein }
+  }
+  
+  var fatTotal: Double {
+    foods.reduce(0) { $0 + $1.fat }
+  }
+  
+  var totalMacros: MacroNutrients {
+    MacroNutrients(carbohydrate: carbohydrateTotal,
+                   protein: proteinTotal,
+                   fat: fatTotal)
+  }
 }
-
