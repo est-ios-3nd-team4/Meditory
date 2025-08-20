@@ -21,7 +21,7 @@ struct OnboardingDiseaseView: View {
   var onAction: ((QuestionModel) -> Void)?
   var body: some View {
     ScrollView {
-      TitleView(prompt: prompt)
+      TitleView(prompt: prompt,name:name)
       .padding([.horizontal], .defaultSpacing + 4)
       LazyVGrid(columns: columns, spacing: 24) {
         ForEach(items, id: \.title) { item in
