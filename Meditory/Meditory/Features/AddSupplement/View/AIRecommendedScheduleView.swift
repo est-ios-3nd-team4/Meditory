@@ -45,7 +45,7 @@ struct AIRecommendedScheduleView: View {
   let lifestyle: UserLifeStyle
   
   @State private var routineAIVM: SupplementRoutineAIViewModel
-  @State private var supplement: SupplementDTO?
+  @Binding private var supplement: SupplementDTO?
   @State private var aiPlanState: AIPlanState = .idle(reason: .initial)
   @State private var trigger = false
   @State private var isLifestyleUpdated = false
@@ -55,12 +55,14 @@ struct AIRecommendedScheduleView: View {
     context: ModelContext,
     userStore: UserStore,
     supplementSummary: SupplementSummary?,
-    lifestyle: UserLifeStyle
+    lifestyle: UserLifeStyle,
+    supplement: Binding<SupplementDTO?>
   ) {
     self.defaultFontSize = defaultFontSize
     routineAIVM = SupplementRoutineAIViewModel(context: context, userStore: userStore)
     self.supplementSummary = supplementSummary
     self.lifestyle = lifestyle
+    self._supplement = supplement
   }
   
   var body: some View {

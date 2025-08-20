@@ -23,8 +23,12 @@ struct DoseTime: Codable, Equatable {
   /// 1회 복용량 (정 수)
   var pillsPerDose: Int
   
+  var time: Date {
+    Date.makeTime(hour: hour, minute: minute)
+  }
+  
   var timeString: String {
-    Date.makeTime(hour: hour, minute: minute).timeFormatter
+    time.timeFormatter
   }
   
   var relativeTimeDescription: String {
@@ -56,6 +60,17 @@ struct DoseSchedule: Codable {
   var weekdays: [Int]?
   /// cycleType == .interval  (예: 2 → 2일 간격)
   var intervalDays: Int?
+  
+  var routineTimes: [RoutineTime] {
+    times.map { doseTime in
+      RoutineTime(
+        time: doseTime.time,
+        intakeTiming: doseTime.relativeTo,
+        intakeOffsetMinutes: doseTime.offsetMinutes,
+        pillsPerDose: doseTime.pillsPerDose
+      )
+    }
+  }
 }
 
 /// LLM 응답 DTO

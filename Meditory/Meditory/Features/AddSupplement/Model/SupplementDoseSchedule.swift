@@ -22,4 +22,8 @@ struct SupplementDoseSchedule {
   var doseString: String {
     "\(pillsPerDose)정"
   }
+  
+  var routineTime: RoutineTime {
+    RoutineTime(time: .makeTime(hour: hour, minute: minute))
+  }
 }

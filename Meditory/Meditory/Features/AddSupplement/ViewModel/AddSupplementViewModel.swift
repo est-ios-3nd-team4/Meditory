@@ -15,7 +15,7 @@ class AddSupplementViewModel: ObservableObject {
   @Published var startDay: Int = Calendar.current.component(.day, from: .now)
   @Published var duration: Int = 1
   @Published var doseSchedules = [SupplementDoseSchedule]()
-  @Published var memo: String = ""
+//  @Published var memo: String = ""
   @Published var supplemtSummary: SupplementSummary?
 
   private var context: ModelContext?
@@ -80,9 +80,48 @@ class AddSupplementViewModel: ObservableObject {
 }
 
 
+// MARK: - DB
 extension AddSupplementViewModel {
   func updateContext(_ context: ModelContext) {
     self.context = context
+  }
+  
+  @MainActor
+  func saveRoutine(
+    type: SupplementScheduleType,
+    supplement: SupplementDTO?,
+    memo: String
+  ) async throws {
+    guard let context else { return }
+    
+    guard let supplemtSummary = supplemtSummary else { throw RoutineSaveError.supplementSummaryNotFound }
+    var usage = supplemtSummary.usage
+    var precautions = supplemtSummary.precautions
+    var recommendedRoutineTimes: [RoutineTime] = []
+    
+    // AI 스케줄 데이터가 있을 경우 기본 제품 정보보다 우선적으로 사용함
+    if let supplement {
+      usage = supplement.usage
+      precautions = supplement.precautions
+      recommendedRoutineTimes = supplement.schedule.routineTimes
+    }
+        
+    let routine = Routine(
+      type: supplemtSummary.type,
+      displayName: supplemtSummary.name,
+      desc: supplemtSummary.description,
+      category: supplemtSummary.category,
+      cycleType: type.rawValue,
+      cycleValue: type == .weekday ? weekdaysString : "\(duration)",
+      startDate: .makeDate(month: startMonth, day: startDay),
+      memo: memo,
+      usage: usage,
+      precautions: precautions,
+      routineTimes: doseSchedules.map { $0.routineTime },
+      recommendedRoutineTimes: recommendedRoutineTimes
+    )
+    
+    RoutineStore().addRoutine(routine, context: context)
   }
 }
 

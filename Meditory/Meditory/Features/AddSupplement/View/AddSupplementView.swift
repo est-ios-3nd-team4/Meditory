@@ -48,6 +48,7 @@ struct AddSupplementView: View {
   @State private var selectedLifestyleOption: (any LifestyleTime)?
   @State private var lifestyle: UserLifeStyle
   @State private var isSearchingSupplementSummary = false
+  @State private var supplement: SupplementDTO?
   
   private var shouldShowSupplementInfo: Bool {
     addSupplementVM.supplemtSummary != nil || isSearchingSupplementSummary
@@ -118,7 +119,8 @@ struct AddSupplementView: View {
                 context: context,
                 userStore: userStore,
                 supplementSummary: addSupplementVM.supplemtSummary,
-                lifestyle: lifestyle
+                lifestyle: lifestyle,
+                supplement: $supplement
               )
               
               memoSection()
@@ -126,7 +128,7 @@ struct AddSupplementView: View {
               Spacer()
               
               Button {
-                dismiss()
+                saveRoutine()
               } label: {
                 RoundedRectangle(cornerRadius: 10)
                   .fill(.main)
@@ -205,6 +207,9 @@ struct AddSupplementView: View {
         .statusBarHidden(true)
         .ignoresSafeArea()
       }
+      .onAppear {
+        addSupplementVM.updateContext(context)
+      }
     }
   }
 }
@@ -249,6 +254,32 @@ extension AddSupplementView {
     
     isSearchingSupplementSummary = true
     supplementName = ""
+  }
+}
+
+
+// MARK: - DB
+extension AddSupplementView {
+  private func saveRoutine() {
+    Task {
+      do {
+        try await addSupplementVM.saveRoutine(
+          type: selectedScheduleType,
+          supplement: supplement,
+          memo: memo
+        )
+        
+        await MainActor.run {
+          dismiss()
+        }
+      } catch RoutineSaveError.supplementSummaryNotFound {
+        print("❌ supplementSummaryNotFound")
+      } catch RoutineSaveError.aiScheduleSaveInterrupted {
+        print("❌ aiScheduleSaveInterrupted")
+      } catch {
+        print("❌ Error is \(error)")
+      }
+    }
   }
 }
 
