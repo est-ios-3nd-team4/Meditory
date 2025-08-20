@@ -10,16 +10,16 @@ import SwiftData
 import Foundation
 
 @Model
-final class UserLifeStyle {
+final class UserLifeStyle: @unchecked Sendable {
   @Attribute(.unique) var id: UUID
   @Relationship(inverse: \User.userLifeStyle) var user: User?
-
+  
   // 수면/기상
   var wakeTimeWeekday: String
   var sleepTimeWeekday: String
   var wakeTimeWeekend: String?
   var sleepTimeWeekend: String?
-
+  
   // 식사(평일/주말)
   var breakfastWeekday: String?
   var lunchWeekday: String?
@@ -27,7 +27,7 @@ final class UserLifeStyle {
   var breakfastWeekend: String?
   var lunchWeekend: String?
   var dinnerWeekend: String?
-
+  
   init(
     id: UUID = UUID(),
     user: User? = nil,
