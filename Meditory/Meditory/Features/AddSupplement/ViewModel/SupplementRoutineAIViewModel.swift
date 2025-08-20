@@ -11,14 +11,14 @@ import SwiftData
 @MainActor
 final class SupplementRoutineAIViewModel: ObservableObject {
   private let client: AlanAPIClient
-  private let context: ModelContext
+  private let context: ModelContext // TODO: 나머지 Store 수정하면서 얘도 삭제
   private let userStore: UserStore
   private let routineStore: RoutineStore
 
   init(
     client: AlanAPIClient = AlanAPIClient(),
-    context: ModelContext,
-    userStore: UserStore = UserStore(),
+    context: ModelContext, // TODO: 나머지 Store 수정하면서 얘도 삭제
+    userStore: UserStore, // Store 는 이것처럼 View 에서 넘겨받는다. ViewModel 이 직접 생성하지 않음.
     routineStore: RoutineStore = RoutineStore()
   ) {
     self.client = client
@@ -26,11 +26,13 @@ final class SupplementRoutineAIViewModel: ObservableObject {
     self.userStore = userStore
     self.routineStore = routineStore
 
-    userStore.loadUser(context: context)
+    Task { // Store의 메서드를 쓸때는 await 필수
+      await userStore.loadUser()
+    }
   }
 
   func requestAISchedule(supplementName: String, lifeStyle: UserLifeStyle) async throws -> SupplementDTO {
-    let prompt = makePrompt(supplementName: supplementName, lifestyle: lifeStyle)
+    let prompt = await makePrompt(supplementName: supplementName, lifestyle: lifeStyle)
     
     print("✅ 요청", Date.now)
     
@@ -42,11 +44,11 @@ final class SupplementRoutineAIViewModel: ObservableObject {
     return dto
   }
   
-  func makePrompt(supplementName: String, lifestyle: UserLifeStyle) -> String {
-    let user = userStore.currentUser
+  func makePrompt(supplementName: String, lifestyle: UserLifeStyle) async -> String { // async 추가
+    let user = try? await userStore.currentUser()  //  await 사용
     let gender = user?.gender ?? "미입력"
     let birth = user?.birthDate ?? Date(timeIntervalSince1970: 0)
-    let (diseases, allergies, preg, breast) = loadExtraHealthInfo()
+    let (diseases, allergies, preg, breast) = await loadExtraHealthInfo()
     
     let routines = routineStore.fetchAllRoutines(context: context)
     let scheduleList: [String] = (routines.isEmpty ? [] : routines).map { routine in
@@ -74,7 +76,7 @@ final class SupplementRoutineAIViewModel: ObservableObject {
     return ScheduleAIPrompt.makePrompt(user: input, productName: supplementName)
   }
 
-  private func loadExtraHealthInfo()
+  private func loadExtraHealthInfo() async
     -> (diseases: [String], allergies: [String], isPregnant: Bool, isBreastfeeding: Bool)
   {
     var diseases: Set<String> = []
@@ -82,8 +84,8 @@ final class SupplementRoutineAIViewModel: ObservableObject {
     var isPregnant = false
     var isBreastfeeding = false
 
-    let all = userStore.fetchExtraInfos(context: context)
-    let currentID = userStore.currentUser?.persistentModelID
+    let all = await userStore.fetchExtraInfos()
+    let currentID = try? await userStore.currentUser().persistentModelID
     let mine = all.filter { $0.user?.persistentModelID == currentID }
     
     for info in mine {
@@ -91,7 +93,7 @@ final class SupplementRoutineAIViewModel: ObservableObject {
       info.allergy.forEach { allergies.formUnion(parseList($0.value)) }
     }
     
-    let _ = userStore.fetchStatuses(context: context).forEach {
+    let _ = await userStore.fetchStatuses().forEach {
       let status = $0.statusType
       
       if status.contains("임신") || status.contains("pregnan") {
