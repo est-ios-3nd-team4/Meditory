@@ -35,7 +35,6 @@ class DataController {
           // 식단
           Meal.self,
           Food.self,
-          Macro.self,
         ])
         
       let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
