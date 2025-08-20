@@ -117,8 +117,7 @@ struct OnboardingView: View {
           currentStep = next
         } else {
           onFinished()
-          print(vm.printBasicInformation())
-
+          signUp()
         }
       } label: {
         RoundedRectangle(cornerRadius: .smallRadius)
@@ -141,6 +140,12 @@ struct OnboardingView: View {
       vm.selectionSet.remove(item)
     } else {
       vm.selectionSet.insert(item)
+    }
+  }
+  
+  func signUp() {
+    Task {
+      await vm.signUp(context: context)
     }
   }
 }

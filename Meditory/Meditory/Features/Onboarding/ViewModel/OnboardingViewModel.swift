@@ -64,21 +64,13 @@ class OnboardingViewModel: ObservableObject {
     case .birthDate:
       if !content.isEmpty {
         let digits = content.filter(\.isNumber)
-        if digits.count == 8 {
-          if let date = content.wholeMatch(of: /(?<year>\d{4})(?<month>\d{2})(?<day>\d{2})/) {
-            let output = date.output
-            let formatter = DateFormatter()
-            formatter.locale = Locale(identifier: "ko_KR")
-            formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
-            formatter.dateFormat = "yyyyMMdd"
-            if let verifiedDate = formatter.date(from: content) {
-              birthDate = verifiedDate
-              target.isValid = true
-            }
-            target.content = "\(output.year).\(output.month).\(output.day)"
+        if digits.count >= 4 {
+          let trimmedYear = content.prefix(4)
+          if let birthYear = Date().dateFromYearString(yearString: String(trimmedYear)) {
+            self.birthDate = birthYear
+            target.isValid = true
           } else {
             target.isValid = false
-            return
           }
         }
       }
@@ -116,27 +108,33 @@ class OnboardingViewModel: ObservableObject {
     fieldStates[field]?.isValid == true
   }
 
-
   func signUp(context: ModelContext) async {
-    await userStore.addUser(User(name: name, birthDate: birthDate, gender: gender, displayName: ""))
-    await userStore.loadUser()
-    try? await userStore.addUserProfile(UserProfile(height: height, weight: weight, user: userStore.currentUser()))
-    let diseases = selectionSet.filter { $0.type == .disease }.compactMap {
-      ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
+    Task {
+      await userStore.addUser(User(name: name, birthDate: birthDate, gender: gender, displayName: ""))
+      await userStore.loadUser()
+      let currentUser = try? await userStore.currentUser()
+      try? await userStore.addUserProfile(UserProfile(height: height, weight: weight, user: userStore.currentUser()))
+
+      for item in selectionSet {
+        if item.type == .etc {
+          await userStore.addUserStatus(UserStatus(statusType: item.title, user: currentUser))
+        }
+      }
+
+      let diseases = selectionSet.filter { $0.type == .disease }.compactMap {
+        ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
+      }
+      let concern = selectionSet.filter { $0.type == .concern }.compactMap {
+        ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
+      }
+      let allergy = selectionSet.filter { $0.type == .allergy }.compactMap {
+        ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
+      }
+
+      try? await userStore.addUserExtraInfo(
+        UserExtraInfo(disease: diseases, allergy: allergy, concern: concern, user: userStore.currentUser())
+      )
     }
-    let concern = selectionSet.filter { $0.type == .concern }.compactMap {
-      ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
-    }
-    let allergy = selectionSet.filter { $0.type == .allergy }.compactMap {
-      ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
-    }
-//    try? await userStore.addUserExtraInfo(UserExtraInfo(disease: diseases, allergy: allergy, concern: co))
-    
-    try? await userStore.addUserExtraInfo(
-       UserExtraInfo(disease: diseases, allergy: allergy, concern: concern, user: userStore.currentUser())
-     )
-                                                        
-                                                        
   }
 
   func printBasicInformation() {
@@ -148,7 +146,6 @@ class OnboardingViewModel: ObservableObject {
     print("gender \(gender)")
     print("weight \(weight)")
     print("height \(height)")
-    print("bod1 \(dateFormatter.string(from: birthDate))")
     print("birthDate type: \(type(of: birthDate))")
     print("bod \(birthDate)")
     for item in selectionSet {
