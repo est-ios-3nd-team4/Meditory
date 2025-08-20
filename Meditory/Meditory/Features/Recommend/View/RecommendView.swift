@@ -152,7 +152,7 @@ struct RecommendView: View {
 
         GeometryReader { geo in
           ScrollView(.vertical, showsIndicators: false) {
-            ZStack {
+            ZStack(alignment: .topLeading) {
               RoundedRectangle(cornerRadius: .defaultRadius)
                 .fill(colorScheme == .dark ? Color.black : Color.customBackground)
               //.modifier(UnifiedShadow())

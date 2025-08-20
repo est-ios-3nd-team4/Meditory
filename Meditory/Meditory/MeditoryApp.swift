@@ -60,7 +60,7 @@ struct MeditoryApp: App {
 
     }
   }()
-  @AppStorage("needOnboarding") private var needOnboarding: Bool = true
+  @AppStorage("needOnboarding") private var needOnboarding: Bool = false
 
   var body: some Scene {
     WindowGroup {
