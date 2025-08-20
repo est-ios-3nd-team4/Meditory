@@ -13,188 +13,124 @@ struct SchedulePanel: View {
   let cycle: String
 
   var body: some View {
-    let accentColor = Color.orange
+    UnifiedSectionCard(accentColor: Color.orange) {
+      HStack(spacing: .smallSpacing) {
+        Image(systemName: "calendar.badge.clock")
+          .imageScale(.medium)
+          .padding(.smallSpacing)
+          .background(
+            Circle().fill(Color.orange.opacity(0.15))
+          )
+          .foregroundStyle(.orange)
+          .accessibilityHidden(true)
 
-    VStack(spacing: .smallSpacing) {
+        Text("복용 스케줄")
+          .font(.notoSans(size: 18))
+          .fontWeight(.bold)
+
+        Spacer()
+      }
+
       VStack(alignment: .leading, spacing: .smallSpacing) {
-        HStack(spacing: .smallSpacing) {
-          Image(systemName: "calendar.badge.clock")
-            .imageScale(.medium)
-            .padding(.smallSpacing)
-            .background(Circle().fill(accentColor.opacity(0.15)))
-            .foregroundStyle(accentColor)
-
-          Text("복용 스케줄")
-            .font(.notoSans(size: 18))
-
-          Spacer()
-
-          NavigationLink {
-            AddSupplementView(type: .edit)
-          } label: {
-            Label("수정", systemImage: "pencil")
-              .foregroundStyle(.white)
-              .labelStyle(.titleAndIcon)
-              .font(.notoSans(size: 13))
-              .fontWeight(.semibold)
-              .padding(.horizontal, 10)
-              .padding(.vertical, 6)
-              .background(
-                Capsule()
-                  .fill(accentColor)
-              )
-              .overlay(
-                Capsule()
-                  .stroke(accentColor, lineWidth: 1)
-              )
-              .foregroundStyle(accentColor)
-              .shadow(radius: 2, y: 1)  
-          }
-          .buttonStyle(.plain)
-          .accessibilityLabel("내 일정 수정 화면으로 이동")
-        }
-
         SectionHeader(title: "시간", systemImage: "clock")
 
         VStack(spacing: 0) {
           ForEach(times.indices, id: \.self) { index in
-            let time = times[index]
-            TimeRow(timeText: time, accent: accentColor)
-
-            if index < times.count - 1 {
-              Divider()
-                .background(.secondary.opacity(0.2))
-                .padding(.leading, 40)
-            }
+            TimeRow(timeText: times[index], accent: .orange)
           }
         }
+      }
 
-        Divider()
-          .background(accentColor.opacity(0.5))
-          .padding(.vertical, .smallSpacing)
+      Divider()
 
+      HStack(spacing: .smallSpacing) {
         SectionHeader(title: "주기", systemImage: "arrow.triangle.2.circlepath")
 
-        HStack(spacing: .defaultSpacing) {
-          IconBadge(
-            systemName: "repeat",
-            backgroundColor: accentColor.opacity(0.12),
-            foregroundColor: accentColor
-          )
+        WeekdayChips(weekdays: normalizedWeekdays(from: cycle))
+          .frame(maxWidth: .infinity, alignment: .trailing)
+      }
+      .padding(.bottom, .defaultSpacing)
 
-          Text(cycle)
-            .font(.notoSans(size: 15))
-            .foregroundStyle(.secondary)
+      NavigationLink {
+        AddSupplementView(type: .edit)
+      } label: {
+        HStack(spacing: .smallSpacing) {
+          Image(systemName: "square.and.pencil")
+          Text("내 일정 수정 하러 가기")
+            .font(.notoSans(weight: .bold, size: 15))
 
           Spacer()
+
+          Image(systemName: "chevron.right")
+            .font(.notoSans(weight: .semiBold, size: 15))
         }
-        .padding(.top, .defaultSpacing)
+        .padding(.vertical, .defaultSpacing)
+        .padding(.horizontal, .defaultSpacing)
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .background(
+          colorScheme == .dark
+          ? Color.orange.opacity(0.7)
+          : Color.orange
+        )
+        .foregroundStyle(Color.white)
+        .cornerRadius(.defaultRadius)
       }
-      .padding(.defaultSpacing)
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .background(
-        RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
-          .fill(colorScheme == .dark
-                ? Color.white.opacity(0.08)
-                : Color(.secondarySystemGroupedBackground))
-      )
-      .modifier(UnifiedShadow())
-      .overlay(
-        RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
-          .stroke(accentColor.opacity(0.6), lineWidth: 1.0)
-      )
+      .buttonStyle(.plain)
     }
   }
-}
 
-private struct SectionHeader: View {
-  let title: String
-  let systemImage: String
+  private func normalizedWeekdays(from cycle: String) -> [String] {
+    let order = ["월","화","수","목","금","토","일"]
 
-  var body: some View {
-    HStack(spacing: .smallSpacing / 2) {
-      ZStack {
-        Circle()
-          .fill(Color.main)
-          .frame(width: 20, height: 20)
-
-        Image(systemName: systemImage)
-          .resizable()
-          .scaledToFit()
-          .frame(width: 10, height: 10)
-          .foregroundStyle(.white)
-      }
-
-      Text(title)
-        .font(.notoSans(size: 13))
-        .foregroundStyle(.main)
+    if cycle.trimmingCharacters(in: .whitespacesAndNewlines) == "매일" {
+      return order
     }
-    .padding(.horizontal, .smallSpacing)
-    .padding(.vertical, .smallSpacing / 2)
-    .background(Color.blue.opacity(0.1), in: Capsule())
-  }
-}
 
-private struct TimeRow: View {
-  let timeText: String
-  let accent: Color
-
-  var body: some View {
-    HStack(spacing: .defaultSpacing) {
-      IconBadge(
-        systemName: "clock.fill",
-        backgroundColor: accent.opacity(0.12),
-        foregroundColor: accent
-      )
-
-      let comps = timeText.split(separator: " ").map(String.init)
-      let period = comps.first ?? ""
-      let hm = comps.dropFirst().joined(separator: " ")
-
-      HStack(alignment: .firstTextBaseline, spacing: .smallSpacing) {
-
-        Text(period)
-          .font(.notoSans(size: 14))
-          .foregroundStyle(.secondary)
-          .fontWeight(.semibold)
-
-        Text(hm)
-          .font(.notoSans(size: 14))
-          .foregroundStyle(.secondary)
-      }
-
-      Spacer()
+    if cycle.contains("매주") {
+      return cycle
+        .split(separator: "·")
+        .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+        .filter { !$0.isEmpty }
     }
-    .padding(.vertical, .smallSpacing)
-  }
-}
 
-private struct IconBadge: View {
-  let systemName: String
-  let backgroundColor: Color
-  let foregroundColor: Color
+    let mapping: [String: String] = [
+      "월요일": "월", "화요일": "화", "수요일": "수",
+      "목요일": "목", "금요일": "금", "토요일": "토", "일요일": "일"
+    ]
 
-  var body: some View {
-    ZStack {
-      Circle()
-        .fill(backgroundColor)
+    let raw = cycle
+      .split(separator: "·")
+      .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+      .map { mapping[$0] ?? $0 }
+      .filter { !$0.isEmpty }
 
-      Image(systemName: systemName)
-        .font(.notoSans(size: 14))
-        .fontWeight(.semibold)
-        .foregroundStyle(foregroundColor)
+    let unique = Array(NSOrderedSet(array: raw)) as? [String] ?? raw
+    return unique.sorted { (a, b) -> Bool in
+      (order.firstIndex(of: a) ?? .max) < (order.firstIndex(of: b) ?? .max)
     }
-    .frame(width: 28, height: 28)
   }
 }
 
 #Preview("Mine") {
   NavigationStack {
-    SchedulePanel(
-      times: ["오전 8시", "오후 8시"],
-      cycle: "매일"
-    )
-    .padding()
-    .background(Color.customBackground)
+    VStack(spacing: .defaultSpacing) {
+      SchedulePanel(
+        times: ["오전 8:00", "오후 8:00"],
+        cycle: "월·수·금"
+      )
+    }
   }
+  .environment(\.locale, Locale(identifier: "ko_KR"))
+}
+
+#Preview("Mine-월요일만 있다면") {
+  NavigationStack {
+    VStack(spacing: .defaultSpacing) {
+      SchedulePanel(
+        times: ["오전 8:00", "오후 8:00"],
+        cycle: "월요일"
+      )
+    }
+  }
+  .environment(\.locale, Locale(identifier: "ko_KR"))
 }

@@ -4,6 +4,7 @@
 //
 //  Created by 윤혜주 on 8/9/25.
 //
+
 import SwiftUI
 
 struct SupplementHeaderCard: View {
@@ -11,28 +12,26 @@ struct SupplementHeaderCard: View {
 
   let title: String
   let subtitle: String
-  var accentColor: Color = .orange
+  var pointColor: Color = .orange
   var systemIcon: String = "capsule.portrait.fill"
 
-  /// Routine으로부터 아이콘/색상 자동 설정
   init(routine: Routine) {
     let style = RoutineIconResolver.style(
       category: routine.category,
       displayName: routine.displayName
     )
-    self.title       = routine.displayName
-    self.subtitle    = routine.desc ?? ""
-    self.accentColor = style.color
-    self.systemIcon  = style.symbol
+    self.title = routine.displayName
+    self.subtitle = routine.desc ?? ""
+    self.pointColor = style.color
+    self.systemIcon = style.symbol
   }
 
-  /// category(String) & displayName 수동 전달 버전 (subtitle은 직접 지정)
   init(title: String, subtitle: String, category: String?, displayName: String) {
     let style = RoutineIconResolver.style(category: category, displayName: displayName)
     self.title = title
     self.subtitle = subtitle
-    self.accentColor = style.color
-    self.systemIcon  = style.symbol
+    self.pointColor = style.color
+    self.systemIcon = style.symbol
   }
 
   private var hasSubtitle: Bool {
@@ -40,44 +39,39 @@ struct SupplementHeaderCard: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: .smallSpacing) {
-      HStack(spacing: .smallSpacing) {
-        Image(systemName: systemIcon)
-          .imageScale(.medium)
-          .padding(.smallSpacing)
-          .background(Circle().fill(accentColor.opacity(0.15)))
-          .foregroundStyle(accentColor)
-          .accessibilityHidden(true) // 장식 아이콘
+    UnifiedSectionCard(accentColor: pointColor) {
+      VStack(alignment: .leading, spacing: .smallSpacing) {
+        HStack(spacing: .smallSpacing) {
+          Image(systemName: systemIcon)
+            .imageScale(.medium)
+            .padding(.smallSpacing)
+            .background(Circle().fill(pointColor.opacity(0.15)))
+            .foregroundStyle(pointColor)
+            .accessibilityHidden(true)
 
-        Text(title)
-          .font(.notoSans(size: 18))
-          .fontWeight(.bold)
-          .lineLimit(1)
-          .minimumScaleFactor(0.85)
+          Text(title)
+            .font(.notoSans(size: 18))
+            .fontWeight(.bold)
+            .lineLimit(1)
+            .minimumScaleFactor(0.85)
+        }
 
-        Spacer(minLength: 0)
-      }
+        if hasSubtitle {
+          HStack(alignment: .top, spacing: .smallSpacing) {
+            Circle()
+              .frame(width: 5, height: 5)
+              .foregroundStyle(pointColor.opacity(0.8))
+              .padding(.top, .smallSpacing)
 
-      if hasSubtitle {
-        Text(subtitle)
-          .font(.notoSans(weight: .regular, size: 14))
-          .foregroundStyle(.secondary)
-          .lineLimit(2)
+            Text(subtitle)
+              .font(.notoSans(weight: .regular, size: 14))
+              .foregroundStyle(.secondary)
+              .lineLimit(2)
+              .fixedSize(horizontal: false, vertical: true)
+          }
+        }
       }
     }
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .padding(.defaultSpacing)
-    .background(
-      RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
-        .fill(colorScheme == .dark
-              ? Color.white.opacity(0.08)
-              : Color(.secondarySystemGroupedBackground))
-    )
-    .modifier(UnifiedShadow())
-    .overlay(
-      RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
-        .stroke(accentColor.opacity(0.3), lineWidth: 1)
-    )
   }
 }
 

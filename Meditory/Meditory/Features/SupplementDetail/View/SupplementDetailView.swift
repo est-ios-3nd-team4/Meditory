@@ -14,22 +14,22 @@ struct SupplementDetailView: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.modelContext) private var context
   @StateObject private var vm: SupplementDetailViewModel
-
+  
   init(routine: Routine) {
     _vm = StateObject(wrappedValue: SupplementDetailViewModel(routine: routine))
   }
-
+  
   var body: some View {
     ZStack {
       ScrollView(showsIndicators: false) {
         VStack(spacing: .defaultSpacing + 8) {
           SupplementHeaderCard(routine: vm.routine)
-
+          
           SchedulePanel(
             times: vm.userTimes,
             cycle: vm.userCycle
           )
-
+          
           if !vm.usage.isEmpty {
             SupplementGuideCard(
               title: "복용법",
@@ -38,7 +38,7 @@ struct SupplementDetailView: View {
               guide: vm.usage
             )
           }
-
+          
           if !vm.precautions.isEmpty {
             SupplementGuideCard(
               title: "복용 주의 사항",
@@ -47,7 +47,7 @@ struct SupplementDetailView: View {
               guide: vm.precautions
             )
           }
-
+          
           Button(role: .destructive) {
             vm.requestDelete()
           } label: {
@@ -57,7 +57,14 @@ struct SupplementDetailView: View {
               .padding(.vertical, .defaultSpacing)
           }
           .buttonStyle(.plain)
-          .background(Color.white)
+          .background(
+            RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
+              .fill(
+                colorScheme == .dark
+                ? Color.white.opacity(0.08)
+                : .white
+              )
+          )
           .foregroundStyle(.red)
           .cornerRadius(.defaultRadius)
           .overlay(
@@ -103,9 +110,9 @@ struct SupplementDetailView_Previews: PreviewProvider {
       configurations: .init(isStoredInMemoryOnly: true)
     )
     let ctx = container.mainContext
-
-    // 비타민C (사용자 설정 예시)
-    let routine1 = Routine(
+    
+    // Case 1: 비타민C (사용자 지정)
+    let vitaminC = Routine(
       type: 1,
       displayName: "비타민C",
       desc: "면역력 강화",
@@ -117,13 +124,16 @@ struct SupplementDetailView_Previews: PreviewProvider {
       hasPush: true,
       imageData: nil
     )
-    routine1.routineTimes = [8, 13, 20].compactMap {
-      Calendar.current.date(bySettingHour: $0, minute: 0, second: 0, of: Date())
-    }.map { RoutineTime(time: $0) }
-    ctx.insert(routine1)
-
-    // 오메가-3 (AI 추천 포함 예시)
-    let routine2 = Routine(
+    // 오전 8시, 오후 1시, 오후 8시
+    vitaminC.routineTimes = [
+      Date.makeTime(hour: 8, minute: 0),
+      Date.makeTime(hour: 13, minute: 0),
+      Date.makeTime(hour: 20, minute: 0)
+    ].map { RoutineTime(time: $0) }
+    ctx.insert(vitaminC)
+    
+    // Case 2: 오메가-3 (사용자 지정 + AI 추천)
+    let omega = Routine(
       type: 1,
       displayName: "오메가-3",
       desc: "혈행 개선",
@@ -135,36 +145,77 @@ struct SupplementDetailView_Previews: PreviewProvider {
       hasPush: false,
       imageData: nil
     )
-    routine2.routineTimes = [9].compactMap {
-      Calendar.current.date(bySettingHour: $0, minute: 30, second: 0, of: Date())
-    }.map { RoutineTime(time: $0) }
-
-    let abs = Calendar.current.date(bySettingHour: 8, minute: 0, second: 0, of: Date())!
-    let relBase = Calendar.current.date(bySettingHour: 0, minute: 0, second: 0, of: Date())!
-    routine2.recommendedRoutineTimes = [
-      RoutineTime(time: abs),
-      RoutineTime(time: relBase, intakeTiming: "아침 식전 30분", intakeOffsetMinutes: 30)
+    // 오전 9시 30분
+    omega.routineTimes = [
+      Date.makeTime(hour: 9, minute: 30)
+    ].map { RoutineTime(time: $0) }
+    
+    // AI 추천: 오전 8시, 아침 식전 30분
+    omega.recommendedRoutineTimes = [
+      RoutineTime(time: Date.makeTime(hour: 8, minute: 0)),
+      RoutineTime(
+        time: Calendar.current.startOfDay(for: Date()),
+        intakeTiming: "아침 식전 30분",
+        intakeOffsetMinutes: 30
+      )
     ]
-    routine2.usage = ["식사와 함께 충분한 물과 복용하세요."]
-    routine2.precautions = ["수술 예정인 경우 복용 전에 전문의와 상담하세요."]
-    ctx.insert(routine2)
-
+    omega.usage = ["식사와 함께 충분한 물과 복용하세요."]
+    omega.precautions = ["수술 예정인 경우 복용 전에 전문의와 상담하세요."]
+    ctx.insert(omega)
+    
+    // Case 3: 빈 루틴
+    let empty = Routine(
+      type: 1,
+      displayName: "새로운 영양제",
+      desc: nil,
+      category: "기타",
+      cycleType: 0,
+      cycleValue: "",
+      startDate: Date(),
+      memo: nil,
+      hasPush: false,
+      imageData: nil
+    )
+    ctx.insert(empty)
+    
     return container
   }()
-
+  
   static var previews: some View {
     let ctx = container.mainContext
-
-    // 오메가-3를 우선 선택
-    let sample = (try? ctx.fetch(
-      FetchDescriptor<Routine>(predicate: #Predicate { $0.displayName == "오메가-3" })
-    ).first)
-    ?? (try? ctx.fetch(FetchDescriptor<Routine>()).first)!
-
-    return NavigationStack {
-      SupplementDetailView(routine: sample)
+    
+    Group {
+      NavigationStack {
+        SupplementDetailView(
+          routine: try! ctx.fetch(FetchDescriptor<Routine>(
+            predicate: #Predicate { $0.displayName == "비타민C" }
+          )).first!
+        )
         .environment(\.modelContext, ctx)
+      }
+      .previewDisplayName("Detail - 비타민C")
+      
+      NavigationStack {
+        SupplementDetailView(
+          routine: try! ctx.fetch(FetchDescriptor<Routine>(
+            predicate: #Predicate { $0.displayName == "오메가-3" }
+          )).first!
+        )
+        .environment(\.modelContext, ctx)
+      }
+      .previewDisplayName("Detail - 오메가-3")
+      
+      NavigationStack {
+        SupplementDetailView(
+          routine: try! ctx.fetch(FetchDescriptor<Routine>(
+            predicate: #Predicate { $0.displayName == "새로운 영양제" }
+          )).first!
+        )
+        .environment(\.modelContext, ctx)
+      }
+      .previewDisplayName("Detail - Empty Routine")
     }
-    .previewDisplayName("SupplementDetail (오메가-3 / AI 데이터 포함)")
+    .environment(\.locale, Locale(identifier: "ko_KR"))
   }
 }
+
