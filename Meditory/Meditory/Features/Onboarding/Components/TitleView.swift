@@ -17,6 +17,7 @@ struct TitleView: View {
         Text(prompt.title(name: name))
           .font(.notoSans(weight: .bold, size: 28))
           .padding(.vertical, 10)
+          .fixedSize()
         if let secondary = prompt.info(context: extra) ?? prompt.subtitle {
           Text(secondary)
             .font(.notoSans(weight: .medium, size: 16))
