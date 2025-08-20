@@ -8,11 +8,11 @@
 import Foundation
 
 final class LifestyleTimeViewModel {
-  var wakeUpTime = Date.makeTime(hour: 7)
-  var bedTime = Date.makeTime(hour: 11)
+  var wakeTime = Date.makeTime(hour: 7)
+  var sleepTime = Date.makeTime(hour: 11)
   
   var dailyCycleTimes: [Date] {
-    [wakeUpTime, bedTime]
+    [wakeTime, sleepTime]
   }
   
   var breakfastTime: Date? = Date.makeTime(hour: 8, minute: 30)
@@ -48,10 +48,53 @@ final class LifestyleTimeViewModel {
   
   func time(for type: DailyCycleType) -> String {
     switch type {
-    case .wakeUp:
-      return wakeUpTime.timeFormatter
-    case .bedTime:
-      return bedTime.timeFormatter
+    case .wakeTime:
+      return wakeTime.timeFormatter
+    case .sleepTime:
+      return sleepTime.timeFormatter
+    }
+  }
+  
+  func times(for type: LifestyleTimeType) -> [Date] {
+    switch type {
+    case .dailyCycle:
+      return dailyCycleTimes
+    case .meal:
+      return mealTimes
+    }
+  }
+  
+  func mealSelections(for type: LifestyleTimeType) -> [Bool] {
+    switch type {
+    case .dailyCycle:
+      return DailyCycleType.allCases.map { _ in return true }
+    case .meal:
+      return mealSelections
+    }
+  }
+  
+  func setTime(_ result: LifestyleTimeResult) {
+    switch result {
+    case .dailyCycle(let dailyCycleTimes):
+      dailyCycleTimes.forEach {
+        switch $0.type {
+        case .wakeTime:
+          self.wakeTime = $0.time
+        case .sleepTime:
+          self.sleepTime = $0.time
+        }
+      }
+    case .meal(let mealTimes):
+      mealTimes.forEach {
+        switch $0.type {
+        case .breakfast:
+          self.breakfastTime = $0.isEaten ? $0.time : nil
+        case .lunch:
+          self.lunchTime = $0.isEaten ? $0.time : nil
+        case .dinner:
+          self.dinnerTime = $0.isEaten ? $0.time : nil
+        }
+      }
     }
   }
 }

@@ -34,7 +34,6 @@ final class RoutineTest: XCTestCase {
         cycleType: 1,
         cycleValue: "0, 2, 4", // 월수금
         startDate: .now,
-        pillsPerDose: 1,
         memo: "아침 식사 후",
         hasPush: true,
         imageData: nil
@@ -63,7 +62,6 @@ final class RoutineTest: XCTestCase {
         cycleType: 2,
         cycleValue: "11",
         startDate: .now,
-        pillsPerDose: 1,
         hasPush: true,
         imageData: nil
       ),
@@ -93,7 +91,6 @@ final class RoutineTest: XCTestCase {
       cycleType: 1,
       cycleValue: "0",
       startDate: .now,
-      pillsPerDose: 1,
       hasPush: true,
       imageData: nil
     ), context: context)
@@ -105,7 +102,6 @@ final class RoutineTest: XCTestCase {
         cycleType: 2,
         cycleValue: "11",
         startDate: .now,
-        pillsPerDose: 1,
         hasPush: true,
         imageData: nil
       ),
@@ -135,7 +131,6 @@ final class RoutineTest: XCTestCase {
         cycleType: 1,
         cycleValue: "0, 2, 4",
         startDate: .now,
-        pillsPerDose: 1,
         hasPush: false,
         imageData: nil
       ),
@@ -168,7 +163,6 @@ final class RoutineTest: XCTestCase {
         cycleType: 1,
         cycleValue: "1, 3, 5",
         startDate: .now,
-        pillsPerDose: 1,
         imageData: nil
       ),
       context: context

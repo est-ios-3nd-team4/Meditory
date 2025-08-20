@@ -116,7 +116,6 @@ struct SupplementDetailView_Previews: PreviewProvider {
       cycleType: 1,
       cycleValue: "0", // 일요일
       startDate: Date(),
-      pillsPerDose: 1,
       memo: nil,
       hasPush: true,
       imageData: nil
@@ -135,7 +134,6 @@ struct SupplementDetailView_Previews: PreviewProvider {
       cycleType: 1,
       cycleValue: "1,3,5", // 월·수·금
       startDate: Date().addingTimeInterval(-86400 * 7),
-      pillsPerDose: 2,
       memo: "심장 건강",
       hasPush: false,
       imageData: nil

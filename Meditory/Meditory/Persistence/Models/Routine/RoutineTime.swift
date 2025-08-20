@@ -21,6 +21,9 @@ final class RoutineTime {
  /// - 예: -30 → 30분 전, +30 → 30분 후
   var intakeOffsetMinutes: Int?
   
+  /// 복용 알약 수
+  var pillsPerDose: Int
+  
   @Relationship var routine: Routine?
   
   init(
@@ -28,12 +31,14 @@ final class RoutineTime {
     time: Date,
     intakeTiming: String? = nil,
     intakeOffsetMinutes: Int? = nil,
+    pillsPerDose: Int = 1,
     routine: Routine? = nil
   ) {
     self.id = id
     self.time = time
     self.intakeTiming = intakeTiming
     self.intakeOffsetMinutes = intakeOffsetMinutes
+    self.pillsPerDose = pillsPerDose
     self.routine = routine
   }
 }

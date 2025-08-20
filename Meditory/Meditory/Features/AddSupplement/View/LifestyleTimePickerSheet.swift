@@ -11,39 +11,14 @@ struct LifestyleTimePickerSheet: View {
   
   let type: LifestyleTimeType
   @State var option: any LifestyleTime
-  let lifestyleTimeVM: LifestyleTimeViewModel
-  var onDismiss: (() -> Void)?
+  @State var dates: [Date]
+  @State var mealSelections: [Bool]
+  var onDismiss: ((LifestyleTimeResult?) -> Void)?
   
   @State private var sheetHeight: CGFloat = .zero
   @State private var dragOffset: CGSize = .zero
   @State private var sheetOpacity: CGFloat = .zero
   @State private var isPresented = false
-  
-  @State private var dates: [Date] = []
-  @State private var meals: [Bool] = []
-  
-  init(
-    type: LifestyleTimeType,
-    option: any LifestyleTime,
-    lifestyleTimeVM: LifestyleTimeViewModel,
-    onDismiss: (() -> Void)? = nil
-  ) {
-    self.type = type
-    self.option = option
-    self.lifestyleTimeVM = lifestyleTimeVM
-    self.onDismiss = onDismiss
-    
-    switch option {
-    case is DailyCycleType:
-      _dates = State(initialValue: lifestyleTimeVM.dailyCycleTimes)
-      _meals = State(initialValue: Array(repeating: true, count: lifestyleTimeVM.dailyCycleTimes.count))
-    case is MealType:
-      _dates = State(initialValue: lifestyleTimeVM.mealTimes)
-      _meals = State(initialValue: lifestyleTimeVM.mealSelections)
-    default:
-      break
-    }
-  }
   
   var body: some View {
     GeometryReader { geometry in
@@ -84,7 +59,7 @@ struct LifestyleTimePickerSheet: View {
             }
             
             Button {
-              onDismiss?()
+              dismissWithAnimation(isConfirm: true)
             } label: {
               RoundedRectangle(cornerRadius: 10)
                 .fill(.main)
@@ -119,22 +94,7 @@ struct LifestyleTimePickerSheet: View {
               }
               .onEnded { value in
                 if value.translation.height > sheetHeight * 0.5 {
-                  let anaimaionDuration: CGFloat = 0.1
-                  
-                  withAnimation(.easeInOut(duration: anaimaionDuration)) {
-                    sheetOpacity = 0
-                  }
-                  
-                  Task { @MainActor in
-                    do {
-                      try await Task.sleep(for: .seconds(anaimaionDuration))
-                      withAnimation {
-                        onDismiss?()
-                      }
-                    } catch {
-                      print("❌ Error is \(error)")
-                    }
-                  }
+                  dismissWithAnimation()
                 } else {
                   dragOffset.height = .zero
                 }
@@ -155,6 +115,44 @@ struct LifestyleTimePickerSheet: View {
 }
 
 
+extension LifestyleTimePickerSheet {
+  private func dismissWithAnimation(isConfirm: Bool = false) {
+    let anaimaionDuration: CGFloat = 0.1
+    
+    withAnimation(.easeInOut(duration: anaimaionDuration)) {
+      sheetOpacity = 0
+    }
+    
+    Task { @MainActor in
+      do {
+        try await Task.sleep(for: .seconds(anaimaionDuration))
+        onDismiss?(isConfirm ? timeResult() : nil)
+      } catch {
+        print("❌ Error is \(error)")
+      }
+    }
+  }
+  
+  private func timeResult() -> LifestyleTimeResult {
+    switch type {
+    case .dailyCycle:
+      return .dailyCycle(
+        DailyCycleType.allCases.enumerated().map { index, type in
+          DailyCycleTime(type: type, time: dates[index])
+        }
+      )
+    case .meal:
+      return .meal(
+        MealType.allCases.enumerated().map { index, type in
+          MealTime(type: type, time: dates[index], isEaten: mealSelections[index])
+        }
+      )
+    }
+  }
+}
+
+
+// MARK: - SubViews
 extension LifestyleTimePickerSheet {
   @ViewBuilder
   private func optionList<T: CaseIterable & Hashable & LifestyleTime>(
@@ -231,7 +229,7 @@ extension LifestyleTimePickerSheet {
             Spacer()
           }
           .onTapGesture {
-            meals[index].toggle()
+            mealSelections[index].toggle()
           }
         }
         
@@ -246,6 +244,6 @@ extension LifestyleTimePickerSheet {
   }
   
   private func isMealSkipped(index: Int) -> Bool {
-    meals[index] == false
+    mealSelections[index] == false
   }
 }
