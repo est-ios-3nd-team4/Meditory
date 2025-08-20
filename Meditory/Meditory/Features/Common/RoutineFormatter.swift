@@ -19,6 +19,7 @@ enum RoutineFormatter {
         .compactMap { (0...6).contains($0) ? map[$0] : nil }
 
       if days.count == 7 { return "매일" }
+      if days.count == 1 { return "매주 \(days[0])요일" }
       return days.isEmpty ? "설정 없음" : days.joined(separator: "·")
 
     case 2:

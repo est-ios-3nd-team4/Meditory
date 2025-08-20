@@ -76,4 +76,12 @@ extension Date {
 
     return Calendar.current.date(from: components) ?? Date()
   }
+  
+  func dateFromYearString(yearString:String) -> Date? {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyyMMdd"
+    formatter.locale = Locale(identifier: "ko_KR")
+    formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+    return formatter.date(from: "\(yearString)0101")
+  }
 }

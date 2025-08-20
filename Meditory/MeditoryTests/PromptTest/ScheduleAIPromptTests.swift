@@ -21,7 +21,7 @@ final class ScheduleAIPromptTests: XCTestCase {
     let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
     container = try ModelContainer(for: schema, configurations: [config])
     context = ModelContext(container)
-    userStore = UserStore()
+    userStore = UserStore(modelContainer: container)
     routineStore = RoutineStore()
   }
   
@@ -32,8 +32,7 @@ final class ScheduleAIPromptTests: XCTestCase {
     routineStore = nil
   }
   
-  @MainActor
-  func testMakePrompt_withValidUserInput_generatesExpectedPrompt() {
+  func testMakePrompt_withValidUserInput_generatesExpectedPrompt() async {
     // arrange
     // 1. User 정보 저장
     let user = User(
@@ -61,16 +60,19 @@ final class ScheduleAIPromptTests: XCTestCase {
     user.userStatuses.append(UserStatus(statusType: "임신", startDate: .now, endDate: .now, user: user))
     user.userStatuses.append(UserStatus(statusType: "수유", startDate: .now, endDate: .now, user: user))
     
-    userStore.addUser(user, context: context)
+    await userStore.addUser(user)
     
     // 2. Routine 정보 저장
-    DummyData.mockRoutines_AllCases.forEach {
-      routineStore.addRoutine($0, context: context)
+    await MainActor.run {
+      DummyData.mockRoutines_AllCases.forEach {
+        routineStore.addRoutine($0, context: context)
+      }
     }
     
+    
     // act
-    let vm = SupplementRoutineAIViewModel(context: context)
-    let prompt = vm.makePrompt(
+    let vm = await SupplementRoutineAIViewModel(context: context, userStore: userStore)
+    let prompt = await vm.makePrompt(
       supplementName: "타이레놀",
       lifestyle: UserLifeStyle(
         wakeTime: "07:30",

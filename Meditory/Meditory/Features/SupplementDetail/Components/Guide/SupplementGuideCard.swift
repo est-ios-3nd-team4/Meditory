@@ -14,17 +14,27 @@ struct SupplementGuideCard: View {
   let type: GuideType
   let guide: [String]
 
+  private var tint: Color {
+    type == .info ? .main : .orange
+  }
+
+  private var backgroundColor: Color {
+    type == .info ? Color.main.opacity(0.08) : Color.yellow.opacity(0.12)
+  }
+  
   var body: some View {
-    VStack(alignment: .leading) {
+    UnifiedSectionCard(accentColor: tint) {
       HStack(spacing: .smallSpacing) {
         Image(systemName: icon)
           .imageScale(.medium)
           .padding(.smallSpacing)
-          .background(Circle().fill(type == .info ? Color.main.opacity(0.15) : Color.yellow.opacity(0.25)))
-          .foregroundStyle(type == .info ? .main : .orange)
+          .background(Circle().fill(tint.opacity(0.15)))
+          .foregroundStyle(tint)
+          .accessibilityHidden(true)
 
         Text(title)
           .font(.notoSans(size: 18))
+          .fontWeight(.bold)
 
         Spacer()
       }
@@ -34,9 +44,8 @@ struct SupplementGuideCard: View {
           HStack(alignment: .top, spacing: .smallSpacing) {
             Circle()
               .frame(width: 5, height: 5)
-              .opacity(0.3)
+              .foregroundStyle(tint.opacity(0.8))
               .padding(.top, .smallSpacing)
-              .padding(.horizontal, .smallSpacing)
 
             Text(text)
               .font(.notoSans(weight: .regular, size: 15))
@@ -45,19 +54,9 @@ struct SupplementGuideCard: View {
         }
       }
     }
-    .frame(maxWidth: .infinity)
-    .padding(.defaultSpacing)
-    .background(
-      RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
-        .fill(type == .info ? Color.main.opacity(0.08) : Color.yellow.opacity(0.12))
-    )
-    .modifier(UnifiedShadow())
-    .overlay(
-      RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
-        .strokeBorder(type == .info ? .main.opacity(0.3) : .orange.opacity(0.3))
-    )
   }
 }
+
 #Preview("Info") {
   SupplementGuideCard(
     title: "복용법",
