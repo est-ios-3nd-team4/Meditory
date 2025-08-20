@@ -49,7 +49,7 @@ import SwiftUI
 ///  - 어째서인지 그림자가 자동으로 적용돼 있습니다.
 ///  popoverContent에 그림자를 추가하게 되면 popover 화살표에 그림자가 뭍어 어색해보일 수 있습니다.
 ///    아마 popover(isPresented: )에서 자동으로 추가해준게 아닌가 추측해봅니다.
-///  - popover의 화살표는 .black Color로 지정돼 있습니다.
+///  - popover의 화살표는 .white/.black Color로 지정돼 있습니다.
 
 struct LongPressPopoverModifier<PopoverContent: View>: ViewModifier {
   @State private var isShowingPopover = false
