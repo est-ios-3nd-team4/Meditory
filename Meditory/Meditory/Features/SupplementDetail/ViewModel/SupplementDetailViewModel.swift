@@ -9,8 +9,6 @@ import Foundation
 import SwiftUI
 import SwiftData
 
-enum PlanTab: String, CaseIterable, Hashable { case mine = "내 일정", ai = "AI 추천" }
-
 @MainActor
 final class SupplementDetailViewModel: ObservableObject {
   private let routineStore: RoutineStore
@@ -20,7 +18,6 @@ final class SupplementDetailViewModel: ObservableObject {
   let routine: Routine
 
   // State
-  @Published var selectedTab: PlanTab = .mine
   @Published var showDeleteAlert: Bool = false
 
   // Init
@@ -37,43 +34,40 @@ final class SupplementDetailViewModel: ObservableObject {
   var subtitle: String { routine.desc ?? "" }
 
   // Mine (사용자 설정)
+  /// 1) 사용자 지정 시간
+  /// 2) 없으면 추천 시간
+  /// 3) 그래도 없으면 09:00 기본 1회
   var userTimes: [String] {
-    routine.routineTimes
+    let user = routine.routineTimes
       .sorted { $0.time < $1.time }
       .map { $0.time.timeFormatter }
-  }
 
-  var userCycle: String {
-    RoutineFormatter.renderCycle(cycleType: routine.cycleType, cycleValue: routine.cycleValue)
-  }
+    if !user.isEmpty { return user }
 
-  // AI 추천
-  var recTimes: [String] {
-    routine.recommendedRoutineTimes
+    let recommended = routine.recommendedRoutineTimes
       .sorted { $0.time < $1.time }
-      .map { t in
-        if let label = t.intakeTiming, !label.isEmpty { return label }  // 상대 기준은 라벨 우선
-        return t.time.timeFormatter                                    // 절대 시각은 시간 표기
-      }
+      .map { $0.time.timeFormatter }
+
+    if !recommended.isEmpty { return recommended }
+
+    let nineAM = Calendar.current.date(
+      bySettingHour: 9, minute: 0, second: 0, of: Date()
+    ) ?? Date()
+    return [nineAM.timeFormatter]
   }
 
-  /// 별도 추천 주기가 없다면 사용자 주기와 동일하게 노출
-  var recCycle: String {
-    RoutineFormatter.renderCycle(cycleType: routine.cycleType, cycleValue: routine.cycleValue)
-  }
+  /// 비정상(cycleType=0, value="", 포맷 실패 등)일 경우 "매일"로 대체
+  var userCycle: String {
+    let rendered = RoutineFormatter.renderCycle(
+      cycleType: routine.cycleType,
+      cycleValue: routine.cycleValue
+    )
 
+    if rendered.isEmpty { return "매일" }
+    return rendered
+  }
   var usage: [String] { routine.usage }
   var precautions: [String] { routine.precautions }
-
-  func tapMine() {
-    selectedTab = .mine
-    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-  }
-
-  func tapAI() {
-    selectedTab = .ai
-    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-  }
 
   func requestDelete() { showDeleteAlert = true }
 
@@ -83,21 +77,4 @@ final class SupplementDetailViewModel: ObservableObject {
   }
 
   func cancelDelete() { showDeleteAlert = false }
-
-  /// AI 추천을 내 일정에 반영하고 싶을 때 호출
-  func applyRecommendationToMine(context: ModelContext) {
-    // 기존 사용자 설정 시간 교체
-    routine.routineTimes.removeAll()
-    // 추천 시간을 그대로 복사(라벨/오프셋은 RoutineTime에 이미 담겨 있으므로 무시하지 않음)
-    let cloned: [RoutineTime] = routine.recommendedRoutineTimes.map {
-      RoutineTime(
-        time: $0.time,
-        intakeTiming: $0.intakeTiming,
-        intakeOffsetMinutes: $0.intakeOffsetMinutes,
-        routine: routine
-      )
-    }
-    routine.routineTimes = cloned
-    try? context.save()
-  }
 }
