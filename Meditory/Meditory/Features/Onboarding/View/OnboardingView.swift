@@ -117,8 +117,8 @@ struct OnboardingView: View {
           currentStep = next
         } else {
           onFinished()
-//          vm.signUp(context: context)
           print(vm.printBasicInformation())
+
         }
       } label: {
         RoundedRectangle(cornerRadius: .smallRadius)
