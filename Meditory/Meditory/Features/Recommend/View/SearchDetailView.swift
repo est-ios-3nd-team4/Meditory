@@ -80,7 +80,7 @@ struct SearchDetailView: View {
 
       GeometryReader { geo in
         ScrollView(.vertical, showsIndicators: false) {
-          ZStack {
+          ZStack(alignment: .top) {
             RoundedRectangle(cornerRadius: .defaultRadius)
               .fill(colorScheme == .dark ? Color.black : Color.customBackground)
               .frame(minHeight: geo.size.height)
