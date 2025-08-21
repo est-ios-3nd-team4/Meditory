@@ -7,6 +7,8 @@
 import SwiftUI
 
 struct SchedulePanel: View {
+  
+  @Environment(\.modelContext) private var context
   @Environment(\.colorScheme) private var colorScheme
 
   let times: [String]
@@ -14,7 +16,7 @@ struct SchedulePanel: View {
   let pills: [String]
 
   var body: some View {
-    UnifiedSectionCard(accentColor: Color.orange) {
+    UnifiedSectionCard(pointColor: Color.orange) {
       HStack(spacing: .smallSpacing) {
         Image(systemName: "calendar.badge.clock")
           .imageScale(.medium)
@@ -53,7 +55,7 @@ struct SchedulePanel: View {
       .padding(.bottom, .defaultSpacing)
 
       NavigationLink {
-        AddSupplementView(type: .edit)
+        AddSupplementView(type: .edit, context: context)
       } label: {
         HStack(spacing: .smallSpacing) {
           Image(systemName: "square.and.pencil")

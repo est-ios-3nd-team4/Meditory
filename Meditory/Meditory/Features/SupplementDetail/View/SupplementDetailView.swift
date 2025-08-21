@@ -21,60 +21,69 @@ struct SupplementDetailView: View {
 
   var body: some View {
     ZStack {
-      ScrollView(showsIndicators: false) {
-        VStack(spacing: .defaultSpacing + 8) {
-          SupplementHeaderCard(routine: vm.routine)
+      if let routine = vm.routine {
+        ScrollView(showsIndicators: false) {
+          VStack(spacing: .defaultSpacing + 8) {
+            SupplementHeaderCard(routine: routine)
 
-          SchedulePanel(
-            times: vm.userTimes,
-            cycle: vm.userCycle,
-            pills: vm.pills
-          )
-
-          if !vm.usage.isEmpty {
-            SupplementGuideCard(
-              title: "복용법",
-              icon: "pills.fill",
-              type: .info,
-              guide: vm.usage
+            SchedulePanel(
+              times: vm.userTimes,
+              cycle: vm.userCycle,
+              pills: vm.pills
             )
-          }
 
-          if !vm.precautions.isEmpty {
-            SupplementGuideCard(
-              title: "복용 주의 사항",
-              icon: "exclamationmark.triangle.fill",
-              type: .warn,
-              guide: vm.precautions
-            )
-          }
-
-          Button(role: .destructive) {
-            vm.requestDelete()
-          } label: {
-            Label("루틴 삭제", systemImage: "trash.fill")
-              .font(.notoSans(weight: .bold, size: 17))
-              .frame(maxWidth: .infinity)
-              .padding(.vertical, .defaultSpacing)
-          }
-          .buttonStyle(.plain)
-          .background(
-            RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
-              .fill(
-                colorScheme == .dark
-                ? Color.white.opacity(0.08)
-                : .white
+            if !vm.memo.isEmpty {
+              SupplementGuideCard(
+                type: .memo,
+                guide: [vm.memo]
               )
-          )
-          .foregroundStyle(.red)
-          .cornerRadius(.defaultRadius)
-          .overlay(
-            RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
-              .stroke(Color.red.opacity(0.2), lineWidth: 1.5)
-          )
+            }
+
+            if !vm.usage.isEmpty {
+              SupplementGuideCard(
+                type: .info,
+                guide: vm.usage
+              )
+            }
+
+            if !vm.precautions.isEmpty {
+              SupplementGuideCard(
+                type: .warn,
+                guide: vm.precautions
+              )
+            }
+
+            Button(role: .destructive) {
+              vm.requestDelete()
+            } label: {
+              Label("루틴 삭제", systemImage: "trash.fill")
+                .font(.notoSans(weight: .bold, size: 17))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, .defaultSpacing)
+            }
+            .buttonStyle(.plain)
+            .background(
+              RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
+                .fill(
+                  colorScheme == .dark
+                  ? Color.white.opacity(0.08)
+                  : .white
+                )
+            )
+            .foregroundStyle(.red)
+            .cornerRadius(.defaultRadius)
+            .overlay(
+              RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
+                .stroke(Color.red.opacity(0.2), lineWidth: 1.5)
+            )
+          }
+          .padding(.horizontal, .defaultSpacing)
+          .padding(.top, .defaultSpacing)
         }
-        .padding(.horizontal, .defaultSpacing)
-        .padding(.top, .defaultSpacing)
+      } else {
+        Color.clear.onAppear {
+          dismiss()
+        }
       }
     }
     .background(.customBackground)
@@ -95,8 +104,7 @@ struct SupplementDetailView: View {
         DeleteAlertView(
           isPresented: $vm.showDeleteAlert,
           onDelete: {
-            vm.confirmDelete(context: context)
-            dismiss()
+            vm.confirmDelete(context: context, dismiss: dismiss)
           }
         )
       }
@@ -121,7 +129,7 @@ struct SupplementDetailView_Previews: PreviewProvider {
       cycleType: 1,
       cycleValue: "0", // 일요일
       startDate: Date(),
-      memo: nil,
+      memo: "면역력 강화",
       hasPush: true,
       imageData: nil,
       usage: ["식사 후 30분 이내 복용 권장"],

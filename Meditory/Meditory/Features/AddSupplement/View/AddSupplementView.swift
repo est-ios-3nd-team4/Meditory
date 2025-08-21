@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct AddSupplementView: View {
   
@@ -22,13 +23,15 @@ struct AddSupplementView: View {
   var type: Mode = .add
   
   @Environment(\.modelContext) private var context
+  @Environment(\.userStore) private var userStore
+
   @Environment(\.dismiss) private var dismiss
   @Environment(\.colorScheme) private var colorScheme
   
   @State private var selectedScheduleType: SupplementScheduleType = .weekday
   @StateObject private var addSupplementVM = AddSupplementViewModel()
   @StateObject private var scheduleVM = SupplementScheduleViewModel()
-  @State private var lifestyleTimeVM = LifestyleTimeViewModel()
+  @State private var lifestyleTimeVM: LifestyleTimeViewModel
   @State private var selectedPicker: SchedulePickerType? {
     didSet {
       showSchedulePicker()
@@ -43,12 +46,24 @@ struct AddSupplementView: View {
   @State private var showTimePicker = false
   @State private var selectedLifestyleCategory: LifestyleTimeType? = nil
   @State private var selectedLifestyleOption: (any LifestyleTime)?
+  @State private var lifestyle: UserLifeStyle
   @State private var isSearchingSupplementSummary = false
+  @State private var supplement: SupplementDTO?
+  @State private var showAlert = false
+  @State private var routineSaveError: RoutineSaveError?
   
   private var shouldShowSupplementInfo: Bool {
     addSupplementVM.supplemtSummary != nil || isSearchingSupplementSummary
   }
   private let defaultFontSize: CGFloat = 18
+  
+  init(type: Mode = .add, context: ModelContext) {
+    self.type = type
+    
+    let lifestyleTimeVM = LifestyleTimeViewModel(context: context)
+    self.lifestyleTimeVM = lifestyleTimeVM
+    self.lifestyle = lifestyleTimeVM.userlifeStyle
+  }
 
   var body: some View {
     GeometryReader { scrollView in
@@ -101,14 +116,21 @@ struct AddSupplementView: View {
               
               timeSelectionSection()
               
-              AIRecommendedScheduleView(defaultFontSize: defaultFontSize)
+              AIRecommendedScheduleView(
+                defaultFontSize: defaultFontSize,
+                context: context,
+                userStore: userStore,
+                supplementSummary: addSupplementVM.supplemtSummary,
+                lifestyle: lifestyle,
+                supplement: $supplement
+              )
               
               memoSection()
               
               Spacer()
               
               Button {
-                dismiss()
+                saveRoutine()
               } label: {
                 RoundedRectangle(cornerRadius: 10)
                   .fill(.main)
@@ -158,9 +180,6 @@ struct AddSupplementView: View {
               break
             }
           }
-          .onAppear {
-            addSupplementVM.updateContext(context)
-          }
         }
         
         if let category = selectedLifestyleCategory,
@@ -174,6 +193,7 @@ struct AddSupplementView: View {
           ) { result in
             if let result {
               lifestyleTimeVM.setTime(result)
+              lifestyle = lifestyleTimeVM.userlifeStyle
             }
             showTimePicker = false
           }
@@ -188,6 +208,21 @@ struct AddSupplementView: View {
         }
         .statusBarHidden(true)
         .ignoresSafeArea()
+      }
+      .overlay {
+        if showAlert, let routineSaveError {
+          AlertView(
+            alertType: .confirm,
+            title: routineSaveError.title,
+            message: routineSaveError.message,
+            onConfirm: {
+              showAlert = false
+            }
+          )
+        }
+      }
+      .onAppear {
+        addSupplementVM.updateContext(context)
       }
     }
   }
@@ -233,6 +268,32 @@ extension AddSupplementView {
     
     isSearchingSupplementSummary = true
     supplementName = ""
+  }
+}
+
+
+// MARK: - DB
+extension AddSupplementView {
+  private func saveRoutine() {
+    Task {
+      do {
+        try await addSupplementVM.saveRoutine(
+          type: selectedScheduleType,
+          supplement: supplement,
+          memo: memo
+        )
+        
+        await MainActor.run {
+          dismiss()
+        }
+      } catch let error as RoutineSaveError {
+        routineSaveError = error
+        showAlert = true
+        print("❌ \(error)")
+      } catch {
+        print("❌ Error is \(error)")
+      }
+    }
   }
 }
 
@@ -546,8 +607,4 @@ extension AddSupplementView {
       rootVC.present(vc, animated: false)
     }
   }
-}
-
-#Preview {
-  AddSupplementView()
 }

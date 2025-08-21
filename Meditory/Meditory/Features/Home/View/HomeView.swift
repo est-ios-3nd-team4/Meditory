@@ -35,39 +35,41 @@ struct HomeView: View {
     .onChange(of: selectedDate) { oldDate, newDate in
       vm.loadIntake(on: newDate)
       let cal = Calendar.current
-      if !cal.isDate(oldDate, equalTo: newDate, toGranularity: .month) {
+      let oldComp = cal.dateComponents([.year, .month], from: oldDate)
+      let newComp = cal.dateComponents([.year, .month], from: newDate)
+      if oldComp != newComp {
         vm.reloadDayCompletions(for: newDate)
       } else {
         vm.refreshTodayCompletion(on: newDate)
       }
     }
-    .onChange(of: vm.items.map(\.isCompleted)) { _, _ in
-      vm.refreshTodayCompletion(on: selectedDate)
-    }
   }
 
   private var achiveMentSection: some View {
-    VStack(spacing: .defaultSpacing) {
+    UnifiedSectionCard(showsStroke: false) {
       Text("오늘 복용 달성률")
         .font(.notoSans(size: 20))
         .frame(maxWidth: .infinity, alignment: .leading)
 
-      CircularProgressView(progress: vm.progress)
-        .frame(width: 200, height: 200)
+      HStack {
+        Spacer()
+        CircularProgressView(progress: vm.progress)
+          .frame(width: 200, height: 200)
+        Spacer()
+      }
 
       VStack {
         LazyVStack(spacing: .smallSpacing) {
-          ForEach(vm.items.indices.sorted { vm.items[$0].time < vm.items[$1].time }, id: \.self) { index in
-            let item = vm.items[index]
-
+          ForEach(vm.items.sorted { $0.time < $1.time }) { item in
             HStack(alignment: .center, spacing: .defaultSpacing) {
               Button {
-                vm.toggleCompleted(at: index, for: selectedDate)
+                vm.toggleCompleted(item, for: selectedDate)
               } label: {
                 CircleCheck(isCompleted: item.isCompleted)
                   .offset(y: 2)
               }
               .buttonStyle(.plain)
+              .contentShape(Rectangle())
 
               NavigationLink(
                 destination: SupplementDetailView(routine: item.routine)
@@ -93,16 +95,9 @@ struct HomeView: View {
         }
       }
     }
-    .padding(.defaultSpacing)
-    .background(
-      colorScheme == .dark
-      ? Color.white.opacity(0.3)
-      : Color.white
-    )
-    .cornerRadius(20)
-    .modifier(UnifiedShadow())
     .padding(.bottom, .defaultSpacing)
   }
+
 }
 
 struct HomeView_Previews: PreviewProvider {
