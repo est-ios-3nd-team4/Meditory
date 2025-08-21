@@ -16,7 +16,7 @@ struct SchedulePanel: View {
   let pills: [String]
 
   var body: some View {
-    UnifiedSectionCard(accentColor: Color.orange) {
+    UnifiedSectionCard(pointColor: Color.orange) {
       HStack(spacing: .smallSpacing) {
         Image(systemName: "calendar.badge.clock")
           .imageScale(.medium)
