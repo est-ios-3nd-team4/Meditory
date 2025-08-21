@@ -48,7 +48,7 @@ struct MeditoryApp: App {
       // 식단
       Meal.self,
       Food.self,
-      Macro.self,
+      //Macro.self,
 
     ])
     let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
