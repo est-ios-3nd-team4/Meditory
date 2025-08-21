@@ -11,7 +11,7 @@ enum ExtraInfoType: String, Codable, CaseIterable {
 }
 
 @Model
-final class ExtraInfo: @unchecked Sendable {
+final class ExtraInfo: Sendable {
   @Attribute(.unique) var key: String
   var value: String
   private var typeRaw: String

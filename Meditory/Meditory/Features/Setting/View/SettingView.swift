@@ -8,7 +8,12 @@ struct SettingView: View {
   
   @Environment(\.userStore) private var userStore
   
-  @StateObject private var viewModel = SettingViewModel()
+  @State private var viewModel: SettingViewModel
+  
+  init() {
+      // 앱의 실제 Store 싱글턴을 주입합니다.
+      _viewModel = State(initialValue: SettingViewModel(settingStore: SettingStore.shared))
+  }
   
   // DB의 User 목록 자동 바인딩
   @Query private var users: [User]
@@ -63,7 +68,9 @@ struct SettingView: View {
             .font(.notoSans(size: 18))
             .tint(.accent)
             .onChange(of: viewModel.isNotificationOn) { oldValue, newValue in
-              viewModel.updateNotificationSetting(newValue, context: context)
+              Task {
+                await viewModel.updateNotificationSetting(newValue)
+              }
             }
         }
         
@@ -71,12 +78,14 @@ struct SettingView: View {
           Text("고객센터 문의하기")
             .font(.notoSans(size: 18))
         }
-        
-        
       }
       .padding()
       
-      
+    }
+    .onAppear {
+      Task {
+        await viewModel.loadSetting()
+      }
     }
   }
   
