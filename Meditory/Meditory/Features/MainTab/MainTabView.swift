@@ -53,6 +53,12 @@ struct MainTabView: View {
               )
               .frame(height: tabViewHeight)
             }
+            
+            if showIntakeSelector {
+              AddIntakeSelectorView(
+                tabHeight: tabViewHeight) {
+                  showIntakeSelector = false
+                }
             }
           }
         }
