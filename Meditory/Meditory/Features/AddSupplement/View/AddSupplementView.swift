@@ -28,6 +28,8 @@ struct AddSupplementView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.colorScheme) private var colorScheme
   
+  @Binding private var selectedIntakeItem: AddIntakeItem?
+  
   @State private var selectedScheduleType: SupplementScheduleType = .weekday
   @StateObject private var addSupplementVM = AddSupplementViewModel()
   @StateObject private var scheduleVM = SupplementScheduleViewModel()
@@ -57,12 +59,18 @@ struct AddSupplementView: View {
   }
   private let defaultFontSize: CGFloat = 18
   
-  init(type: Mode = .add, context: ModelContext) {
+  init(
+    type: Mode = .add,
+    context: ModelContext,
+    selectedIntakeItem: Binding<AddIntakeItem?> = .constant(nil)
+  ) {
     self.type = type
     
     let lifestyleTimeVM = LifestyleTimeViewModel(context: context)
     self.lifestyleTimeVM = lifestyleTimeVM
     self.lifestyle = lifestyleTimeVM.userlifeStyle
+    
+    self._selectedIntakeItem = selectedIntakeItem
   }
 
   var body: some View {
@@ -151,7 +159,7 @@ struct AddSupplementView: View {
             .toolbar {
               ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                  dismiss()
+                  dismissOrClearSelection()
                 } label: {
                   Image(systemName: "chevron.left")
                     .foregroundStyle(Color.label)
@@ -199,6 +207,11 @@ struct AddSupplementView: View {
           }
         }
       }
+      .background(
+        colorScheme == .dark
+        ? Color.white.opacity(0.3)
+        : Color.white
+      )
       .fullScreenCover(isPresented: $showScanner) {
         CameraPickerSheet(isPresented: $showScanner) { text in
           searchSupplementSummary(
@@ -224,6 +237,18 @@ struct AddSupplementView: View {
       .onAppear {
         addSupplementVM.updateContext(context)
       }
+    }
+  }
+}
+
+
+extension AddSupplementView {
+  private func dismissOrClearSelection() {
+    if selectedIntakeItem != nil {
+      selectedIntakeItem = nil
+      
+    } else {
+      dismiss()
     }
   }
 }
@@ -284,7 +309,7 @@ extension AddSupplementView {
         )
         
         await MainActor.run {
-          dismiss()
+          dismissOrClearSelection()
         }
       } catch let error as RoutineSaveError {
         routineSaveError = error
