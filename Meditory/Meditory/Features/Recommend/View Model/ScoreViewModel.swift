@@ -178,8 +178,8 @@ private func buildIntakeAnalysisPrompt(diet: DietInput, supplements: SupplementI
 
   return """
   [역할]
-  - 너는 '식단/영양제 복용 기반 분류기'다. 입력을 근거로
-    부족/주의/최적/충족 카테고리의 대표 '영양성분명' 칩과 한국어 요약 문단을 JSON으로만 반환한다.
+  - 당신은 '식단/영양제 복용 기반 분류기'입니다. 입력을 근거로
+    부족/주의/최적/충족 카테고리의 대표 '영양성분명' 칩과 한국어 요약 문단을 JSON으로만 반환합니다.
   - 의료적 진단/처방이 아닌 일반 정보 제공.
   
   [입력]
