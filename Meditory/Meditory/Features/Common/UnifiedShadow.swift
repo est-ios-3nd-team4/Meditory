@@ -23,7 +23,6 @@ import SwiftUI
 /// 추가적인 사용 예시는 DailyNutritionView.swift에서 확인할 수 있습니다.
 ///
 struct UnifiedShadow: ViewModifier {
-  @Environment(\.colorScheme) private var colorScheme
   var enabled: Bool = true   // 그림자
 
   func body(content: Content) -> some View {
