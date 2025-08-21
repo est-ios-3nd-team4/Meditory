@@ -10,9 +10,12 @@ import SwiftUI
 struct MainTabView: View {
 
   @Environment(\.modelContext) private var context
-  @State var selectedTab: TabItem = .home
+  
+  @State private var selectedTabItem: TabItem = .home
+  @State private var showIntakeSelector = false
+  @State private var selectedIntakeItem: AddIntakeItem?
 
-  private let customTabTopInset: CGFloat = 14
+  private let customTabTopInset: CGFloat = 18
 
   var body: some View {
     NavigationStack {
@@ -20,22 +23,21 @@ struct MainTabView: View {
         DefaultTabView()
       } else {
         GeometryReader { geometry in
-          let tabViewHeight = geometry.size.width * 0.27
+          let tabViewHeight = geometry.size.width * 0.26
 
           ZStack {
             Group {
-              switch selectedTab {
+              switch selectedTabItem {
               case .home:
                 HomeView()
               case .recommend:
                 RecommendView()
-              case .add:
-                // 테스트를 위해 임시로 추가해두었습니다. 추후 수정 예정입니다.
-                AddSupplementView(context: context)
               case .dailyNutrition:
                 NutritionHomeView()
               case .settings:
                 SettingView()
+              default:
+                Color.clear
               }
             }
             .padding(.bottom, tabViewHeight - customTabTopInset)
@@ -43,8 +45,31 @@ struct MainTabView: View {
             VStack {
               Spacer()
 
-              CustomTabView(selectedTab: $selectedTab, topInset: customTabTopInset)
-                .frame(height: tabViewHeight)
+              CustomTabView(
+                selectedTab: $selectedTabItem,
+                topInset: customTabTopInset,
+                didTapAddButton: {
+                  showIntakeSelector = true
+                }
+              )
+              .frame(height: tabViewHeight)
+            }
+            
+            if showIntakeSelector {
+              AddIntakeSelectorView(
+                tabHeight: tabViewHeight,
+                showIntakeSelector: $showIntakeSelector,
+                selectedIntakeItem: $selectedIntakeItem
+              )
+            }
+            
+            if !showIntakeSelector, let intakeItem = selectedIntakeItem {
+              switch intakeItem {
+              case .supplement:
+                AddSupplementView(context: context, selectedIntakeItem: $selectedIntakeItem)
+              case .meal:
+                EmptyView()
+              }
             }
           }
         }
