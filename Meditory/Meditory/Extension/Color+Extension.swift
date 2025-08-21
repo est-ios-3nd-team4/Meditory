@@ -11,13 +11,12 @@ extension Color {
   static let background = Color(UIColor.systemBackground)
   static let label = Color(UIColor.label)
   static let chartBackground = Color(
-    .sRGB,
-    red: 239/255,
-    green: 239/255,
-    blue: 239/255,
+    red: 239,
+    green: 239,
+    blue: 239,
     opacity: 1.0
   )
-  
+
   init(red: Int, green: Int, blue: Int, opacity: Double = 1.0) {
     self.init(
       .sRGB,
