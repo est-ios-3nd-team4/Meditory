@@ -12,6 +12,8 @@ struct SupplementSummary: Codable {
   let name: String
   let description: String
   let category: String
+  var usage: [String] = []
+  var precautions: [String] = []
   
   var isUnidentifiable: Bool {
     self.type == 3

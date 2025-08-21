@@ -41,3 +41,34 @@ final class UserLifeStyle: @unchecked Sendable {
     self.dinner = dinner
   }
 }
+
+
+extension UserLifeStyle {
+  var wakeTimeDate: Date {
+    wakeTime.toDateFromHHmm() ?? Date.makeTime(hour: 7)
+  }
+  var sleepTimeDate: Date {
+    sleepTime.toDateFromHHmm() ?? Date.makeTime(hour: 23, minute: 30)
+  }
+  var breakfastDate: Date? {
+    breakfast?.toDateFromHHmm()
+  }
+  var lunchDate: Date? {
+    lunch?.toDateFromHHmm()
+  }
+  var dinnerDate: Date? {
+    dinner?.toDateFromHHmm()
+  }
+}
+
+
+extension UserLifeStyle: Equatable {
+  static func == (lhs: UserLifeStyle, rhs: UserLifeStyle) -> Bool {
+    return lhs.id == rhs.id &&
+    lhs.wakeTime == rhs.wakeTime &&
+    lhs.sleepTime == rhs.sleepTime &&
+    lhs.breakfast == rhs.breakfast &&
+    lhs.lunch == rhs.lunch &&
+    lhs.dinner == rhs.dinner
+  }
+}

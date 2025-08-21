@@ -10,55 +10,67 @@ import Foundation
 /// 요일별(1) / 주기별(2)
 extension SupplementScheduleType: Codable {}
 
-enum TimeSpec: Codable, Equatable {
-  case absolute(hour: Int, minute: Int, pillsPerDose: Int)
-  case relative(relativeTo: String, offsetMinutes: Int, pillsPerDose: Int)
-
-  private struct AbsDTO: Codable {
-    let hour: Int
-    let minute: Int
-    let pillsPerDose: Int
+struct DoseTime: Codable, Equatable {
+  /// 절대 시각 (예: 8시 30분)
+  var hour: Int
+  var minute: Int
+  
+  /// 상대 시각 (예: 아침 +30분)
+  /// relativeTo=["기상","취침","아침","점심","저녁","추천(무관)"]
+  var relativeTo: String
+  var offsetMinutes: Int
+  
+  /// 1회 복용량 (정 수)
+  var pillsPerDose: Int
+  
+  var time: Date {
+    Date.makeTime(hour: hour, minute: minute)
   }
-
-  private struct RelDTO: Codable {
-    let relativeTo: String
-    let offsetMinutes: Int
-    let pillsPerDose: Int
+  
+  var timeString: String {
+    time.timeFormatter
   }
-
-  init(from decoder: Decoder) throws {
-    let container = try decoder.singleValueContainer()
-    if let abs = try? container.decode(AbsDTO.self) {
-      self = .absolute(hour: abs.hour, minute: abs.minute, pillsPerDose: abs.pillsPerDose)
-      return
+  
+  var relativeTimeDescription: String {
+    let minutes = abs(offsetMinutes)
+    switch relativeTo {
+    case "아침", "점심", "저녁":
+      return offsetMinutes < 0 ? "식전 \(minutes)분" : "식후 \(minutes)분"
+    case "기상", "취침":
+      return offsetMinutes < 0 ? "직후 \(minutes)분" : "직전 \(minutes)분"
+    default:
+      return ""
     }
-    if let rel = try? container.decode(RelDTO.self) {
-      self = .relative(relativeTo: rel.relativeTo, offsetMinutes: rel.offsetMinutes, pillsPerDose: rel.pillsPerDose)
-      return
-    }
-    throw DecodingError.dataCorruptedError(in: container, debugDescription: "TimeSpec 형식 오류")
   }
-
-  func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
-
-    switch self {
-    case let .absolute(h, m, pillsPerDose):
-      try container.encode(AbsDTO(hour: h, minute: m, pillsPerDose: pillsPerDose))
-    case let .relative(ref, off, pillsPerDose):
-      try container.encode(RelDTO(relativeTo: ref, offsetMinutes: off, pillsPerDose: pillsPerDose))
-    }
+  
+  var isNotNone: Bool {
+    relativeTo != "추천"
+  }
+  
+  var doseString: String {
+    "\(pillsPerDose)정"
   }
 }
 
 /// 복용 스케줄
 struct DoseSchedule: Codable {
   var cycleType: SupplementScheduleType // 요일별, 주기별
-  var times: [TimeSpec]
+  var times: [DoseTime]
   /// cycleType == .weekdays(요일 인덱스: 일=0 ~ 토=6)
   var weekdays: [Int]?
   /// cycleType == .interval  (예: 2 → 2일 간격)
   var intervalDays: Int?
+  
+  var routineTimes: [RoutineTime] {
+    times.map { doseTime in
+      RoutineTime(
+        time: doseTime.time,
+        intakeTiming: doseTime.relativeTo,
+        intakeOffsetMinutes: doseTime.offsetMinutes,
+        pillsPerDose: doseTime.pillsPerDose
+      )
+    }
+  }
 }
 
 /// LLM 응답 DTO
