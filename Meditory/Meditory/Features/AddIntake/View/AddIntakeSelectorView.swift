@@ -8,27 +8,10 @@
 import SwiftUI
 
 struct AddIntakeSelectorView: View {
-  
-  enum IntakeItem: String, CaseIterable {
-    case supplement
-    case meal
     
-    var imageName: String {
-      "icon_\(self.rawValue)"
-    }
-    
-    var title: String {
-      switch self {
-      case .supplement:
-        return "영양제 추가"
-      case .meal:
-        return "식단 추가"
-      }
-    }
-  }
-  
   let tabHeight: CGFloat
-  var onDismiss: () -> Void
+  @Binding var showIntakeSelector: Bool
+  @Binding var selectedIntakeItem: AddIntakeItem?
   
   @State private var rotated = false
   @State private var isPresented = false
@@ -73,12 +56,7 @@ struct AddIntakeSelectorView: View {
             IntakeAddButton()
               .rotationEffect(.degrees(rotated ? 45 : 0))
               .onTapGesture {
-                transitionAnimation()
-                
-                Task { @MainActor in
-                  try await Task.sleep(for: .seconds(transtionDuration))
-                  onDismiss()
-                }
+                dismissWithAnimation()
               }
             
             Spacer()
@@ -95,7 +73,7 @@ struct AddIntakeSelectorView: View {
     }
   }
   
-  private func intakeItem(item: IntakeItem) -> some View {
+  private func intakeItem(item: AddIntakeItem) -> some View {
     VStack {
       Circle()
         .fill(Color.init(red: 94, green: 94, blue: 96))
@@ -111,8 +89,15 @@ struct AddIntakeSelectorView: View {
         .foregroundStyle(.white)
         .font(.notoSans(size: 18))
     }
+    .onTapGesture {
+      selectedIntakeItem = item
+      showIntakeSelector = false
+    }
   }
-  
+}
+
+
+extension AddIntakeSelectorView {
   private func transitionAnimation() {
     withAnimation(.easeInOut(duration: 0.3)) {
       rotated.toggle()
@@ -133,6 +118,15 @@ struct AddIntakeSelectorView: View {
       )
     ) {
       isPresented.toggle()
+    }
+  }
+  
+  private func dismissWithAnimation() {
+    transitionAnimation()
+    
+    Task { @MainActor in
+      try await Task.sleep(for: .seconds(transtionDuration))
+      showIntakeSelector = false
     }
   }
 }

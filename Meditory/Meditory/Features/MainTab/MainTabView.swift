@@ -11,8 +11,9 @@ struct MainTabView: View {
 
   @Environment(\.modelContext) private var context
   
-  @State private var selectedTab: TabItem = .home
+  @State private var selectedTabItem: TabItem = .home
   @State private var showIntakeSelector = false
+  @State private var selectedIntakeItem: AddIntakeItem?
 
   private let customTabTopInset: CGFloat = 18
 
@@ -26,7 +27,7 @@ struct MainTabView: View {
 
           ZStack {
             Group {
-              switch selectedTab {
+              switch selectedTabItem {
               case .home:
                 HomeView()
               case .recommend:
@@ -45,7 +46,7 @@ struct MainTabView: View {
               Spacer()
 
               CustomTabView(
-                selectedTab: $selectedTab,
+                selectedTab: $selectedTabItem,
                 topInset: customTabTopInset,
                 didTapAddButton: {
                   showIntakeSelector = true
@@ -56,9 +57,11 @@ struct MainTabView: View {
             
             if showIntakeSelector {
               AddIntakeSelectorView(
-                tabHeight: tabViewHeight) {
-                  showIntakeSelector = false
-                }
+                tabHeight: tabViewHeight,
+                showIntakeSelector: $showIntakeSelector,
+                selectedIntakeItem: $selectedIntakeItem
+              )
+            }
             }
           }
         }
