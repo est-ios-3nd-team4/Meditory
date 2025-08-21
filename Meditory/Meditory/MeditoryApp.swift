@@ -11,20 +11,20 @@ import SwiftData
 
 @main
 struct MeditoryApp: App {
-  
+
   @Environment(\.userStore) private var userStore // TODO: Onboarding 에 UserStore 재적용하면서 삭제 예정
-  
-  
+
+
   init() {
     //        FirebaseApp.configure()
   }
   // MARK: 기존 schema, context 설정 등은 DataController 로 이동함
-  
+
   @AppStorage("needOnboarding") private var needOnboarding: Bool = true
-  
+
   var body: some Scene {
     WindowGroup {
-      
+
       Group{
         if needOnboarding {
           OnboardingView(userStore: userStore) {

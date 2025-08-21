@@ -102,8 +102,7 @@ struct ImageCardView: View {
             NavigationLink {
               if let link = product.link,
                  let url = URL(string: link) {
-                WebView(url: url)
-                  .navigationTitle(product.name)
+                WebPage(url: url, title: product.name)
               }
             } label: {
               VStack(alignment: .leading, spacing: .smallSpacing) {

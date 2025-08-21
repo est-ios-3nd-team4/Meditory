@@ -3,8 +3,15 @@ import SwiftUI
 struct ScoreView: View {
   @Environment(\.colorScheme) private var colorScheme
 
-  var score: Double = 65
+  @StateObject private var scoreVM = ScoreViewModel()
 
+  @State private var animatedScore: Double = 0
+
+  var onResultUpdate: ((ScoreResult) -> Void)? = nil
+
+  private var shownScore: Int { Int(animatedScore) }
+
+  private var score: Double { Double(scoreVM.result?.score ?? 0) }
   // 임시 멘트
   private var statusMessage: String {
     switch score {
@@ -36,9 +43,11 @@ struct ScoreView: View {
 
         Spacer()
 
-        NavigationLink(destination: ScoreDetailView()) {
-          Image(systemName: "chevron.right")
-            .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
+        if let analysisResult = scoreVM.result {
+          NavigationLink(destination: ScoreDetailView(result: analysisResult)) {
+            Image(systemName: "chevron.right")
+              .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
+          }
         }
       }
 
@@ -52,14 +61,14 @@ struct ScoreView: View {
           .rotationEffect(.degrees(180))
 
         Circle()
-          .trim(from: 0, to: score / 200)
+          .trim(from: 0, to: animatedScore / 200)
           .stroke(Color.main, style: StrokeStyle(lineWidth: 25, lineCap: .round)
           )
           .rotationEffect(.degrees(180))
 
         VStack(spacing: 0) {
           HStack(alignment: .firstTextBaseline, spacing: 0) {
-            Text("\(Int(score))")
+            Text("\(Int(animatedScore))")
               .font(.notoSans(weight: .medium, size: 50))
 
             Text("점")
@@ -87,6 +96,24 @@ struct ScoreView: View {
                 : Color.white)
     .cornerRadius(.defaultRadius)
     .modifier(UnifiedShadow())
+    .onAppear {
+      animatedScore = 0
+      if scoreVM.result == nil {
+        scoreVM.loadMockIntake()
+      } else if let current = scoreVM.result?.score {
+        DispatchQueue.main.async {
+          withAnimation(.easeOut(duration: 1.2)) { animatedScore = Double(current) }
+        }
+      }
+    }
+    
+    .onChange(of: scoreVM.result) { newResult in
+      guard let newResult else { return }
+      onResultUpdate?(newResult)
+      withAnimation(.easeOut(duration: 1.2)) {
+        animatedScore = Double(newResult.score)
+      }
+    }
   }
 }
 
