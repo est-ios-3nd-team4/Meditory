@@ -39,7 +39,7 @@ struct SupplementHeaderCard: View {
   }
 
   var body: some View {
-    UnifiedSectionCard(accentColor: pointColor) {
+    UnifiedSectionCard(pointColor: pointColor) {
       VStack(alignment: .leading, spacing: .smallSpacing) {
         HStack(spacing: .smallSpacing) {
           Image(systemName: systemIcon)

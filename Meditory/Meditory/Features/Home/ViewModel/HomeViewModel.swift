@@ -41,16 +41,19 @@ final class HomeViewModel: ObservableObject {
   }
 
   /// 인덱스에 해당하는 IntakeItem 토글 처리
-  func toggleCompleted(at index: Int, for date: Date) {
+  func toggleCompleted(_ item: IntakeItem, for date: Date) {
     guard let manager = manager else {
-      items[index].isCompleted.toggle()
+      // 로컬 토글이 필요하다면 id로 찾아서 변경
+      if let idx = items.firstIndex(where: { $0.id == item.id }) {
+        items[idx].isCompleted.toggle()
+      }
       return
     }
-    manager.toggleIntake(items[index])
+    manager.toggleIntake(item)
     loadIntake(on: date)
     refreshTodayCompletion(on: date)
   }
-  
+
   func reloadDayCompletions(for baseDate: Date) {
     guard let manager = manager else { dayCompletionMap = [:]; return }
     

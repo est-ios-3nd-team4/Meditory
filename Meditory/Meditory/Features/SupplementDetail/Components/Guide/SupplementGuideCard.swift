@@ -48,7 +48,7 @@ struct SupplementGuideCard: View {
   let guide: [String]
   
   var body: some View {
-    UnifiedSectionCard(accentColor: type.tint) {
+    UnifiedSectionCard(pointColor: type.tint) {
       HStack(spacing: .smallSpacing) {
         Image(systemName: type.icon)
           .imageScale(.medium)
