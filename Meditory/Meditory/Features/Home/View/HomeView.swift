@@ -43,6 +43,10 @@ struct HomeView: View {
         vm.refreshTodayCompletion(on: newDate)
       }
     }
+    .onReceive(NotificationCenter.default.publisher(for: .didUpdateSupplement)) { _ in
+      vm.loadIntake(on: selectedDate)
+      vm.reloadDayCompletions(for: selectedDate)
+    }
   }
 
   private var achiveMentSection: some View {
