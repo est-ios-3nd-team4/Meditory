@@ -13,15 +13,18 @@ struct UnifiedSectionCard<Content: View>: View {
   let content: Content
   var pointColor: Color?
   var backgroundColor: Color?
+  var showsStroke: Bool
 
   init(
     accentColor: Color? = nil,
     backgroundColor: Color? = nil,
+    showsStroke: Bool = true,
     @ViewBuilder content: () -> Content
   ) {
     self.content = content()
     self.pointColor = accentColor
     self.backgroundColor = backgroundColor
+    self.showsStroke = showsStroke
   }
 
   var body: some View {
@@ -42,15 +45,19 @@ struct UnifiedSectionCard<Content: View>: View {
         )
     )
     .overlay(
-      RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
-        .strokeBorder(
-          pointColor?.opacity(0.3) ?? (
-            colorScheme == .dark
-            ? Color.white.opacity(0.15)
-            : Color.black.opacity(0.1)
-          ),
-          lineWidth: 1
-        )
+      Group{
+        if showsStroke {
+          RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
+            .strokeBorder(
+              pointColor?.opacity(0.3) ?? (
+                colorScheme == .dark
+                ? Color.white.opacity(0.15)
+                : Color.black.opacity(0.1)
+              ),
+              lineWidth: 1
+            )
+        }
+      }
     )
     .modifier(UnifiedShadow())
   }
