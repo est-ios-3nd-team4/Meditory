@@ -57,6 +57,7 @@ struct LifestyleTimePickerSheet: View {
                 )
               }
             }
+            .padding(.bottom, .defaultSpacing)
             
             Button {
               dismissWithAnimation(isConfirm: true)
@@ -71,6 +72,7 @@ struct LifestyleTimePickerSheet: View {
                 }
             }
             .padding(.vertical, geometry.safeAreaInsets.bottom)
+            .padding(.bottom, .bottomInset)
           }
           .padding(.horizontal, 20)
           .background(

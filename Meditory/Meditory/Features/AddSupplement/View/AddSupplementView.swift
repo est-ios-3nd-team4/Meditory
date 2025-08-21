@@ -142,7 +142,7 @@ struct AddSupplementView: View {
                   }
               }
               .id("confirmButton")
-              .padding(.bottom, fieldType == .memo ? 20 : 0)
+              .padding(.bottom, .bottomInset)
             }
             .padding(.horizontal, .defaultSpacing + 4)
             .navigationTitle("복용약 추가")
