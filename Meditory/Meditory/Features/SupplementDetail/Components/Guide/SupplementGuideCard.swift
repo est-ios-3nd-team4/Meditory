@@ -7,32 +7,57 @@
 import SwiftUI
 
 struct SupplementGuideCard: View {
-  enum GuideType { case info, warn }
+  enum GuideType {
+    case info, warn, memo
 
-  let title: String
-  let icon: String
+    var title: String {
+      switch self {
+      case .info:
+        return "복용법"
+      case .warn:
+        return "복용 주의 사항"
+      case .memo:
+        return "메모"
+      }
+    }
+
+    var icon: String {
+      switch self {
+      case .info:
+        return "pills.fill"
+      case .warn:
+        return "exclamationmark.triangle.fill"
+      case .memo:
+        return "doc.fill"
+      }
+    }
+
+    var tint: Color {
+      switch self {
+      case .info:
+        return .main
+      case .warn:
+        return .orange
+      case .memo:
+        return .purple
+      }
+    }
+  }
+
   let type: GuideType
   let guide: [String]
-
-  private var tint: Color {
-    type == .info ? .main : .orange
-  }
-
-  private var backgroundColor: Color {
-    type == .info ? Color.main.opacity(0.08) : Color.yellow.opacity(0.12)
-  }
   
   var body: some View {
-    UnifiedSectionCard(accentColor: tint) {
+    UnifiedSectionCard(accentColor: type.tint) {
       HStack(spacing: .smallSpacing) {
-        Image(systemName: icon)
+        Image(systemName: type.icon)
           .imageScale(.medium)
           .padding(.smallSpacing)
-          .background(Circle().fill(tint.opacity(0.15)))
-          .foregroundStyle(tint)
+          .background(Circle().fill(type.tint.opacity(0.15)))
+          .foregroundStyle(type.tint)
           .accessibilityHidden(true)
 
-        Text(title)
+        Text(type.title)
           .font(.notoSans(size: 18))
           .fontWeight(.bold)
 
@@ -44,7 +69,7 @@ struct SupplementGuideCard: View {
           HStack(alignment: .top, spacing: .smallSpacing) {
             Circle()
               .frame(width: 5, height: 5)
-              .foregroundStyle(tint.opacity(0.8))
+              .foregroundStyle(type.tint.opacity(0.8))
               .padding(.top, .smallSpacing)
 
             Text(text)
@@ -59,8 +84,6 @@ struct SupplementGuideCard: View {
 
 #Preview("Info") {
   SupplementGuideCard(
-    title: "복용법",
-    icon: "pills.fill",
     type: .info,
     guide: [
       "식사와 함께 충분한 물과 복용하세요.",
@@ -72,8 +95,6 @@ struct SupplementGuideCard: View {
 }
 #Preview("Info - Dark Mode") {
   SupplementGuideCard(
-    title: "복용법",
-    icon: "pills.fill",
     type: .info,
     guide: [
       "식사와 함께 충분한 물과 복용하세요.",
@@ -87,8 +108,6 @@ struct SupplementGuideCard: View {
 
 #Preview("Warn") {
   SupplementGuideCard(
-    title: "복용 주의 사항",
-    icon: "exclamationmark.triangle.fill",
     type: .warn,
     guide: [
       "혈전 위험이 있는 경우 전문의 상담 후 복용하세요.",
@@ -101,8 +120,6 @@ struct SupplementGuideCard: View {
 
 #Preview("Warn — Dark Mode") {
   SupplementGuideCard(
-    title: "복용 주의 사항",
-    icon: "exclamationmark.triangle.fill",
     type: .warn,
     guide: [
       "혈전 위험이 있는 경우 전문의 상담 후 복용하세요.",
@@ -112,4 +129,16 @@ struct SupplementGuideCard: View {
   .padding()
   .background(Color.customBackground)
   .environment(\.colorScheme, .dark)
+}
+
+#Preview("Memo") {
+  SupplementGuideCard(
+    type: .memo,
+    guide: [
+      "아침밥 먹고 바로 복용하기",
+      "점심은 꼭 물 많이 마시고 먹기"
+    ]
+  )
+  .padding()
+  .background(Color.customBackground)
 }
