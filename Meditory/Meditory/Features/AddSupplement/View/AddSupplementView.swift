@@ -247,6 +247,10 @@ extension AddSupplementView {
     if selectedIntakeItem != nil {
       selectedIntakeItem = nil
       
+      NotificationCenter.default.post(
+        name: .didUpdateSupplement,
+        object: nil
+      )
     } else {
       dismiss()
     }

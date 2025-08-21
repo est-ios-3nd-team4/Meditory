@@ -44,6 +44,10 @@ struct HomeView: View {
     .onChange(of: vm.items.map(\.isCompleted)) { _, _ in
       vm.refreshTodayCompletion(on: selectedDate)
     }
+    .onReceive(NotificationCenter.default.publisher(for: .didUpdateSupplement)) { _ in
+      vm.loadIntake(on: selectedDate)
+      vm.reloadDayCompletions(for: selectedDate)
+    }
   }
 
   private var achiveMentSection: some View {
