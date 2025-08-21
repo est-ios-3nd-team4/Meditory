@@ -11,64 +11,20 @@ import SwiftData
 
 @main
 struct MeditoryApp: App {
-  
+
   @Environment(\.userStore) private var userStore // TODO: Onboarding 에 UserStore 재적용하면서 삭제 예정
-  
-  
+
+
   init() {
     //        FirebaseApp.configure()
   }
-
-  var sharedModelContainer: ModelContainer = {
-    let schema = Schema([
-      Item.self,
-      Nutrient.self,
-      Scrap.self,
-      NutrientRecommendation.self,
-
-      //User 정보
-      User.self,
-      UserProfile.self,
-      UserStatus.self,
-      UserExtraInfo.self,
-
-      ExtraInfo.self, // 추가정보(질병 알러지 등)
-      Setting.self,
-
-      // Routine
-      Routine.self,
-      RoutineTime.self,
-      RoutineRecord.self,
-
-      // Nutrient
-      Nutrient.self,
-      NutrientRecommendation.self,
-      Scrap.self,
-
-      // 식단
-      Meal.self,
-      Food.self,
-      //Macro.self,
-
-    ])
-    let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-    do {
-      return try ModelContainer(for: schema, configurations: [modelConfiguration])
-    } catch {
-      fatalError("Could not create ModelContainer: \(error)")
-
-    }
-  }()
-
-
   // MARK: 기존 schema, context 설정 등은 DataController 로 이동함
-  
+
   @AppStorage("needOnboarding") private var needOnboarding: Bool = true
-  
+
   var body: some Scene {
     WindowGroup {
-      
+
       Group{
         if needOnboarding {
           OnboardingView(userStore: userStore) {
