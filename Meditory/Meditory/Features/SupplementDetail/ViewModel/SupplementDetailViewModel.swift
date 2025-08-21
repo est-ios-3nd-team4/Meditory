@@ -15,7 +15,8 @@ final class SupplementDetailViewModel: ObservableObject {
 
   /// SwiftData @Model 이므로 참조 타입으로 유지
   /// - Routine이 갱신되면 아래 computed 프로퍼티들이 최신 상태를 반영
-  let routine: Routine
+  /// - Routine 삭제 시 nil 처리
+  @Published var routine: Routine?
 
   // State
   @Published var showDeleteAlert: Bool = false
@@ -30,14 +31,16 @@ final class SupplementDetailViewModel: ObservableObject {
   }
 
   // Header
-  var name: String { routine.displayName }
-  var subtitle: String { routine.desc ?? "" }
+  var name: String { routine?.displayName ?? "" }
+  var subtitle: String { routine?.desc ?? "" }
 
   // Mine (사용자 설정)
   /// 1) 사용자 지정 시간
   /// 2) 없으면 추천 시간
   /// 3) 그래도 없으면 09:00 기본 1회
   var userTimes: [String] {
+    guard let routine else { return [] }
+
     let user = routine.routineTimes
       .sorted { $0.time < $1.time }
       .map { $0.time.timeFormatter }
@@ -58,17 +61,20 @@ final class SupplementDetailViewModel: ObservableObject {
 
   /// 비정상(cycleType=0, value="", 포맷 실패 등)일 경우 "매일"로 대체
   var userCycle: String {
+    guard let routine else { return "매일" }
+
     let rendered = RoutineFormatter.renderCycle(
       cycleType: routine.cycleType,
       cycleValue: routine.cycleValue
     )
 
-    if rendered.isEmpty { return "매일" }
-    return rendered
+    return rendered.isEmpty ? "매일" : rendered
   }
 
   /// 시간별 복용 알약 수 정보
   var pills: [String] {
+    guard let routine else { return ["1정"] }
+
     // 1. 사용자 설정 복용 시간이 있는 경우
     let userPills = routine.routineTimes
       .sorted { $0.time < $1.time }
@@ -91,15 +97,25 @@ final class SupplementDetailViewModel: ObservableObject {
     return ["1정"]
   }
 
-  var usage: [String] { routine.usage }
-  var precautions: [String] { routine.precautions }
+  /// 메모
+  var memo: String {
+    routine?.memo ?? ""
+  }
+
+  var usage: [String] { routine?.usage ?? [] }
+  var precautions: [String] { routine?.precautions ?? [] }
 
   func requestDelete() { showDeleteAlert = true }
 
-  func confirmDelete(context: ModelContext) {
-    routineStore.deleteRoutine(routine, context: context)
+  func confirmDelete(context: ModelContext, dismiss: DismissAction) {
+    if let routine {
+      routineStore.deleteRoutine(routine, context: context)
+      self.routine = nil
+    }
     showDeleteAlert = false
+    dismiss()
   }
 
+  
   func cancelDelete() { showDeleteAlert = false }
 }
