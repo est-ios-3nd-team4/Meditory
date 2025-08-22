@@ -10,9 +10,7 @@ struct RecommendView: View {
   @StateObject private var nutrientVM = NutrientViewModel()
 
   @State private var isOverlappingHeader = false
-  // 헤더의 global maxY
   @State private var headerBottomY: CGFloat = 0
-  // 첫 카드의 global minY
   @State private var firstCardTopY: CGFloat = .infinity
   @State private var searchText = ""
   @State private var selectedScene: SceneTab = .recommend
@@ -26,6 +24,8 @@ struct RecommendView: View {
   @State private var dummyChipSignature = ""
   @State private var dummyRecommendSignature = ""
   @State private var hasRealNutrientData = false
+  @State private var categoryTask: Task<Void, Never>?
+  @State private var hydrateTask: Task<Void, Never>?
 
   private func chipSignature(_ chips: [String]) -> String {
     chips.sorted().joined(separator: "|")
@@ -34,28 +34,39 @@ struct RecommendView: View {
     nutrients.map { $0.id }.sorted().joined(separator: "|")
   }
 
-  private let imageService = GoogleCSEImageClient()
+  private var imageService = GoogleCSEImageClient()
 
   private func hydrateImagesForCurrentItems() {
     guard hasRealData else { return }
 
+    hydrateTask?.cancel()
+
     let current = items
-    Task {
+    hydrateTask = Task {
       var results: [UUID: ImageResult] = [:]
       var errors: [Error] = []
 
       try? await withThrowingTaskGroup(of: (UUID, ImageResult?, Error?).self) { group in
         for product in current {
-          group.addTask { [imageService] in
-            do {
-              let result = try await imageService.fetchImageAndLink(for: product.brand, name: product.name)
-              return (product.id, result, nil)
-            } catch {
-              return (product.id, nil, error)
-            }
+          if Task.isCancelled {
+            group.cancelAll()
+            return
           }
+            group.addTask { [imageService] in
+              do {
+                let result = try await imageService.fetchImageAndLink(for: product.brand, name: product.name)
+                return (product.id, result, nil)
+              } catch {
+                return (product.id, nil, error)
+              }
+            }
+
         }
         for try await (id, result, err) in group {
+          if Task.isCancelled {
+            group.cancelAll()
+            return
+          }
           if let result {
             results[id] = result
           }
@@ -63,6 +74,7 @@ struct RecommendView: View {
           if let err { errors.append(err) }
         }
       }
+      guard !Task.isCancelled else { return }
 
       await MainActor.run {
         // 기존 brand/name/id는 유지하고 image만 채움
@@ -183,6 +195,10 @@ struct RecommendView: View {
 
     }
     .onAppear(perform: onAppear)
+    .onDisappear {
+      categoryTask?.cancel()
+      hydrateTask?.cancel()
+    }
 
     .onChange(of: nutrientVM.recommend) {
       guard !nutrientVM.recommend.isEmpty else { return }
@@ -225,13 +241,26 @@ struct RecommendView: View {
         desc: "* 본결과는 의사의 처방을 대신하지 않습니다.",
         products: items,
         onCategoryTap: { category in
-          Task {
+          categoryTask?.cancel()
+
+          Task { @MainActor in
+            hasRealData = false
+            items = []
+          }
+          categoryTask = Task {
+            defer { categoryTask = nil }
+
             await recommendVM.loadProducts(for: category)
+            guard !Task.isCancelled else { return }
+
             let real = recommendVM.products
 
             await MainActor.run {
               if real.isEmpty {
-                if !hasRealData { items = dummyProducts(for: category) }
+                if !hasRealData {
+                  items = dummyProducts(for: category)
+                  hasRealData = false
+                }
               } else {
                 items = real
                 hasRealData = true
@@ -247,7 +276,8 @@ struct RecommendView: View {
 
       NutrientCardView(
         nutrients: nutrientVM.chip,
-        onSeeDetail: { showNutrientDetail = true }
+        onSeeDetail: { showNutrientDetail = true },
+        isLoading: !hasRealNutrientData
       )
       .id(nutrientVM.chip.joined(separator: "|"))
       .padding(.horizontal, 16)
@@ -291,13 +321,12 @@ struct RecommendView: View {
     guard !didSeedNutrients else { return }
     didSeedNutrients = true
 
-    if items.isEmpty {
-      seedDummyData()
-    }
+    seedDummyNutrientsIfNeeded()
 
 #if DEBUG
     print("apiKey len:", GoogleKey.apiKey.count, "cx:", GoogleKey.cx)
 #endif
+    hasRealNutrientData = false
 
     nutrientVM.load(userName: "@@")
 
@@ -358,14 +387,30 @@ struct RecommendView: View {
     ]
 
     let nutrients = makeDummyNutrients()
-    nutrientVM.recommend = nutrients
-
-    if nutrientVM.chip.isEmpty {
-      nutrientVM.chip = ["프로바이오틱스", "오메가3", "마그네슘"]
-    }
+    let dummyChips = ["프로바이오틱스", "오메가3", "마그네슘"]
 
     dummyRecommendSignature = recommendSignature(nutrients)
-    dummyChipSignature = chipSignature(nutrientVM.chip)
+    dummyChipSignature = chipSignature(dummyChips)
+
+    nutrientVM.recommend = nutrients
+    if nutrientVM.chip.isEmpty {
+      nutrientVM.chip = dummyChips
+    }
+    hasRealNutrientData = false
+  }
+
+  private func seedDummyNutrientsIfNeeded() {
+    let nutrients = makeDummyNutrients()
+    let dummyChips = ["프로바이오틱스", "오메가3", "마그네슘"]
+
+    dummyRecommendSignature = recommendSignature(nutrients)
+    dummyChipSignature = chipSignature(dummyChips)
+
+    nutrientVM.recommend = nutrients
+    if nutrientVM.chip.isEmpty {
+      nutrientVM.chip = dummyChips
+    }
+    hasRealNutrientData = false
   }
 
   // 더미데이터 (이미지카드)

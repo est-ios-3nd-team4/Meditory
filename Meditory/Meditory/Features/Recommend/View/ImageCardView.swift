@@ -9,8 +9,8 @@ struct Product: Identifiable, Codable {
   var link: String?
 
   enum CodingKeys: String, CodingKey {
-      case brand, name
-    }
+    case brand, name
+  }
 
   init(id: UUID = UUID(), imageName: String = "", brand: String, name: String, link: String? = nil) {
     self.id = id
@@ -95,51 +95,44 @@ struct ImageCardView: View {
         .font(.notoSans(weight: .medium, size: 12))
         .foregroundColor(.gray)
 
+      ScrollViewReader { proxy in
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack(spacing: .smallSpacing) {
+            Color.clear
+              .frame(width: 1, height: 1)
+              .id("HEAD")
 
-      ScrollView(.horizontal, showsIndicators: false) {
-        HStack(spacing: .smallSpacing) {
-          ForEach(products) { product in
-            NavigationLink {
-              if let link = product.link,
-                 let url = URL(string: link) {
-                WebPage(url: url, title: product.name)
-              }
-            } label: {
-              VStack(alignment: .leading, spacing: .smallSpacing) {
-                if let imageURL = URL(string: product.imageName), !product.imageName.isEmpty {
-                  AsyncImage(url: URL(string: product.imageName)) { phase in
-                    switch phase {
-                    case .success(let img):
-                      img.resizable().scaledToFill()
-                    case .failure:
-                      Color.gray.opacity(0.2)
-                    default:
-                      Color.gray.opacity(0.1)
-                    }
-                  }
-                  .frame(width: 110, height: 110, alignment: .center)
-                  .clipShape(RoundedRectangle(cornerRadius: .smallRadius))
-                } else {
-                  Color.gray
-                    .frame(width: 110, height: 110, alignment: .center)
-                    .clipShape(RoundedRectangle(cornerRadius: .smallRadius))
+            if products.isEmpty {
+              ForEach(0..<6, id: \.self) { _ in
+                VStack(alignment: .leading, spacing: .smallSpacing) {
+                  ShimmerView(widthRatio: 1.0, cornerRadius: .fixed(10))
+                    .frame(width: 110, height: 110)
+                  ShimmerView(widthRatio: 0.55, cornerRadius: .fixed(6))
+                    .frame(width: 110, height: 12)
+                  ShimmerView(widthRatio: 1.0, cornerRadius: .fixed(6))
+                    .frame(width: 110, height: 12)
+                  ShimmerView(widthRatio: 0.8, cornerRadius: .fixed(6))
+                    .frame(width: 110, height: 12)
                 }
-
-                Text(product.brand)
-                  .padding(.leading, 2)
-                  .font(.notoSans(weight: .medium, size: 13))
-                  .foregroundStyle(.gray)
-                  .frame(width: 110, height: 16, alignment: .topLeading)
-
-                Text(product.name)
-                  .padding(.leading, 2)
-                  .font(.notoSans(weight: .medium, size: 12))
-                  .lineLimit(2)
-                  .multilineTextAlignment(.leading) 
-                  .frame(width: 110, height: 40, alignment: .topLeading)
+              }
+            } else {
+              ForEach(products) { product in
+                NavigationLink {
+                  if let link = product.link, let url = URL(string: link) {
+                    WebPage(url: url, title: product.name)
+                  }
+                } label: {
+                  ProductTile(product: product)
+                }
+                .buttonStyle(PlainButtonStyle())
               }
             }
-            .buttonStyle(PlainButtonStyle())
+          }
+        }
+        // 카테고리 바뀌면 맨 앞으로 스크롤
+        .onChange(of: selectedCategory) { _, _ in
+          withAnimation(.easeOut(duration: 0.25)) {
+            proxy.scrollTo("HEAD", anchor: .leading)
           }
         }
       }
