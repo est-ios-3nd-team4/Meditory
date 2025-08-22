@@ -34,19 +34,20 @@ struct OnboardingGenderView: View {
     .frame(maxWidth: .infinity)
     .padding(.bottom, 20)
     VStack(alignment: .leading, spacing: .defaultSpacing) {
+      if vm.gender != Gender.male.title {
       if let info = prompt.info {
         Text(info)
           .font(.notoSans(weight: .medium, size: 16))
           .foregroundStyle(.textGray)
           .padding(.bottom,.defaultSpacing)
       }
-      ForEach(question, id: \.self) { item in
-        RowItemCell(model: item, isSelected: vm.selectionSet.contains(item))
-          .onTapGesture {
-            onAction?(item)
-          }
+        ForEach(question, id: \.self) { item in
+          RowItemCell(model: item, isSelected: vm.selectionSet.contains(item), subTitleSize: 12)
+            .onTapGesture {
+              onAction?(item)
+            }
+        }
       }
-      .disabled(vm.gender != Gender.female.title)
     }
     .padding(.horizontal, .defaultSpacing + 4)
     Spacer()
