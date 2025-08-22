@@ -16,7 +16,7 @@ struct TodayHealthView: View {
 
     UnifiedSectionCard(showsStroke: false) {
       VStack(alignment: .leading, spacing: .smallSpacing) {
-        Text("오늘의 건강 상식?!")
+        Text("오늘의 건강 상식")
           .font(.notoSans(size: 18))
           .padding(.bottom, .smallSpacing)
 
