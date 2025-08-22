@@ -8,6 +8,8 @@ import SwiftUI
 
 struct AddIntakeSelectorPadView: View {
   
+  @Environment(\.colorScheme) private var colorScheme
+  
   var insets: UIEdgeInsets
   @Binding var showIntakeSelector: Bool
   @Binding var selectedIntakeItem: AddIntakeItem?
@@ -19,7 +21,7 @@ struct AddIntakeSelectorPadView: View {
   private var transtionDuration: CGFloat {
     isPresented ? 0.3 : 0.4
   }
-
+  
   var body: some View {
     VStack(spacing: .zero) {
       
@@ -33,7 +35,7 @@ struct AddIntakeSelectorPadView: View {
           .opacity(buttonOpacity)
       }
       .offset(y: isPresented ? -(.defaultSpacing * 2) : .zero)
-
+      
       
       AddIntakeButton()
         .rotationEffect(.degrees(isRotated ? 45 : 0))
@@ -85,18 +87,31 @@ extension AddIntakeSelectorPadView {
 
 // MARK: - Subviews
 extension AddIntakeSelectorPadView {
+  @ViewBuilder
+  private func intakeItemBackgroundCircle(_ imageName: String) -> some View {
+    Group {
+      let circle = Circle().fill(Color.background)
+      
+      if colorScheme == .light {
+        circle
+          .modifier(UnifiedShadow())
+      } else {
+        circle
+          .strokeBorder(Color.white.opacity(0.4), lineWidth: 1)
+      }
+    }
+    .overlay {
+      Image(imageName)
+        .resizable()
+        .scaledToFit()
+        .frame(width: AddIntakeButton.size.width * 0.65)
+    }
+    .frame(width: AddIntakeButton.size.width, height: AddIntakeButton.size.height)
+  }
+
   private func intakeItem(item: AddIntakeItem) -> some View {
     VStack {
-      Circle()
-        .fill(.white)
-        .modifier(UnifiedShadow())
-        .overlay {
-          Image(item.imageName)
-            .resizable()
-            .scaledToFit()
-            .frame(width: AddIntakeButton.size.width * 0.65)
-        }
-        .frame(width: AddIntakeButton.size.width, height: AddIntakeButton.size.height)
+      intakeItemBackgroundCircle(item.imageName)
       
       Text(item.title)
         .foregroundStyle(Color.label)
