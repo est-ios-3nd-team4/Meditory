@@ -1,5 +1,5 @@
 //
-//  IntakeAddButton.swift
+//  AddIntakeButton.swift
 //  Meditory
 //
 //  Created by 홍승아 on 8/21/25.
@@ -7,8 +7,22 @@
 
 import SwiftUI
 
-struct IntakeAddButton: View {
-  static let size = CGSize(width: 72, height: 72)
+struct AddIntakeButton: View {
+  static var size: CGSize {
+    if UIDevice.isPad {
+      CGSize(width: 83, height: 83)
+    } else {
+      CGSize(width: 72, height: 72)
+    }
+  }
+  
+  private var addIconSize: CGFloat {
+    if UIDevice.isPad {
+      return 40
+    } else {
+      return 35
+    }
+  }
   
   var body: some View {
     Circle()
@@ -26,7 +40,7 @@ struct IntakeAddButton: View {
       )
       .overlay {
         Image(systemName: TabItem.add.iconImage)
-          .font(.system(size: 35, weight: .semibold))
+          .font(.system(size: addIconSize, weight: .semibold))
           .foregroundStyle(.white)
       }
   }

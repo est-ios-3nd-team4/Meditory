@@ -207,11 +207,7 @@ struct AddSupplementView: View {
           }
         }
       }
-      .background(
-        colorScheme == .dark
-        ? Color.white.opacity(0.3)
-        : Color.white
-      )
+      .background(Color.background)
       .fullScreenCover(isPresented: $showScanner) {
         CameraPickerSheet(isPresented: $showScanner) { text in
           searchSupplementSummary(
