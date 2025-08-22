@@ -53,7 +53,7 @@ struct AddIntakeSelectorView: View {
           HStack {
             Spacer()
             
-            IntakeAddButton()
+            AddIntakeButton()
               .rotationEffect(.degrees(rotated ? 45 : 0))
               .onTapGesture {
                 dismissWithAnimation()
