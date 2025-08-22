@@ -10,13 +10,13 @@ import SwiftUI
 
 @MainActor
 final class HomeViewModel: ObservableObject {
-  @Published var items: [IntakeItem] = []
+  @Published var intakeItems: [IntakeItem] = []
   @Published var dayCompletionMap: DayCompletionMap = [:]
   
   var progress: Double {
-    guard !items.isEmpty else { return 0 }
-    let doneCount = items.filter { $0.isCompleted }.count
-    return Double(doneCount) / Double(items.count)
+    guard !intakeItems.isEmpty else { return 0 }
+    let doneCount = intakeItems.filter { $0.isCompleted }.count
+    return Double(doneCount) / Double(intakeItems.count)
   }
   
   private var manager: HomeRoutineManager?
@@ -37,16 +37,16 @@ final class HomeViewModel: ObservableObject {
 
   /// 오늘 기준 섭취할 영양제 불러오기
   func loadIntake(on date: Date) {
-    items = manager?.fetchTodayIntakeItem(on: date) ?? []
+    intakeItems = manager?.fetchTodayIntakeItem(on: date) ?? []
   }
 
   /// 인덱스에 해당하는 IntakeItem 토글 처리
   func toggleCompleted(at index: Int, for date: Date) {
     guard let manager = manager else {
-      items[index].isCompleted.toggle()
+      intakeItems[index].isCompleted.toggle()
       return
     }
-    manager.toggleIntake(items[index])
+    manager.toggleIntake(intakeItems[index])
     loadIntake(on: date)
     refreshTodayCompletion(on: date)
   }

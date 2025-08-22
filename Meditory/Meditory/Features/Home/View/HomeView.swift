@@ -63,8 +63,8 @@ struct HomeView: View {
       }
       
       VStack {
-        ForEach(vm.items.indices.sorted { vm.items[$0].time < vm.items[$1].time }, id: \.self) { index in
-          let item = vm.items[index]
+        ForEach(vm.intakeItems.indices.sorted { vm.intakeItems[$0].time < vm.intakeItems[$1].time }, id: \.self) { index in
+          let item = vm.intakeItems[index]
           
           HStack(alignment: .center, spacing: .defaultSpacing) {
             Button {
