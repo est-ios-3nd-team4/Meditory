@@ -66,7 +66,7 @@ struct MainTabView: View {
             if !showIntakeSelector, let intakeItem = selectedIntakeItem {
               switch intakeItem {
               case .supplement:
-                AddSupplementView(context: context, selectedIntakeItem: $selectedIntakeItem)
+                AddSupplementView(selectedIntakeItem: $selectedIntakeItem)
               case .meal:
                 EmptyView()
               }

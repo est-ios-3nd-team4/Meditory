@@ -33,7 +33,6 @@ struct AddSupplementView: View {
   @State private var selectedScheduleType: SupplementScheduleType = .weekday
   @StateObject private var addSupplementVM = AddSupplementViewModel()
   @StateObject private var scheduleVM = SupplementScheduleViewModel()
-  @State private var lifestyleTimeVM: LifestyleTimeViewModel
   @State private var selectedPicker: SchedulePickerType? {
     didSet {
       showSchedulePicker()
@@ -48,11 +47,15 @@ struct AddSupplementView: View {
   @State private var showTimePicker = false
   @State private var selectedLifestyleCategory: LifestyleTimeType? = nil
   @State private var selectedLifestyleOption: (any LifestyleTime)?
-  @State private var lifestyle: UserLifeStyle
   @State private var isSearchingSupplementSummary = false
   @State private var supplement: SupplementDTO?
   @State private var showAlert = false
   @State private var routineSaveError: RoutineSaveError?
+  
+  
+  @Query private var users: [User] // User 정보를 가져오기 위해 @Query 추가
+  @State private var lifestyleTimeVM: LifestyleTimeViewModel // StateObject 대신 State 사용
+
   
   private var shouldShowSupplementInfo: Bool {
     addSupplementVM.supplemtSummary != nil || isSearchingSupplementSummary
@@ -61,16 +64,19 @@ struct AddSupplementView: View {
   
   init(
     type: Mode = .add,
-    context: ModelContext,
+//    context: ModelContext,
     selectedIntakeItem: Binding<AddIntakeItem?> = .constant(nil)
   ) {
     self.type = type
-    
-    let lifestyleTimeVM = LifestyleTimeViewModel(context: context)
-    self.lifestyleTimeVM = lifestyleTimeVM
-    self.lifestyle = lifestyleTimeVM.userlifeStyle
-    
     self._selectedIntakeItem = selectedIntakeItem
+    
+    self._lifestyleTimeVM = State(initialValue: LifestyleTimeViewModel(lifestyleStore: UserLifeStyleStore.shared))
+    
+//    let lifestyleTimeVM = LifestyleTimeViewModel(context: context)
+//    self.lifestyleTimeVM = lifestyleTimeVM
+//    self.lifestyle = lifestyleTimeVM.userlifeStyle
+    
+    
   }
 
   var body: some View {
@@ -129,28 +135,31 @@ struct AddSupplementView: View {
                 context: context,
                 userStore: userStore,
                 supplementSummary: addSupplementVM.supplemtSummary,
-                lifestyle: lifestyle,
+                lifestyle: lifestyleTimeVM.userlifeStyle,
                 supplement: $supplement
               )
               
               memoSection()
               
-              Spacer()
-              
-              Button {
-                saveRoutine()
-              } label: {
-                RoundedRectangle(cornerRadius: 10)
-                  .fill(.main)
-                  .frame(height: 50)
-                  .overlay {
-                    Text("완료")
-                      .font(.notoSans(weight: .semiBold, size: defaultFontSize))
-                      .foregroundStyle(.white)
-                  }
+              // 컴파일러가 뷰가 너무많다고 뻗어버려서 그룹으로 감싸서 해결했습니다.
+              Group {
+                Spacer()
+                
+                Button {
+                  saveRoutine()
+                } label: {
+                  RoundedRectangle(cornerRadius: 10)
+                    .fill(.main)
+                    .frame(height: 50)
+                    .overlay {
+                      Text("완료")
+                        .font(.notoSans(weight: .semiBold, size: defaultFontSize))
+                        .foregroundStyle(.white)
+                    }
+                }
+                .id("confirmButton")
+                .padding(.bottom, .bottomInset)
               }
-              .id("confirmButton")
-              .padding(.bottom, .bottomInset)
             }
             .padding(.horizontal, .defaultSpacing + 4)
             .navigationTitle("복용약 추가")
@@ -201,7 +210,7 @@ struct AddSupplementView: View {
           ) { result in
             if let result {
               lifestyleTimeVM.setTime(result)
-              lifestyle = lifestyleTimeVM.userlifeStyle
+//              lifestyle = lifestyleTimeVM.userlifeStyle
             }
             showTimePicker = false
           }
@@ -235,7 +244,15 @@ struct AddSupplementView: View {
         }
       }
       .onAppear {
-        addSupplementVM.updateContext(context)
+        // 1. @Query로 가져온 users 배열에서 첫 번째 사용자를 가져옵니다.
+        guard let user = users.first else { return }
+
+        // 2. Task를 사용해 비동기 함수들을 호출합니다.
+        Task {
+            // lifestyleTimeVM의 새로운 비동기 로딩 함수를 호출합니다.
+            await lifestyleTimeVM.loadLifestyle(for: user, context: context)
+            addSupplementVM.updateContext(context)
+        }
       }
     }
   }

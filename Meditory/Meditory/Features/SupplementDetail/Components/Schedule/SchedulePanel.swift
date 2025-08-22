@@ -55,7 +55,7 @@ struct SchedulePanel: View {
       .padding(.bottom, .defaultSpacing)
 
       NavigationLink {
-        AddSupplementView(type: .edit, context: context)
+        AddSupplementView(type: .edit)
       } label: {
         HStack(spacing: .smallSpacing) {
           Image(systemName: "square.and.pencil")
