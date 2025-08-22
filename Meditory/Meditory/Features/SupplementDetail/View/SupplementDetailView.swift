@@ -13,10 +13,12 @@ struct SupplementDetailView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.modelContext) private var context
-  @StateObject private var vm: SupplementDetailViewModel
+  // @StateObject 대신 @State를 사용합니다.
+  @State private var vm: SupplementDetailViewModel
 
   init(routine: Routine) {
-    _vm = StateObject(wrappedValue: SupplementDetailViewModel(routine: routine))
+    // @State의 초기화 방식으로 변경합니다.
+    _vm = State(initialValue: SupplementDetailViewModel(routine: routine))
   }
 
   var body: some View {
@@ -104,7 +106,10 @@ struct SupplementDetailView: View {
         DeleteAlertView(
           isPresented: $vm.showDeleteAlert,
           onDelete: {
-            vm.confirmDelete(context: context, dismiss: dismiss)
+            // confirmDelete가 비동기 함수가 되었으므로 Task로 감싸줍니다.
+            Task {
+              await vm.confirmDelete(dismiss: dismiss)
+            }
           }
         )
       }
