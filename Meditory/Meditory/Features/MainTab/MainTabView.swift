@@ -37,6 +37,33 @@ extension MainTabView {
   private func mainTabPadView() -> some View {
     ZStack {
       DefaultTabView()
+      
+      let insets = UIEdgeInsets(
+        top: .zero,
+        left: .zero,
+        bottom: .defaultSpacing,
+        right: .defaultSpacing * 2
+      )
+      
+      VStack(spacing: .zero) {
+        Spacer()
+        
+        AddIntakeButton()
+          .onTapGesture {
+            showIntakeSelector = true
+          }
+      }
+      .frame(maxWidth: .infinity, alignment: .trailing)
+      .padding(.bottom, insets.bottom)
+      .padding(.trailing, insets.right)
+      
+      if showIntakeSelector {
+        AddIntakeSelectorPadView(
+          insets: insets,
+          showIntakeSelector: $showIntakeSelector,
+          selectedIntakeItem: $selectedIntakeItem
+        )
+      }
     }
   }
   
@@ -84,7 +111,6 @@ extension MainTabView {
     }
     .ignoresSafeArea(edges: .bottom)
   }
-  
   
   @ViewBuilder
   private func intakeDestinationView() -> some View {
