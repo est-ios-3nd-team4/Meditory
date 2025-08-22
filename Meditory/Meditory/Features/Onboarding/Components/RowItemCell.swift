@@ -10,7 +10,8 @@ import SwiftUI
 struct RowItemCell: View {
   var model: QuestionModel
   var isSelected: Bool
-
+  var subTitleSize:Double = 14
+  
   var body: some View {
     ZStack {
       RoundedRectangle(cornerRadius: 8)
@@ -28,7 +29,7 @@ struct RowItemCell: View {
             Text(model.title)
               .font(.notoSans(weight: .semiBold, size: 16))
             Text(model.subtitle)
-              .font(.notoSans(weight: .regular, size: 14))
+              .font(.notoSans(weight: .regular, size: subTitleSize))
               .foregroundStyle(.textGray)
           }
         }
