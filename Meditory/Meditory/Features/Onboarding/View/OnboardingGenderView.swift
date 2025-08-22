@@ -40,16 +40,16 @@ struct OnboardingGenderView: View {
           .foregroundStyle(.textGray)
           .padding(.bottom,.defaultSpacing)
       }
-      ForEach(question, id: \.self) { item in
-        RowItemCell(model: item, isSelected: vm.selectionSet.contains(item))
-          .onTapGesture {
-            onAction?(item)
-          }
+        ForEach(question, id: \.self) { item in
+          RowItemCell(model: item, isSelected: vm.selectionSet.contains(item), subTitleSize: 12)
+            .onTapGesture {
+              onAction?(item)
+            }
+        }
       }
-      .disabled(vm.gender != Gender.female.title)
-    }
     .padding(.horizontal, .defaultSpacing + 4)
-    Spacer()
+    .opacity(vm.gender != Gender.male.title ? 1 : 0)
+    .allowsHitTesting(vm.gender != Gender.male.title)
   }
 
 }

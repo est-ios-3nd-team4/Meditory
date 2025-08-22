@@ -13,7 +13,7 @@ struct AddIntakeSelectorView: View {
   @Binding var showIntakeSelector: Bool
   @Binding var selectedIntakeItem: AddIntakeItem?
   
-  @State private var rotated = false
+  @State private var isRotated = false
   @State private var isPresented = false
   @State private var sheetOpacity: CGFloat = .zero
   @State private var buttonOpacity: CGFloat = .zero
@@ -23,88 +23,50 @@ struct AddIntakeSelectorView: View {
   }
   
   var body: some View {
-    GeometryReader { geometry in
-      VStack {
-        
+    VStack {
+      
+      Spacer()
+      
+      HStack(spacing: isPresented ? .defaultSpacing * 2 : .defaultSpacing) {
         Spacer()
         
-        HStack(spacing: isPresented ? .defaultSpacing * 2 : .defaultSpacing) {
-          Spacer()
-          
-          intakeItem(item: .supplement)
-            .offset(
-              x: isPresented ? -.smallSpacing : .zero,
-              y: isPresented ? -.smallSpacing : .zero
-            )
-            .opacity(buttonOpacity)
-          
-          intakeItem(item: .meal)
-            .offset(
-              x: isPresented ? .smallSpacing : .zero,
-              y: isPresented ? -.smallSpacing : .zero
-            )
-            .opacity(buttonOpacity)
-          
-          Spacer()
-        }
-        .offset(y: isPresented ? -(.defaultSpacing * 2) : .zero)
+        intakeItem(item: .supplement)
+          .offset(
+            x: isPresented ? -.smallSpacing : .zero,
+            y: isPresented ? -.smallSpacing : .zero
+          )
+          .opacity(buttonOpacity)
         
-        VStack {
-          HStack {
-            Spacer()
-            
-            IntakeAddButton()
-              .rotationEffect(.degrees(rotated ? 45 : 0))
-              .onTapGesture {
-                dismissWithAnimation()
-              }
-            
-            Spacer()
-          }
-          
-          Spacer()
-        }
-        .frame(height: tabHeight)
+        intakeItem(item: .meal)
+          .offset(
+            x: isPresented ? .smallSpacing : .zero,
+            y: isPresented ? -.smallSpacing : .zero
+          )
+          .opacity(buttonOpacity)
+        
+        Spacer()
       }
-      .background(.black.opacity(sheetOpacity))
-      .onAppear {
-        transitionAnimation()
-      }
-    }
-  }
-  
-  private func intakeItem(item: AddIntakeItem) -> some View {
-    VStack {
-      Circle()
-        .fill(Color.init(red: 94, green: 94, blue: 96))
-        .overlay {
-          Image(item.imageName)
-            .resizable()
-            .scaledToFit()
-            .frame(width: 68)
-        }
-        .frame(width: 100, height: 100)
+      .offset(y: isPresented ? -(.defaultSpacing * 2) : .zero)
       
-      Text(item.title)
-        .foregroundStyle(.white)
-        .font(.notoSans(size: 18))
+      addIntakeButton()
     }
-    .onTapGesture {
-      selectedIntakeItem = item
-      showIntakeSelector = false
+    .background(.black.opacity(sheetOpacity))
+    .onAppear {
+      transitionAnimation()
     }
   }
 }
 
 
+// MARK: - Animations
 extension AddIntakeSelectorView {
   private func transitionAnimation() {
     withAnimation(.easeInOut(duration: 0.3)) {
-      rotated.toggle()
+      isRotated.toggle()
     }
     
     withAnimation(.easeInOut(duration: isPresented ? transtionDuration : 0.15)) {
-      sheetOpacity = isPresented ? 0 : 0.75
+      sheetOpacity = isPresented ? 0 : 0.8
     }
     
     withAnimation(.easeInOut(duration: isPresented ? transtionDuration - 0.2 : transtionDuration)) {
@@ -128,5 +90,50 @@ extension AddIntakeSelectorView {
       try await Task.sleep(for: .seconds(transtionDuration))
       showIntakeSelector = false
     }
+  }
+}
+
+
+// MARK: - Subviews
+extension AddIntakeSelectorView {
+  private func intakeItem(item: AddIntakeItem) -> some View {
+    VStack {
+      Circle()
+        .fill(Color.init(red: 94, green: 94, blue: 96))
+        .overlay {
+          Image(item.imageName)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 68)
+        }
+        .frame(width: 100, height: 100)
+      
+      Text(item.title)
+        .foregroundStyle(.white)
+        .font(.notoSans(size: 18))
+    }
+    .onTapGesture {
+      selectedIntakeItem = item
+      showIntakeSelector = false
+    }
+  }
+  
+  private func addIntakeButton() -> some View {
+    VStack {
+      HStack {
+        Spacer()
+        
+        AddIntakeButton()
+          .rotationEffect(.degrees(isRotated ? 45 : 0))
+          .onTapGesture {
+            dismissWithAnimation()
+          }
+        
+        Spacer()
+      }
+      
+      Spacer()
+    }
+    .frame(height: tabHeight)
   }
 }
