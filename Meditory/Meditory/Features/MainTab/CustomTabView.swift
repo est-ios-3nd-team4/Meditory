@@ -68,7 +68,7 @@ struct CustomTabView: View {
     let viewWidth = UIScreen.main.bounds.width
     let horizontalPadding: CGFloat = 20
     let itemCount = CGFloat(TabItem.allCases.count)
-    let addButtonSize = IntakeAddButton.size
+    let addButtonSize = AddIntakeButton.size
     
     return (viewWidth - (iconSize.width * itemCount - 1) - addButtonSize.width - horizontalPadding) / itemCount
   }
@@ -79,7 +79,7 @@ struct CustomTabView: View {
 extension CustomTabView {
   private func addTabItem(for tab: TabItem) -> some View {
     VStack {
-      IntakeAddButton()
+      AddIntakeButton()
       
       Spacer()
     }
