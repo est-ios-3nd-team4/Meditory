@@ -18,6 +18,43 @@ struct CalendarWeeklyHeader: View {
   var onTapMonth: () -> Void
 
   @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.horizontalSizeClass) private var hSize
+  @Environment(\.verticalSizeClass) private var vSize
+
+  private var isPadStyle: Bool { hSize == .regular }
+
+  private var isLandscape: Bool {
+      UIDevice.isPad &&
+      UIScreen.main.bounds.width > UIScreen.main.bounds.height
+  }
+
+  private var yearMonthFontSize: CGFloat { isPadStyle ? 22 : 20 }
+  private var chevronFontSize: CGFloat { isPadStyle ? 17 : 15 }
+  private var weekNameFontSize: CGFloat { isPadStyle ? 15 : 13 }
+  private var dateFontSize: CGFloat { isPadStyle ? 18 : 16 }
+
+  private var horizontalInset: CGFloat {
+    let screenWidth = UIScreen.main.bounds.width
+
+    if isLandscape {
+      // iPad 가로 모드
+      if screenWidth > 1200 { // 13인치 아이패드
+        return 100
+      } else { // 11인치 아이패드
+        return 80
+      }
+    } else if isPadStyle {
+      // iPad 세로 모드
+      if screenWidth > 1200 { // 13인치 아이패드
+        return 40
+      } else { // 11인치 아이패드
+        return 32
+      }
+    } else {
+      // iPhone
+      return .defaultSpacing
+    }
+  }
 
   private let columns = Array(repeating: GridItem(.flexible()), count: 7)
   private let weekNames = ["일","월","화","수","목","금","토"]
@@ -38,18 +75,21 @@ struct CalendarWeeklyHeader: View {
         HStack(spacing: .smallSpacing) {
           Text(selectedDate.yearMonth)
             .foregroundStyle(.white)
-            .font(.notoSans(size: 20)).fontWeight(.bold)
-            .padding(.leading, .defaultSpacing)
+            .font(.notoSans(size: yearMonthFontSize))
+            .fontWeight(.bold)
+            .lineLimit(1)
+            .minimumScaleFactor(0.9)
 
           Image(systemName: "chevron.down")
-            .font(.notoSans(size: 15)).fontWeight(.semibold)
+            .font(.notoSans(size: chevronFontSize))
+            .fontWeight(.semibold)
             .foregroundStyle(.white.opacity(0.8))
         }
         .padding(.vertical, .smallSpacing)
       }
       .buttonStyle(.plain)
       .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(.horizontal, .defaultSpacing)
+      .padding(.horizontal, horizontalInset)
 
       // 요일(일~토)
       LazyVGrid(columns: columns, spacing: 0) {
@@ -72,7 +112,7 @@ struct CalendarWeeklyHeader: View {
             }
 
             Text(weekNames[i])
-              .font(.notoSans(size: 13))
+              .font(.notoSans(size: weekNameFontSize))
               .foregroundStyle(selected ? .main : .white)
               .frame(maxWidth: .infinity)
               .padding(.vertical, .smallSpacing)
@@ -84,25 +124,25 @@ struct CalendarWeeklyHeader: View {
           }
         }
       }
-      .padding(.horizontal)
 
-      // 날짜 숫자 라인
       LazyVGrid(columns: columns, spacing: 0) {
         ForEach(dates, id: \.self) { date in
           VStack {
             Text(date.formattedDate(date, "d"))
-              .font(.notoSans(size: 16))
+              .font(.notoSans(size: dateFontSize))
               .frame(maxWidth: .infinity)
               .foregroundStyle(.white)
           }
           .frame(minHeight: 40, alignment: .top)
+          .contentShape(Rectangle())
           .onTapGesture {
+            guard !isOverlappingHeader else { return }
             withAnimation { selectedDate = date }
           }
         }
       }
-      .padding(.horizontal)
     }
+    .padding(.horizontal, .defaultSpacing)
     .background(
       GeometryReader { proxy in
         let bottom = proxy.frame(in: .global).maxY

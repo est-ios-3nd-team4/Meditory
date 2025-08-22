@@ -8,9 +8,16 @@ import SwiftUI
 
 struct CircularProgressView: View {
   @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.horizontalSizeClass) private var hSize
+  @Environment(\.verticalSizeClass) private var vSize
+
+  private var isPadStyle: Bool { hSize == .regular }
+
+  private var numberFontSize: CGFloat { isPadStyle ? 80 : 60 }
+  private var percentFontSzie: CGFloat { isPadStyle ? 30 : 20 }
 
   var progress: Double
-  var lineWidth: CGFloat = 20
+  var lineWidth: CGFloat { isPadStyle ? 25 : 20 }
 
   var body: some View {
     GeometryReader { geo in
@@ -54,9 +61,9 @@ struct CircularProgressView: View {
         // 퍼센트
         HStack(alignment: .firstTextBaseline, spacing: 5) {
           Text("\(Int(progress * 100))")
-            .font(.notoSans(size: 60))
+            .font(.notoSans(size: numberFontSize))
           Text("%")
-            .font(.notoSans(size: 20))
+            .font(.notoSans(size: percentFontSzie))
         }
         .foregroundStyle(Color.label)
         .offset(y: -radius * 0.1)
