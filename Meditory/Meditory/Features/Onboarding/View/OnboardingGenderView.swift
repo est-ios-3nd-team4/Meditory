@@ -34,7 +34,6 @@ struct OnboardingGenderView: View {
     .frame(maxWidth: .infinity)
     .padding(.bottom, 20)
     VStack(alignment: .leading, spacing: .defaultSpacing) {
-      if vm.gender != Gender.male.title {
       if let info = prompt.info {
         Text(info)
           .font(.notoSans(weight: .medium, size: 16))
@@ -48,9 +47,9 @@ struct OnboardingGenderView: View {
             }
         }
       }
-    }
     .padding(.horizontal, .defaultSpacing + 4)
-    Spacer()
+    .opacity(vm.gender != Gender.male.title ? 1 : 0)
+    .allowsHitTesting(vm.gender != Gender.male.title)
   }
 
 }
