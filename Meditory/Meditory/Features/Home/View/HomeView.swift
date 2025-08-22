@@ -13,7 +13,7 @@ struct HomeView: View {
   @StateObject private var vm = HomeViewModel()
   @Environment(\.colorScheme) private var colorScheme
   @State private var selectedDate: Date = Date()
-
+  
   var body: some View {
     CalendarBackgroundView(
       selectedDate: $selectedDate,
@@ -21,7 +21,7 @@ struct HomeView: View {
     ) { _ in
       ScrollView(showsIndicators: false) {
         VStack {
-          AchievementSection(vm: vm, selectedDate: $selectedDate)
+          achiveMentSection
           TodayHealthView(vm: TodayHealthViewModel())
         }
         .padding()
@@ -48,116 +48,58 @@ struct HomeView: View {
       vm.reloadDayCompletions(for: selectedDate)
     }
   }
-}
-private struct AchievementSection: View {
-  @ObservedObject var vm: HomeViewModel
-  @Binding var selectedDate: Date
-  @Environment(\.colorScheme) private var colorScheme
-  @Environment(\.horizontalSizeClass) private var hSize
-  @Environment(\.verticalSizeClass) private var vSize
-
-  private var isPadStyle: Bool { hSize == .regular }
-
-  private var progressSize: CGFloat { isPadStyle ? 300 : 200 }
-  private var emptyFontSize: CGFloat { isPadStyle ? 18 : 16 }
-
-  var body: some View {
+  
+  private var achiveMentSection: some View {
     UnifiedSectionCard(showsStroke: false) {
       Text("오늘 복용 달성률")
         .font(.notoSans(size: 20))
         .frame(maxWidth: .infinity, alignment: .leading)
-
-      if isPadStyle {
-        HStack(alignment: .center, spacing: 24) {
-          ProgressBlock(size: progressSize, progress: vm.progress)
-            .frame(maxWidth: .infinity, alignment: .center)
-
-          Group {
-            if vm.items.isEmpty {
-              EmptyState(fontSize: emptyFontSize)
-                .frame(maxWidth: .infinity, alignment: .center)
-            } else {
-              intakeColumn()
-                .frame(maxWidth: .infinity, alignment: .leading)
+      
+      HStack {
+        Spacer()
+        CircularProgressView(progress: vm.progress)
+          .frame(width: 200, height: 200)
+        Spacer()
+      }
+      
+      VStack {
+        ForEach(vm.items.indices.sorted { vm.items[$0].time < vm.items[$1].time }, id: \.self) { index in
+          let item = vm.items[index]
+          
+          HStack(alignment: .center, spacing: .defaultSpacing) {
+            Button {
+              vm.toggleCompleted(at: index, for: selectedDate)
+            } label: {
+              CircleCheck(isCompleted: item.isCompleted)
+                .offset(y: 2)
             }
-          }
-        }
-        .frame(maxWidth: .infinity, alignment: .center)
-
-      } else {
-        HStack {
-          Spacer()
-          ProgressBlock(size: progressSize, progress: vm.progress)
-          Spacer()
-        }
-
-        Group {
-          if vm.items.isEmpty {
-            EmptyState(fontSize: emptyFontSize)
-              .frame(maxWidth: .infinity, alignment: .center)
-              .padding(.vertical, .defaultSpacing)
-          } else {
-            intakeColumn()
-              .frame(maxWidth: .infinity, alignment: .leading)
-          }
-        }
-      }
-    }
-  }
-
-  private func ProgressBlock(size: CGFloat, progress: Double) -> some View {
-    CircularProgressView(progress: progress)
-      .frame(width: size, height: size)
-  }
-
-  private struct EmptyState: View {
-    let fontSize: CGFloat
-    var body: some View {
-      VStack(spacing: .smallSpacing) {
-        Text("오늘은 등록된 복용 루틴이 없어요.")
-          .font(.notoSans(size: fontSize))
-          .foregroundStyle(.secondary)
-
-        Text("복용 루틴을 추가해 보세요!")
-          .font(.notoSans(size: fontSize))
-          .fontWeight(.semibold)
-          .foregroundStyle(Color.main)
-      }
-      .frame(maxWidth: .infinity, alignment: .center)
-    }
-  }
-
-  private func intakeColumn() -> some View {
-    VStack(alignment: .leading, spacing: .smallSpacing) {
-      ForEach(vm.items) { item in
-        HStack(alignment: .center, spacing: .defaultSpacing) {
-          Button {
-            vm.toggleCompleted(item, for: selectedDate)
-          } label: {
-            CircleCheck(isCompleted: item.isCompleted)
-              .offset(y: 2)
-          }
-          .buttonStyle(.plain)
-          .contentShape(Rectangle())
-
-          NavigationLink(destination: SupplementDetailView(routine: item.routine)) {
-            HStack(spacing: .defaultSpacing) {
-              Text(item.name)
-                .font(.notoSans(size: 18))
-                .foregroundColor(.primary)
-
-              Spacer()
-
-              Text(item.time.timeFormatter)
-                .font(.notoSans(size: 15))
-                .foregroundStyle(colorScheme == .dark ? .secondary : Color.main)
+            .buttonStyle(.plain)
+            .contentShape(Rectangle())
+            
+            NavigationLink(
+              destination: SupplementDetailView(routine: item.routine)
+            ) {
+              HStack(spacing: .defaultSpacing) {
+                Text(item.name)
+                  .font(.notoSans(size: 18))
+                  .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Text(item.time.timeFormatter)
+                  .font(.notoSans(size: 15))
+                  .foregroundStyle(
+                    colorScheme == .dark ? Color.secondary : Color.main
+                  )
+              }
             }
+            .buttonStyle(.plain)
           }
-          .buttonStyle(.plain)
+          .padding(.vertical, .smallSpacing)
         }
-        .padding(.vertical, .smallSpacing)
       }
     }
+    .padding(.bottom, .defaultSpacing)
   }
 }
 
@@ -168,7 +110,7 @@ struct HomeView_Previews: PreviewProvider {
       configurations: .init(isStoredInMemoryOnly: true)
     )
     let ctx = container.mainContext
-
+    
     // 비타민 C 루틴
     let routine1 = Routine(
       type: 1,
@@ -196,7 +138,7 @@ struct HomeView_Previews: PreviewProvider {
     }
     routine1.routineTimes = times1
     ctx.insert(routine1)
-
+    
     // 오메가-3 루틴
     let routine2 = Routine(
       type: 1,
@@ -224,7 +166,7 @@ struct HomeView_Previews: PreviewProvider {
     }
     routine2.routineTimes = times2
     ctx.insert(routine2)
-
+    
     // 비타민 D 루틴
     let routine3 = Routine(
       type: 1,
@@ -252,7 +194,7 @@ struct HomeView_Previews: PreviewProvider {
     }
     routine3.routineTimes = times3
     ctx.insert(routine3)
-
+    
     // 프로바이오틱스 루틴
     let routine4 = Routine(
       type: 1,
@@ -280,15 +222,105 @@ struct HomeView_Previews: PreviewProvider {
     }
     routine4.routineTimes = times4
     ctx.insert(routine4)
-
+    
     return container
   }()
-
+  
   static var previews: some View {
     NavigationStack {
       HomeView()
         .environment(\.modelContext, container.mainContext)
     }
     .previewDisplayName("HomeView Dummy Preview")
+  }
+}
+struct HomeView_Previews2: PreviewProvider {
+  static var container: ModelContainer = {
+    let container = try! ModelContainer(
+      for: Routine.self, RoutineTime.self, RoutineRecord.self,
+      configurations: .init(isStoredInMemoryOnly: true)
+    )
+    let ctx = container.mainContext
+    
+    // 비타민 C 루틴 (08:00, 13:00, 20:00)
+    let routine1 = Routine(
+      type: 1,
+      displayName: "비타민C",
+      desc: "면역력 강화",
+      category: "비타민C",
+      cycleType: 1,
+      cycleValue: "0",
+      startDate: Date(),
+      memo: "아침 식사 후 복용",
+      hasPush: true
+    )
+    routine1.routineTimes = [
+      RoutineTime(time: Calendar.current.date(bySettingHour: 8, minute: 0, second: 0, of: Date())!, pillsPerDose: 1),
+      RoutineTime(time: Calendar.current.date(bySettingHour: 13, minute: 0, second: 0, of: Date())!, pillsPerDose: 2),
+      RoutineTime(time: Calendar.current.date(bySettingHour: 20, minute: 0, second: 0, of: Date())!, pillsPerDose: 1)
+    ]
+    ctx.insert(routine1)
+    
+    // 오메가-3 루틴 (⚠️ 08:00으로 겹치게 설정)
+    let routine2 = Routine(
+      type: 1,
+      displayName: "오메가-3",
+      desc: "혈행 개선",
+      category: "Omega-3",
+      cycleType: 1,
+      cycleValue: "1,3,5",
+      startDate: Date().addingTimeInterval(-86400 * 7),
+      memo: "심장 건강",
+      hasPush: false
+    )
+    routine2.routineTimes = [
+      RoutineTime(time: Calendar.current.date(bySettingHour: 8, minute: 0, second: 0, of: Date())!, pillsPerDose: 2)
+    ]
+    ctx.insert(routine2)
+    
+    // 비타민 D 루틴 (12:00)
+    let routine3 = Routine(
+      type: 1,
+      displayName: "비타민D",
+      desc: "뼈 건강",
+      category: "비타민D",
+      cycleType: 2,
+      cycleValue: "2",
+      startDate: Date().addingTimeInterval(-86400 * 14),
+      memo: "햇빛이 부족할 때",
+      hasPush: true
+    )
+    routine3.routineTimes = [
+      RoutineTime(time: Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: Date())!, pillsPerDose: 1)
+    ]
+    ctx.insert(routine3)
+    
+    // 프로바이오틱스 루틴 (07:15, 19:15)
+    let routine4 = Routine(
+      type: 1,
+      displayName: "프로바이오틱스",
+      desc: "소화 개선",
+      category: "프로바이오틱스",
+      cycleType: 1,
+      cycleValue: "2,4,6",
+      startDate: Date().addingTimeInterval(-86400 * 3),
+      memo: "장 건강",
+      hasPush: false
+    )
+    routine4.routineTimes = [
+      RoutineTime(time: Calendar.current.date(bySettingHour: 7, minute: 15, second: 0, of: Date())!, pillsPerDose: 1),
+      RoutineTime(time: Calendar.current.date(bySettingHour: 19, minute: 15, second: 0, of: Date())!, pillsPerDose: 1)
+    ]
+    ctx.insert(routine4)
+    
+    return container
+  }()
+  
+  static var previews: some View {
+    NavigationStack {
+      HomeView()
+        .environment(\.modelContext, container.mainContext)
+    }
+    .previewDisplayName("HomeView (시간 겹치는 더미 데이터)")
   }
 }
