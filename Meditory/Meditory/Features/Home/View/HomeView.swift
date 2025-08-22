@@ -21,7 +21,7 @@ struct HomeView: View {
     ) { _ in
       ScrollView(showsIndicators: false) {
         VStack {
-          achiveMentSection
+          AchievementSection(vm: vm, selectedDate: $selectedDate)
           TodayHealthView(vm: TodayHealthViewModel())
         }
         .padding()
@@ -48,60 +48,117 @@ struct HomeView: View {
       vm.reloadDayCompletions(for: selectedDate)
     }
   }
+}
+private struct AchievementSection: View {
+  @ObservedObject var vm: HomeViewModel
+  @Binding var selectedDate: Date
+  @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.horizontalSizeClass) private var hSize
+  @Environment(\.verticalSizeClass) private var vSize
 
-  private var achiveMentSection: some View {
+  private var isPadStyle: Bool { hSize == .regular }
+
+  private var progressSize: CGFloat { isPadStyle ? 300 : 200 }
+  private var emptyFontSize: CGFloat { isPadStyle ? 18 : 16 }
+
+  var body: some View {
     UnifiedSectionCard(showsStroke: false) {
       Text("오늘 복용 달성률")
         .font(.notoSans(size: 20))
         .frame(maxWidth: .infinity, alignment: .leading)
 
-      HStack {
-        Spacer()
-        CircularProgressView(progress: vm.progress)
-          .frame(width: 200, height: 200)
-        Spacer()
-      }
+      if isPadStyle {
+        HStack(alignment: .center, spacing: 24) {
+          ProgressBlock(size: progressSize, progress: vm.progress)
+            .frame(maxWidth: .infinity, alignment: .center)
 
-      VStack {
-        LazyVStack(spacing: .smallSpacing) {
-          ForEach(vm.items.sorted { $0.time < $1.time }) { item in
-            HStack(alignment: .center, spacing: .defaultSpacing) {
-              Button {
-                vm.toggleCompleted(item, for: selectedDate)
-              } label: {
-                CircleCheck(isCompleted: item.isCompleted)
-                  .offset(y: 2)
-              }
-              .buttonStyle(.plain)
-              .contentShape(Rectangle())
-
-              NavigationLink(
-                destination: SupplementDetailView(routine: item.routine)
-              ) {
-                HStack(spacing: .defaultSpacing) {
-                  Text(item.name)
-                    .font(.notoSans(size: 18))
-                    .foregroundColor(.primary)
-
-                  Spacer()
-
-                  Text(item.time.timeFormatter)
-                    .font(.notoSans(size: 15))
-                    .foregroundStyle(
-                      colorScheme == .dark ? Color.secondary : Color.main
-                    )
-                }
-              }
-              .buttonStyle(.plain)
+          Group {
+            if vm.items.isEmpty {
+              EmptyState(fontSize: emptyFontSize)
+                .frame(maxWidth: .infinity, alignment: .center)
+            } else {
+              intakeColumn()
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.vertical, .smallSpacing)
+          }
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+
+      } else {
+        HStack {
+          Spacer()
+          ProgressBlock(size: progressSize, progress: vm.progress)
+          Spacer()
+        }
+
+        Group {
+          if vm.items.isEmpty {
+            EmptyState(fontSize: emptyFontSize)
+              .frame(maxWidth: .infinity, alignment: .center)
+              .padding(.vertical, .defaultSpacing)
+          } else {
+            intakeColumn()
+              .frame(maxWidth: .infinity, alignment: .leading)
           }
         }
       }
     }
-    .padding(.bottom, .defaultSpacing)
   }
 
+  private func ProgressBlock(size: CGFloat, progress: Double) -> some View {
+    CircularProgressView(progress: progress)
+      .frame(width: size, height: size)
+  }
+
+  private struct EmptyState: View {
+    let fontSize: CGFloat
+    var body: some View {
+      VStack(spacing: .smallSpacing) {
+        Text("오늘은 등록된 복용 루틴이 없어요.")
+          .font(.notoSans(size: fontSize))
+          .foregroundStyle(.secondary)
+
+        Text("복용 루틴을 추가해 보세요!")
+          .font(.notoSans(size: fontSize))
+          .fontWeight(.semibold)
+          .foregroundStyle(Color.main)
+      }
+      .frame(maxWidth: .infinity, alignment: .center)
+    }
+  }
+
+  private func intakeColumn() -> some View {
+    VStack(alignment: .leading, spacing: .smallSpacing) {
+      ForEach(vm.items) { item in
+        HStack(alignment: .center, spacing: .defaultSpacing) {
+          Button {
+            vm.toggleCompleted(item, for: selectedDate)
+          } label: {
+            CircleCheck(isCompleted: item.isCompleted)
+              .offset(y: 2)
+          }
+          .buttonStyle(.plain)
+          .contentShape(Rectangle())
+
+          NavigationLink(destination: SupplementDetailView(routine: item.routine)) {
+            HStack(spacing: .defaultSpacing) {
+              Text(item.name)
+                .font(.notoSans(size: 18))
+                .foregroundColor(.primary)
+
+              Spacer()
+
+              Text(item.time.timeFormatter)
+                .font(.notoSans(size: 15))
+                .foregroundStyle(colorScheme == .dark ? .secondary : Color.main)
+            }
+          }
+          .buttonStyle(.plain)
+        }
+        .padding(.vertical, .smallSpacing)
+      }
+    }
+  }
 }
 
 struct HomeView_Previews: PreviewProvider {
