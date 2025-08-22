@@ -66,7 +66,7 @@ extension AddIntakeSelectorView {
     }
     
     withAnimation(.easeInOut(duration: isPresented ? transtionDuration : 0.15)) {
-      sheetOpacity = isPresented ? 0 : 0.75
+      sheetOpacity = isPresented ? 0 : 0.8
     }
     
     withAnimation(.easeInOut(duration: isPresented ? transtionDuration - 0.2 : transtionDuration)) {
