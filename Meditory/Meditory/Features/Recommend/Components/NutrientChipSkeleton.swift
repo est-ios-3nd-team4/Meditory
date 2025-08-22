@@ -9,9 +9,9 @@ struct NutrientChipSkeleton: View {
   var body: some View {
     ShimmerView(widthRatio: 1.0, cornerRadius: .fixed(.defaultRadius))
       .frame(width: width, height: height)
-      .overlay {
-        RoundedRectangle(cornerRadius: .defaultRadius)
-          .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-      }
+//      .overlay {
+//        RoundedRectangle(cornerRadius: .defaultRadius)
+//          .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+//      }
   }
 }
