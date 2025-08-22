@@ -10,13 +10,13 @@ import SwiftUI
 
 @MainActor
 final class HomeViewModel: ObservableObject {
-  @Published var items: [IntakeItem] = []
+  @Published var intakeItems: [IntakeItem] = []
   @Published var dayCompletionMap: DayCompletionMap = [:]
   
   var progress: Double {
-    guard !items.isEmpty else { return 0 }
-    let doneCount = items.filter { $0.isCompleted }.count
-    return Double(doneCount) / Double(items.count)
+    guard !intakeItems.isEmpty else { return 0 }
+    let doneCount = intakeItems.filter { $0.isCompleted }.count
+    return Double(doneCount) / Double(intakeItems.count)
   }
   
   private var manager: HomeRoutineManager?
@@ -37,19 +37,16 @@ final class HomeViewModel: ObservableObject {
 
   /// 오늘 기준 섭취할 영양제 불러오기
   func loadIntake(on date: Date) {
-    items = manager?.fetchTodayIntakeItem(on: date) ?? []
+    intakeItems = manager?.fetchTodayIntakeItem(on: date) ?? []
   }
 
   /// 인덱스에 해당하는 IntakeItem 토글 처리
-  func toggleCompleted(_ item: IntakeItem, for date: Date) {
+  func toggleCompleted(at index: Int, for date: Date) {
     guard let manager = manager else {
-      // 로컬 토글이 필요하다면 id로 찾아서 변경
-      if let idx = items.firstIndex(where: { $0.id == item.id }) {
-        items[idx].isCompleted.toggle()
-      }
+      intakeItems[index].isCompleted.toggle()
       return
     }
-    manager.toggleIntake(item)
+    manager.toggleIntake(intakeItems[index])
     loadIntake(on: date)
     refreshTodayCompletion(on: date)
   }
@@ -61,8 +58,11 @@ final class HomeViewModel: ObservableObject {
     guard
       let startOfMonth = cal.date(from: cal.dateComponents([.year, .month], from: baseDate)),
       let startOfNext  = cal.date(byAdding: .month, value: 1, to: startOfMonth)
-    else { dayCompletionMap = [:]; return }
-    
+    else {
+      dayCompletionMap = [:]
+      return
+    }
+
     var map: DayCompletionMap = [:]
     var cursor = startOfMonth
     while cursor < startOfNext {
