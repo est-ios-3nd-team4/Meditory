@@ -59,20 +59,10 @@ struct LifestyleTimePickerSheet: View {
             }
             .padding(.bottom, .defaultSpacing)
             
-            Button {
+            ConfirmButton {
               dismissWithAnimation(isConfirm: true)
-            } label: {
-              RoundedRectangle(cornerRadius: 10)
-                .fill(.main)
-                .frame(height: 50)
-                .overlay {
-                  Text("완료")
-                    .font(.notoSans(weight: .semiBold, size: 18))
-                    .foregroundStyle(.white)
-                }
             }
             .padding(.vertical, geometry.safeAreaInsets.bottom)
-            .padding(.bottom, .bottomInset)
           }
           .padding(.horizontal, 20)
           .background(
