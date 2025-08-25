@@ -49,8 +49,8 @@ struct OnboardingGenderView: View {
         }
       }
     .padding(.horizontal, .defaultSpacing + 4)
-    .opacity(vm.gender != Gender.male.title ? 1 : 0)
-    .allowsHitTesting(vm.gender != Gender.male.title)
+    .opacity(vm.gender == Gender.female.title ? 1 : 0)
+    .allowsHitTesting(vm.gender == Gender.female.title)
   }
 
 }
