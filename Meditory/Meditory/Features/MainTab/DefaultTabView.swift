@@ -26,7 +26,7 @@ struct DefaultTabView: View {
           Text(TabItem.dailyNutrition.title)
         }
       
-      Color.white
+      SettingView()
         .tabItem {
           Text(TabItem.settings.title)
         }
