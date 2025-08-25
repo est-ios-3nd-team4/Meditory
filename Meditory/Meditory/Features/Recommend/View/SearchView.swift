@@ -10,9 +10,17 @@ struct SearchView: View {
   @State private var pushToDetail = false
   @State private var selectedQuery: String? = nil
 
-  private let recommendedForAges: [String] = [ // TODO: 샘플데이터. 추후 앨런한테 받아오는 걸로 할 거임
-    "아연", "밀크씨슬", "히알루론산나트륨", "마그네슘", "비타민C", "철분", "오메가3", "프로바이오틱스", "콜라겐", "비타민D", "아스타잔틴", "홍삼", "아르기닌", "코엔자임Q10", "글루타티온", "루테인"
+  private let recommendedForAges: [String] = [
+    "아연", "비오틴", "칼슘", "밀크씨슬", "히알루론산나트륨", "마그네슘",
+    "비타민C", "철분", "오메가3", "프로바이오틱스", "콜라겐", "비타민D",
+    "아스타잔틴", "홍삼", "아르기닌", "코엔자임Q10", "글루타티온", "루테인",
+    "셀레늄", "엽산", "은행잎추출물", "감마리놀렌산", "쏘팔메토추출물",
+    "보스웰리아", "글루코사민", "L-테아닌", "지아잔틴", "콘드로이친",
+    "MSM(식이유황)", "크릴오일", "실리마린", "가르시니아 캄보지아 추출물"
   ]
+  
+  // 화면에 표시될, 순서가 섞인 배열을 담을 상태(@State) 변수를 선언합니다.(테스트용)
+  @State private var shuffledItems: [String] = []
 
   // 최근 검색어 저장 키 & 최대 개수
   private let recentKey = "recent_search_words"
@@ -77,16 +85,30 @@ struct SearchView: View {
               .font(.title3).bold()
               .padding(.horizontal)
 
-            FlowLayoutLineLimit(
-              items: recommendedForAges,
+            FlowLayoutLineLimit( // 2. 개선된 FlowLayout으로 교체합니다.
+//              items: recommendedForAges, // TODO: 나중에 코드 정리
+              items: shuffledItems, // 테스트용
+              itemFont: .systemFont(ofSize: 15, weight: .medium),
               spacing: 8,
               lineSpacing: 8,
-              lineLimit: 3
-            ) { item in
-              NutrientChip(title: item)
-            }
-            .padding(.horizontal)
+              lineLimit: 3,
+              // ⭐️ 수정된 부분 1: 화면 여백 계산은 SwiftUI에 맡기고 0으로 설정
+              containerPadding: 0,
+              // ⭐️ 수정된 부분 2: 아이콘 너비 등을 포함한 정확한 값을 직접 계산해서 입력
+              //    (아이콘너비 15) + (아이콘과 글자사이 8) + (양쪽여백 16*2=32) = 55
+              itemPadding: 55,
+              textProvider: { $0 },
+              content: { item in
+                NutrientChip(title: item)
+              }
+            )
+            .padding(.horizontal) // ⭐️ 화면 양쪽 여백은 여기서 한번만 적용
 
+          }
+          .onAppear {
+            // 이 뷰가 화면에 나타날 때마다 원본 배열의 순서를 섞어서
+            //    'shuffledItems'를 업데이트합니다.
+            shuffledItems = recommendedForAges.shuffled()
           }
         }
         .padding(.vertical, 24)
