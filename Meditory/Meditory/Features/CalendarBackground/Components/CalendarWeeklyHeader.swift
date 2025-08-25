@@ -7,6 +7,23 @@
 
 import SwiftUI
 
+enum HorizontalInset {
+  // iPad 가로 모드
+  enum Landscape {
+    static let ipad13: CGFloat = 100
+    static let ipad11: CGFloat = 80
+  }
+
+  // iPad 세로 모드
+  enum Portrait {
+    static let ipad13: CGFloat = 40
+    static let ipad11: CGFloat = 32
+  }
+
+  // iPhone
+  static let iphone: CGFloat = .defaultSpacing
+}
+
 /// 주간 헤더: 상단 월 라벨 + 요일 라인 + 날짜 숫자 라인
 struct CalendarWeeklyHeader: View {
   // 외부 상태
@@ -38,21 +55,17 @@ struct CalendarWeeklyHeader: View {
 
     if isLandscape {
       // iPad 가로 모드
-      if screenWidth > 1200 { // 13인치 아이패드
-        return 100
-      } else { // 11인치 아이패드
-        return 80
-      }
+      return screenWidth > 1200
+        ? HorizontalInset.Landscape.ipad13
+        : HorizontalInset.Landscape.ipad11
     } else if isPadStyle {
       // iPad 세로 모드
-      if screenWidth > 1200 { // 13인치 아이패드
-        return 40
-      } else { // 11인치 아이패드
-        return 32
-      }
+      return screenWidth > 1200
+        ? HorizontalInset.Portrait.ipad13
+        : HorizontalInset.Portrait.ipad11
     } else {
       // iPhone
-      return .defaultSpacing
+      return HorizontalInset.iphone
     }
   }
 
