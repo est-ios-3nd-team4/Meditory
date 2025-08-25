@@ -21,7 +21,23 @@ class HealthKitManager: ObservableObject {
     HKHealthStore.isHealthDataAvailable()
   }
   
-  // 권한 요청
+  /// 현재 HealthKit 권한 상태를 확인
+  func checkCurrentAuthorizationStatus() -> Bool {
+    guard let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else {
+      return false
+    }
+    
+    let status = healthStore.authorizationStatus(for: stepType)
+    let authorized = (status == .sharingAuthorized)
+    
+    Task { @MainActor in
+      self.isAuthorized = authorized
+    }
+    
+    return authorized
+  }
+  
+  /// 사용자에게 HealthKit 권한 요청 다이얼로그 표시
   func requestAuthorization() async throws {
     guard isHealthKitAvailable else {
       throw HealthKitError.notAvailable
@@ -34,26 +50,38 @@ class HealthKitManager: ObservableObject {
     let typesToRead: Set<HKObjectType> = [stepType]
     let typesToShare: Set<HKSampleType> = []
     
-    do {
-      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-        healthStore.requestAuthorization(toShare: typesToShare, read: typesToRead) { success, error in
-          if let error = error {
-            continuation.resume(throwing: error)
-          } else if success {
+    try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+      healthStore.requestAuthorization(toShare: typesToShare, read: typesToRead) { success, error in
+        if let error = error {
+          continuation.resume(throwing: error)
+          return
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5)  {
+          // 실제 권한 상태를 확인
+          let actualStatus = self.healthStore.authorizationStatus(for: stepType)
+          print("🔍 실제 권한 상태: \(actualStatus.rawValue)")
+          print("   - 0: notDetermined")
+          print("   - 1: sharingDenied")
+          print("   - 2: sharingAuthorized")
+          
+          if actualStatus == .sharingAuthorized {
+            Task { @MainActor in
+              self.isAuthorized = true
+            }
             continuation.resume()
           } else {
+            Task { @MainActor in
+              self.isAuthorized = false
+            }
             continuation.resume(throwing: HealthKitError.authorizationFailed)
           }
         }
       }
-      
-      isAuthorized = true
-    } catch {
-      isAuthorized = false
-      throw error
     }
   }
   
+  // 오늘 하루 걸음 수 데이터를 가져옴
   func fetchTodaySteps() async throws -> Int {
     guard let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else {
       throw HealthKitError.dataTypeNotAvailable
@@ -87,23 +115,76 @@ class HealthKitManager: ObservableObject {
     }
   }
   
-  func loadTodatSteps() async {
+  /// fetchTodaySteps 랩핑
+  func loadTodaySteps() async {
     isLoading = true
     errorMessage = nil
     
     do {
-      if !isAuthorized {
-        try await requestAuthorization()
-      }
-      
       let steps = try await fetchTodaySteps()
+      print("📊 가져온 걸음 수: \(steps)")
       todaySteps = steps
-    } catch {
-      errorMessage = error.localizedDescription
-      print("걸음 수 로드 실패: \(error)")
+      
+    } catch let error as HealthKitError {
+      switch error {
+      case .authorizationFailed:
+        errorMessage = "설정 → 개인정보 보호 → 건강에서 걸음 수 권한을 허용해주세요"
+      default:
+        errorMessage = error.localizedDescription
+      }
+      print("❌ HealthKit 에러: \(error)")
+      
+    } catch let error as NSError {
+      print("❌ 일반 에러:")
+      print("   - Domain: \(error.domain)")
+      print("   - Code: \(error.code)")
+      print("   - Description: \(error.localizedDescription)")
+      
+      if error.code == 11 { // No data available
+        print("ℹ️ 오늘 걸음 수 데이터 없음 - 0으로 설정")
+        todaySteps = 0
+      } else {
+        errorMessage = error.localizedDescription
+      }
     }
     
     isLoading = false
+  }
+  
+  func getActivityLevel() -> ActivityLevel {
+    switch todaySteps {
+    case 0..<3000:
+        .sedentary
+    case 3000..<7000:
+        .lightlyActive
+    case 7000..<10000:
+        .moderatelyActive
+    case 10000..<12500:
+        .veryActive
+    default:
+        .extremelyActive
+    }
+  }
+  
+  func checkAuthorizationStatus() {
+    guard let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else {
+      print("❌ Step type을 가져올 수 없음")
+      return
+    }
+    
+    let status = healthStore.authorizationStatus(for: stepType)
+    print("🔍 권한 상태: \(status.rawValue)")
+    
+    switch status {
+    case .notDetermined:
+      print("❓ 권한이 아직 결정되지 않음")
+    case .sharingDenied:
+      print("❌ 권한이 거부됨")
+    case .sharingAuthorized:
+      print("✅ 권한이 허용됨")
+    @unknown default:
+      print("❓ 알 수 없는 권한 상태")
+    }
   }
   
 }

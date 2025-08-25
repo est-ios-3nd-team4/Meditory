@@ -37,7 +37,7 @@ struct DailyMealSummaryCard: View {
           VStack {
             Image(systemName: "info.circle")
               .longPressPopover {
-                MacroGuidePopover()
+                RecommendedMacroGuidePopover()
               }
             
             Spacer()

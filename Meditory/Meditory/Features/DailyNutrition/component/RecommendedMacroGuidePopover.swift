@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct MacroGuidePopover: View {
+struct RecommendedMacroGuidePopover: View {
   @EnvironmentObject var viewModel: NutritionMainViewModel
   
   let meal = MacroNutrients(carbohydrate: 250,
@@ -59,5 +59,5 @@ struct MacroGuidePopover: View {
 }
 
 #Preview {
-  MacroGuidePopover()
+  RecommendedMacroGuidePopover()
 }

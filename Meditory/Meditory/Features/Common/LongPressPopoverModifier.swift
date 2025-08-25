@@ -79,11 +79,3 @@ struct LongPressPopoverModifier<PopoverContent: View>: ViewModifier {
       }, perform: { })
   }
 }
-
-extension View {
-  func longPressPopover<Content: View>(
-    @ViewBuilder content: @escaping () -> Content
-  ) -> some View {
-    modifier(LongPressPopoverModifier(popoverContent: content))
-  }
-}

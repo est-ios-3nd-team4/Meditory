@@ -14,6 +14,10 @@ struct MeditoryApp: App {
   
   @Environment(\.userStore) private var userStore // TODO: Onboarding 에 UserStore 재적용하면서 삭제 예정
   
+  @StateObject private var nutritionViewModel: NutritionMainViewModel = {
+    let context = DataController.shared.container.mainContext
+    return NutritionMainViewModel(modelContext: context)
+  }()
   
   init() {
     //        FirebaseApp.configure()
@@ -34,6 +38,7 @@ struct MeditoryApp: App {
           MainTabView()
             .modelContainer(DataController.shared.container)
             .environment(\.userStore, UserStore.shared)
+            .environmentObject(nutritionViewModel)
 //            .task { await UserStore.shared.resetExtraInfos() } // ExtraInfo 의 데이터는 변경이 일어나기 쉬우므로 앱을 켤때마다 기존 데이터 날리고 스크립트로 새로인서트하기 위한 코드
         }
       }

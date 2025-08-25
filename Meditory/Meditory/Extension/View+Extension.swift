@@ -12,4 +12,10 @@ extension View {
     self
       .modifier(CardStyle(padding: padding, cornerRadius: cornerRadius))
   }
+  
+  func longPressPopover<Content: View>(
+    @ViewBuilder content: @escaping () -> Content
+  ) -> some View {
+    modifier(LongPressPopoverModifier(popoverContent: content))
+  }
 }

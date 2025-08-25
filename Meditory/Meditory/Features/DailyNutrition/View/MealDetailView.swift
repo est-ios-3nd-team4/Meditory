@@ -18,19 +18,19 @@ struct MealDetailView: View {
         .padding(.horizontal, 16)
       
       MacroChartView(macros: viewModel.selectedMeal?.macros)
-      .frame(width: 200, height: 200)
+        .frame(width: 200, height: 200)
       
       HStack {
         Spacer()
         
         Image(systemName: "info.circle")
           .longPressPopover {
-            MacroGuidePopover()
+            RecommendedMacroGuidePopover()
           }
       }
       .frame(width: 250)
       
-      macroCompositionView()
+      macroCompositionView(viewModel: viewModel)
       
       FoodGridView(foods: viewModel.selectedMeal?.foods)
       Spacer()
@@ -52,18 +52,18 @@ struct MealDetailView: View {
           .font(.notoSans(weight: .bold, size: 20))
           .foregroundStyle(.black)
       }
-    }
+    } 
   }
   
   // MARK: Disposable Components
   
-  func macroCompositionView() -> some View {
+  func macroCompositionView(viewModel: NutritionMainViewModel) -> some View {
     let macro = viewModel.selectedMeal?.macros ?? MacroNutrients(carbohydrate: 0, protein: 0, fat: 0)
     
-    return HStack(spacing: 50) {
+      return HStack(spacing: 50) {
       ForEach(macro.macroItems) { item in
         VStack {
-          Text(item.label)
+            Text(item.label.prefix(1))
             .font(.notoSans(weight: .bold, size: 18))
           
           Circle()

@@ -10,6 +10,7 @@ import SwiftUI
 struct MainTabView: View {
 
   @State var selectedTab: TabItem = .home
+  @EnvironmentObject var nutritionViewModel: NutritionMainViewModel
 
   private let customTabTopInset: CGFloat = 14
 
