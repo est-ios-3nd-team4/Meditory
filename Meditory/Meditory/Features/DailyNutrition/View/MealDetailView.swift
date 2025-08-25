@@ -35,7 +35,7 @@ struct MealDetailView: View {
       FoodGridView(foods: viewModel.selectedMeal?.foods)
       Spacer()
     }
-    .navigationBar(.mealInfo)
+    .navigationBar(.mealDetail)
   }
   
   // MARK: Disposable Components

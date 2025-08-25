@@ -11,23 +11,6 @@ struct RecommendNutrientsView: View {
   let nutrients: [Nutrient]
 
   var body: some View {
-//    VStack {
-//      HStack {
-//        Button {
-//          dismiss()
-//        } label: {
-//          Image(systemName: "chevron.left")
-//            .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
-//        }
-//
-//        Spacer()
-//
-//      }
-//      .padding(.horizontal, 16)
-//      .padding(.vertical, 12)
-//    }
-//    .background(.clear)
-
     ScrollView {
       ScrollTopObserver(isAtTop: $isAtTop)
       
@@ -103,7 +86,11 @@ struct RecommendNutrientsView: View {
       }
     }
     .scrollIndicators(.hidden)
-    .navigationBar(.none, isAtTop: isAtTop)
+    .navigationBar(
+      .none,
+      backgroundStyle: .system,
+      isAtTop: isAtTop
+    )
   }
 }
 

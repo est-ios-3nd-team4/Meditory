@@ -15,6 +15,7 @@ extension View {
   
   func navigationBar(
     _ title: NavigationTitle,
+    backgroundStyle: PrimaryNavigationBar.BackgroundStyle = .custom,
     isAtTop: Bool? = nil,
     _ onBackTap: (() -> Void)? = nil
   ) -> some View {
@@ -26,6 +27,7 @@ extension View {
       .safeAreaInset(edge: .top) {
         PrimaryNavigationBar(
           title: title,
+          backgroundStyle: backgroundStyle,
           isAtTop: isAtTop,
           onBackTap: onBackTap
         )

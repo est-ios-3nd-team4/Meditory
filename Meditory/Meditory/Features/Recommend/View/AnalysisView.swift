@@ -60,7 +60,11 @@ struct AnalysisView: View {
       }
     }
     .navigationBarHidden(true)
-    .navigationBar(.aiAnalysisResult, isAtTop: isAtTop)
+    .navigationBar(
+      .aiAnalysisResult,
+      backgroundStyle: .system,
+      isAtTop: isAtTop
+    )
   }
 }
 

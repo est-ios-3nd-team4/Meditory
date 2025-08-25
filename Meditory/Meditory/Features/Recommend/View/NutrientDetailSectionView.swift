@@ -61,7 +61,7 @@ struct NutrientDetailSectionView: View {
           .font(.notoSans(weight: .medium, size: 15))
       }
       .padding(.vertical)
-      .navigationBar(.none)
+      .navigationBar(.none, backgroundStyle: .system)
     }
     .scrollIndicators(.hidden)
   }

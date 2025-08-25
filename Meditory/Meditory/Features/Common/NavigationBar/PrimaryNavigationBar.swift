@@ -9,10 +9,23 @@ import SwiftUI
 
 struct PrimaryNavigationBar: View {
   
+  enum BackgroundStyle {
+    case system
+    case custom
+    
+    var color: Color {
+      switch self {
+      case .system: return .background
+      case .custom: return .customBackground
+      }
+    }
+  }
+  
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.dismiss) private var dismiss
   
   var title: NavigationTitle = .none
+  var backgroundStyle: BackgroundStyle = .custom
   var isAtTop: Bool? = nil
   let onBackTap: (() -> Void)?
   
@@ -42,7 +55,7 @@ struct PrimaryNavigationBar: View {
     }
     .padding(.horizontal, 16)
     .padding(.vertical, 12)
-    .background(.customBackground)
+    .background(backgroundStyle.color)
   }
   
   var body: some View {

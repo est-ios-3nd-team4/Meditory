@@ -71,7 +71,7 @@ struct SupplementDetailView: View {
       }
     }
     .background(.customBackground)
-    .navigationBar(.supplementInfo, isAtTop: isAtTop)
+    .navigationBar(.supplementDetail, isAtTop: isAtTop)
     .overlay {
       if vm.showDeleteAlert {
         DeleteAlertView(
