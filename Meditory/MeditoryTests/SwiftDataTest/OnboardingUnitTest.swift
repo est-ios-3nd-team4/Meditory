@@ -24,9 +24,7 @@ final class OnboardingUnitTest: XCTestCase {
     container = try ModelContainer(for: schema, configurations: [config])
     modelContext = ModelContext(container)
     userStore = UserStore(modelContainer: container)
-    Task {
-      sut = OnboardingViewModel(userStore: userStore)
-    }
+    sut = OnboardingViewModel(userStore: userStore)
   }
 
   override func tearDownWithError() throws {
@@ -37,9 +35,10 @@ final class OnboardingUnitTest: XCTestCase {
 
   ///각필드의 유효성 검사
   func test_eachField_validation() async throws {
+    let exp = expectation(description: "대기 필요")
 
     //given
-    sut.updateContent(.height, context: "140")
+    sut.updateContent(.height, context: "170")
     sut.updateContent(.weight, context: "179")
     sut.updateContent(.name, context: "james")
     sut.updateContent(.birthDate, context: "2025")
@@ -49,6 +48,13 @@ final class OnboardingUnitTest: XCTestCase {
     sut.validate(.weight)
     sut.validate(.name)
     sut.validate(.birthDate)
+    
+    Task {
+      await MainActor.run {
+        exp.fulfill()
+      }
+    }
+    await fulfillment(of: [exp],timeout: 1.0)
 
     //then
     let heightResult = try XCTUnwrap(sut.fieldStates[.height]?.isValid)
@@ -56,19 +62,15 @@ final class OnboardingUnitTest: XCTestCase {
     let nameResult = try XCTUnwrap(sut.fieldStates[.name]?.isValid)
     let bodResult = try XCTUnwrap(sut.fieldStates[.birthDate]?.isValid)
 
-    Task {
-      try? await Task.sleep(nanoseconds: 1_000_000_000)
-      XCTAssertTrue(heightResult)
-      XCTAssertTrue(weightResult)
-      XCTAssertTrue(nameResult)
-      XCTAssertTrue(bodResult)
-    }
+    XCTAssertTrue(heightResult, "키가 유효하지 않습니다")
+    XCTAssertTrue(weightResult, "체중이 유효하지 않습니다")
+    XCTAssertTrue(nameResult, "이름이 유효하지 않습니다")
+    XCTAssertTrue(bodResult, "생년월일이 유효하지 않습니다")
   }
-  
+
   ///기본 가입정보들 중 하나라도 유효성 검증을 통과하지 못했을 경우 다음 버튼이 활성화되면 안된다
-  func test_userEnter_invalidInputs() async throws {
+  func test_nextButton_shouldntactivate() async throws {
     //given
-    let expectation = XCTestExpectation(description: "test Next Button")
 
     sut.updateContent(.name, context: "James")
     sut.updateContent(.weight, context: "155.53")
@@ -79,20 +81,12 @@ final class OnboardingUnitTest: XCTestCase {
     sut.validateAllField()
 
     //then
-    Task {
-      try? await Task.sleep(nanoseconds: 1_000_000_000)
-      await MainActor.run {
-        self.sut.validateAllField()
-
-        XCTAssertTrue(self.sut.isNextButtonOn)
-        expectation.fulfill()
-      }
-      await fulfillment(of: [expectation], timeout: 1.0)
-    }
+    try await Task.sleep(nanoseconds: 2_000_000_000)
+    XCTAssertTrue(sut.isNextButtonOn,"다음 버튼이 활성화되어있지 않습니다.")
   }
 
   ///유저가 남성일 경우 회원가입 완료 후 유저상태에서 여성관련 옵션들이 존재하면 안된다
-  func test_userIsMan_noWomanOptionFound() async throws {
+  func test_userStoreSelectionSet_noWomanOptionFound() async throws {
     //given
     sut.name = "James"
     sut.gender = "남성"
@@ -115,6 +109,7 @@ final class OnboardingUnitTest: XCTestCase {
         code: "allergy_1",
         title: "견과류·씨앗류",
         type: .allergy,
+
         subtitle: "땅콩, 호두, 아몬드, 캐슈넛, 피스타치오, 헤이즐넛 등",
         symptom: "입술·혀 부종, 두드러기, 호흡곤란, 아나필락시스",
         treatment: "즉시 섭취 중단, 에피네프린 사용, 응급실 이동",
@@ -139,10 +134,13 @@ final class OnboardingUnitTest: XCTestCase {
 
     //then
     let user = try await userStore.currentUser()
-    let userStatus = await userStore.fetchStatuses()
-    let result = userStatus.contains(where: { $0.statusType == "임신 중" || $0.statusType == "수유 중" })
     XCTAssertNotNil(user)
-    XCTAssertFalse(result)
+    let gender = user.gender
+    XCTAssertEqual(gender, "남성")
+    let userStatus = await userStore.fetchStatuses()
+    XCTAssertNotNil(userStatus)
+    let result = userStatus.contains(where: { $0.statusType == "임신 중" || $0.statusType == "수유 중" })
+    XCTAssertFalse(result,"해당 옵션들이 존재하지 않습니다")
   }
 
 }
