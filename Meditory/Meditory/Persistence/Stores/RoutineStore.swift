@@ -1,89 +1,97 @@
 import Foundation
 import SwiftData
 
-
-// add 는 따로 객체를 미리 만들고 DB에 추가하는 함수
-// create 는 이 함수에서 객체까지 만들면서 한방에 DB에 추가하는 함수
-
-
-
-final class RoutineStore {
-
-  // MARK: - Load
-  /// Routine 객체를 DB에서 로드하는 함수
-  @MainActor
-  func fetchAllRoutines(context: ModelContext) -> [Routine] {
+@ModelActor
+actor RoutineStore {
+  // 앱 전역에서 접근할 수 있는 싱글턴 인스턴스
+  static let shared = RoutineStore(modelContainer: DataController.shared.container)
+  
+  // MARK: - 조회 (Read)
+  
+  /// 모든 Routine의 ID를 가져옵니다.
+  func fetchAllRoutineIDs() -> [PersistentIdentifier] {
     let descriptor = FetchDescriptor<Routine>()
-    return (try? context.fetch(descriptor)) ?? []
+    let routines = (try? modelContext.fetch(descriptor)) ?? []
+    return routines.map { $0.persistentModelID }
   }
 
-  /// 선택한 날짜에 활성화된 Routine만 불러오는 함수
-  @MainActor
-  func fetchRoutines(for date: Date, context: ModelContext) -> [Routine] {
+  /// 특정 날짜에 활성화된 Routine의 ID 목록을 가져옵니다.
+  func fetchRoutineIDs(for date: Date) -> [PersistentIdentifier] {
     let predicate = #Predicate<Routine> { $0.startDate <= date }
     let descriptor = FetchDescriptor<Routine>(predicate: predicate)
-    return (try? context.fetch(descriptor)) ?? []
+    let routines = (try? modelContext.fetch(descriptor)) ?? []
+    return routines.map { $0.persistentModelID }
   }
 
-
-  // MARK: - Routine
-  /// Routine 객체를 DB에 추가하는 함수
-  @MainActor
-  func addRoutine(_ routine: Routine, context: ModelContext) {
-    context.insert(routine)
-    try? context.save()
+  // MARK: - 생성 (Create)
+  
+  /// 필요한 데이터를 받아 새로운 Routine 객체를 생성하고 DB에 추가합니다.
+  func createRoutine(
+    type: Int,
+    displayName: String,
+    desc: String?,
+    category: String?,
+    cycleType: Int,
+    cycleValue: String,
+    startDate: Date,
+    memo: String?,
+    usage: [String],
+    precautions: [String],
+    routineTimes: [RoutineTime],
+    recommendedRoutineTimes: [RoutineTime]
+  ) throws -> PersistentIdentifier {
+    let newRoutine = Routine(
+      type: type,
+      displayName: displayName,
+      desc: desc,
+      category: category,
+      cycleType: cycleType,
+      cycleValue: cycleValue,
+      startDate: startDate,
+      memo: memo,
+      usage: usage,
+      precautions: precautions,
+      routineTimes: routineTimes,
+      recommendedRoutineTimes: recommendedRoutineTimes
+    )
+    modelContext.insert(newRoutine)
+    try modelContext.save()
+    return newRoutine.persistentModelID
+  }
+  
+  /// 새로운 RoutineTime 객체를 생성하여 특정 Routine에 추가합니다.
+  func createRoutineTime(time: Date, pillsPerDose: Int, forRoutineID routineID: PersistentIdentifier) {
+    guard let routine = modelContext.model(for: routineID) as? Routine else { return }
+    
+    let newRoutineTime = RoutineTime(time: time, pillsPerDose: pillsPerDose, routine: routine)
+    modelContext.insert(newRoutineTime)
+    try? modelContext.save()
   }
 
-  /// Routine 하나만 삭제하는 함수
-  @MainActor
-  func deleteRoutine(_ routine: Routine, context: ModelContext) {
-    context.delete(routine)
-    try? context.save()
+  /// 새로운 RoutineRecord 객체를 생성하여 특정 Routine에 추가합니다.
+  func createRoutineRecord(forRoutineID routineID: PersistentIdentifier, timestamp: Date = Date()) {
+    guard let routine = modelContext.model(for: routineID) as? Routine else { return }
+    
+    let newRecord = RoutineRecord(timestamp: timestamp, routine: routine)
+    modelContext.insert(newRecord)
+    try? modelContext.save()
+  }
+  
+  // MARK: - 삭제 (Delete)
+  
+  /// ID를 사용해 Routine 하나를 삭제합니다.
+  func deleteRoutine(id: PersistentIdentifier) {
+    guard let routine = modelContext.model(for: id) as? Routine else { return }
+    modelContext.delete(routine)
+    try? modelContext.save()
   }
 
-  /// 모든 Routine을 삭제하는 함수
-  @MainActor
-  func deleteAllRoutines(context: ModelContext) {
-    let routines = fetchAllRoutines(context: context)
-    for routine in routines {
-      context.delete(routine)
+  /// 모든 Routine을 삭제합니다.
+  func deleteAllRoutines() {
+    // iOS 18 / SwiftData 12 이상에서는 `try? modelContext.delete(model: Routine.self)` 한 줄로 가능
+    let allRoutineIDs = fetchAllRoutineIDs()
+    for id in allRoutineIDs {
+      deleteRoutine(id: id)
     }
-    try? context.save()
-  }
-
-  // MARK: - RoutineTime
-  /// 기존에 생성된 RoutineTime 객체를 특정 Routine에 추가하고 DB에 저장하는 함수
-  @MainActor
-  func addRoutineTime(_ routineTime: RoutineTime, to routine: Routine, context: ModelContext) {
-    routineTime.routine = routine
-    routine.routineTimes.append(routineTime)
-    context.insert(routineTime)
-    try? context.save()
-  }
-
-  /// 새로운 RoutineTime 객체를 생성하여 특정 Routine에 추가하고 DB에 저장하는 함수
-  @MainActor
-  func createRoutineTime(time: Date, for routine: Routine, context: ModelContext) {
-    let routineTime = RoutineTime(time: time, routine: routine)
-    routine.routineTimes.append(routineTime)
-    context.insert(routineTime)
-    try? context.save()
-  }
-
-  // MARK: - RoutineRecord
-  /// 기존에 생성된 RoutineRecord 객체를 특정 Routine에 추가하고 DB에 저장하는 함수
-  @MainActor
-  func addRoutineRecord(_ record: RoutineRecord, to routine: Routine, context: ModelContext) {
-    record.routine = routine
-    context.insert(record)
-    try? context.save()
-  }
-
-  /// 새로운 RoutineRecord 객체를 생성하여 특정 Routine에 추가하고 DB에 저장하는 함수
-  @MainActor
-  func createRoutineRecord(for routine: Routine, timestamp: Date = Date(), context: ModelContext) {
-    let record = RoutineRecord(timestamp: timestamp, routine: routine)
-    context.insert(record)
-    try? context.save()
   }
 }

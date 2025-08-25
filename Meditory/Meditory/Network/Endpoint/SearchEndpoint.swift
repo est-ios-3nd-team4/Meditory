@@ -20,8 +20,7 @@ extension SearchEndpoint: Endpoint {
     switch self {
     case let .cseImage(brand, name, apiKey, cx):
       let rawQuery = "\"\(brand)\" \"\(name)\""
-      let query = rawQuery
-        .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+      let query = collapseSpaces(rawQuery)
         .trimmingCharacters(in: .whitespacesAndNewlines)
         .lowercased()
 
@@ -50,4 +49,8 @@ extension SearchEndpoint: Endpoint {
     request.httpMethod = method.rawValue
     return request
   }
+}
+
+private func collapseSpaces(_ text: String) -> String {
+  text.split { $0.isWhitespace }.joined(separator: " ")
 }
