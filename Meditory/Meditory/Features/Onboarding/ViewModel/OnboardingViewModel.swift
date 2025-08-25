@@ -58,35 +58,26 @@ class OnboardingViewModel {
       if !content.isEmpty && content.count >= 2 {
         target.isValid = true
         name = target.content
-      } else {
-        target.isValid = false
       }
     case .birthDate:
-      if !content.isEmpty {
-        let digits = content.filter(\.isNumber)
-        if digits.count >= 4 {
-          let trimmedYear = content.prefix(4)
-          if let birthYear = Date().dateFromYearString(yearString: String(trimmedYear)) {
-            self.birthDate = birthYear
-            target.isValid = true
-          } else {
-            target.isValid = false
-          }
-        }
+      let currentYear = Calendar.current.component(.year, from: .now)
+      guard let year = Int(String(content.filter(\.isNumber).prefix(4))),
+        (1900...currentYear).contains(year),
+        let birthYear = Date().dateFromYearString(yearString: String(year))
+      else {
+        return
       }
+      self.birthDate = birthYear
+      target.isValid = true
     case .height:
       if let height = Double(target.content), (60...250).contains(height) {
         target.isValid = true
         self.height = height
-      } else {
-        target.isValid = false
       }
     case .weight:
       if let weight = Double(target.content), (20...300).contains(weight) {
         target.isValid = true
         self.weight = weight
-      } else {
-        target.isValid = false
       }
     }
     fieldStates[field] = target
@@ -128,9 +119,15 @@ class OnboardingViewModel {
     }
 
     // ExtraInfo(from:) 대신 직접 초기화합니다.
-    let diseases = selectionSet.filter { $0.type == .disease }.map { ExtraInfo(key: $0.code, value: $0.title, type: $0.type) }
-    let concern = selectionSet.filter { $0.type == .concern }.map { ExtraInfo(key: $0.code, value: $0.title, type: $0.type) }
-    let allergy = selectionSet.filter { $0.type == .allergy }.map { ExtraInfo(key: $0.code, value: $0.title, type: $0.type) }
+    let diseases = selectionSet.filter { $0.type == .disease }.map {
+      ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
+    }
+    let concern = selectionSet.filter { $0.type == .concern }.map {
+      ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
+    }
+    let allergy = selectionSet.filter { $0.type == .allergy }.map {
+      ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
+    }
 
     await userStore.addUserExtraInfo(
       UserExtraInfo(disease: diseases, allergy: allergy, concern: concern, user: currentUser)
