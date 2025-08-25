@@ -125,16 +125,25 @@ private struct AchievementSection: View {
     }
   }
 
-  // ViewModel에서 이미 정렬되었으므로, items를 직접 사용합니다.
- private func intakeColumn() -> some View {
-    VStack(alignment: .leading, spacing: .smallSpacing) {
-      ForEach(vm.intakeItems.indices.sorted { vm.intakeItems[$0].time < vm.intakeItems[$1].time }, id: \.self) { index in
-        let item = vm.intakeItems[index]
+  // ViewModel에서 이미 정렬되었으므로, items를 직접 사용합
+  private func intakeColumn() -> some View {
+    // 현재 상태의 스냅샷을 만듦
+    let snapshot = vm.intakeItems
+    let sortedPairs = Array(snapshot.enumerated())
+      .sorted { $0.element.time < $1.element.time }
+
+    return VStack(alignment: .leading, spacing: .smallSpacing) {
+      ForEach(sortedPairs.indices, id: \.self) { i in
+        let pair = sortedPairs[i]
+        let item = pair.element                // 스냅샷의 item
+
         HStack(alignment: .center, spacing: .defaultSpacing) {
           Button {
             // toggleCompleted 호출을 Task로 감싸고, item을 직접 전달합니다. (develop 기준)
+            // 토글 시에도 "현재 셀의 스냅샷"을 넘겨, 인덱스 무효화 문제 방지
+            let currentItem = item
             Task {
-              await vm.toggleCompleted(at: index, for: selectedDate)
+              await vm.toggleCompleted(currentItem, for: selectedDate)
             }
           } label: {
             CircleCheck(isCompleted: item.isCompleted)
