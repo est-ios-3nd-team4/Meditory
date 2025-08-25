@@ -639,21 +639,29 @@ extension AddSupplementView {
   private func saveRoutine() {
     Task {
       do {
+        try await lifestyleTimeVM.saveLifestyle()
+        
         try await addSupplementVM.saveRoutine(
           type: selectedScheduleType,
           supplement: supplement,
           memo: memo
         )
+        
         await MainActor.run {
           dismissOrClearSelection()
         }
       } catch let error as RoutineSaveError {
-        routineSaveError = error
-        showAlert = true
+        showAlert(error)
         print("❌ \(error)")
       } catch {
+        showAlert(.saveFailed)
         print("❌ Error is \(error)")
       }
     }
+  }
+  
+  private func showAlert(_ error: RoutineSaveError) {
+    routineSaveError = error
+    showAlert = true
   }
 }

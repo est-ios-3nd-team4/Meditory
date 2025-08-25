@@ -160,10 +160,10 @@ extension LifestyleTimeViewModel {
     }
   }
   
-  func saveLifestyle() async {
+  func saveLifestyle() async throws {
     guard let lifestyleID = self.lifestyleID else { return }
     
-    await lifestyleStore.setLifestyleTimesDate(
+    try await lifestyleStore.setLifestyleTimesDate(
       id: lifestyleID,
       wakeTime: wakeTime,
       sleepTime: sleepTime,

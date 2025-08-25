@@ -82,8 +82,6 @@ class AddSupplementViewModel {
 
 // MARK: - DB
 extension AddSupplementViewModel {
-  // updateContext는 더 이상 필요 없습니다.
-  
   @MainActor
   func saveRoutine(
     type: SupplementScheduleType,
@@ -102,7 +100,6 @@ extension AddSupplementViewModel {
       recommendedRoutineTimes = supplement.schedule.routineTimes
     }
         
-    // Routine 객체를 직접 만들지 않고, Store의 createRoutine 함수를 비동기적으로 호출합니다.
     _ = try await RoutineStore.shared.createRoutine(
       type: supplemtSummary.type,
       displayName: supplemtSummary.name,
