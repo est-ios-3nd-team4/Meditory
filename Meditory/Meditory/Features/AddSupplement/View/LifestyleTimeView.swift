@@ -24,13 +24,13 @@ struct LifestyleTimeView: View {
         
         Spacer()
         
-        Button {
-          isExpanded.toggle()
-        } label: {
-          Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-            .foregroundStyle(.textGray)
-            .font(.system(size: defaultFontSize, weight: .medium))
-        }
+        Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+          .foregroundStyle(.textGray)
+          .font(.system(size: defaultFontSize, weight: .medium))
+      }
+      .contentShape(Rectangle())
+      .onTapGesture {
+        isExpanded.toggle()
       }
       
       if isExpanded {
@@ -43,6 +43,7 @@ struct LifestyleTimeView: View {
               imageName: item.type.imageName,
               time: item.time
             )
+            .contentShape(Rectangle())
             .onTapGesture {
               onTapGesture?(item.type)
             }
