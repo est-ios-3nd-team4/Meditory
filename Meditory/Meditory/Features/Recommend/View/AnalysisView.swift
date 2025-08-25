@@ -5,31 +5,15 @@ struct AnalysisView: View {
   @Environment(\.colorScheme) private var colorScheme
 
   let result: ScoreResult
+  
+  @State private var isAtTop = true
 
   var body: some View {
     VStack  {
-      HStack {
-        Button {
-          dismiss()
-        } label: {
-          Image(systemName: "chevron.left")
-            .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
-        }
-
-        Spacer()
-
-        Text("AI분석 전체 결과")
-          .font(.notoSans(weight: .bold, size: 18))
-
-        Spacer()
-
-      }
-      .padding(.horizontal, 16)
-      .padding(.vertical, 12)
-
-
       // 추후 수정부분
       ScrollView {
+        ScrollTopObserver(isAtTop: $isAtTop)
+      
         VStack(alignment: .leading, spacing: .defaultSpacing) {
           // 부족
           Divider()
@@ -76,6 +60,7 @@ struct AnalysisView: View {
       }
     }
     .navigationBarHidden(true)
+    .navigationBar(.aiAnalysisResult, isAtTop: isAtTop)
   }
 }
 

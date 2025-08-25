@@ -11,6 +11,7 @@ enum NavigationTitle {
   case addSupplement
   case supplementInfo
   case mealInfo
+  case aiAnalysisResult
   case custom(String)
   case none
   
@@ -19,6 +20,7 @@ enum NavigationTitle {
     case .addSupplement: return "복용 약 추가"
     case .supplementInfo: return "복용 약 정보"
     case .mealInfo: return "식단 상세 정보"
+    case .aiAnalysisResult: return "AI분석 전체 결과"
     case .custom(let title): return title
     case .none: return ""
     }

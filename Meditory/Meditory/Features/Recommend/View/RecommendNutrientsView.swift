@@ -6,28 +6,31 @@ struct RecommendNutrientsView: View {
   @Environment(\.colorScheme) private var colorScheme
 
   @State private var isLoading = false
+  @State private var isAtTop = true
 
   let nutrients: [Nutrient]
 
   var body: some View {
-    VStack {
-      HStack {
-        Button {
-          dismiss()
-        } label: {
-          Image(systemName: "chevron.left")
-            .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
-        }
-
-        Spacer()
-
-      }
-      .padding(.horizontal, 16)
-      .padding(.vertical, 12)
-    }
-    .background(.clear)
+//    VStack {
+//      HStack {
+//        Button {
+//          dismiss()
+//        } label: {
+//          Image(systemName: "chevron.left")
+//            .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
+//        }
+//
+//        Spacer()
+//
+//      }
+//      .padding(.horizontal, 16)
+//      .padding(.vertical, 12)
+//    }
+//    .background(.clear)
 
     ScrollView {
+      ScrollTopObserver(isAtTop: $isAtTop)
+      
       VStack(alignment: .leading) {
         VStack(alignment: .leading, spacing: .smallSpacing) {
           Text("최종결과")
@@ -99,8 +102,8 @@ struct RecommendNutrientsView: View {
         .padding(.vertical)
       }
     }
-    .navigationBarHidden(true)
     .scrollIndicators(.hidden)
+    .navigationBar(.none, isAtTop: isAtTop)
   }
 }
 
