@@ -40,6 +40,9 @@ struct OnboardingBasicInfoView: View {
               needValidation: true,
               validator: { vm.isValid(for: .birthDate) },
             )
+            .onChange(of: vm.birthDate, { 
+              focusedField.wrappedValue = .height
+            })
             .id(FormField.birthDate)
             .focused(focusedField, equals: .birthDate)
             TextInputView(
@@ -52,6 +55,9 @@ struct OnboardingBasicInfoView: View {
             )
             .id(FormField.height)
             .focused(focusedField, equals: .height)
+            .onChange(of: vm.height) {
+              focusedField.wrappedValue = .weight
+            }
             TextInputView(
               placeholder: "체중",
               unit: "kg",
@@ -72,9 +78,6 @@ struct OnboardingBasicInfoView: View {
         }
       }
       .scrollIndicators(.never)
-      .onAppear {
-        scroll(proxy)
-      }
     }
   }
   private func scroll(_ proxy: ScrollViewProxy) {
