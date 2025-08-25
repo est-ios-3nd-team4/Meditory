@@ -28,13 +28,13 @@ class HealthKitManager: ObservableObject {
     }
     
     let status = healthStore.authorizationStatus(for: stepType)
-    let authorized = (status == .sharingAuthorized)
+    let authorized = (status == .sharingAuthorized) // 1 !!
     
     Task { @MainActor in
       self.isAuthorized = authorized
     }
     
-    return authorized
+    return authorized // false!!
   }
   
   /// 사용자에게 HealthKit 권한 요청 다이얼로그 표시
@@ -50,37 +50,38 @@ class HealthKitManager: ObservableObject {
     let typesToRead: Set<HKObjectType> = [stepType]
     let typesToShare: Set<HKSampleType> = []
     
+    // 권한 요청
     try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
       healthStore.requestAuthorization(toShare: typesToShare, read: typesToRead) { success, error in
         if let error = error {
           continuation.resume(throwing: error)
           return
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5)  {
-          // 실제 권한 상태를 확인
-          let actualStatus = self.healthStore.authorizationStatus(for: stepType)
-          print("🔍 실제 권한 상태: \(actualStatus.rawValue)")
-          print("   - 0: notDetermined")
-          print("   - 1: sharingDenied")
-          print("   - 2: sharingAuthorized")
-          
-          if actualStatus == .sharingAuthorized {
-            Task { @MainActor in
-              self.isAuthorized = true
-            }
-            continuation.resume()
-          } else {
-            Task { @MainActor in
-              self.isAuthorized = false
-            }
-            continuation.resume(throwing: HealthKitError.authorizationFailed)
-          }
+        } else {
+          continuation.resume()
         }
       }
     }
+    // 실제 권한 상태를 확인
+    do {
+      try await Task.sleep(nanoseconds: 500_000_000)
+      
+      _ = try await fetchTodaySteps()
+      
+      await MainActor.run {
+        self.isAuthorized = true
+      }
+      
+      print("✅ HealthKit 권한 확인됨 - 데이터 읽기 성공")
+    } catch {
+      await MainActor.run {
+        self.isAuthorized = false
+      }
+      
+      print("❌ HealthKit 권한 없음 - 데이터 읽기 실패: \(error)")
+      throw HealthKitError.authorizationFailed
+    }
   }
-  
+    
   // 오늘 하루 걸음 수 데이터를 가져옴
   func fetchTodaySteps() async throws -> Int {
     guard let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else {

@@ -66,7 +66,7 @@ class NutritionMainViewModel: ObservableObject {
       }
       
       // 권한 요청
-      try await healthKitManager.requestAuthorization()
+      try await healthKitManager.requestAuthorization() // error
       print("✅ HealthKit 권한 요청 성공")
       
       // 걸음 수 데이터 로드
