@@ -7,7 +7,9 @@
 import SwiftUI
 
 struct OnboardingBasicInfoView: View {
-  @ObservedObject var vm: OnboardingViewModel
+  // @ObservedObject를 제거하고 일반 var로 변경
+  // @Observable ViewModel은 상위 View(@State)에서 자식 View(var)로 전달됨
+  var vm: OnboardingViewModel
   let focusedField: FocusState<FormField?>.Binding
   let bottomSpacing: CGFloat
 
