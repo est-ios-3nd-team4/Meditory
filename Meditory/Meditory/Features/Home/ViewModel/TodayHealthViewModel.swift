@@ -37,15 +37,19 @@ final class TodayHealthViewModel: ObservableObject {
   }
 
   func fetchHealthContent() {
-    isLoading = true
-
     Task {
-      defer { self.isLoading = false }
+      await MainActor.run { self.isLoading = true }
       do {
         let result = try await client.request(content: prompt)
-        healthContent = result
+        await MainActor.run {
+          self.healthContent = result
+          self.isLoading = false
+        }
       } catch {
-        healthContent = "아침 식사 전 따뜻한 레몬물 한 잔은 소화 기능을 돕고 면역력 강화에 효과적입니다."
+        await MainActor.run {
+          self.healthContent = "아침에 스트레칭 5분만 해도 혈액순환이 촉진되고 하루 피로가 줄어듭니다. 서양 의학은 근육 유연성 향상, 한의학은 기혈 흐름 개선 효과를 강조합니다. 매일 일어나자마자 가볍게 목·어깨 돌리기부터 시작해 보세요."
+          self.isLoading = false
+        }
         print("TodayHealthView error:", error)
       }
     }

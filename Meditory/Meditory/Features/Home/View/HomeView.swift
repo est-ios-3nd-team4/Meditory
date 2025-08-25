@@ -14,7 +14,7 @@ struct HomeView: View {
   @State private var vm = HomeViewModel()
   @Environment(\.colorScheme) private var colorScheme
   @State private var selectedDate: Date = Date()
-  
+
   var body: some View {
     CalendarBackgroundView(
       selectedDate: $selectedDate,
@@ -22,10 +22,10 @@ struct HomeView: View {
     ) { _ in
       ScrollView(showsIndicators: false) {
         VStack {
-          achiveMentSection
+          AchievementSection(vm: vm, selectedDate: $selectedDate)
           TodayHealthView(vm: TodayHealthViewModel())
         }
-        .padding()
+        .padding(.defaultSpacing)
       }
     }
     // .onAppear와 .onChange를 .task(id:)로 통합하여 코드를 더 깔끔하게 만듭니다.
@@ -42,63 +42,131 @@ struct HomeView: View {
       }
     }
   }
-  
-  private var achiveMentSection: some View {
+}
+
+private struct AchievementSection: View {
+  @ObservedObject var vm: HomeViewModel
+  @Binding var selectedDate: Date
+  @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.horizontalSizeClass) private var hSize
+
+  private var isPadStyle: Bool { hSize == .regular }
+
+  private var progressSize: CGFloat { isPadStyle ? 300 : 200 }
+  private var emptyFontSize: CGFloat { isPadStyle ? 18 : 16 }
+
+  var body: some View {
     UnifiedSectionCard(showsStroke: false) {
       Text("오늘 복용 달성률")
         .font(.notoSans(size: 20))
         .frame(maxWidth: .infinity, alignment: .leading)
-      
-      HStack {
-        Spacer()
-        CircularProgressView(progress: vm.progress)
-          .frame(width: 200, height: 200)
-        Spacer()
-      }
-      
-      VStack {
-        // ViewModel에서 이미 정렬되었으므로, items를 직접 사용합니다.
-        ForEach(vm.items) { item in
-          HStack(alignment: .center, spacing: .defaultSpacing) {
-            Button {
-              // toggleCompleted 호출을 Task로 감싸고, item을 직접 전달합니다.
-              Task {
-                await vm.toggleCompleted(item, for: selectedDate)
+      if isPadStyle {
+        VStack(spacing: 24) {
+          ProgressBlock(size: progressSize, progress: vm.progress)
+            .frame(maxWidth: .infinity, alignment: .center)
+
+          Group {
+            if vm.intakeItems.isEmpty {
+              EmptyState(fontSize: emptyFontSize)
+                .frame(maxWidth: .infinity, alignment: .center)
+            } else {
+              ScrollView(showsIndicators: false) {
+                intakeColumn()
+                  .frame(maxWidth: .infinity, alignment: .leading)
               }
-            } label: {
-              CircleCheck(isCompleted: item.isCompleted)
-                .offset(y: 2)
+              .frame(maxHeight: progressSize)
             }
-            .buttonStyle(.plain)
-            .contentShape(Rectangle())
-            
-            NavigationLink(
-              destination: SupplementDetailView(routine: item.routine)
-            ) {
-              HStack(spacing: .defaultSpacing) {
-                Text(item.name)
-                  .font(.notoSans(size: 18))
-                  .foregroundColor(.primary)
-                
-                Spacer()
-                
-                Text(item.time.timeFormatter)
-                  .font(.notoSans(size: 15))
-                  .foregroundStyle(
-                    colorScheme == .dark ? Color.secondary : Color.main
-                  )
-              }
-            }
-            .buttonStyle(.plain)
           }
-          .padding(.vertical, .smallSpacing)
+        }
+        .frame(maxWidth: .infinity, alignment: .top)
+
+      } else {
+        HStack {
+          Spacer()
+          ProgressBlock(size: progressSize, progress: vm.progress)
+          Spacer()
+        }
+
+        Group {
+          if vm.intakeItems.isEmpty {
+            EmptyState(fontSize: emptyFontSize)
+              .frame(maxWidth: .infinity, alignment: .center)
+              .padding(.vertical, .defaultSpacing)
+          } else {
+            intakeColumn()
+              .frame(maxWidth: .infinity, alignment: .leading)
+          }
         }
       }
     }
-    .padding(.bottom, .defaultSpacing)
+    .padding(.bottom, .defaultSpacing + 8)
+  }
+
+  private func ProgressBlock(size: CGFloat, progress: Double) -> some View {
+    CircularProgressView(progress: progress)
+      .frame(width: size, height: size)
+  }
+
+  private struct EmptyState: View {
+    let fontSize: CGFloat
+    
+    var body: some View {
+      VStack(spacing: .smallSpacing) {
+        Text("오늘은 등록된 복용 루틴이 없어요.")
+          .font(.notoSans(size: fontSize))
+          .foregroundStyle(.secondary)
+
+        Text("복용 루틴을 추가해 보세요!")
+          .font(.notoSans(size: fontSize))
+          .fontWeight(.semibold)
+          .foregroundStyle(Color.main)
+      }
+      .frame(maxWidth: .infinity, alignment: .center)
+    }
+  }
+
+  // ViewModel에서 이미 정렬되었으므로, items를 직접 사용합니다.
+ private func intakeColumn() -> some View {
+    VStack(alignment: .leading, spacing: .smallSpacing) {
+      ForEach(vm.items) { item in
+        HStack(alignment: .center, spacing: .defaultSpacing) {
+          Button {
+            // toggleCompleted 호출을 Task로 감싸고, item을 직접 전달합니다. (develop 기준)
+            Task {
+              await vm.toggleCompleted(item, for: selectedDate)
+            }
+          } label: {
+            CircleCheck(isCompleted: item.isCompleted)
+              .offset(y: 2)
+          }
+          .buttonStyle(.plain)
+          .contentShape(Rectangle())
+
+          NavigationLink(destination: SupplementDetailView(routine: item.routine)) {
+            HStack(spacing: .defaultSpacing) {
+              Text(item.name)
+                .font(.notoSans(size: 18))
+                .foregroundColor(.primary)
+
+              Spacer()
+
+              Text(item.time.timeFormatter)
+                .font(.notoSans(size: 15))
+                .foregroundStyle(
+                  colorScheme == .dark ? Color.secondary : Color.main
+                )
+            }
+          }
+          .buttonStyle(.plain)
+        }
+        .padding(.vertical, .smallSpacing)
+      }
+    }
   }
 }
-
+#Preview {
+  MainTabView()
+}
 struct HomeView_Previews: PreviewProvider {
   static var container: ModelContainer = {
     let container = try! ModelContainer(
