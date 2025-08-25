@@ -10,8 +10,8 @@ import SwiftData
 
 @Observable
 class LifestyleTimeViewModel {
-  var wakeTime: Date
-  var sleepTime: Date
+  var wakeTime: Date?
+  var sleepTime: Date?
   
   var breakfastTime: Date?
   var lunchTime: Date?
@@ -21,11 +21,16 @@ class LifestyleTimeViewModel {
   private let lifestyleStore: UserLifeStyleStore
   
   var dailyCycleTimes: [Date] {
-    [wakeTime, sleepTime]
+    [
+      wakeTime ?? Date.makeTime(hour: 7),
+      sleepTime ?? Date.makeTime(hour: 23, minute: 30)
+    ]
   }
   
-  var userlifeStyle: UserLifeStyle {
-    UserLifeStyle(
+  var userlifeStyle: UserLifeStyle? {
+    guard let wakeTime, let sleepTime else { return nil }
+    
+    return UserLifeStyle(
       wakeTime: wakeTime.toHHmmString(),
       sleepTime: sleepTime.toHHmmString(),
       breakfast: breakfastTime?.toHHmmString(),
@@ -52,12 +57,6 @@ class LifestyleTimeViewModel {
   
   init(lifestyleStore: UserLifeStyleStore) {
     self.lifestyleStore = lifestyleStore
-    
-    self.wakeTime = Date.makeTime(hour: 7)
-    self.sleepTime = Date.makeTime(hour: 23, minute: 30)
-    self.breakfastTime = nil
-    self.lunchTime = Date.makeTime(hour: 12, minute: 30)
-    self.dinnerTime = Date.makeTime(hour: 19, minute: 30)
   }
   
   func time(for type: MealType) -> String {
@@ -74,9 +73,9 @@ class LifestyleTimeViewModel {
   func time(for type: DailyCycleType) -> String {
     switch type {
     case .wakeTime:
-      return wakeTime.timeFormatter
+      return wakeTime?.timeFormatter ?? ""
     case .sleepTime:
-      return sleepTime.timeFormatter
+      return sleepTime?.timeFormatter ?? ""
     }
   }
   
