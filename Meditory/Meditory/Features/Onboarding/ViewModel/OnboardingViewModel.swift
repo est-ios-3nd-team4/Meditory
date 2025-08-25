@@ -1,17 +1,10 @@
-//
-//  OnboardingViewModel.swift
-//  Meditory
-//
-//  Created by hyunsic on 8/6/25.
-//
-
 import Observation
 import SwiftData
 import SwiftUI
 
 @Observable
 @MainActor
-class OnboardingViewModel: ObservableObject {
+class OnboardingViewModel {
 
   var name: String = ""
   var age: String = ""
@@ -108,33 +101,33 @@ class OnboardingViewModel: ObservableObject {
     fieldStates[field]?.isValid == true
   }
 
-  func signUp(context: ModelContext) async {
-    Task {
-      await userStore.addUser(User(name: name, birthDate: birthDate, gender: gender, displayName: ""))
-      await userStore.loadUser()
-      let currentUser = try? await userStore.currentUser()
-      try? await userStore.addUserProfile(UserProfile(height: height, weight: weight, user: userStore.currentUser()))
+  func signUp() async throws {
+    // UserStore가 @ModelActor이므로, context를 전달할 필요가 없습니다.
+    await userStore.addUser(User(name: name, birthDate: birthDate, gender: gender, displayName: ""))
+    await userStore.loadUser()
 
-      for item in selectionSet {
-        if item.type == .etc {
-          await userStore.addUserStatus(UserStatus(statusType: item.title, user: currentUser))
-        }
-      }
-
-      let diseases = selectionSet.filter { $0.type == .disease }.compactMap {
-        ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
-      }
-      let concern = selectionSet.filter { $0.type == .concern }.compactMap {
-        ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
-      }
-      let allergy = selectionSet.filter { $0.type == .allergy }.compactMap {
-        ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
-      }
-
-      try? await userStore.addUserExtraInfo(
-        UserExtraInfo(disease: diseases, allergy: allergy, concern: concern, user: userStore.currentUser())
-      )
+    guard let currentUser = try? await userStore.currentUser() else {
+      // 유저 생성 실패 시 처리
+      return
     }
+
+    // addUserProfile은 throws 함수가 아니므로 try를 제거합니다.
+    await userStore.addUserProfile(UserProfile(height: height, weight: weight, user: currentUser))
+
+    for item in selectionSet {
+      if item.type == .etc {
+        await userStore.addUserStatus(UserStatus(statusType: item.title, user: currentUser))
+      }
+    }
+
+    // ExtraInfo(from:) 대신 직접 초기화합니다.
+    let diseases = selectionSet.filter { $0.type == .disease }.map { ExtraInfo(key: $0.code, value: $0.title, type: $0.type) }
+    let concern = selectionSet.filter { $0.type == .concern }.map { ExtraInfo(key: $0.code, value: $0.title, type: $0.type) }
+    let allergy = selectionSet.filter { $0.type == .allergy }.map { ExtraInfo(key: $0.code, value: $0.title, type: $0.type) }
+
+    await userStore.addUserExtraInfo(
+      UserExtraInfo(disease: diseases, allergy: allergy, concern: concern, user: currentUser)
+    )
   }
 
   func printBasicInformation() {
