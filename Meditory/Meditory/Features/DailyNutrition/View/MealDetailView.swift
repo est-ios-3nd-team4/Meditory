@@ -35,24 +35,7 @@ struct MealDetailView: View {
       FoodGridView(foods: viewModel.selectedMeal?.foods)
       Spacer()
     }
-    .navigationBarBackButtonHidden(true)
-    .navigationBarTitleDisplayMode(.inline)
-    .toolbar {
-      ToolbarItem(placement: .navigationBarLeading) {
-        Button {
-          dismiss()
-        } label: {
-          Image(systemName: "chevron.left")
-            .foregroundStyle(.black)
-        }
-      }
-      
-      ToolbarItem(placement: .principal) {
-        Text("아침 식단 요약")
-          .font(.notoSans(weight: .bold, size: 20))
-          .foregroundStyle(.black)
-      }
-    }
+    .navigationBar(.mealDetail)
   }
   
   // MARK: Disposable Components

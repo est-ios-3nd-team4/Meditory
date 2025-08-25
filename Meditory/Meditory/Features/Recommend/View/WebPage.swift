@@ -9,19 +9,7 @@ struct WebPage: View {
 
     var body: some View {
       WebView(url: url)
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-          ToolbarItem(placement: .topBarLeading) {
-            Button {
-              dismiss()
-            } label: {
-              Image(systemName: "chevron.left")
-            }
-            .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
-          }
-        }
+        .navigationBar(.custom(title))
     }
 }
 

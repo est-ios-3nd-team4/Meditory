@@ -20,6 +20,10 @@ struct AddSupplementView: View {
     case memo
   }
   
+  enum ViewID: String {
+    case confirmButton
+  }
+  
   var type: Mode
   
   @Environment(\.modelContext) private var context
@@ -31,7 +35,7 @@ struct AddSupplementView: View {
   @Query private var users: [User]
   
   @State private var addSupplementVM = AddSupplementViewModel()
-  @StateObject private var scheduleVM = SupplementScheduleViewModel() // UIKit 연동용이므로 StateObject 유지
+  @StateObject private var scheduleVM = SupplementScheduleViewModel()
   @State private var lifestyleTimeVM: LifestyleTimeViewModel
   
   @State private var selectedScheduleType: SupplementScheduleType = .weekday
@@ -53,6 +57,7 @@ struct AddSupplementView: View {
   @State private var supplement: SupplementDTO?
   @State private var showAlert = false
   @State private var routineSaveError: RoutineSaveError?
+  @State private var isAtTop: Bool = true
   
   private var shouldShowSupplementInfo: Bool {
     addSupplementVM.supplemtSummary != nil || isSearchingSupplementSummary
@@ -73,8 +78,8 @@ struct AddSupplementView: View {
       ZStack {
         ScrollViewReader { proxy in
           ScrollView {
+            ScrollTopObserver(isAtTop: $isAtTop)
             if let user = users.first {
-              // body를 최대한 단순하게 유지합니다.
               mainContentView(for: user)
             } else {
               ProgressView()
@@ -82,48 +87,33 @@ struct AddSupplementView: View {
             }
           }
           .scrollIndicators(.hidden)
+          .navigationBar(.addSupplement, isAtTop: isAtTop) {
+            dismissOrClearSelection()
+          }
           .onChange(of: fieldType) { oldValue, newValue in
             handleKeyboardScroll(for: newValue, with: proxy)
           }
         }
         
-        if let category = selectedLifestyleCategory,
-           let option = selectedLifestyleOption,
-           showTimePicker {
-          lifestyleTimePickerSheet(category: category, option: option)
-        }
+        lifestyleTimePickerSheet()
       }
-      .background(Color.background)
+      .background(.customBackground)
       .fullScreenCover(isPresented: $showScanner) {
         cameraPickerSheet()
       }
       .overlay {
-        errorAlert()
+        saveErrorAlert()
       }
       .task {
         guard let user = users.first else { return }
         await lifestyleTimeVM.loadLifestyle(for: user, context: context)
       }
-      .toolbar {
-        ToolbarItem(placement: .navigationBarLeading) {
-          Button {
-            dismissOrClearSelection()
-          } label: {
-            Image(systemName: "chevron.left")
-              .foregroundStyle(Color.label)
-          }
-        }
-      }
-      .navigationTitle("복용약 추가")
-      .navigationBarTitleDisplayMode(.inline)
-      .navigationBarBackButtonHidden(true)
     }
   }
 }
 
 // MARK: - Main Content and Subviews
 extension AddSupplementView {
-  /// body의 메인 컨텐츠를 구성하는 뷰입니다.
   private func mainContentView(for user: User) -> some View {
     VStack(spacing: 20) {
       supplementNameInput()
@@ -144,12 +134,15 @@ extension AddSupplementView {
       
       memoSection()
       
-      saveButtonSection()
+      ConfirmButton {
+        saveRoutine()
+      }
+      .id(ViewID.confirmButton)
+      .padding(.bottom, .bottomInset)
     }
     .padding(.horizontal, .defaultSpacing + 4)
   }
 
-  /// 영양제 정보 섹션
   private func supplementInfoSection() -> some View {
     SupplementInfoView(
       defaultFontSize: defaultFontSize,
@@ -158,7 +151,6 @@ extension AddSupplementView {
     )
   }
   
-  /// 생활 패턴 섹션
   private func lifestyleSection() -> some View {
     Group {
       LifestyleTimeView(
@@ -185,7 +177,6 @@ extension AddSupplementView {
     }
   }
   
-  /// 스케줄 상세 정보 (요일/간격) 섹션
   private func scheduleDetailsSection() -> some View {
     VStack {
       switch selectedScheduleType {
@@ -199,7 +190,6 @@ extension AddSupplementView {
     .modifier(CardStyle(padding: .defaultSpacing))
   }
   
-  /// AI 추천 스케줄 섹션
   private func aiRecommendationSection() -> some View {
     AIRecommendedScheduleView(
       defaultFontSize: defaultFontSize,
@@ -209,158 +199,6 @@ extension AddSupplementView {
     )
   }
   
-  /// 하단 완료 버튼 섹션
-  private func saveButtonSection() -> some View {
-    Group {
-      Spacer()
-      Button {
-        saveRoutine()
-      } label: {
-        RoundedRectangle(cornerRadius: 10)
-          .fill(.main)
-          .frame(height: 50)
-          .overlay {
-            Text("완료")
-              .font(.notoSans(weight: .semiBold, size: defaultFontSize))
-              .foregroundStyle(.white)
-          }
-      }
-      .id("confirmButton")
-      .padding(.bottom, .bottomInset)
-    }
-  }
-}
-
-// MARK: - Sheets and Alerts
-extension AddSupplementView {
-  /// 라이프스타일 시간 피커 시트
-  private func lifestyleTimePickerSheet(category: LifestyleTimeType, option: any LifestyleTime) -> some View {
-    LifestyleTimePickerSheet(
-      type: category,
-      option: option,
-      dates: lifestyleTimeVM.times(for: category),
-      mealSelections: lifestyleTimeVM.mealSelections(for: category)
-    ) { result in
-      if let result {
-        lifestyleTimeVM.setTime(result)
-      }
-      showTimePicker = false
-    }
-  }
-  
-  /// 카메라 피커 시트
-  private func cameraPickerSheet() -> some View {
-    CameraPickerSheet(isPresented: $showScanner) { text in
-      searchSupplementSummary(
-        productNameInput: text,
-        nameSource: .cameraOCR
-      )
-    }
-    .statusBarHidden(true)
-    .ignoresSafeArea()
-  }
-  
-  /// 저장 오류 알림
-  @ViewBuilder
-  private func errorAlert() -> some View {
-    if showAlert, let routineSaveError {
-      AlertView(
-        alertType: .confirm,
-        title: routineSaveError.title,
-        message: routineSaveError.message,
-        onConfirm: {
-          showAlert = false
-        }
-      )
-    }
-  }
-}
-
-// MARK: - Logic and Actions
-extension AddSupplementView {
-  /// 키보드가 나타날 때 스크롤 위치를 조정하는 함수
-  private func handleKeyboardScroll(for fieldType: FieldType?, with proxy: ScrollViewProxy) {
-    guard fieldType == .memo else { return }
-    let keyboardAnimationDuration = 0.3
-    
-    Task { @MainActor in
-      do {
-        try await Task.sleep(for: .seconds(keyboardAnimationDuration))
-        withAnimation {
-          proxy.scrollTo("confirmButton", anchor: .bottom)
-        }
-      } catch {
-        print("❌ Error is \(error)")
-      }
-    }
-  }
-  
-  private func dismissOrClearSelection() {
-    if selectedIntakeItem != nil {
-      selectedIntakeItem = nil
-      NotificationCenter.default.post(name: .didUpdateSupplement, object: nil)
-    } else {
-      dismiss()
-    }
-  }
-  
-  private func searchSupplementSummary(productNameInput: String, nameSource: SupplementNameSource) {
-    guard !isSearchingSupplementSummary else { return }
-    Task {
-      do {
-        try await addSupplementVM.request(productNameInput: productNameInput, nameSource: nameSource)
-      } catch {
-        print("❌ Error is \(error)")
-      }
-    }
-    isSearchingSupplementSummary = true
-    supplementName = ""
-  }
-
-  private func saveRoutine() {
-    Task {
-      do {
-        try await addSupplementVM.saveRoutine(
-          type: selectedScheduleType,
-          supplement: supplement,
-          memo: memo
-        )
-        await MainActor.run {
-          dismissOrClearSelection()
-        }
-      } catch let error as RoutineSaveError {
-        routineSaveError = error
-        showAlert = true
-        print("❌ \(error)")
-      } catch {
-        print("❌ Error is \(error)")
-      }
-    }
-  }
-}
-
-// MARK: - Colors and Positions
-extension AddSupplementView {
-  func backgroundColor(for type: SupplementScheduleType) -> Color {
-    type == selectedScheduleType ? .main : .clear
-  }
-  
-  func textColor(for type: SupplementScheduleType) -> Color {
-    type == selectedScheduleType ? .white : .textGray
-  }
-  
-  func rectPosition(for type: SupplementScheduleType, width: CGFloat) -> CGFloat {
-    switch type {
-    case .weekday:
-      return width * 0.25
-    case .interval:
-      return width * 0.75
-    }
-  }
-}
-
-// MARK: - Existing Subviews (Unchanged)
-extension AddSupplementView {
   private func supplementNameInput() -> some View {
     HStack(spacing: 8) {
       if supplementName.isEmpty {
@@ -410,7 +248,40 @@ extension AddSupplementView {
     }
     .cardStyle(padding: .defaultSpacing)
     .frame(height: 55)
-    .padding(.top, .defaultSpacing)
+  }
+  
+  @ViewBuilder
+  private func supplementInfoView() -> some View {
+    if shouldShowSupplementInfo {
+      SupplementInfoView(
+        defaultFontSize: defaultFontSize,
+        addSupplementVM: addSupplementVM,
+        isSearchingSupplementSummary: $isSearchingSupplementSummary
+      )
+    }
+  }
+  
+  @ViewBuilder
+  private func lifestyleTimeViews() -> some View {
+    LifestyleTimeView(
+      type: .dailyCycle,
+      defaultFontSize: defaultFontSize,
+      lifestyleTimeVM: lifestyleTimeVM,
+    ) { option in
+      selectedLifestyleCategory = .dailyCycle
+      selectedLifestyleOption = option
+      showTimePicker = true
+    }
+    
+    LifestyleTimeView(
+      type: .meal,
+      defaultFontSize: defaultFontSize,
+      lifestyleTimeVM: lifestyleTimeVM
+    ) { option in
+      selectedLifestyleCategory = .meal
+      selectedLifestyleOption = option
+      showTimePicker = true
+    }
   }
   
   private func scheduleTypeSelector() -> some View {
@@ -454,6 +325,19 @@ extension AddSupplementView {
       .cardStyle(cornerRadius: 10)
     }
     .frame(height: 40)
+  }
+  
+  private func scheduleSection() -> some View {
+    VStack {
+      switch selectedScheduleType {
+      case .weekday:
+        weekdayScheduleView()
+      case .interval:
+        intervalScheduleView()
+      }
+      supplementCountSelector()
+    }
+    .modifier(CardStyle(padding: .defaultSpacing))
   }
   
   private func weekdayScheduleView() -> some View {
@@ -644,7 +528,7 @@ extension AddSupplementView {
     .frame(height: 95)
   }
   
-  func showSchedulePicker() {
+  private func showSchedulePicker() {
     guard let selectedPicker else { return }
     let vc = SchedulePickerViewController(type: selectedPicker, scheduleVM: scheduleVM)
     vc.modalPresentationStyle = .overFullScreen
@@ -666,6 +550,142 @@ extension AddSupplementView {
     if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
        let rootVC = windowScene.windows.first?.rootViewController {
       rootVC.present(vc, animated: false)
+    }
+  }
+}
+
+
+// MARK: - Sheets and Alerts
+extension AddSupplementView {
+  @ViewBuilder
+  private func lifestyleTimePickerSheet() -> some View {
+    if let category = selectedLifestyleCategory,
+       let option = selectedLifestyleOption,
+       showTimePicker {
+      LifestyleTimePickerSheet(
+        type: category,
+        option: option,
+        dates: lifestyleTimeVM.times(for: category),
+        mealSelections: lifestyleTimeVM.mealSelections(for: category)
+      ) { result in
+        if let result {
+          lifestyleTimeVM.setTime(result)
+        }
+        showTimePicker = false
+      }
+    }
+  }
+  
+  private func cameraPickerSheet() -> some View {
+    CameraPickerSheet(isPresented: $showScanner) { text in
+      searchSupplementSummary(
+        productNameInput: text,
+        nameSource: .cameraOCR
+      )
+    }
+    .statusBarHidden(true)
+    .ignoresSafeArea()
+  }
+  
+  @ViewBuilder
+  private func saveErrorAlert() -> some View {
+    if showAlert, let routineSaveError {
+      AlertView(
+        alertType: .confirm,
+        title: routineSaveError.title,
+        message: routineSaveError.message,
+        onConfirm: {
+          showAlert = false
+        }
+      )
+    }
+  }
+}
+
+
+// MARK: - Colors and Positions
+extension AddSupplementView {
+  func backgroundColor(for type: SupplementScheduleType) -> Color {
+    type == selectedScheduleType ? .main : .clear
+  }
+  
+  func textColor(for type: SupplementScheduleType) -> Color {
+    type == selectedScheduleType ? .white : .textGray
+  }
+  
+  func rectPosition(for type: SupplementScheduleType, width: CGFloat) -> CGFloat {
+    switch type {
+    case .weekday:
+      return width * 0.25
+    case .interval:
+      return width * 0.75
+    }
+  }
+}
+
+
+// MARK: - Actions
+extension AddSupplementView {
+  private func handleKeyboardScroll(for fieldType: FieldType?, with proxy: ScrollViewProxy) {
+    guard fieldType == .memo else { return }
+    let keyboardAnimationDuration = 0.3
+    
+    Task { @MainActor in
+      do {
+        try await Task.sleep(for: .seconds(keyboardAnimationDuration))
+        withAnimation {
+          proxy.scrollTo(ViewID.confirmButton, anchor: .bottom)
+        }
+      } catch {
+        print("❌ Error is \(error)")
+      }
+    }
+  }
+  
+  private func dismissOrClearSelection() {
+    if selectedIntakeItem != nil {
+      selectedIntakeItem = nil
+      NotificationCenter.default.post(name: .didUpdateSupplement, object: nil)
+    } else {
+      dismiss()
+    }
+  }
+}
+
+
+// MARK: - Network & DB
+extension AddSupplementView {
+  private func searchSupplementSummary(productNameInput: String, nameSource: SupplementNameSource) {
+    guard !isSearchingSupplementSummary else { return }
+    Task {
+      do {
+        try await addSupplementVM.request(productNameInput: productNameInput, nameSource: nameSource)
+      } catch {
+        print("❌ Error is \(error)")
+      }
+    }
+    isSearchingSupplementSummary = true
+    supplementName = ""
+  }
+
+  private func saveRoutine() {
+    Task {
+      do {
+        try await addSupplementVM.saveRoutine(
+          type: selectedScheduleType,
+          supplement: supplement,
+          memo: memo
+        )
+        await MainActor.run {
+          dismissOrClearSelection()
+        }
+      } catch let error as RoutineSaveError {
+        routineSaveError = error
+        showAlert = true
+        print("❌ \(error)")
+      } catch {
+        print("❌ Error is \(error)")
+      }
     }
   }
 }

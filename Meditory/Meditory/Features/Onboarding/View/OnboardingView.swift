@@ -109,7 +109,10 @@ struct OnboardingView: View {
   @ViewBuilder
   func nextButton() -> some View {
     VStack(spacing: .smallSpacing) {
-      Button {
+      PrimaryButton(
+        title: currentStep != .concern ? "다음" : "완료",
+        isEnabled: vm.isNextButtonOn
+      ) {
         if let next = currentStep.nextView() {
           if currentStep == .base {
             vm.validateAllField()
@@ -119,17 +122,8 @@ struct OnboardingView: View {
           onFinished()
           signUp()
         }
-      } label: {
-        RoundedRectangle(cornerRadius: .smallRadius)
-          .fill(vm.isNextButtonOn ? Color.main : Color.gray.opacity(0.4))
-          .frame(height: 50)
-          .overlay {
-            Text(currentStep != .concern ? "다음" : "완료")
-              .font(.notoSans(weight: .semiBold, size: 18))
-              .foregroundStyle(.white)
-          }
       }
-            .disabled(!vm.isNextButtonOn)
+      .disabled(!vm.isNextButtonOn)
       .padding(.vertical, buttonTopSpacing)
     }
     .padding(.horizontal, .defaultSpacing + 4)

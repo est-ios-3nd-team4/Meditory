@@ -35,28 +35,30 @@ struct ShimmerView: View {
       let width = geometryReader.size.width
       let height = geometryReader.size.height
       let whiteScale = colorScheme == .dark ? 0.25 : 0.92
-      let shimmerWidth = width * 0.2
+      let shimmerWidth = width * 2
       let shimmerColor: Color = colorScheme == .dark ? .black : .init(red: 204, green: 204, blue: 204)
-      let shimmerOpacity = colorScheme == .dark ? 0.2 : 0.7
+      let shimmerOpacity = colorScheme.isDarkMode ? 0.2 : 0.5
       
-      HStack {
+      HStack(spacing: .zero) {
         ZStack(alignment: .leading) {
           RoundedRectangle(cornerRadius: cornerRadius(height))
             .fill(Color(white: whiteScale))
-            .frame(width: width * widthRatio, height: height)
           
-          Capsule()
-            .fill(shimmerColor.opacity(shimmerOpacity))
-            .blur(radius: 8)
+          RoundedRectangle(cornerRadius: cornerRadius(height))
+            .fill(shimmerGradient(shimmerColor: shimmerColor, opacity: shimmerOpacity))
             .frame(width: shimmerWidth)
+            .blur(radius: 8)
             .offset(x: phase)
         }
+        .frame(width: width * widthRatio, height: height, alignment: .leading)
         .mask(
           RoundedRectangle(cornerRadius: cornerRadius(height))
             .frame(width: width * widthRatio, height: height)
         )
         
-        Spacer()
+        if widthRatio < 1 {
+          Spacer()
+        }
       }
       .onAppear {
         startAnimation(width: width, shimmerWidth: shimmerWidth)
@@ -66,7 +68,7 @@ struct ShimmerView: View {
 }
 
 
-extension ShimmerView {
+extension ShimmerView {  
   private func cornerRadius(_ height: CGFloat) -> CGFloat {
     switch cornerRadius {
     case .capsule:
@@ -78,8 +80,24 @@ extension ShimmerView {
   
   private func startAnimation(width: CGFloat, shimmerWidth: CGFloat) {
     phase = -shimmerWidth
-    withAnimation(.linear(duration: 2).repeatForever(autoreverses: false)) {
+    withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
       phase = width
     }
+  }
+  
+  private func shimmerGradient(shimmerColor: Color, opacity: Double) -> LinearGradient {
+    LinearGradient(
+      colors: [
+        shimmerColor.opacity(0),
+        shimmerColor.opacity(opacity * 0.2),
+        shimmerColor.opacity(opacity * 0.6),
+        shimmerColor.opacity(opacity),
+        shimmerColor.opacity(opacity * 0.6),
+        shimmerColor.opacity(opacity * 0.2),
+        shimmerColor.opacity(0)
+      ],
+      startPoint: .leading,
+      endPoint: .trailing
+    )
   }
 }

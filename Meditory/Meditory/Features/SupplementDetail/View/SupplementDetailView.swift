@@ -17,6 +17,7 @@ struct SupplementDetailView: View {
   @Environment(\.verticalSizeClass) private var vSize
   // @StateObject 대신 @State를 사용합니다.
   @State private var vm: SupplementDetailViewModel
+  @State private var isAtTop: Bool = true
 
   init(routine: Routine) {
     // @State의 초기화 방식으로 변경합니다.
@@ -38,6 +39,8 @@ struct SupplementDetailView: View {
     ZStack {
       if let routine = vm.routine{
         ScrollView(showsIndicators: false) {
+          ScrollTopObserver(isAtTop: $isAtTop)
+          
           VStack(spacing: .defaultSpacing + 8) {
             SupplementInfoCard(routine: routine)
               .frame(maxWidth: .infinity, alignment: .leading)
@@ -68,21 +71,7 @@ struct SupplementDetailView: View {
       }
     }
     .background(.customBackground)
-    .navigationBarTitleDisplayMode(.inline)
-    .toolbar {
-      ToolbarItem(placement: .principal) {
-        Text("내 영양제").font(.notoSans(size: 25))
-      }
-      ToolbarItem(placement: .topBarLeading) {
-        Button {
-          dismiss()
-        } label: {
-          Image(systemName: "chevron.left")
-            .foregroundStyle(Color(.label))
-        }
-      }
-    }
-    .navigationBarBackButtonHidden(true)
+    .navigationBar(.supplementDetail, isAtTop: isAtTop)
     .overlay {
       if vm.showDeleteAlert {
         DeleteAlertView(
