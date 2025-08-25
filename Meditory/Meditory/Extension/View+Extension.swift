@@ -19,6 +19,7 @@ extension View {
     _ onBackTap: (() -> Void)? = nil
   ) -> some View {
     self
+      .navigationBarHidden(true)
       .applyIf(isAtTop != nil) {
         $0.coordinateSpace(CoordinateSpaceName.scroll.coordinateSpace)
       }
