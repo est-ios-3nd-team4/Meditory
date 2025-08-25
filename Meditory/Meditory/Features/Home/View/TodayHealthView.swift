@@ -41,8 +41,8 @@ struct TodayHealthView: View {
       .frame(maxHeight: .infinity, alignment: .top)
       .animation(.easeInOut(duration: 0.2), value: vm.isLoading)
     }
-    .onAppear {
-      vm.fetchHealthContent()
+    .task {
+      await vm.fetchHealthContent()
     }
   }
 }
