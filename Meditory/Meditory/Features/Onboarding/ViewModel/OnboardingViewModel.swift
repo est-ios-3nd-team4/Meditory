@@ -10,8 +10,7 @@ import SwiftData
 import SwiftUI
 
 @Observable
-@MainActor
-class OnboardingViewModel: ObservableObject {
+class OnboardingViewModel:ObservableObject {
 
   var name: String = ""
   var age: String = ""
