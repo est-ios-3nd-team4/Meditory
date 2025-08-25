@@ -24,44 +24,57 @@ struct AddSupplementView: View {
     case confirmButton
   }
   
+  // Properties
   var type: Mode
+  @Binding private var selectedIntakeItem: AddIntakeItem?
   
+  // Environment
   @Environment(\.modelContext) private var context
   @Environment(\.dismiss) private var dismiss
   @Environment(\.colorScheme) private var colorScheme
   
-  @Binding private var selectedIntakeItem: AddIntakeItem?
-  
+  // Query
   @Query private var users: [User]
   
+  // ViewModels
   @State private var addSupplementVM = AddSupplementViewModel()
   @StateObject private var scheduleVM = SupplementScheduleViewModel()
   @State private var lifestyleTimeVM: LifestyleTimeViewModel
   
+  // Schedule
   @State private var selectedScheduleType: SupplementScheduleType = .weekday
   @State private var selectedPicker: SchedulePickerType? {
-    didSet {
-      showSchedulePicker()
-    }
+    didSet { showSchedulePicker() }
   }
+  @State private var selectedTimeIndex = 0
+  @State private var scheduleTypeRectPosition: CGPoint = .zero
+  
+  // Input
   @State private var supplementName = ""
   @State private var memo = ""
   @State private var fieldType: FieldType? = nil
-  @State private var selectedTimeIndex = 0
-  @State private var showScanner = false
-  @State private var scheduleTypeRectPosition: CGPoint = .zero
-  @State private var showTimePicker = false
+  
+  // Lifestyle
   @State private var selectedLifestyleCategory: LifestyleTimeType? = nil
   @State private var selectedLifestyleOption: (any LifestyleTime)?
-  @State private var isSearchingSupplementSummary = false
-  @State private var supplement: SupplementDTO?
-  @State private var showAlert = false
-  @State private var routineSaveError: RoutineSaveError?
-  @State private var isAtTop: Bool = true
   
+  // Supplement
+  @State private var supplement: SupplementDTO?
+  @State private var routineSaveError: RoutineSaveError?
   private var shouldShowSupplementInfo: Bool {
     addSupplementVM.supplemtSummary != nil || isSearchingSupplementSummary
   }
+  
+  // Scroll / Navigation
+  @State private var isAtTop: Bool = true
+  
+  // UI Toggles
+  @State private var showScanner = false
+  @State private var showTimePicker = false
+  @State private var isSearchingSupplementSummary = false
+  @State private var showAlert = false
+  
+  // Constants
   private let defaultFontSize: CGFloat = 18
   
   init(
