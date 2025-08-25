@@ -44,40 +44,52 @@ final class SupplementRoutineAIViewModel {
   func makePrompt(
     supplementName: String,
     lifestyle: UserLifeStyle,
-    context: ModelContext
+    context: ModelContext  // << 이 context를 사용해야 합니다!
   ) async -> String {
-    // UserStore.shared를 직접 사용합니다.
-    let user = try? await UserStore.shared.currentUser()
+    
+    // 1. 전달받은 context에서 직접 User 정보를 가져옵니다.
+    let userDescriptor = FetchDescriptor<User>()
+    let user = try? context.fetch(userDescriptor).first
+    
     let gender = user?.gender ?? "미입력"
     let birth = user?.birthDate ?? Date(timeIntervalSince1970: 0)
-    let (diseases, allergies, preg, breast) = await loadExtraHealthInfo()
     
-    // RoutineStore.shared를 사용해 ID를 가져온 후, 전달받은 context로 실제 객체를 변환합니다.
-    let routineIDs = await RoutineStore.shared.fetchAllRoutineIDs()
-    let routines = routineIDs.compactMap { context.model(for: $0) as? Routine }
+    // 2. 조회한 user 객체에서 건강 정보를 추출합니다.
+    let diseases = user?.userExtraInfos.first?.disease.map { $0.value } ?? []
+    let allergies = user?.userExtraInfos.first?.allergy.map { $0.value } ?? []
+    let isPregnant = user?.userStatuses.contains { $0.statusType == "임신" } ?? false
+    let isBreastfeeding = user?.userStatuses.contains { $0.statusType == "수유" } ?? false
+    
+    // 3. 전달받은 context에서 직접 Routine 정보를 가져옵니다.
+    let routineDescriptor = FetchDescriptor<Routine>(sortBy: [SortDescriptor(\.displayName)])
+    let routines = (try? context.fetch(routineDescriptor)) ?? []
     
     let scheduleList: [String] = routines.map { routine in
-      let timeDoseSummary = routine.routineTimes.map { "\($0.time.toHHmmString())(\($0.pillsPerDose)정)" }.joined(separator: ", ")
+      let timeDoseSummary = routine.routineTimes
+        .sorted { $0.time < $1.time } // 시간을 기준으로 정렬
+        .map { "\($0.time.toHHmmString())(\($0.pillsPerDose)정)" }
+        .joined(separator: ", ")
       let cycleHint = RoutineFormatter.renderCycle(cycleType: routine.cycleType, cycleValue: routine.cycleValue)
-
+      
       return """
-           \(routine.displayName)
-           - 요일: \(cycleHint)
-           - 복용시간: \(timeDoseSummary)
-       """
+                  \(routine.displayName)
+                  - 요일: \(cycleHint)
+                  - 복용시간: \(timeDoseSummary)
+              """
     }
-
+    
+    // 4. 추출한 정보들로 프롬프트를 생성합니다.
     let input = ScheduleAIPrompt.UserInput(
       gender: gender,
       birthDate: birth,
       diseases: diseases,
       allergies: allergies,
-      isPregnant: preg,
-      isBreastfeeding: breast,
+      isPregnant: isPregnant,
+      isBreastfeeding: isBreastfeeding,
       supplementSchedule: scheduleList,
       lifestyle: ScheduleAIPrompt.LifestyleLoad.from(lifestyle)
     )
-
+    
     return ScheduleAIPrompt.makePrompt(user: input, productName: supplementName)
   }
 
