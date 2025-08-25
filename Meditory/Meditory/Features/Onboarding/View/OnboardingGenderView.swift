@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct OnboardingGenderView: View {
-  // @ObservedObject를 제거하고 일반 var로 변경
-  var vm: OnboardingViewModel
+  @ObservedObject var vm: OnboardingViewModel
   @Environment(\.colorScheme) var colorScheme
   @Binding var isSelected: Bool
   var prompt: Prompt

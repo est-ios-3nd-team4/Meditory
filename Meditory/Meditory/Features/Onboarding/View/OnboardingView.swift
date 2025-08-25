@@ -11,8 +11,7 @@ import SwiftUI
 struct OnboardingView: View {
   @Environment(\.modelContext) var context: ModelContext
 
-  // @StateObject를 @State로 변경
-  @State var vm: OnboardingViewModel
+  @StateObject var vm: OnboardingViewModel
   @StateObject private var keyboardObserver = KeyboardObserver()
   @FocusState private var focusedField: FormField?
 
@@ -25,8 +24,7 @@ struct OnboardingView: View {
 
   init(userStore: UserStore, onFinished: @escaping () -> Void = {}) {
     self.onFinished = onFinished
-    // @State의 초기화 방식으로 변경
-    _vm = State(wrappedValue: OnboardingViewModel(userStore: userStore))
+    _vm = StateObject(wrappedValue: OnboardingViewModel(userStore: userStore))
   }
 
   var body: some View {
@@ -131,7 +129,7 @@ struct OnboardingView: View {
               .foregroundStyle(.white)
           }
       }
-          .disabled(!vm.isNextButtonOn)
+            .disabled(!vm.isNextButtonOn)
       .padding(.vertical, buttonTopSpacing)
     }
     .padding(.horizontal, .defaultSpacing + 4)
@@ -147,7 +145,7 @@ struct OnboardingView: View {
   
   func signUp() {
     Task {
-      try await vm.signUp()
+      await vm.signUp(context: context)
     }
   }
 }
