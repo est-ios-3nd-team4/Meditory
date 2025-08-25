@@ -7,14 +7,12 @@ final class MealModelConversionTest: XCTestCase {
   var context: ModelContext!
   var store: MealStore!
   
-  // 테스트 설정도 비동기 작업을 포함하므로 async로 변경합니다.
-  override func setUp() async throws {
+  override func setUpWithError() throws {
     let schema = Schema([Meal.self, Food.self])
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     container = try ModelContainer(for: schema, configurations: [config])
     context = ModelContext(container)
-    // MealStore도 ModelContainer를 사용해 초기화합니다.
-    store = MealStore(modelContainer: container)
+    store = MealStore()
   }
   
   override func tearDownWithError() throws {
@@ -23,7 +21,8 @@ final class MealModelConversionTest: XCTestCase {
     store = nil
   }
   
-  func testMealInfoSaveAndFetch() async throws {
+  @MainActor
+  func testMealInfoSaveAndFetch() throws {
     // Given
     let food1 = FoodInfo(
       id: UUID(),
@@ -46,22 +45,20 @@ final class MealModelConversionTest: XCTestCase {
     )
     
     // When
-    // 새로운 createMeal 메서드를 사용합니다.
-    let mealID = try await store.createMeal(
-      mealName: originalMealInfo.name,
-      date: originalMealInfo.date,
-      foods: originalMealInfo.foods.map { Food(from: $0) }
-    )
+    let mealEntity = Meal(model: originalMealInfo)
+    store.addMeal(mealEntity, context: context)
+    
+    do {
+      try context.save()
+    } catch {
+      XCTFail("Save failed: \(error)")
+    }
     
     // Then
-    // 새로운 fetchAllMealIDs 메서드를 사용합니다.
-    let fetchedIDs = await store.fetchAllMealIDs()
-    XCTAssertEqual(fetchedIDs.count, 1)
+    let fetchedEntities = store.fetchAllMeals(context: context)
+    XCTAssertEqual(fetchedEntities.count, 1)
     
-    let firstID = try XCTUnwrap(fetchedIDs.first)
-    XCTAssertEqual(firstID, mealID)
-    
-    guard let firstEntity = context.model(for: firstID) as? Meal else {
+    guard let firstEntity = fetchedEntities.first else {
       return XCTFail("No meal fetched")
     }
     
@@ -72,18 +69,18 @@ final class MealModelConversionTest: XCTestCase {
     XCTAssertEqual(fetchedMealInfo.date, originalMealInfo.date)
     
     // 총 영양소 합산 비교
-    let originalMacros = originalMealInfo.foods.reduce(MacroNutrients(carbohydrate: 0, protein: 0, fat: 0)) { acc, foodInfo in
+    let originalMacros = originalMealInfo.foods.reduce(MacroNutrients(carbohydrate: 0, protein: 0, fat: 0)) {
       MacroNutrients(
-        carbohydrate: acc.carbohydrate + foodInfo.macros.carbohydrate,
-        protein: acc.protein + foodInfo.macros.protein,
-        fat: acc.fat + foodInfo.macros.fat
+        carbohydrate: $0.carbohydrate + $1.macros.carbohydrate,
+        protein: $0.protein + $1.macros.protein,
+        fat: $0.fat + $1.macros.fat
       )
     }
-    let fetchedMacros = fetchedMealInfo.foods.reduce(MacroNutrients(carbohydrate: 0, protein: 0, fat: 0)) { acc, foodInfo in
+    let fetchedMacros = fetchedMealInfo.foods.reduce(MacroNutrients(carbohydrate: 0, protein: 0, fat: 0)) {
       MacroNutrients(
-        carbohydrate: acc.carbohydrate + foodInfo.macros.carbohydrate,
-        protein: acc.protein + foodInfo.macros.protein,
-        fat: acc.fat + foodInfo.macros.fat
+        carbohydrate: $0.carbohydrate + $1.macros.carbohydrate,
+        protein: $0.protein + $1.macros.protein,
+        fat: $0.fat + $1.macros.fat
       )
     }
     
