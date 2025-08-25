@@ -7,12 +7,14 @@ final class RoutineTest: XCTestCase {
   var context: ModelContext!
   var store: RoutineStore!
 
-  override func setUpWithError() throws {
+  // 테스트 설정도 비동기 작업을 포함하므로 async로 변경합니다.
+  override func setUp() async throws {
     let schema = Schema([Routine.self, RoutineTime.self, RoutineRecord.self])
     let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
     container = try ModelContainer(for: schema, configurations: [config])
     context = ModelContext(container)
-    store = RoutineStore()
+    // RoutineStore도 ModelContainer를 사용해 초기화합니다.
+    store = RoutineStore(modelContainer: container)
   }
 
   override func tearDownWithError() throws {
@@ -22,166 +24,133 @@ final class RoutineTest: XCTestCase {
   }
 
   /// Routine 생성 테스트
-  @MainActor
   func testCreateRoutine() async throws {
-    // When (RoutineStore 사용)
-    store.addRoutine(
-      Routine(
-        type: 1,
-        displayName: "활성비타민D",
-        desc: "",
-        category: "비타민D",
-        cycleType: 1,
-        cycleValue: "0, 2, 4", // 월수금
-        startDate: .now,
-        memo: "아침 식사 후",
-        hasPush: true,
-        imageData: nil
-      ),
-      context: context
+    // When (새로운 createRoutine 메서드 사용)
+    _ = try await store.createRoutine(
+      type: 1,
+      displayName: "활성비타민D",
+      desc: "",
+      category: "비타민D",
+      cycleType: 1,
+      cycleValue: "0, 2, 4", // 월수금
+      startDate: .now,
+      memo: "아침 식사 후",
+      usage: [],
+      precautions: [],
+      routineTimes: [],
+      recommendedRoutineTimes: []
     )
 
     // Then
-    let all = store.fetchAllRoutines(context: context)
-    XCTAssertEqual(all.count, 1)
-    let saved = all.first!
+    let allIDs = await store.fetchAllRoutineIDs()
+    XCTAssertEqual(allIDs.count, 1)
+    
+    let savedID = try XCTUnwrap(allIDs.first)
+    let saved = try XCTUnwrap(context.model(for: savedID) as? Routine)
+    
     XCTAssertEqual(saved.category, "비타민D")
     XCTAssertEqual(saved.cycleType, 1)
-    XCTAssertEqual(saved.hasPush, true)
+    XCTAssertEqual(saved.hasPush, true) // init 기본값
     XCTAssertEqual(saved.memo, "아침 식사 후")
   }
 
   /// Routine 삭제 테스트
-  @MainActor
   func testDeleteRoutine() async throws {
     // Given
-    store.addRoutine(
-      Routine(
-        type: 2,
-        displayName: "항생제D",
-        cycleType: 2,
-        cycleValue: "11",
-        startDate: .now,
-        hasPush: true,
-        imageData: nil
-      ),
-      context: context
+    let routineID = try await store.createRoutine(
+      type: 2,
+      displayName: "항생제D",
+      desc: nil,
+      category: nil,
+      cycleType: 2,
+      cycleValue: "11",
+      startDate: .now,
+      memo: nil,
+      usage: [],
+      precautions: [],
+      routineTimes: [],
+      recommendedRoutineTimes: []
     )
     
-    var all = store.fetchAllRoutines(context: context)
-    XCTAssertEqual(all.count, 1)
-    let target = all.first!
+    var allIDs = await store.fetchAllRoutineIDs()
+    XCTAssertEqual(allIDs.count, 1)
 
     // When
-    store.deleteRoutine(target, context: context)
+    await store.deleteRoutine(id: routineID)
 
     // Then
-    all = store.fetchAllRoutines(context: context)
-    XCTAssertEqual(all.count, 0)
+    allIDs = await store.fetchAllRoutineIDs()
+    XCTAssertEqual(allIDs.count, 0)
   }
 
   /// Routine 전체 삭제 테스트
-  @MainActor
   func testDeleteAllRoutines() async throws {
     // Given
-    store
-      .addRoutine(Routine(
-      type: 1,
-      displayName: "A",
-      cycleType: 1,
-      cycleValue: "0",
-      startDate: .now,
-      hasPush: true,
-      imageData: nil
-    ), context: context)
+    _ = try await store.createRoutine(
+      type: 1, displayName: "A", desc: nil, category: nil, cycleType: 1, cycleValue: "0",
+      startDate: .now, memo: nil, usage: [], precautions: [], routineTimes: [], recommendedRoutineTimes: []
+    )
     
-    store.addRoutine(
-      Routine(
-        type: 2,
-        displayName: "B",
-        cycleType: 2,
-        cycleValue: "11",
-        startDate: .now,
-        hasPush: true,
-        imageData: nil
-      ),
-      context: context
+    _ = try await store.createRoutine(
+      type: 2, displayName: "B", desc: nil, category: nil, cycleType: 2, cycleValue: "11",
+      startDate: .now, memo: nil, usage: [], precautions: [], routineTimes: [], recommendedRoutineTimes: []
     )
 
-    let all = store.fetchAllRoutines(context: context)
-    XCTAssertEqual(all.count, 2)
+    let allIDs = await store.fetchAllRoutineIDs()
+    XCTAssertEqual(allIDs.count, 2)
 
     // When
-    store.deleteAllRoutines(context: context)
+    await store.deleteAllRoutines()
 
     // Then
-    let remain = store.fetchAllRoutines(context: context)
-    XCTAssertEqual(remain.count, 0)
+    let remainingIDs = await store.fetchAllRoutineIDs()
+    XCTAssertEqual(remainingIDs.count, 0)
   }
 
 
   /// RoutineTime 추가 및 조회 테스트
-  @MainActor
   func testAddAndFetchRoutineTime() async throws {
     // Given: Routine 1개 생성
-    store.addRoutine(
-      Routine(
-        type: 1,
-        displayName: "오메가3",
-        cycleType: 1,
-        cycleValue: "0, 2, 4",
-        startDate: .now,
-        hasPush: false,
-        imageData: nil
-      ),
-      context: context
+    let routineID = try await store.createRoutine(
+      type: 1, displayName: "오메가3", desc: nil, category: nil, cycleType: 1, cycleValue: "0, 2, 4",
+      startDate: .now, memo: nil, usage: [], precautions: [], routineTimes: [], recommendedRoutineTimes: []
     )
     
-    let routine = store.fetchAllRoutines(context: context).first!
     // When: RoutineTime 2개 추가
     let time1 = Date()
     let time2 = Date().addingTimeInterval(3600)
-    store.createRoutineTime(time: time1, for: routine, context: context)
-    store.createRoutineTime(time: time2, for: routine, context: context)
+    await store.createRoutineTime(time: time1, pillsPerDose: 1, forRoutineID: routineID)
+    await store.createRoutineTime(time: time2, pillsPerDose: 2, forRoutineID: routineID)
 
     // Then: Routine에 RoutineTime이 잘 연결됐는지 확인
-    let refreshedRoutine = store.fetchAllRoutines(context: context).first!
+    let refreshedRoutine = try XCTUnwrap(context.model(for: routineID) as? Routine)
     XCTAssertEqual(refreshedRoutine.routineTimes.count, 2)
+    
     let times = refreshedRoutine.routineTimes.map(\.time)
-    XCTAssertTrue(times.contains(time1))
-    XCTAssertTrue(times.contains(time2))
+    // Date는 정확한 비교가 어려우므로 timeIntervalSince1970으로 비교
+    XCTAssertTrue(times.contains { abs($0.timeIntervalSince1970 - time1.timeIntervalSince1970) < 0.001 })
+    XCTAssertTrue(times.contains { abs($0.timeIntervalSince1970 - time2.timeIntervalSince1970) < 0.001 })
   }
 
   /// RoutineRecord 추가 및 조회 테스트
-  @MainActor
   func testAddAndFetchRoutineRecord() async throws {
     // Given: Routine 1개 생성
-    store.addRoutine(
-      Routine(
-        type: 1,
-        displayName: "종합비타민",
-        cycleType: 1,
-        cycleValue: "1, 3, 5",
-        startDate: .now,
-        imageData: nil
-      ),
-      context: context
+    let routineID = try await store.createRoutine(
+      type: 1, displayName: "종합비타민", desc: nil, category: nil, cycleType: 1, cycleValue: "1, 3, 5",
+      startDate: .now, memo: nil, usage: [], precautions: [], routineTimes: [], recommendedRoutineTimes: []
     )
-
-    let routine = store.fetchAllRoutines(context: context).first!
 
     // When: RoutineRecord 1개 추가
     let ts = Date()
-    store.createRoutineRecord(for: routine, timestamp: ts, context: context)
+    await store.createRoutineRecord(forRoutineID: routineID, timestamp: ts)
 
     // Then: RoutineRecord가 잘 추가됐는지 확인
-    let refreshedRoutine = store.fetchAllRoutines(context: context).first!
-    // routine.routineRecords가 있으면 거기로, 없으면 fetch로
     let fetch = FetchDescriptor<RoutineRecord>()
     let records = (try? context.fetch(fetch)) ?? []
     XCTAssertEqual(records.count, 1)
-    let record = records.first!
-    XCTAssertEqual(record.routine?.id, refreshedRoutine.id)
+    
+    let record = try XCTUnwrap(records.first)
+    XCTAssertEqual(record.routine?.persistentModelID, routineID)
     XCTAssertEqual(record.timestamp.timeIntervalSince1970, ts.timeIntervalSince1970, accuracy: 1)
   }
 }
