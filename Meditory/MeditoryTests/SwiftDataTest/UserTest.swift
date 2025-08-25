@@ -35,7 +35,7 @@ final class UserTest: XCTestCase {
   func testCreateUserProfile() async throws {
     // Given: 유저를 먼저 생성하고 저장
     let user = User(name: "스티브잡스", birthDate: .now, gender: "남", displayName: "잡스형")
-    await store.addUser(user)
+    _ = await store.addUser(user)
     await store.loadUser()  // currentUser 설정
     
     // When: 프로필을 생성
@@ -54,7 +54,7 @@ final class UserTest: XCTestCase {
   func testCreateUserStatus() async throws {
     // Given: 유저를 먼저 생성하고 저장
     let user = User(name: "김여자", birthDate: .now, gender: "여", displayName: "여자킴")
-    await store.addUser(user)
+    _ = await store.addUser(user)
     await store.loadUser()
     
     // When: 현재 진행 중인 상태 생성

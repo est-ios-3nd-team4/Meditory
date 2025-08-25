@@ -1,10 +1,3 @@
-//
-//  OnboardingUnitTest.swift
-//  MeditoryTests
-//
-//  Created by hyunsic on 8/22/25.
-//
-
 import SwiftData
 import SwiftUI
 import XCTest
@@ -14,19 +7,17 @@ import XCTest
 final class OnboardingUnitTest: XCTestCase {
 
   var container: ModelContainer!
-  var modelContext: ModelContext!
   var userStore: UserStore!
   var sut: OnboardingViewModel!
 
-  override func setUpWithError() throws {
+  // setUpWithError는 비동기 작업을 포함하므로 async로 변경합니다.
+  override func setUp() async throws {
     let schema = Schema([User.self, UserExtraInfo.self, UserProfile.self, UserStatus.self, ExtraInfo.self])
     let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
     container = try ModelContainer(for: schema, configurations: [config])
-    modelContext = ModelContext(container)
     userStore = UserStore(modelContainer: container)
-    Task {
-      sut = OnboardingViewModel(userStore: userStore)
-    }
+    // sut를 초기화할 때 await을 사용하고, 더 이상 불필요한 Task로 감싸지 않습니다.
+    sut = await OnboardingViewModel(userStore: userStore)
   }
 
   override func tearDownWithError() throws {
@@ -37,112 +28,98 @@ final class OnboardingUnitTest: XCTestCase {
 
   ///각필드의 유효성 검사
   func test_eachField_validation() async throws {
+    // given: 각 필드의 내용을 업데이트합니다.
+    await sut.updateContent(.height, context: "140")
+    await sut.updateContent(.weight, context: "179")
+    await sut.updateContent(.name, context: "james")
+    await sut.updateContent(.birthDate, context: "2025")
 
-    //given
-    sut.updateContent(.height, context: "140")
-    sut.updateContent(.weight, context: "179")
-    sut.updateContent(.name, context: "james")
-    sut.updateContent(.birthDate, context: "2025")
+    // when: 각 필드의 유효성을 검사합니다.
+    await sut.validate(.height)
+    await sut.validate(.weight)
+    await sut.validate(.name)
+    await sut.validate(.birthDate)
 
-    //when
-    sut.validate(.height)
-    sut.validate(.weight)
-    sut.validate(.name)
-    sut.validate(.birthDate)
+    // then: MainActor에서 안전하게 결과를 검증합니다.
+    await MainActor.run {
+      let heightResult = try? XCTUnwrap(sut.fieldStates[.height]?.isValid)
+      let weightResult = try? XCTUnwrap(sut.fieldStates[.weight]?.isValid)
+      let nameResult = try? XCTUnwrap(sut.fieldStates[.name]?.isValid)
+      let bodResult = try? XCTUnwrap(sut.fieldStates[.birthDate]?.isValid)
 
-    //then
-    let heightResult = try XCTUnwrap(sut.fieldStates[.height]?.isValid)
-    let weightResult = try XCTUnwrap(sut.fieldStates[.weight]?.isValid)
-    let nameResult = try XCTUnwrap(sut.fieldStates[.name]?.isValid)
-    let bodResult = try XCTUnwrap(sut.fieldStates[.birthDate]?.isValid)
-
-    Task {
-      try? await Task.sleep(nanoseconds: 1_000_000_000)
-      XCTAssertTrue(heightResult)
-      XCTAssertTrue(weightResult)
-      XCTAssertTrue(nameResult)
-      XCTAssertTrue(bodResult)
+      XCTAssertTrue(heightResult ?? false, "Height validation should be true")
+      XCTAssertTrue(weightResult ?? false, "Weight validation should be true")
+      XCTAssertTrue(nameResult ?? false, "Name validation should be true")
+      XCTAssertTrue(bodResult ?? false, "Birth date validation should be true")
     }
   }
   
-  ///기본 가입정보들 중 하나라도 유효성 검증을 통과하지 못했을 경우 다음 버튼이 활성화되면 안된다
-  func test_userEnter_invalidInputs() async throws {
-    //given
-    let expectation = XCTestExpectation(description: "test Next Button")
+  /// 기본 가입정보들이 모두 유효할 경우 다음 버튼이 활성화되어야 한다
+  func test_userEnter_validInputs_enablesNextButton() async throws {
+    // given
+    await sut.updateContent(.name, context: "James")
+    await sut.updateContent(.weight, context: "155.53")
+    await sut.updateContent(.height, context: "150")
+    await sut.updateContent(.birthDate, context: "1999")
 
-    sut.updateContent(.name, context: "James")
-    sut.updateContent(.weight, context: "155.53")
-    sut.updateContent(.height, context: "150")
-    sut.updateContent(.birthDate, context: "1999")
+    // when
+    await sut.validateAllField()
 
-    //when
-    sut.validateAllField()
-
-    //then
-    Task {
-      try? await Task.sleep(nanoseconds: 1_000_000_000)
-      await MainActor.run {
-        self.sut.validateAllField()
-
-        XCTAssertTrue(self.sut.isNextButtonOn)
-        expectation.fulfill()
-      }
-      await fulfillment(of: [expectation], timeout: 1.0)
+    // then
+    // sut.isNextButtonOn이 @MainActor로 보호되므로 MainActor.run 블록 안에서 접근합니다.
+    await MainActor.run {
+      XCTAssertTrue(self.sut.isNextButtonOn, "Next button should be enabled when all fields are valid")
     }
   }
 
-  ///유저가 남성일 경우 회원가입 완료 후 유저상태에서 여성관련 옵션들이 존재하면 안된다
+  /// 유저가 남성일 경우 회원가입 완료 후 유저상태에서 여성관련 옵션들이 존재하면 안된다
   func test_userIsMan_noWomanOptionFound() async throws {
-    //given
-    sut.name = "James"
-    sut.gender = "남성"
-    sut.birthDate = Date.now
-    sut.height = 177
-    sut.weight = 70
+    // given
+    // sut의 프로퍼티는 @MainActor로 보호되므로 MainActor.run 안에서 수정합니다.
+    await MainActor.run {
+      sut.name = "James"
+      sut.gender = "남성"
+      sut.birthDate = Date.now
+      sut.height = 177
+      sut.weight = 70
 
-    let concernSets: Set<QuestionModel> = [
-      .init(code: "concern_6", title: "간 질환", type: .concern),
-      .init(code: "concern_11", title: "갑상선 질환", type: .concern),
-      .init(code: "concern_16", title: "비만", type: .concern),
-    ]
-    let diseasesSet: Set<QuestionModel> = [
-      .init(code: "disease_4", title: "뇌 질환", type: .disease, image: "icon_brain"),
-      .init(code: "disease_8", title: "폐 질환", type: .disease, image: "icon_bone"),
-      .init(code: "disease_11", title: "비만 질환", type: .disease, image: "icon_weight"),
-    ]
-    let allergySets: Set<QuestionModel> = [
-      .init(
-        code: "allergy_1",
-        title: "견과류·씨앗류",
-        type: .allergy,
-        subtitle: "땅콩, 호두, 아몬드, 캐슈넛, 피스타치오, 헤이즐넛 등",
-        symptom: "입술·혀 부종, 두드러기, 호흡곤란, 아나필락시스",
-        treatment: "즉시 섭취 중단, 에피네프린 사용, 응급실 이동",
-        toggleImage: .name(base: "nuts_seeds")
-      ),
-      .init(
-        code: "allergy_4",
-        title: "해산물",
-        type: .allergy,
-        subtitle: "생선, 갑각류, 연체류, 조개류 등",
-        symptom: "입·목 가려움, 호흡곤란, 혈압 저하",
-        treatment: "섭취·조리 환경 회피, 에피네프린 준비",
-        toggleImage: .name(base: "seafood")
-      ),
-    ]
+      let concernSets: Set<QuestionModel> = [
+        .init(code: "concern_6", title: "간 질환", type: .concern),
+        .init(code: "concern_11", title: "갑상선 질환", type: .concern),
+        .init(code: "concern_16", title: "비만", type: .concern),
+      ]
+      let diseasesSet: Set<QuestionModel> = [
+        .init(code: "disease_4", title: "뇌 질환", type: .disease, image: "icon_brain"),
+        .init(code: "disease_8", title: "폐 질환", type: .disease, image: "icon_bone"),
+        .init(code: "disease_11", title: "비만 질환", type: .disease, image: "icon_weight"),
+      ]
+      let allergySets: Set<QuestionModel> = [
+        .init(
+          code: "allergy_1",
+          title: "견과류·씨앗류",
+          type: .allergy,
+          toggleImage: .name(base: "nuts_seeds")
+        ),
+        .init(
+          code: "allergy_4",
+          title: "해산물",
+          type: .allergy,
+          toggleImage: .name(base: "seafood")
+        ),
+      ]
+      sut.selectionSet = concernSets.union(diseasesSet).union(allergySets)
+    }
 
-    sut.selectionSet = concernSets.union(diseasesSet).union(allergySets)
+    // when
+    // signUp 메서드는 더 이상 context를 받지 않고, 오류를 던질 수 있으므로 try await으로 호출합니다.
+    try await sut.signUp()
 
-    //when
-    await sut.signUp(context: modelContext)
-    try? await Task.sleep(for: .seconds(1))
-
-    //then
+    // then
     let user = try await userStore.currentUser()
     let userStatus = await userStore.fetchStatuses()
-    let result = userStatus.contains(where: { $0.statusType == "임신 중" || $0.statusType == "수유 중" })
-    XCTAssertNotNil(user)
-    XCTAssertFalse(result)
+    let result = userStatus.contains { $0.statusType == "임신 중" || $0.statusType == "수유 중" }
+    
+    XCTAssertNotNil(user, "User should be created after sign up")
+    XCTAssertFalse(result, "User status should not contain woman-specific options for a male user")
   }
-
 }
