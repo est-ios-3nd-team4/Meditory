@@ -29,8 +29,8 @@ final class HomeViewModel {
 
   /// IntakeItem 토글 처리 (비동기 함수로 변경)
   @MainActor
-  func toggleCompleted(_ item: IntakeItem, for date: Date) async {
-    await HomeRoutineManager.shared.toggleIntake(item)
+  func toggleCompleted(at index: Int, for date: Date) async {
+    await HomeRoutineManager.shared.toggleIntake(intakeItems[index])
     await loadIntake(on: date) // 데이터를 다시 로드
     await refreshTodayCompletion(on: date) // 달력 UI 갱신
   }

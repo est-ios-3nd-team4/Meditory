@@ -128,12 +128,13 @@ private struct AchievementSection: View {
   // ViewModel에서 이미 정렬되었으므로, items를 직접 사용합니다.
  private func intakeColumn() -> some View {
     VStack(alignment: .leading, spacing: .smallSpacing) {
-      ForEach(vm.intakeItems) { item in
+      ForEach(vm.intakeItems.indices.sorted { vm.intakeItems[$0].time < vm.intakeItems[$1].time }, id: \.self) { index in
+        let item = vm.intakeItems[index]
         HStack(alignment: .center, spacing: .defaultSpacing) {
           Button {
             // toggleCompleted 호출을 Task로 감싸고, item을 직접 전달합니다. (develop 기준)
             Task {
-              await vm.toggleCompleted(item, for: selectedDate)
+              await vm.toggleCompleted(at: index, for: selectedDate)
             }
           } label: {
             CircleCheck(isCompleted: item.isCompleted)

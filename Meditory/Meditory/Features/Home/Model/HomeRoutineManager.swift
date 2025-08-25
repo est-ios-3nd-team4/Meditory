@@ -34,51 +34,57 @@ actor HomeRoutineManager {
 
   /// 선택한 날짜에 보여줄 IntakeItem 목록
   func fetchTodayIntakeItems(on date: Date) async -> [IntakeItem] {
-    let cal = Calendar.current
-    
-    // 1. RoutineStore 액터로부터 Routine ID 목록을 비동기적으로 가져옴
-    let routineIDs = await RoutineStore.shared.fetchRoutineIDs(for: date)
-    
-    // 2. ID를 사용해 현재 액터의 컨텍스트에서 실제 Routine 객체들을 가져옴
-    let routines = routineIDs.compactMap { modelContext.model(for: $0) as? Routine }
+     let cal = Calendar.current
 
-    let dayRecords = (try? fetchRoutineRecords(on: date)) ?? []
-    let completedSet: Set<Date> = Set(dayRecords.map { cal.dateTrimToMinute($0.timestamp) })
+     // 해당 날짜에 표시할 Routine 식별자 조회
+     let routineIDs = await RoutineStore.shared.fetchRoutineIDs(for: date)
 
-    var items: [IntakeItem] = []
-    for routine in routines {
-      for t in routine.routineTimes {
-        guard let scheduled = scheduledDate(on: date, from: t.time) else { continue }
-        let key = cal.dateTrimToMinute(scheduled)
-        let isDone = completedSet.contains(key)
+     // 식별자로 Routine 실체 복원
+     let routines: [Routine] = routineIDs.compactMap { modelContext.model(for: $0) as? Routine }
 
-        items.append(
-          IntakeItem(
-            id: t.id,
-            name: routine.displayName,
-            time: scheduled,
-            isCompleted: isDone,
-            routine: routine
-          )
-        )
-      }
-    }
-    return items.sorted { $0.time < $1.time }
-  }
+     // IntakeItem 구성 (RoutineTime.time의 시/분/초 + date의 연/월/일)
+     var items: [IntakeItem] = []
+     for routine in routines {
+       for rt in routine.routineTimes {
+         var comp = cal.dateComponents([.hour, .minute, .second], from: rt.time)
+         let dComp = cal.dateComponents([.year, .month, .day], from: date)
+         comp.year = dComp.year; comp.month = dComp.month; comp.day = dComp.day
+
+         guard let scheduledTime = cal.date(from: comp) else { continue }
+         let completed = isCompleted(routineID: routine.persistentModelID, at: scheduledTime)
+
+         items.append(
+           IntakeItem(
+             id: rt.id,
+             name: routine.displayName,
+             time: scheduledTime,
+             isCompleted: completed,
+             routine: routine
+           )
+         )
+       }
+     }
+
+     // 시간 오름차순 정렬
+     return items.sorted { $0.time < $1.time }
+   }
 
   /// IntakeItem 체크/해제 토글: 레코드 생성 또는 삭제
   func toggleIntake(_ item: IntakeItem) async {
     let cal = Calendar.current
-    let dayRecords = (try? fetchRoutineRecords(on: item.time)) ?? []
-    let targetKey = cal.dateTrimToMinute(item.time)
+    let minuteKey = cal.dateTrimToMinute(item.time)
 
-    if let rec = dayRecords.first(where: {
-      $0.routine == item.routine && cal.dateTrimToMinute($0.timestamp) == targetKey
-    }) {
-      // 이미 존재 → 삭제
-      delete(recordID: rec.persistentModelID)
+    if item.isCompleted {
+      // 이미 체크됨 → 같은 루틴 && 같은 분의 레코드만 삭제
+      let all = (try? modelContext.fetch(FetchDescriptor<RoutineRecord>())) ?? []
+      if let rec = all.first(where: { rec in
+        rec.routine == item.routine &&
+        cal.isDate(rec.timestamp, equalTo: minuteKey, toGranularity: .minute)
+      }) {
+        delete(recordID: rec.persistentModelID)
+      }
     } else {
-      // 없으면 생성 (RoutineStore 액터에 요청)
+      // 미체크 → 새 레코드 생성
       await RoutineStore.shared.createRoutineRecord(
         forRoutineID: item.routine.persistentModelID,
         timestamp: item.time
