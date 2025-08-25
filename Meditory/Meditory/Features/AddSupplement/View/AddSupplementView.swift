@@ -221,7 +221,7 @@ extension AddSupplementView {
       LifestyleTimeView(
         type: .dailyCycle,
         defaultFontSize: defaultFontSize,
-        lifestyleTimeVM: lifestyleTimeVM,
+        lifestyleTimeItems: lifestyleTimeVM.lifestyleTimeItems(for: .dailyCycle),
         onTapGesture: { option in
           selectedLifestyleCategory = .dailyCycle
           selectedLifestyleOption = option
@@ -232,7 +232,7 @@ extension AddSupplementView {
       LifestyleTimeView(
         type: .meal,
         defaultFontSize: defaultFontSize,
-        lifestyleTimeVM: lifestyleTimeVM,
+        lifestyleTimeItems: lifestyleTimeVM.lifestyleTimeItems(for: .meal),
         onTapGesture: { option in
           selectedLifestyleCategory = .meal
           selectedLifestyleOption = option

@@ -11,8 +11,7 @@ struct LifestyleTimeView: View {
   
   let type: LifestyleTimeType
   let defaultFontSize: CGFloat
-  @State var lifestyleTimeVM: LifestyleTimeViewModel
-  
+  let lifestyleTimeItems: [LifestyleTimeItem]
   let onTapGesture: ((any LifestyleTime) -> Void)?
   
   @State private var isExpanded: Bool = false
@@ -36,28 +35,16 @@ struct LifestyleTimeView: View {
       
       if isExpanded {
         VStack {
-          switch type {
-          case .dailyCycle:
-            ForEach(DailyCycleType.allCases, id:\.self) { type in
-              lifestyleTimeRow(
-                title: type.title,
-                imageName: type.imageName,
-                time: lifestyleTimeVM.time(for: type)
-              )
-              .onTapGesture {
-                onTapGesture?(type)
-              }
-            }
-          case .meal:
-            ForEach(MealType.allCases, id:\.self) { type in
-              lifestyleTimeRow(
-                title: type.title,
-                imageName: type.imageName,
-                time: lifestyleTimeVM.time(for: type)
-              )
-              .onTapGesture {
-                onTapGesture?(type)
-              }
+          ForEach(lifestyleTimeItems.indices, id:\.self) { index in
+            let item = lifestyleTimeItems[index]
+            
+            lifestyleTimeRow(
+              title: item.type.title,
+              imageName: item.type.imageName,
+              time: item.time
+            )
+            .onTapGesture {
+              onTapGesture?(item.type)
             }
           }
         }
