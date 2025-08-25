@@ -9,25 +9,19 @@ import Foundation
 import SwiftUI
 import SwiftData
 
-@MainActor
-final class SupplementDetailViewModel: ObservableObject {
-  private let routineStore: RoutineStore
-
+@Observable
+final class SupplementDetailViewModel {
   /// SwiftData @Model 이므로 참조 타입으로 유지
   /// - Routine이 갱신되면 아래 computed 프로퍼티들이 최신 상태를 반영
   /// - Routine 삭제 시 nil 처리
-  @Published var routine: Routine?
+  var routine: Routine?
 
   // State
-  @Published var showDeleteAlert: Bool = false
+  var showDeleteAlert: Bool = false
 
   // Init
-  init(
-    routine: Routine,
-    routineStore: RoutineStore = RoutineStore()
-  ) {
+  init(routine: Routine) {
     self.routine = routine
-    self.routineStore = routineStore
   }
 
   // Header
@@ -105,17 +99,21 @@ final class SupplementDetailViewModel: ObservableObject {
   var usage: [String] { routine?.usage ?? [] }
   var precautions: [String] { routine?.precautions ?? [] }
 
-  func requestDelete() { showDeleteAlert = true }
+  func requestDelete() {
+    showDeleteAlert = true
+  }
 
-  func confirmDelete(context: ModelContext, dismiss: DismissAction) {
-    if let routine {
-      routineStore.deleteRoutine(routine, context: context)
+  @MainActor
+  func confirmDelete(dismiss: DismissAction) async {
+    if let routineToDelete = routine {
+      await RoutineStore.shared.deleteRoutine(id: routineToDelete.persistentModelID)
       self.routine = nil
     }
     showDeleteAlert = false
     dismiss()
   }
-
   
-  func cancelDelete() { showDeleteAlert = false }
+  func cancelDelete() {
+    showDeleteAlert = false
+  }
 }

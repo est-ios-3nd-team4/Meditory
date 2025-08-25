@@ -10,7 +10,8 @@ import SwiftData
 
 struct HomeView: View {
   @Environment(\.modelContext) private var context
-  @StateObject private var vm = HomeViewModel()
+  // @StateObject 대신 @State를 사용합니다.
+  @State private var vm = HomeViewModel()
   @Environment(\.colorScheme) private var colorScheme
   @State private var selectedDate: Date = Date()
 
@@ -27,27 +28,18 @@ struct HomeView: View {
         .padding(.defaultSpacing)
       }
     }
-    .onAppear {
-      vm.updateContext(context)
-      vm.loadIntake(on: selectedDate)
-      vm.reloadDayCompletions(for: selectedDate)
+    // .onAppear와 .onChange를 .task(id:)로 통합하여 코드를 더 깔끔하게 만듭니다.
+    // selectedDate가 변경될 때마다 이 task가 자동으로 다시 실행됩니다.
+    .task(id: selectedDate) {
+      await vm.loadIntake(on: selectedDate)
+      await vm.reloadDayCompletions(for: selectedDate)
     }
-    .onChange(of: selectedDate) { oldDate, newDate in
-      vm.loadIntake(on: newDate)
-
-      let cal = Calendar.current
-      let oldComp = cal.dateComponents([.year, .month], from: oldDate)
-      let newComp = cal.dateComponents([.year, .month], from: newDate)
-
-      if oldComp != newComp {
-        vm.reloadDayCompletions(for: newDate)
-      } else {
-        vm.refreshTodayCompletion(on: newDate)
-      }
-    }
+    // 다른 화면에서 루틴이 업데이트되었을 때의 알림을 처리합니다.
     .onReceive(NotificationCenter.default.publisher(for: .didUpdateSupplement)) { _ in
-      vm.loadIntake(on: selectedDate)
-      vm.reloadDayCompletions(for: selectedDate)
+      Task {
+        await vm.loadIntake(on: selectedDate)
+        await vm.reloadDayCompletions(for: selectedDate)
+      }
     }
   }
 }
@@ -68,7 +60,6 @@ private struct AchievementSection: View {
       Text("오늘 복용 달성률")
         .font(.notoSans(size: 20))
         .frame(maxWidth: .infinity, alignment: .leading)
-
       if isPadStyle {
         VStack(spacing: 24) {
           ProgressBlock(size: progressSize, progress: vm.progress)
@@ -134,18 +125,16 @@ private struct AchievementSection: View {
     }
   }
 
-  private func intakeColumn() -> some View {
-    let indices = vm.intakeItems.indices.sorted {
-      vm.intakeItems[$0].time < vm.intakeItems[$1].time
-    }
-
-    return VStack(alignment: .leading, spacing: .smallSpacing) {
-      ForEach(indices, id: \.self) { index in
-        let item = vm.intakeItems[index]
-
+  // ViewModel에서 이미 정렬되었으므로, items를 직접 사용합니다.
+ private func intakeColumn() -> some View {
+    VStack(alignment: .leading, spacing: .smallSpacing) {
+      ForEach(vm.items) { item in
         HStack(alignment: .center, spacing: .defaultSpacing) {
           Button {
-            vm.toggleCompleted(at: index, for: selectedDate)
+            // toggleCompleted 호출을 Task로 감싸고, item을 직접 전달합니다. (develop 기준)
+            Task {
+              await vm.toggleCompleted(item, for: selectedDate)
+            }
           } label: {
             CircleCheck(isCompleted: item.isCompleted)
               .offset(y: 2)
@@ -163,9 +152,9 @@ private struct AchievementSection: View {
 
               Text(item.time.timeFormatter)
                 .font(.notoSans(size: 15))
-                .foregroundStyle(colorScheme == .dark
-                                  ? Color.secondary
-                                  : Color.main)
+                .foregroundStyle(
+                  colorScheme == .dark ? Color.secondary : Color.main
+                )
             }
           }
           .buttonStyle(.plain)

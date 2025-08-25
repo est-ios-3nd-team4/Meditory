@@ -12,14 +12,15 @@ struct ImageResult {
 
 actor ImageCache {
   private var cache: [String: ImageResult] = [:]
+  private let capacity = 200
 
   func get(_ key: String) -> ImageResult? {
     return cache[key]
   }
 
   func set(_ key: String, value: ImageResult) {
-    if cache.count > 200 {
-      cache.removeAll(keepingCapacity: true)
+    if cache.count >= capacity {
+      cache.removeAll(keepingCapacity: false)
     }
     cache[key] = value
   }
@@ -37,15 +38,20 @@ final class GoogleCSEImageClient: ImageSearchService {
   let titleParser: TitleParsing
 
   init(apiKey: String = GoogleKey.apiKey,
-       cx: String = GoogleKey.cx, titleParser: TitleParsing = DefaultTitleParser(), session: URLSession? = nil) {
+       cx: String = GoogleKey.cx,
+       titleParser: TitleParsing = DefaultTitleParser(),
+       session: URLSession? = nil) {
     self.apiKey = apiKey
     self.cx = cx
     self.titleParser = titleParser
 
+
     if let session {
       self.session = session
     } else {
-      let conf = URLSessionConfiguration.default
+      let conf = URLSessionConfiguration.ephemeral
+      conf.urlCache = nil
+      conf.requestCachePolicy = .reloadIgnoringLocalCacheData
       conf.waitsForConnectivity = true
       conf.timeoutIntervalForRequest = 30
       conf.timeoutIntervalForResource = 60
@@ -97,6 +103,10 @@ final class GoogleCSEImageClient: ImageSearchService {
     } catch {
       throw CSEError.decode(error)
     }
+  }
+
+  deinit {
+    session.invalidateAndCancel()
   }
 }
 
