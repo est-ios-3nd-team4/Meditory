@@ -8,16 +8,19 @@
 import Foundation
 import SwiftData
 
-@MainActor
 extension RoutineStore {
-  func findRoutine(named name: String, context: ModelContext) -> Routine? {
+  
+  /// 이름으로 특정 Routine의 ID를 찾습니다.
+  func findRoutineID(named name: String) -> PersistentIdentifier? {
     var descriptor = FetchDescriptor<Routine>(predicate: #Predicate { $0.displayName == name })
     descriptor.fetchLimit = 1
-    return try? context.fetch(descriptor).first
+    return try? modelContext.fetch(descriptor).first?.persistentModelID
   }
 
-  /// AI 추천 결과 Ruotine 반영
-  func applyRecommendation(from dto: SupplementDTO, to routine: Routine, start: Date = Date(), context: ModelContext) {
+  /// AI 추천 결과를 기존 Routine에 반영합니다.
+  func applyRecommendation(from dto: SupplementDTO, toRoutineID routineID: PersistentIdentifier, start: Date = Date()) {
+    guard let routine = modelContext.model(for: routineID) as? Routine else { return }
+    
     routine.usage = dto.usage
     routine.precautions = dto.precautions
 
@@ -25,13 +28,15 @@ extension RoutineStore {
     routine.cycleType = cycleType
     routine.cycleValue = cycleValue
 
-    replaceRecommendedTimes(of: routine, with: dto.schedule.times, startDate: start)
+    Self.replaceRecommendedTimes(of: routine, with: dto.schedule.times, startDate: start)
 
-    try? context.save()
+    try? modelContext.save()
   }
 
+  // MARK: - Private Static Helpers
+  
   /// 추천 복용 시간 대체
-  private func replaceRecommendedTimes(of routine: Routine, with doseTimes: [DoseTime], startDate: Date) {
+  private static func replaceRecommendedTimes(of routine: Routine, with doseTimes: [DoseTime], startDate: Date) {
     /*
     routine.recommendedRoutineTimes.removeAll()
 
@@ -70,7 +75,6 @@ extension RoutineStore {
       if let d = s.intervalDays {
         return (SupplementScheduleType.interval.rawValue, String(10 + d))
       }
-
       return (SupplementScheduleType.interval.rawValue, "")
     }
   }
