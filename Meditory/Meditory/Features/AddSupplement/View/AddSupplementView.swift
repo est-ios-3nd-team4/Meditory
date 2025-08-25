@@ -131,9 +131,7 @@ extension AddSupplementView {
     VStack(spacing: 20) {
       supplementNameInput()
       
-      if shouldShowSupplementInfo {
-        supplementInfoSection()
-      }
+      supplementInfoSection()
       
       lifestyleSection()
       
@@ -154,62 +152,6 @@ extension AddSupplementView {
       .padding(.bottom, .bottomInset)
     }
     .padding(.horizontal, .defaultSpacing + 4)
-  }
-
-  private func supplementInfoSection() -> some View {
-    SupplementInfoView(
-      defaultFontSize: defaultFontSize,
-      addSupplementVM: addSupplementVM,
-      isSearchingSupplementSummary: $isSearchingSupplementSummary
-    )
-  }
-  
-  private func lifestyleSection() -> some View {
-    Group {
-      LifestyleTimeView(
-        type: .dailyCycle,
-        defaultFontSize: defaultFontSize,
-        lifestyleTimeVM: lifestyleTimeVM,
-        onTapGesture: { option in
-          selectedLifestyleCategory = .dailyCycle
-          selectedLifestyleOption = option
-          showTimePicker = true
-        }
-      )
-      
-      LifestyleTimeView(
-        type: .meal,
-        defaultFontSize: defaultFontSize,
-        lifestyleTimeVM: lifestyleTimeVM,
-        onTapGesture: { option in
-          selectedLifestyleCategory = .meal
-          selectedLifestyleOption = option
-          showTimePicker = true
-        }
-      )
-    }
-  }
-  
-  private func scheduleDetailsSection() -> some View {
-    VStack {
-      switch selectedScheduleType {
-      case .weekday:
-        weekdayScheduleView()
-      case .interval:
-        intervalScheduleView()
-      }
-      supplementCountSelector()
-    }
-    .modifier(CardStyle(padding: .defaultSpacing))
-  }
-  
-  private func aiRecommendationSection() -> some View {
-    AIRecommendedScheduleView(
-      defaultFontSize: defaultFontSize,
-      supplementSummary: addSupplementVM.supplemtSummary,
-      lifestyle: lifestyleTimeVM.userlifeStyle,
-      supplement: $supplement
-    )
   }
   
   private func supplementNameInput() -> some View {
@@ -262,9 +204,9 @@ extension AddSupplementView {
     .cardStyle(padding: .defaultSpacing)
     .frame(height: 55)
   }
-  
+
   @ViewBuilder
-  private func supplementInfoView() -> some View {
+  private func supplementInfoSection() -> some View {
     if shouldShowSupplementInfo {
       SupplementInfoView(
         defaultFontSize: defaultFontSize,
@@ -274,26 +216,29 @@ extension AddSupplementView {
     }
   }
   
-  @ViewBuilder
-  private func lifestyleTimeViews() -> some View {
-    LifestyleTimeView(
-      type: .dailyCycle,
-      defaultFontSize: defaultFontSize,
-      lifestyleTimeVM: lifestyleTimeVM,
-    ) { option in
-      selectedLifestyleCategory = .dailyCycle
-      selectedLifestyleOption = option
-      showTimePicker = true
-    }
-    
-    LifestyleTimeView(
-      type: .meal,
-      defaultFontSize: defaultFontSize,
-      lifestyleTimeVM: lifestyleTimeVM
-    ) { option in
-      selectedLifestyleCategory = .meal
-      selectedLifestyleOption = option
-      showTimePicker = true
+  private func lifestyleSection() -> some View {
+    Group {
+      LifestyleTimeView(
+        type: .dailyCycle,
+        defaultFontSize: defaultFontSize,
+        lifestyleTimeVM: lifestyleTimeVM,
+        onTapGesture: { option in
+          selectedLifestyleCategory = .dailyCycle
+          selectedLifestyleOption = option
+          showTimePicker = true
+        }
+      )
+      
+      LifestyleTimeView(
+        type: .meal,
+        defaultFontSize: defaultFontSize,
+        lifestyleTimeVM: lifestyleTimeVM,
+        onTapGesture: { option in
+          selectedLifestyleCategory = .meal
+          selectedLifestyleOption = option
+          showTimePicker = true
+        }
+      )
     }
   }
   
@@ -340,7 +285,7 @@ extension AddSupplementView {
     .frame(height: 40)
   }
   
-  private func scheduleSection() -> some View {
+  private func scheduleDetailsSection() -> some View {
     VStack {
       switch selectedScheduleType {
       case .weekday:
@@ -348,6 +293,7 @@ extension AddSupplementView {
       case .interval:
         intervalScheduleView()
       }
+      
       supplementCountSelector()
     }
     .modifier(CardStyle(padding: .defaultSpacing))
@@ -518,6 +464,15 @@ extension AddSupplementView {
       }
     }
     .cardStyle(padding: .defaultSpacing)
+  }
+  
+  private func aiRecommendationSection() -> some View {
+    AIRecommendedScheduleView(
+      defaultFontSize: defaultFontSize,
+      supplementSummary: addSupplementVM.supplemtSummary,
+      lifestyle: lifestyleTimeVM.userlifeStyle,
+      supplement: $supplement
+    )
   }
   
   private func memoSection() -> some View {
