@@ -80,7 +80,7 @@ final class OnboardingUnitTest: XCTestCase {
   }
 
   /// 유저가 남성일 경우 회원가입 완료 후 유저상태에서 여성관련 옵션들이 존재하면 안된다
-  func test_userIsMan_noWomanOptionFound() async throws {
+  func test_selsectionSet_noWomanOptionFound() async throws {
     // given
     // sut의 프로퍼티는 MainActor에서 수정하는 것이 안전합니다.
     await MainActor.run {
