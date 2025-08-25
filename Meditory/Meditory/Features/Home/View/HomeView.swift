@@ -45,7 +45,7 @@ struct HomeView: View {
 }
 
 private struct AchievementSection: View {
-  @ObservedObject var vm: HomeViewModel
+  @Bindable var vm: HomeViewModel
   @Binding var selectedDate: Date
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.horizontalSizeClass) private var hSize
@@ -128,7 +128,7 @@ private struct AchievementSection: View {
   // ViewModel에서 이미 정렬되었으므로, items를 직접 사용합니다.
  private func intakeColumn() -> some View {
     VStack(alignment: .leading, spacing: .smallSpacing) {
-      ForEach(vm.items) { item in
+      ForEach(vm.intakeItems) { item in
         HStack(alignment: .center, spacing: .defaultSpacing) {
           Button {
             // toggleCompleted 호출을 Task로 감싸고, item을 직접 전달합니다. (develop 기준)
