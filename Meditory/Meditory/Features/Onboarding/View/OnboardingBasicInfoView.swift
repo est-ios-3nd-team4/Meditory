@@ -22,7 +22,8 @@ struct OnboardingBasicInfoView: View {
           }
           VStack(spacing: .defaultSpacing) {
             TextInputView(
-              placeholder: "이름",
+              title: "이름",
+              placeholder: "홍길동",
               inputText: vm.binding(for: .name),
               needValidation: true,
               validator: { vm.isValid(for: .name) },
@@ -33,7 +34,8 @@ struct OnboardingBasicInfoView: View {
             .id(FormField.name)
             .focused(focusedField, equals: .name)
             TextInputView(
-              placeholder: "출생년도",
+              title: "출생년도",
+              placeholder: "2000",
               unit: "년",
               keyboardType: .decimalPad,
               inputText: vm.binding(for: .birthDate),
@@ -46,7 +48,8 @@ struct OnboardingBasicInfoView: View {
             .id(FormField.birthDate)
             .focused(focusedField, equals: .birthDate)
             TextInputView(
-              placeholder: "키",
+              title: "키",
+              placeholder: "170",
               unit: "cm",
               keyboardType: .decimalPad,
               inputText: vm.binding(for: .height),
@@ -59,7 +62,8 @@ struct OnboardingBasicInfoView: View {
               focusedField.wrappedValue = .weight
             }
             TextInputView(
-              placeholder: "체중",
+              title: "체중",
+              placeholder: "80",
               unit: "kg",
               keyboardType: .decimalPad,
               inputText: vm.binding(for: .weight),
