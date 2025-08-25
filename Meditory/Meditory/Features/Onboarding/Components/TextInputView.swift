@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TextInputView: View {
   
+  let title: String
   let placeholder: String
   let unit: String?
   let keyboardType: UIKeyboardType
@@ -20,6 +21,7 @@ struct TextInputView: View {
   let onAction:(()->Void)?
   
   init(
+    title: String,
     placeholder: String,
     unit: String? = nil,
     keyboardType: UIKeyboardType = .default,
@@ -29,6 +31,7 @@ struct TextInputView: View {
     isValid: Binding<Bool?> = .constant(nil),
     onAction:(()->Void)? = nil
   ) {
+    self.title = title
     self.placeholder = placeholder
     self.unit = unit
     self.keyboardType = keyboardType
@@ -42,11 +45,11 @@ struct TextInputView: View {
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
-        Text(placeholder)
+        Text(title)
           .foregroundStyle(.gray)
       }
       HStack {
-        NoQuickTypeTextField(text: $inputText, placeholder: "", keyboardType: keyboardType,onSubmit: {
+        NoQuickTypeTextField(text: $inputText, placeholder: placeholder, keyboardType: keyboardType,onSubmit: {
           onAction?()
         })
           .font(.notoSans(weight: .semiBold, size: 16))
@@ -79,9 +82,9 @@ struct TextInputView: View {
 }
 
 #Preview("Light") {
-  TextInputView(placeholder: "이름", unit: nil, inputText: .constant("Json"))
+  TextInputView(title: "이름",placeholder:"홍길동", unit: nil, inputText: .constant("Json"))
 }
 #Preview("Dark") {
-  TextInputView(placeholder: "이름", unit: nil, inputText: .constant("Json"))
+  TextInputView(title: "이름",placeholder:"홍길동", unit: nil, inputText: .constant("Json"))
     .preferredColorScheme(.dark)
 }
