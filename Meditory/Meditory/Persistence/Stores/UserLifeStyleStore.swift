@@ -26,7 +26,15 @@ actor UserLifeStyleStore {
     }
     
     // 2. 없으면 새로 생성
-    guard let user = modelContext.model(for: userID) as? User else { return nil }
+    // --- [핵심 수정 사항] ---
+    // model(for:) 대신 FetchDescriptor를 사용해 User를 명시적으로 조회합니다.
+    // 이는 테스트 환경에서 다른 context가 생성한 객체를 더 안정적으로 가져오는 방법입니다.
+    let userDescriptor = FetchDescriptor<User>(predicate: #Predicate { $0.persistentModelID == userID })
+    guard let user = (try? modelContext.fetch(userDescriptor))?.first else {
+      // userID에 해당하는 User가 없으면 nil을 반환합니다.
+      return nil
+    }
+    // --------------------
     
     let newLifestyle = UserLifeStyle(
       user: user,
@@ -36,8 +44,16 @@ actor UserLifeStyleStore {
       lunch: "12:30",
       dinner: "19:30"
     )
+    
     modelContext.insert(newLifestyle)
-    try? modelContext.save()
+    
+    do {
+      try modelContext.save()
+    } catch {
+      // 저장 실패 시 오류를 출력하여 디버깅을 돕습니다.
+      print("Failed to save new lifestyle: \(error)")
+      return nil
+    }
     
     return newLifestyle.persistentModelID
   }

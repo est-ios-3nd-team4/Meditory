@@ -62,8 +62,9 @@ actor RoutineStore {
   /// 새로운 RoutineTime 객체를 생성하여 특정 Routine에 추가합니다.
   func createRoutineTime(time: Date, pillsPerDose: Int, forRoutineID routineID: PersistentIdentifier) {
     guard let routine = modelContext.model(for: routineID) as? Routine else { return }
-    
+
     let newRoutineTime = RoutineTime(time: time, pillsPerDose: pillsPerDose, routine: routine)
+    routine.routineTimes.append(newRoutineTime)
     modelContext.insert(newRoutineTime)
     try? modelContext.save()
   }
