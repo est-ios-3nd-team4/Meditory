@@ -73,6 +73,7 @@ struct AddSupplementView: View {
   @State private var showTimePicker = false
   @State private var isSearchingSupplementSummary = false
   @State private var showAlert = false
+  @State private var isSaving = false
   
   // Constants
   private let defaultFontSize: CGFloat = 18
@@ -637,6 +638,9 @@ extension AddSupplementView {
   }
 
   private func saveRoutine() {
+    guard !isSaving else { return }
+    isSaving = true
+    
     Task {
       do {
         try await lifestyleTimeVM.saveLifestyle()
@@ -663,5 +667,6 @@ extension AddSupplementView {
   private func showAlert(_ error: RoutineSaveError) {
     routineSaveError = error
     showAlert = true
+    isSaving = false
   }
 }
