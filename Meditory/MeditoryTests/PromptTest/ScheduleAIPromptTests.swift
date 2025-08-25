@@ -62,7 +62,7 @@ final class ScheduleAIPromptTests: XCTestCase {
     user.userStatuses.append(UserStatus(statusType: "임신", startDate: .now, endDate: .now, user: user))
     user.userStatuses.append(UserStatus(statusType: "수유", startDate: .now, endDate: .now, user: user))
     
-    await userStore.addUser(user)
+    _ = await userStore.addUser(user)
     
     // 2. Routine 정보 저장 (새로운 createRoutine 메서드 사용)
     for mockRoutine in DummyData.mockRoutines_AllCases {
