@@ -12,4 +12,46 @@ extension View {
     self
       .modifier(CardStyle(padding: padding, cornerRadius: cornerRadius))
   }
+  
+  func navigationBar(
+    _ title: NavigationTitle,
+    isAtTop: Bool? = nil,
+    _ onBackTap: (() -> Void)? = nil
+  ) -> some View {
+    self
+      .applyIf(isAtTop != nil) {
+        $0.coordinateSpace(CoordinateSpaceName.scroll.coordinateSpace)
+      }
+      .safeAreaInset(edge: .top) {
+        PrimaryNavigationBar(
+          title: title,
+          isAtTop: isAtTop,
+          onBackTap: onBackTap
+        )
+      }
+  }
+  
+  @ViewBuilder
+  func applyIf<M: ViewModifier>(
+    _ condition: Bool,
+    modifier: M
+  ) -> some View {
+    if condition {
+      self.modifier(modifier)
+    } else {
+      self
+    }
+  }
+  
+  @ViewBuilder
+  func applyIf<Content: View>(
+    _ condition: Bool,
+    @ViewBuilder transform: (Self) -> Content
+  ) -> some View {
+    if condition {
+      transform(self)
+    } else {
+      self
+    }
+  }
 }
