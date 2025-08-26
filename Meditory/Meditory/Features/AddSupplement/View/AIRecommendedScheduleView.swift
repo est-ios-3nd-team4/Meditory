@@ -193,9 +193,8 @@ struct AIRecommendedScheduleView: View {
         .modifier(UnifiedShadow())
     )
     .onChange(of: lifestyle) { oldValue, newValue in
-      if oldValue != newValue {
-        isLifestyleUpdated = true
-      }
+      guard oldValue != newValue, isLifestyleUpdated == false else { return }
+      isLifestyleUpdated = true
     }
   }
 }
