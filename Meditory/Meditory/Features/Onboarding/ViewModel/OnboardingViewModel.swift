@@ -17,7 +17,18 @@ class OnboardingViewModel {
   var age: String = ""
   var height: Double = 0.0
   var weight: Double = 0.0
-  var gender = ""
+  // gender 값이 변경될 때를 감지하여 연관 데이터를 처리합니다.
+  var gender = "" {
+    didSet {
+      // 성별이 '남성'으로 변경되면, 여성 관련 선택 항목(임신, 수유)을 제거합니다.
+      if gender == "남성" { // Gender.male.title에 해당
+        selectionSet = selectionSet.filter { item in
+          // "임신 중" 또는 "수유 중"이 아닌 항목만 남깁니다.
+          return item.title != "임신 중" && item.title != "수유 중"
+        }
+      }
+    }
+  }
   var errorMessage:[ValidationField:String] = [:]
   var selectionSet: Set<QuestionModel> = []
   var isValid: Bool? = false
@@ -30,11 +41,112 @@ class OnboardingViewModel {
 
   private var validateTasks: [ValidationField: Task<Void, Never>] = [:]
 
-  
   init(userStore: UserStore) {
     self.userStore = userStore
+    
   }
-
+  
+  // MARK: - (2) 기존 사용자 정보를 불러오는 함수 (신규)
+  func fetchCurrentUser() async {
+    await userStore.loadUser()
+    
+    guard let currentUser = try? await userStore.currentUser() else {
+      print("Error: 현재 사용자 정보를 불러오는데 실패했습니다.")
+      return
+    }
+    
+    // --- 기본 정보 채우기 ---
+    self.name = currentUser.name
+    self.birthDate = currentUser.birthDate
+    self.gender = currentUser.gender
+    
+    updateContent(.name, context: currentUser.name)
+    let yearString = Calendar.current.component(.year, from: currentUser.birthDate).description
+    updateContent(.birthDate, context: yearString)
+    
+    // --- 프로필 정보 (키/체중) 채우기 ---
+    if let profile = currentUser.currentProfile {
+      self.height = profile.height ?? 0.0
+      self.weight = profile.weight ?? 0.0
+      updateContent(.height, context: String(self.height))
+      updateContent(.weight, context: String(self.weight))
+    }
+    
+    // --- 추가 정보 (알러지, 질병, 관심사, 상태) 채우기 ---
+    var selections = Set<QuestionModel>()
+    if let extraInfo = currentUser.userExtraInfos.first {
+      // MARK: - 수정된 부분: 모든 항목을 정적 모델과 비교하여 로드
+      
+      // Allergy
+      let savedAllergyCodes = Set(extraInfo.allergy.map { $0.key })
+      for model in QuestionModel.allergyModel {
+        if savedAllergyCodes.contains(model.code) {
+          selections.insert(model)
+        }
+      }
+      
+      // Disease (QuestionModel.diseaseModel이 있다고 가정)
+      let savedDiseaseCodes = Set(extraInfo.disease.map { $0.key })
+      for model in QuestionModel.diseaseModel {
+        if savedDiseaseCodes.contains(model.code) {
+          selections.insert(model)
+        }
+      }
+      
+      // Concern (QuestionModel.concernModel이 있다고 가정)
+      let savedConcernCodes = Set(extraInfo.concern.map { $0.key })
+      for model in QuestionModel.concernModel {
+        if savedConcernCodes.contains(model.code) {
+          selections.insert(model)
+        }
+      }
+    }
+    
+    // Status
+    let savedStatusTitles = Set(currentUser.userStatuses.map { $0.statusType })
+    for model in QuestionModel.feminineModel {
+      if savedStatusTitles.contains(model.title) {
+        selections.insert(model)
+      }
+    }
+    
+    self.selectionSet = selections
+    
+    validateAllField()
+    
+    printLoadedUserData()
+  }
+  
+  // MARK: - (3) 사용자 정보를 업데이트하는 함수 (구현)
+  func updateUser() async {
+    // selectionSet을 각 타입에 맞게 배열로 변환합니다.
+    let allergies = selectionSet.filter { $0.type == .allergy }.map {
+      ExtraInfo(key: $0.code, value: $0.title, type: .allergy)
+    }
+    let diseases = selectionSet.filter { $0.type == .disease }.map {
+      ExtraInfo(key: $0.code, value: $0.title, type: .disease)
+    }
+    let concerns = selectionSet.filter { $0.type == .concern }.map {
+      ExtraInfo(key: $0.code, value: $0.title, type: .concern)
+    }
+    // .etc 타입(임신중 등)을 필터링하여 문자열 배열로 만듭니다.
+    let statuses = selectionSet.filter { $0.type == .etc }.map { $0.title }
+    
+    // UserStore에 있는 단일 업데이트 함수를 호출합니다.
+    await userStore.updateAllUserInfo(
+      name: self.name,
+      displayName: self.name,
+      birthDate: self.birthDate,
+      gender: self.gender,
+      height: self.height,
+      weight: self.weight,
+      allergies: allergies,
+      diseases: diseases,
+      concerns: concerns,
+      statuses: statuses // 새로 추가된 파라미터 전달
+    )
+  }
+  
   var fieldStates: [ValidationField: ValidationState] = {
     var state: [ValidationField: ValidationState] = [:]
     ValidationField.allCases.forEach { state[$0] = ValidationState() }
@@ -192,5 +304,29 @@ class OnboardingViewModel {
     for item in selectionSet {
       print(item.title)
     }
+  }
+  
+  // MARK: - 디버깅용 함수
+  /// fetchCurrentUser 직후 ViewModel의 상태를 출력하는 함수
+  private func printLoadedUserData() {
+    print("\n---------- 🕵️‍♂️ 데이터 로딩 직후 ViewModel 상태 🕵️‍♂️ ----------")
+    print("👤 이름: \(self.name)")
+    print("🎂 생년월일: \(self.birthDate)")
+    print("🚻 성별: \(self.gender)")
+    print("📏 키: \(self.height)")
+    print("⚖️ 몸무게: \(self.weight)")
+    
+    if self.selectionSet.isEmpty {
+      print("🤔 선택 항목(알레르기, 질병 등): 없음")
+    } else {
+      print("🤔 선택 항목(알레르기, 질병 등):")
+      // 타입별로 그룹화해서 보여주기
+      let grouped = Dictionary(grouping: self.selectionSet, by: { $0.type })
+      for (type, items) in grouped.sorted(by: { $0.key.rawValue < $1.key.rawValue }) {
+        let titles = items.map { $0.title }.joined(separator: ", ")
+        print("  - \(type.rawValue): \(titles)")
+      }
+    }
+    print("--------------------------------------------------------\n")
   }
 }

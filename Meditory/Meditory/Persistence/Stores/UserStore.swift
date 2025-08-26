@@ -154,25 +154,83 @@ actor UserStore {
     try? modelContext.save()
   }
   
-  //TODO: 이 방식을 지울거면 지우고 남길거면 남기고 확실히 해야함. 현재는 주석처리안하면 실행 안됨.
-  /// ExtraInfo 변경을 대비해서 ExtraInfo의 모든 데이터 삭제, 새로insert 하는 함수
-//  func resetExtraInfos() {
-//    // 1. 기존 ExtraInfo 삭제
-//    let fetch = FetchDescriptor<ExtraInfo>()
-//    if let all = try? modelContext.fetch(fetch) {
-//      for info in all {
-//        modelContext.delete(info)
-//      }
-//    }
-//    // 2. 새로운 객체를 생성해서 insert
-//    for info in allInitialExtraInfos {
-//      let newInfo = ExtraInfo(key: info.key, value: info.value, type: info.type)
-//      modelContext.insert(newInfo)
-//    }
-//    try? modelContext.save()
-//  }
   
-  
+  // MARK: - Update (정보 수정용 함수)
+  /// 현재 사용자의 모든 정보를 한 번에 업데이트하고 저장하는 함수
+  func updateAllUserInfo(
+    name: String,
+    displayName: String,
+    birthDate: Date,
+    gender: String,
+    height: Double,
+    weight: Double,
+    allergies: [ExtraInfo],
+    diseases: [ExtraInfo],
+    concerns: [ExtraInfo],
+    statuses: [String] // "임신중" 같은 상태 문자열 배열
+  ) {
+    guard let user = try? currentUser() else {
+      print("Update failed: Could not find current user.")
+      return
+    }
+    
+    // 1. User 기본 정보 업데이트
+    user.name = name
+    user.displayName = displayName
+    user.birthDate = birthDate
+    user.gender = gender
+    
+    // 2. 새로운 UserProfile 기록 추가 (기존 기록은 보존)
+    let newProfile = UserProfile(height: height, weight: weight, user: user)
+    modelContext.insert(newProfile)
+    
+    // 3. UserExtraInfo 업데이트 (명시적 삭제 및 추가)
+    if let existingInfo = user.userExtraInfos.first {
+      // 기존 데이터를 임시 변수에 복사한 뒤, 관계 배열을 비웁니다.
+      let oldAllergies = existingInfo.allergy
+      let oldDiseases = existingInfo.disease
+      let oldConcerns = existingInfo.concern
+      existingInfo.allergy = []
+      existingInfo.disease = []
+      existingInfo.concern = []
+      
+      // 복사본을 순회하며 안전하게 삭제합니다.
+      oldAllergies.forEach { modelContext.delete($0) }
+      oldDiseases.forEach { modelContext.delete($0) }
+      oldConcerns.forEach { modelContext.delete($0) }
+      
+      // 새로운 ExtraInfo 객체들을 관계에 할당합니다.
+      existingInfo.allergy = allergies
+      existingInfo.disease = diseases
+      existingInfo.concern = concerns
+    } else {
+      // UserExtraInfo가 아예 없었다면 새로 만듭니다.
+      let newExtraInfo = UserExtraInfo(disease: diseases, allergy: allergies, concern: concerns, user: user)
+      modelContext.insert(newExtraInfo)
+    }
+    
+    // 4. UserStatus 업데이트 (명시적 삭제 및 추가)
+    // 기존 상태들을 임시 변수에 복사한 뒤, 관계 배열을 비웁니다.
+    let oldStatuses = user.userStatuses
+    user.userStatuses = []
+    
+    // 복사본을 순회하며 안전하게 삭제합니다.
+    oldStatuses.forEach { modelContext.delete($0) }
+    
+    // 새로운 상태들을 생성하고 관계에 추가합니다.
+    user.userStatuses = statuses.map { statusTitle in
+      let newStatus = UserStatus(statusType: statusTitle, user: user)
+      return newStatus
+    }
+    
+    // 5. 모든 변경사항을 마지막에 한 번만 저장합니다.
+    do {
+      try modelContext.save()
+      print("✅ All user info updated and saved successfully.")
+    } catch {
+      print("🚨 CRITICAL: Failed to save all user info. Error: \(error)")
+    }
+  }
   
   
   // MARK: - 테스트용 메서드

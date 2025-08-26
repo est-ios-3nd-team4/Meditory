@@ -4,9 +4,13 @@ struct SettingSubView: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.dismiss) private var dismiss
   
+  // OnboardingView에 전달하기 위해 userStore를 가져옵니다.
+  @Environment(\.userStore) private var userStore
+  
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
-      NavigationLink(destination: Color.red) {
+      // MARK: - OnboardingView를 수정 모드로 호출
+      NavigationLink(destination: OnboardingView(userStore: userStore, startAt: .base, isEditing: true)) {
         settingSubItem {
           Text("기본 정보")
             .font(.notoSans(size: 18))
@@ -14,7 +18,7 @@ struct SettingSubView: View {
         }
       }
       
-      NavigationLink(destination: Color.red) {
+      NavigationLink(destination: OnboardingView(userStore: userStore, startAt: .gender, isEditing: true)) {
         settingSubItem {
           Text("성별")
             .font(.notoSans(size: 18))
@@ -22,7 +26,7 @@ struct SettingSubView: View {
         }
       }
       
-      NavigationLink(destination: Color.red) {
+      NavigationLink(destination: OnboardingView(userStore: userStore, startAt: .allergy, isEditing: true)) {
         settingSubItem {
           Text("알레르기")
             .font(.notoSans(size: 18))
@@ -30,7 +34,7 @@ struct SettingSubView: View {
         }
       }
       
-      NavigationLink(destination: Color.red) {
+      NavigationLink(destination: OnboardingView(userStore: userStore, startAt: .disease, isEditing: true)) {
         settingSubItem {
           Text("질병")
             .font(.notoSans(size: 18))
@@ -38,7 +42,7 @@ struct SettingSubView: View {
         }
       }
       
-      NavigationLink(destination: Color.red) {
+      NavigationLink(destination: OnboardingView(userStore: userStore, startAt: .concern, isEditing: true)) {
         settingSubItem {
           Text("건강 관심사")
             .font(.notoSans(size: 18))
@@ -46,7 +50,12 @@ struct SettingSubView: View {
         }
       }
       
-      NavigationLink(destination: Color.red) {
+      // '초기화'는 화면 이동이 아닌 동작이므로 Button으로 구현하는 것이 좋습니다.
+      Button(action: {
+        // TODO: 여기에 사용자 정보 초기화 로직을 구현해야 합니다.
+        // 예: userStore.deleteAllUsers() 등
+        print("초기화 버튼 탭됨")
+      }) {
         settingSubItem {
           Text("초기화")
             .font(.notoSans(size: 18))
@@ -55,7 +64,8 @@ struct SettingSubView: View {
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-    .navigationBar(.none)
+    .navigationTitle("내 정보 ∙ 건강 정보 관리")
+    .navigationBarTitleDisplayMode(.inline)
   }
   
   
@@ -83,5 +93,8 @@ struct SettingSubView: View {
 }
 
 #Preview {
-  SettingSubView()
+  NavigationStack {
+    SettingSubView()
+      .environment(\.userStore, UserStore.shared)
+  }
 }

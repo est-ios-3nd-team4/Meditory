@@ -9,10 +9,10 @@ final class User: Sendable {
   var gender: String
   var displayName: String
   
-  @Relationship var userProfiles: [UserProfile] = []
-  @Relationship var userStatuses: [UserStatus] = []
-  @Relationship var userExtraInfos: [UserExtraInfo] = []
-  @Relationship var userLifeStyle: UserLifeStyle?
+  @Relationship(deleteRule: .cascade) var userProfiles: [UserProfile] = []
+  @Relationship(deleteRule: .cascade) var userStatuses: [UserStatus] = []
+  @Relationship(deleteRule: .cascade) var userExtraInfos: [UserExtraInfo] = []
+  @Relationship(deleteRule: .cascade) var userLifeStyle: UserLifeStyle?
   
   var currentProfile: UserProfile? {
     userProfiles.sorted { $0.createdAt > $1.createdAt }.first
