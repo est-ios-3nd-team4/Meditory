@@ -64,9 +64,23 @@ class OnboardingViewModel {
   func validate(_ field: ValidationField) {
     guard var target = fieldStates[field] else { return }
     let content = target.content.trimmingCharacters(in: .whitespaces)
+    let isEmpty: Bool = {
+        switch field {
+        case .birthDate:
+          return content.filter(\.isNumber).isEmpty
+        default:
+          return content.isEmpty
+        }
+      }()
+      if isEmpty {
+        errorMessage[field] = nil
+        target.isValid = false
+        fieldStates[field] = target
+        return
+      }
     switch field {
     case .name:
-      if !content.isEmpty && content.count >= 2 {
+      if (2...20).contains(content.count) {
         errorMessage[field] = nil
         target.isValid = true
         name = target.content
