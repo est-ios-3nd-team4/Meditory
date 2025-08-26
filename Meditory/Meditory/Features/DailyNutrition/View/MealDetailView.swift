@@ -11,54 +11,55 @@ struct MealDetailView: View {
   @StateObject private var navigationManager = FoodNavigationManager()
   @Environment(\.dismiss) var dismiss
   @EnvironmentObject var viewModel: NutritionMainViewModel
+  @State private var mealName: String = ""
   
   var body: some View {
     VStack {
       FoodSearchTextFieldView(navigationManager: navigationManager)
-        .padding(.horizontal, 16)
       
       switch navigationManager.currentScreen {
       case .mealList:
-        AdvancedTopTabBarView()
+        AdvancedTopTabBarView(navigationManager: navigationManager)
       case .mealDetail:
         MealDetailMainView()
           .padding(.top, 30)
-      case .addMeal:
-        MealDetailMainView()
+      case .addFood:
+        FoodInputView()
       }
     }
     .navigationBarBackButtonHidden(true)
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
-      ToolbarItem(placement: .navigationBarLeading) {
+      ToolbarItem(placement: .topBarLeading) {
         Button {
           dismiss()
         } label: {
           Image(systemName: "chevron.left")
-            .foregroundStyle(.primary)
+            .foregroundStyle(.accent)
         }
       }
       
       ToolbarItem(placement: .principal) {
-        Text("아침 식단 요약")
+        Text("식단 요약")
           .font(.notoSans(weight: .bold, size: 20))
           .foregroundStyle(.primary)
       }
       
-      ToolbarItem(placement: .navigationBarTrailing) {
+      ToolbarItem(placement: .topBarTrailing) {
         Button {
           
         } label: {
           VStack {
-            Text("🍴")
+            Image(systemName: "pencil")
             
-            Text("직접 입력하기")
-              .font(.notoSans(weight: .medium, size: 15))
-              .foregroundStyle(.accent)
+            Text("식단 이름 수정")
+              .font(.notoSans(weight: .semiBold, size: 12))
           }
+          .foregroundStyle(.accent)
         }
       }
     }
+    .padding([.horizontal, .top], 16)
   }
 }
 

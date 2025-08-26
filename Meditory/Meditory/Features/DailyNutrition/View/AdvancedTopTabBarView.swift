@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct AdvancedTopTabBarView: View {
+  @ObservedObject var navigationManager: FoodNavigationManager
   @State private var selectedTab = 0
   @State private var tabFrames: [Int: CGRect] = [:]
   @State private var underlineWidth: CGFloat = 0
@@ -67,6 +68,22 @@ struct AdvancedTopTabBarView: View {
       
       Divider()
       
+      
+      Spacer()
+      
+      HStack {
+        Text("찾는 음식이 없나요?")
+          .font(.notoSans(weight: .semiBold, size: 18))
+        
+        Button {
+          navigationManager.navigateTo(.addFood)
+          
+        } label: {
+          Text("음식 직접 추가하기")
+            .font(.notoSans(weight: .bold, size: 19))
+            .foregroundStyle(.accent)
+        }
+      }
       Spacer()
     }
   }
@@ -81,5 +98,5 @@ struct TabPreferenceKey: PreferenceKey {
 }
 
 #Preview {
-    AdvancedTopTabBarView()
+  AdvancedTopTabBarView(navigationManager: FoodNavigationManager())
 }

@@ -21,31 +21,25 @@ struct FoodSearchTextFieldView: View {
           .clipShape(RoundedRectangle(cornerRadius: 20))
         
         HStack {
-          ZStack(alignment: .leading) {
-            
-            TextField("아침에 먹은 음식을 추가해주세요.", text: $searchText)
-              .focused($isTextFieldFocused)
-              .overlay {
-                HStack {
-                  Spacer()
-                  
-                  Image(systemName: "magnifyingglass")
-                    .frame(width: 20, height: 20)
-                    .foregroundStyle(.customCarbohydrate)
-                }
+          Image(systemName: navigationManager.isCurrentScreen(.addFood) ? "fork.knife" : "magnifyingglass")
+            .frame(width: 20, height: 20)
+            .foregroundStyle(.customCarbohydrate)
+          
+          Spacer()
+          
+          TextField("음식 이름을 입력해주세요.", text: $searchText)
+            .focused($isTextFieldFocused)
+            .onChange(of: isTextFieldFocused) { _, newValue in
+              if newValue && !navigationManager.isCurrentScreen(.addFood) {
+                navigationManager.navigateTo(.mealList)
+                print("change mealList \(navigationManager.currentScreen)")
               }
-              .onChange(of: isTextFieldFocused) { _, newValue in
-                if newValue {
-                  navigationManager.navigateTo(.mealList)
-                  print("change mealList \(navigationManager.currentScreen)")
-                }
-              }
-          }
+            }
         }
         .padding(.horizontal, 16)
       }
       
-      if navigationManager.isCurrentScreen(.mealList) {
+      if !navigationManager.isCurrentScreen(.mealDetail) {
         Button {
           navigationManager.navigateTo(.mealDetail)
           isTextFieldFocused = false

@@ -70,7 +70,7 @@ extension NutritionHomeView {
           Image(systemName: "chevron.right")
         }
         .font(.notoSans(weight: .medium, size: 17))
-        .foregroundColor(.white)
+        .foregroundStyle(.white)
         .padding(.horizontal, 16)
       }
   }
