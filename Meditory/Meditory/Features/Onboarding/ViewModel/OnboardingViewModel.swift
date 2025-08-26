@@ -18,6 +18,7 @@ class OnboardingViewModel {
   var height: Double = 0.0
   var weight: Double = 0.0
   var gender = ""
+  var errorMessage:[ValidationField:String] = [:]
   var selectionSet: Set<QuestionModel> = []
   var isValid: Bool? = false
   var birthDate: Date = Date.now
@@ -56,8 +57,12 @@ class OnboardingViewModel {
     switch field {
     case .name:
       if !content.isEmpty && content.count >= 2 {
+        errorMessage[field] = nil
         target.isValid = true
         name = target.content
+      } else {
+        errorMessage[field] = "이름을 입력해주세요."
+        target.isValid = false
       }
     case .birthDate:
       let currentYear = Calendar.current.component(.year, from: .now)
@@ -65,26 +70,45 @@ class OnboardingViewModel {
         (1900...currentYear).contains(year),
         let birthYear = Date().dateFromYearString(yearString: String(year))
       else {
+        errorMessage[field] = "올바른 출생년도를 입력해주세요."
+        target.isValid = false
         return
       }
+      errorMessage[field] = nil
       self.birthDate = birthYear
       target.isValid = true
+      
     case .height:
       if let height = Double(target.content), (60...250).contains(height) {
+        errorMessage[field] = nil
         target.isValid = true
         self.height = height
+      } else {
+        errorMessage[field] = "키는 60cm에서 250cm사이여야 합니다."
+        target.isValid = false
       }
     case .weight:
       if let weight = Double(target.content), (20...300).contains(weight) {
+        errorMessage[field] = nil
         target.isValid = true
         self.weight = weight
+      } else {
+        errorMessage[field] = "몸무게는 20kg에서 300kg사이여야합니다."
+        target.isValid = false
       }
     }
     fieldStates[field] = target
   }
 
-  func validateAllField() {
-    ValidationField.allCases.forEach { validate($0) }
+  func validateAllField() -> [ValidationField] {
+    var invalidFields:[ValidationField] = []
+    ValidationField.allCases.forEach {
+      validate($0)
+      if !(fieldStates[$0]?.isValid ?? false){
+        invalidFields.append($0)
+      }
+    }
+    return invalidFields
   }
 
   func binding(for field: ValidationField) -> Binding<String> {
@@ -100,16 +124,13 @@ class OnboardingViewModel {
   }
 
   func signUp() async throws {
-    // UserStore가 @ModelActor이므로, context를 전달할 필요가 없습니다.
-    await userStore.addUser(User(name: name, birthDate: birthDate, gender: gender, displayName: ""))
+    let _ = await userStore.addUser(User(name: name, birthDate: birthDate, gender: gender, displayName: ""))
     await userStore.loadUser()
 
     guard let currentUser = try? await userStore.currentUser() else {
-      // 유저 생성 실패 시 처리
       return
     }
 
-    // addUserProfile은 throws 함수가 아니므로 try를 제거합니다.
     await userStore.addUserProfile(UserProfile(height: height, weight: weight, user: currentUser))
 
     for item in selectionSet {
@@ -118,7 +139,6 @@ class OnboardingViewModel {
       }
     }
 
-    // ExtraInfo(from:) 대신 직접 초기화합니다.
     let diseases = selectionSet.filter { $0.type == .disease }.map {
       ExtraInfo(key: $0.code, value: $0.title, type: $0.type)
     }

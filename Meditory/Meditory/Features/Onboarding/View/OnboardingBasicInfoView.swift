@@ -7,8 +7,6 @@
 import SwiftUI
 
 struct OnboardingBasicInfoView: View {
-  // @ObservedObject를 제거하고 일반 var로 변경
-  // @Observable ViewModel은 상위 View(@State)에서 자식 View(var)로 전달됨
   var vm: OnboardingViewModel
   let focusedField: FocusState<FormField?>.Binding
   let bottomSpacing: CGFloat
@@ -27,9 +25,10 @@ struct OnboardingBasicInfoView: View {
               inputText: vm.binding(for: .name),
               needValidation: true,
               validator: { vm.isValid(for: .name) },
+              errorMessage: vm.errorMessage[.name],
               onAction:{
                 focusedField.wrappedValue = .birthDate
-              }
+              },
             )
             .id(FormField.name)
             .focused(focusedField, equals: .name)
@@ -41,6 +40,7 @@ struct OnboardingBasicInfoView: View {
               inputText: vm.binding(for: .birthDate),
               needValidation: true,
               validator: { vm.isValid(for: .birthDate) },
+              errorMessage: vm.errorMessage[.birthDate],
             )
             .onChange(of: vm.birthDate, { 
               focusedField.wrappedValue = .height
@@ -55,6 +55,7 @@ struct OnboardingBasicInfoView: View {
               inputText: vm.binding(for: .height),
               needValidation: true,
               validator: { vm.isValid(for: .height) },
+              errorMessage: vm.errorMessage[.height],
             )
             .id(FormField.height)
             .focused(focusedField, equals: .height)
@@ -68,7 +69,8 @@ struct OnboardingBasicInfoView: View {
               keyboardType: .decimalPad,
               inputText: vm.binding(for: .weight),
               needValidation: true,
-              validator: { vm.isValid(for: .weight) }
+              validator: { vm.isValid(for: .weight) },
+              errorMessage: vm.errorMessage[.weight],
             )
             .id(FormField.weight)
             .focused(focusedField, equals: .weight)
