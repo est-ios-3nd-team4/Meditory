@@ -29,12 +29,18 @@ final class HomeViewModel {
 
   /// IntakeItem 토글 처리 (비동기 함수로 변경)
   @MainActor
-  func toggleCompleted(at index: Int, for date: Date) async {
-    await HomeRoutineManager.shared.toggleIntake(intakeItems[index])
-    await loadIntake(on: date) // 데이터를 다시 로드
-    await refreshTodayCompletion(on: date) // 달력 UI 갱신
+  func toggleCompleted(_ item: IntakeItem, for date: Date) async {
+    await HomeRoutineManager.shared.toggleIntake(item)
+    await loadIntake(on: date)
+    await refreshTodayCompletion(on: date)
   }
-
+  
+  @MainActor
+  func toggleCompleted(at index: Int, for date: Date) async {
+    guard intakeItems.indices.contains(index) else { return }
+    let item = intakeItems[index]
+    await toggleCompleted(item, for: date)
+  }
   /// 월간 달력의 완료 상태를 비동기로 다시 로드
   @MainActor
   func reloadDayCompletions(for baseDate: Date) async {
