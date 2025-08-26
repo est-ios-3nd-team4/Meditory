@@ -13,15 +13,16 @@ struct MealDetailView: View {
   @EnvironmentObject var viewModel: NutritionMainViewModel
   
   var body: some View {
-    VStack(spacing: 50) {
+    VStack {
       FoodSearchTextFieldView(navigationManager: navigationManager)
         .padding(.horizontal, 16)
       
       switch navigationManager.currentScreen {
       case .mealList:
-        FoodListView()
+        AdvancedTopTabBarView()
       case .mealDetail:
         detailMainView()
+          .padding(.top, 30)
       case .addMeal:
         detailMainView()
       }
@@ -35,14 +36,14 @@ struct MealDetailView: View {
           dismiss()
         } label: {
           Image(systemName: "chevron.left")
-            .foregroundStyle(.black)
+            .foregroundStyle(.primary)
         }
       }
       
       ToolbarItem(placement: .principal) {
         Text("아침 식단 요약")
           .font(.notoSans(weight: .bold, size: 20))
-          .foregroundStyle(.black)
+          .foregroundStyle(.primary)
       }
     } 
   }

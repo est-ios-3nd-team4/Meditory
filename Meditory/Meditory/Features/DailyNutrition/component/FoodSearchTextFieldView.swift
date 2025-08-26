@@ -19,7 +19,6 @@ struct FoodSearchTextFieldView: View {
         Rectangle()
           .fill(.customTextField)
           .clipShape(RoundedRectangle(cornerRadius: 20))
-          .frame(height: 50)
         
         HStack {
           ZStack(alignment: .leading) {
@@ -55,6 +54,7 @@ struct FoodSearchTextFieldView: View {
         }
       }
     }
+    .frame(height: 50)
   }
 }
 
