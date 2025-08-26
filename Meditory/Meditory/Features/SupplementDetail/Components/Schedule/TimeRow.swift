@@ -55,28 +55,3 @@ struct TimeRow: View {
     .padding(.vertical, .smallSpacing)
   }
 }
-#Preview("Mine") {
-  NavigationStack {
-    VStack(spacing: .defaultSpacing) {
-      SchedulePanel(
-        times: ["오전 8:00", "오후 8:00"],
-        cycle: "월·수·금",
-        pills: ["1정", "2정"]
-      )
-    }
-  }
-  .environment(\.locale, Locale(identifier: "ko_KR"))
-}
-
-#Preview("Mine-월요일만 있다면") {
-  NavigationStack {
-    VStack(spacing: .defaultSpacing) {
-      SchedulePanel(
-        times: ["오전 8:00", "오후 8:00"],
-        cycle: "월요일",
-        pills: ["2", "3"]
-      )
-    }
-  }
-  .environment(\.locale, Locale(identifier: "ko_KR"))
-}
