@@ -13,20 +13,32 @@ struct MainTabView: View {
   
   @State private var selectedTabItem: TabItem = .home
   @State private var showIntakeSelector = false
+  @State private var show11 = false
   @State private var selectedIntakeItem: AddIntakeItem?
   
   private let customTabTopInset: CGFloat = 18
   
   var body: some View {
-    NavigationStack {
-      ZStack {
-        if UIDevice.isPad {
-          mainTabPadView()
-        } else {
-          mainTabPhoneView()
-        }
-        
-        intakeDestinationView()
+    ZStack {
+      if UIDevice.isPad {
+        mainTabPadView()
+      } else {
+        mainTabPhoneView()
+      }
+    }
+    .fullScreenCover(
+      isPresented: Binding(
+        get: { selectedIntakeItem != nil && !showIntakeSelector },
+        set: { if !$0 { selectedIntakeItem = nil } }
+      )
+    ) {
+      switch selectedIntakeItem {
+      case .supplement?:
+        AddSupplementView(selectedIntakeItem: $selectedIntakeItem)
+      case .meal?:
+        EmptyView()
+      case nil:
+        EmptyView()
       }
     }
   }
@@ -36,7 +48,7 @@ struct MainTabView: View {
 extension MainTabView {
   private func mainTabPadView() -> some View {
     ZStack {
-      DefaultTabView()
+      DefaultTabView(selectedTabItem: $selectedTabItem)
       
       let insets = UIEdgeInsets(
         top: .zero,
@@ -45,68 +57,69 @@ extension MainTabView {
         right: .defaultSpacing * 2
       )
       
-      VStack(spacing: .zero) {
-        Spacer()
+      if selectedTabItem == .home {
+        VStack(spacing: .zero) {
+          Spacer()
+          
+          AddIntakeButton()
+            .onTapGesture {
+              showIntakeSelector = true
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .padding(.bottom, insets.bottom)
+        .padding(.trailing, insets.right)
         
-        AddIntakeButton()
-          .onTapGesture {
-            showIntakeSelector = true
-          }
-      }
-      .frame(maxWidth: .infinity, alignment: .trailing)
-      .padding(.bottom, insets.bottom)
-      .padding(.trailing, insets.right)
-      
-      if showIntakeSelector {
-        AddIntakeSelectorPadView(
-          insets: insets,
-          showIntakeSelector: $showIntakeSelector,
-          selectedIntakeItem: $selectedIntakeItem
-        )
+        if showIntakeSelector {
+          AddIntakeSelectorPadView(
+            insets: insets,
+            showIntakeSelector: $showIntakeSelector,
+            selectedIntakeItem: $selectedIntakeItem
+          )
+        }
       }
     }
   }
   
   private func mainTabPhoneView() -> some View {
-    GeometryReader { geometry in
-      let tabViewHeight = geometry.size.width * 0.26
-      ZStack {
-        Group {
-          switch selectedTabItem {
-          case .home:
-            HomeView()
-          case .recommend:
-            RecommendView()
-          case .dailyNutrition:
-            NutritionHomeView()
-          case .settings:
-            SettingView()
-          default:
-            Color.clear
+    ZStack {
+      let tabViewHeight: CGFloat = 104
+      
+      Group {
+        switch selectedTabItem {
+        case .home:
+          HomeView()
+        case .recommend:
+          RecommendView()
+        case .dailyNutrition:
+          NutritionHomeView()
+        case .settings:
+          SettingView()
+        default:
+          Color.clear
+        }
+      }
+      .padding(.bottom, tabViewHeight - customTabTopInset)
+      
+      VStack {
+        Spacer()
+        
+        CustomTabView(
+          selectedTab: $selectedTabItem,
+          topInset: customTabTopInset,
+          didTapAddButton: {
+            showIntakeSelector = true
           }
-        }
-        .padding(.bottom, tabViewHeight - customTabTopInset)
-        
-        VStack {
-          Spacer()
-          
-          CustomTabView(
-            selectedTab: $selectedTabItem,
-            topInset: customTabTopInset,
-            didTapAddButton: {
-              showIntakeSelector = true
-            }
-          )
-          .frame(height: tabViewHeight)
-        }
-        
-        if showIntakeSelector {
-          AddIntakeSelectorView(
-            tabHeight: tabViewHeight,
-            showIntakeSelector: $showIntakeSelector,
-            selectedIntakeItem: $selectedIntakeItem
-          )
-        }
+        )
+        .frame(height: tabViewHeight)
+      }
+      
+      if showIntakeSelector {
+        AddIntakeSelectorView(
+          tabHeight: tabViewHeight,
+          showIntakeSelector: $showIntakeSelector,
+          selectedIntakeItem: $selectedIntakeItem
+        )
       }
     }
     .ignoresSafeArea(edges: .bottom)
