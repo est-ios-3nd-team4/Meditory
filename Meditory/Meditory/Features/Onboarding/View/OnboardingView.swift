@@ -113,17 +113,16 @@ struct OnboardingView: View {
         title: currentStep != .concern ? "다음" : "완료",
         isEnabled: vm.isNextButtonOn
       ) {
-        if let next = currentStep.nextView() {
-          if currentStep == .base {
-            let invalidFields = vm.validateAllField()
-            if invalidFields.isEmpty {
-              currentStep = next
-            }
-          }
-        } else {
+        guard let next = currentStep.nextView() else {
           onFinished()
           signUp()
+          return
         }
+        if case .base = currentStep {
+          let invalidFields = vm.validateAllField()
+          guard invalidFields.isEmpty else { return }
+        }
+        currentStep = next
       }
       .disabled(!vm.isNextButtonOn)
       .padding(.vertical, buttonTopSpacing)

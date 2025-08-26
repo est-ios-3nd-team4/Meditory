@@ -28,6 +28,9 @@ class OnboardingViewModel {
 
   let userStore: UserStore
 
+  private var validateTasks: [ValidationField: Task<Void, Never>] = [:]
+
+  
   init(userStore: UserStore) {
     self.userStore = userStore
   }
@@ -41,22 +44,43 @@ class OnboardingViewModel {
   var isNextButtonOn: Bool {
     ValidationField.allCases.allSatisfy { fieldStates[$0]?.isValid == true }
   }
-
+  
   func updateContent(_ field: ValidationField, context: String) {
-    var state = fieldStates[field] ?? ValidationState()
-    state.content = context
-    Task { @MainActor in
+      var state = fieldStates[field] ?? ValidationState()
+      state.content = context
       fieldStates[field] = state
-      validate(field)
+
+      validateTasks[field]?.cancel()
+      validateTasks[field] = Task { [weak self] in
+        try? await Task.sleep(nanoseconds: 500_000_000)
+        guard !Task.isCancelled else { return }
+        await MainActor.run { [weak self] in
+          self?.validate(field)
+        }
+      }
     }
-  }
+  
 
   func validate(_ field: ValidationField) {
     guard var target = fieldStates[field] else { return }
     let content = target.content.trimmingCharacters(in: .whitespaces)
+    let isEmpty: Bool = {
+        switch field {
+        case .birthDate:
+          return content.filter(\.isNumber).isEmpty
+        default:
+          return content.isEmpty
+        }
+      }()
+      if isEmpty {
+        errorMessage[field] = nil
+        target.isValid = false
+        fieldStates[field] = target
+        return
+      }
     switch field {
     case .name:
-      if !content.isEmpty && content.count >= 2 {
+      if (2...20).contains(content.count) {
         errorMessage[field] = nil
         target.isValid = true
         name = target.content
@@ -70,7 +94,7 @@ class OnboardingViewModel {
         (1900...currentYear).contains(year),
         let birthYear = Date().dateFromYearString(yearString: String(year))
       else {
-        errorMessage[field] = "올바른 출생년도를 입력해주세요."
+        errorMessage[field] = "출생년도를 입력해주세요."
         target.isValid = false
         return
       }
@@ -93,7 +117,7 @@ class OnboardingViewModel {
         target.isValid = true
         self.weight = weight
       } else {
-        errorMessage[field] = "몸무게는 20kg에서 300kg사이여야합니다."
+        errorMessage[field] = "몸무게는 20kg에서 300kg사이여야 합니다."
         target.isValid = false
       }
     }
