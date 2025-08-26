@@ -8,7 +8,7 @@ struct SettingSubView: View {
     VStack(alignment: .leading, spacing: 16) {
       NavigationLink(destination: Color.red) {
         settingSubItem {
-          Text("이름")
+          Text("기본 정보")
             .font(.notoSans(size: 18))
             .foregroundColor(.primary)
         }
@@ -16,7 +16,7 @@ struct SettingSubView: View {
       
       NavigationLink(destination: Color.red) {
         settingSubItem {
-          Text("출생년도")
+          Text("성별")
             .font(.notoSans(size: 18))
             .foregroundColor(.primary)
         }
@@ -24,7 +24,7 @@ struct SettingSubView: View {
       
       NavigationLink(destination: Color.red) {
         settingSubItem {
-          Text("키 및 체중")
+          Text("알레르기")
             .font(.notoSans(size: 18))
             .foregroundColor(.primary)
         }
@@ -32,7 +32,15 @@ struct SettingSubView: View {
       
       NavigationLink(destination: Color.red) {
         settingSubItem {
-          Text("건강 상태 조사")
+          Text("질병")
+            .font(.notoSans(size: 18))
+            .foregroundColor(.primary)
+        }
+      }
+      
+      NavigationLink(destination: Color.red) {
+        settingSubItem {
+          Text("건강 관심사")
             .font(.notoSans(size: 18))
             .foregroundColor(.primary)
         }
