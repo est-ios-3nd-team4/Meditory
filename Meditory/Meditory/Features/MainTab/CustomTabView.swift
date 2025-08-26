@@ -12,9 +12,9 @@ struct CustomTabView: View {
   
   @Binding var selectedTab: TabItem
   var topInset: CGFloat
+  var didTapAddButton: () -> Void
   
   private let iconSize = CGSize(width: 22, height: 22)
-  private let addButtonSize = CGSize(width: 65, height: 65)
   private let cornerRadius: CGFloat = 15
   
   private var backgroundRectangle: some View {
@@ -40,14 +40,25 @@ struct CustomTabView: View {
           .padding(.top, topInset)
       }
       
-      HStack(spacing: itemSpacing()) {
-        ForEach(TabItem.allCases, id: \.self) { tab in
-          if tab.isAdd {
-            addTabItem(for: tab)
-          } else {
-            tabItem(for: tab)
-          }
+      let spacing = itemSpacing()
+      let adjustedSpacing = spacing - spacing * 0.13
+      
+      HStack(spacing: adjustedSpacing) {
+        HStack(spacing: spacing) {
+          tabItemRow(for: .home)
+          tabItemRow(for: .recommend)
         }
+        .padding(.top, 4)
+        .frame(maxWidth: .infinity, alignment: .trailing)
+      
+        addTabItem(for: .add)
+        
+        HStack(spacing: spacing) {
+          tabItemRow(for: .dailyNutrition)
+          tabItemRow(for: .settings)
+        }
+        .padding(.top, 4)
+        .frame(maxWidth: .infinity, alignment: .leading)
       }
     }
   }
@@ -55,8 +66,9 @@ struct CustomTabView: View {
   /// 탭 아이템 사이의 가로 간격을 계산합니다.
   private func itemSpacing() -> CGFloat {
     let viewWidth = UIScreen.main.bounds.width
-    let horizontalPadding: CGFloat = 18
+    let horizontalPadding: CGFloat = 20
     let itemCount = CGFloat(TabItem.allCases.count)
+    let addButtonSize = AddIntakeButton.size
     
     return (viewWidth - (iconSize.width * itemCount - 1) - addButtonSize.width - horizontalPadding) / itemCount
   }
@@ -67,33 +79,26 @@ struct CustomTabView: View {
 extension CustomTabView {
   private func addTabItem(for tab: TabItem) -> some View {
     VStack {
-      Circle()
-        .frame(width: addButtonSize.width, height: addButtonSize.height)
-        .foregroundStyle(.main)
-        .overlay {
-          Image(systemName: tab.iconImage)
-            .font(.system(size: 35, weight: .semibold))
-            .foregroundStyle(.white)
-        }
+      AddIntakeButton()
       
       Spacer()
     }
     .onTapGesture {
-      selectedTab = tab
+      didTapAddButton()
     }
   }
   
-  private func tabItem(for tab: TabItem) -> some View {
+  private func tabItemRow(for tab: TabItem) -> some View {
     let secondaryColor: Color = .init(red: 223, green: 223, blue: 223)
     let tintColor: Color = selectedTab == tab ? .main : secondaryColor
-
+    
     return VStack(spacing: 8) {
       (tab.isHome ? Image(tab.iconImage) : Image(systemName: tab.iconImage))
         .resizable()
         .scaledToFit()
         .frame(width: iconSize.width, height: iconSize.height)
         .foregroundStyle(tintColor)
-
+      
       Text(tab.title)
         .font(.notoSans(size: 11))
         .foregroundStyle(tintColor)
@@ -101,19 +106,5 @@ extension CustomTabView {
     .onTapGesture {
       selectedTab = tab
     }
-  }
-}
-
-#Preview {
-  GeometryReader { geometry in
-    let viewWidth = geometry.size.width
-    
-    VStack {
-      Spacer()
-      
-      CustomTabView(selectedTab: .constant(.home), topInset: 14)
-        .frame(width: viewWidth, height: viewWidth * 0.27)
-    }
-    .ignoresSafeArea()
   }
 }

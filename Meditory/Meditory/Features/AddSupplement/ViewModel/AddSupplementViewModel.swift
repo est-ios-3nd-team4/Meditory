@@ -8,17 +8,17 @@
 import Foundation
 import SwiftData
 
-class AddSupplementViewModel: ObservableObject {
+@Observable
+class AddSupplementViewModel {
   
-  @Published var weekdays: [Weekday: Bool] = Weekday.allCases.reduce(into: [:]) { $0[$1] = true }
-  @Published var startMonth: Int = Calendar.current.component(.month, from: .now)
-  @Published var startDay: Int = Calendar.current.component(.day, from: .now)
-  @Published var duration: Int = 1
-  @Published var doseSchedules = [SupplementDoseSchedule]()
-  @Published var memo: String = ""
-  @Published var supplemtSummary: SupplementSummary?
+  var weekdays: [Weekday: Bool] = Weekday.allCases.reduce(into: [:]) { $0[$1] = true }
+  var startMonth: Int = Calendar.current.component(.month, from: .now)
+  var startDay: Int = Calendar.current.component(.day, from: .now)
+  var duration: Int = 1
+  var doseSchedules = [SupplementDoseSchedule]()
+  var supplemtSummary: SupplementSummary?
 
-  private var context: ModelContext?
+  // context 프로퍼티는 더 이상 필요 없습니다.
   
   var weekdaysString: String {
     let selected = weekdays.filter({ $0.value == true })
@@ -28,10 +28,10 @@ class AddSupplementViewModel: ObservableObject {
     }
     
     return selected
-       .map { $0.key }
-       .sorted { $0.rawValue < $1.rawValue }
-       .map { $0.subTitle }
-       .joined(separator: ", ")
+      .map { $0.key }
+      .sorted { $0.rawValue < $1.rawValue }
+      .map { $0.subTitle }
+      .joined(separator: ", ")
   }
   
   init() {
@@ -80,9 +80,40 @@ class AddSupplementViewModel: ObservableObject {
 }
 
 
+// MARK: - DB
 extension AddSupplementViewModel {
-  func updateContext(_ context: ModelContext) {
-    self.context = context
+  @MainActor
+  func saveRoutine(
+    type: SupplementScheduleType,
+    supplement: SupplementDTO?,
+    memo: String
+  ) async throws {
+    guard let supplemtSummary = supplemtSummary else { throw RoutineSaveError.supplementSummaryNotFound }
+    var usage = supplemtSummary.usage
+    var precautions = supplemtSummary.precautions
+    var recommendedRoutineTimes: [RoutineTime] = []
+    
+    // AI 스케줄 데이터가 있을 경우 기본 제품 정보보다 우선적으로 사용함
+    if let supplement {
+      usage = supplement.usage
+      precautions = supplement.precautions
+      recommendedRoutineTimes = supplement.schedule.routineTimes
+    }
+        
+    _ = try await RoutineStore.shared.createRoutine(
+      type: supplemtSummary.type,
+      displayName: supplemtSummary.name,
+      desc: supplemtSummary.description,
+      category: supplemtSummary.category,
+      cycleType: type.rawValue,
+      cycleValue: type == .weekday ? weekdaysString : "\(duration)",
+      startDate: .makeDate(month: startMonth, day: startDay),
+      memo: memo,
+      usage: usage,
+      precautions: precautions,
+      routineTimes: doseSchedules.map { $0.routineTime },
+      recommendedRoutineTimes: recommendedRoutineTimes
+    )
   }
 }
 
@@ -92,7 +123,7 @@ extension AddSupplementViewModel {
   func request(productNameInput: String, nameSource: SupplementNameSource) async throws {
     print("✅ 요청", Date.now)
     
-    Task { @MainActor in
+    await MainActor.run {
       self.supplemtSummary = nil
     }
     
@@ -103,10 +134,10 @@ extension AddSupplementViewModel {
     
     let response = try await AlanAPIClient().request(content: prompt)
     
-    Task { @MainActor in
-      self.supplemtSummary = try JSONDecoder().decode(SupplementSummary.self, from: Data(response.utf8))
-      
-      print("✅ 응답", Date.now)
+    await MainActor.run {
+      self.supplemtSummary = try? JSONDecoder().decode(SupplementSummary.self, from: Data(response.utf8))
     }
+    
+    print("✅ 응답", Date.now)
   }
 }

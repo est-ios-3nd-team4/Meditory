@@ -6,24 +6,44 @@
 //
 
 import Foundation
+import SwiftData
 
-final class LifestyleTimeViewModel {
-  var wakeTime = Date.makeTime(hour: 7)
-  var sleepTime = Date.makeTime(hour: 11)
+@Observable
+class LifestyleTimeViewModel {
+  var wakeTime: Date?
+  var sleepTime: Date?
+  
+  var breakfastTime: Date?
+  var lunchTime: Date?
+  var dinnerTime: Date?
+  
+  private var lifestyleID: PersistentIdentifier?
+  private let lifestyleStore: UserLifeStyleStore
   
   var dailyCycleTimes: [Date] {
-    [wakeTime, sleepTime]
+    [
+      wakeTime ?? Date.makeTime(hour: 7),
+      sleepTime ?? Date.makeTime(hour: 23, minute: 30)
+    ]
   }
   
-  var breakfastTime: Date? = Date.makeTime(hour: 8, minute: 30)
-  var lunchTime: Date? = Date.makeTime(hour: 12, minute: 30)
-  var dinnerTime: Date? = Date.makeTime(hour: 18, minute: 30)
+  var userlifeStyle: UserLifeStyle? {
+    guard let wakeTime, let sleepTime else { return nil }
+    
+    return UserLifeStyle(
+      wakeTime: wakeTime.toHHmmString(),
+      sleepTime: sleepTime.toHHmmString(),
+      breakfast: breakfastTime?.toHHmmString(),
+      lunch: lunchTime?.toHHmmString(),
+      dinner: dinnerTime?.toHHmmString()
+    )
+  }
   
   var mealTimes: [Date] {
     [
       breakfastTime ?? Date.makeTime(hour: 8, minute: 30),
-     lunchTime ?? Date.makeTime(hour: 12, minute: 30),
-     dinnerTime ?? Date.makeTime(hour: 18, minute: 30)
+      lunchTime ?? Date.makeTime(hour: 12, minute: 00),
+      dinnerTime ?? Date.makeTime(hour: 19, minute: 00)
     ]
   }
   
@@ -33,6 +53,10 @@ final class LifestyleTimeViewModel {
       lunchTime != nil,
       dinnerTime != nil
     ]
+  }
+  
+  init(lifestyleStore: UserLifeStyleStore) {
+    self.lifestyleStore = lifestyleStore
   }
   
   func time(for type: MealType) -> String {
@@ -49,9 +73,9 @@ final class LifestyleTimeViewModel {
   func time(for type: DailyCycleType) -> String {
     switch type {
     case .wakeTime:
-      return wakeTime.timeFormatter
+      return wakeTime?.timeFormatter ?? ""
     case .sleepTime:
-      return sleepTime.timeFormatter
+      return sleepTime?.timeFormatter ?? ""
     }
   }
   
@@ -96,5 +120,56 @@ final class LifestyleTimeViewModel {
         }
       }
     }
+  }
+  
+  func lifestyleTimeItems(for type: LifestyleTimeType) -> [LifestyleTimeItem] {
+    switch type {
+    case .dailyCycle:
+      return DailyCycleType.allCases.map { type in
+        LifestyleTimeItem(
+          type: type,
+          time: time(for: type),
+        )
+      }
+    case .meal:
+      return MealType.allCases.map { type in
+        LifestyleTimeItem(
+          type: type,
+          time: time(for: type),
+        )
+      }
+    }
+  }
+}
+
+
+// MARK: - DB
+extension LifestyleTimeViewModel {
+  func loadLifestyle(for user: User, context: ModelContext) async {
+    let userID = user.persistentModelID
+    
+    guard let id = await lifestyleStore.fetchOrCreateLifestyleID(for: userID) else { return }
+    self.lifestyleID = id
+    
+    if let lifestyle = context.model(for: id) as? UserLifeStyle {
+      self.wakeTime = lifestyle.wakeTimeDate
+      self.sleepTime = lifestyle.sleepTimeDate
+      self.breakfastTime = lifestyle.breakfastDate
+      self.lunchTime = lifestyle.lunchDate
+      self.dinnerTime = lifestyle.dinnerDate
+    }
+  }
+  
+  func saveLifestyle() async throws {
+    guard let lifestyleID = self.lifestyleID else { return }
+    
+    try await lifestyleStore.setLifestyleTimesDate(
+      id: lifestyleID,
+      wakeTime: wakeTime,
+      sleepTime: sleepTime,
+      breakfast: breakfastTime,
+      lunch: lunchTime,
+      dinner: dinnerTime
+    )
   }
 }

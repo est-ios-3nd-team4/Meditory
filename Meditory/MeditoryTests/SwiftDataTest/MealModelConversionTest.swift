@@ -7,14 +7,14 @@ final class MealModelConversionTest: XCTestCase {
   var context: ModelContext!
   var store: MealStore!
   
-  override func setUpWithError() throws {
-    // 메모리 전용 컨테이너 (테스트 간 오염 방지)
-    let schema = Schema([Meal.self, Food.self, Macro.self])
-    // isStoredInMemoryOnly 만 명시 (버전별 시그니처 차이 방지)
+  // 테스트 설정도 비동기 작업을 포함하므로 async로 변경합니다.
+  override func setUp() async throws {
+    let schema = Schema([Meal.self, Food.self])
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     container = try ModelContainer(for: schema, configurations: [config])
     context = ModelContext(container)
-    store = MealStore()
+    // MealStore도 ModelContainer를 사용해 초기화합니다.
+    store = MealStore(modelContainer: container)
   }
   
   override func tearDownWithError() throws {
@@ -23,83 +23,88 @@ final class MealModelConversionTest: XCTestCase {
     store = nil
   }
   
-  /// MealModel 저장 → 불러오기 → 변환 테스트
-  /*
-  // TODO: 🚀 빌드 에러나는 테스트 코드 수정 후 재활성화
-  @MainActor
-  func testMealModelSaveAndFetch() throws {
+  func testMealInfoSaveAndFetch() async throws {
     // Given
-    let food1 = FoodModel(
-      foodName: "닭가슴살",
-      totalGram: 100,
-      carbohydrate: 0,
-      protein: 23,
-      fat: 1.2
+    let food1 = FoodInfo(
+      id: UUID(),
+      name: "닭가슴살",
+      weight: 100,
+      macros: MacroNutrients(carbohydrate: 0, protein: 23, fat: 1.2)
     )
-    let food2 = FoodModel(
-      foodName: "밥",
-      totalGram: 200,
-      carbohydrate: 72,
-      protein: 5,
-      fat: 0.4
+    let food2 = FoodInfo(
+      id: UUID(),
+      name: "밥",
+      weight: 200,
+      macros: MacroNutrients(carbohydrate: 72, protein: 5, fat: 0.4)
     )
     
-    let originalMealModel = MealModel(
-      mealName: "점심",
-      date: Date(timeIntervalSince1970: 1_727_000_000), // 고정 날짜로 결정성 확보
-      carbohydrate: food1.carbohydrate + food2.carbohydrate,
-      protein: food1.protein + food2.protein,
-      fat: food1.fat + food2.fat,
+    let originalMealInfo = MealInfo(
+      id: UUID(),
+      name: "점심",
+      date: Date(timeIntervalSince1970: 1_727_000_000),
       foods: [food1, food2]
     )
     
     // When
-    let mealEntity = Meal(model: originalMealModel)
-    store.addMeal(mealEntity, context: context)
-    
-    // 저장 동기화 (타이밍 이슈 제거)
-    do { try context.save() } catch {
-      XCTFail("Save failed: \(error)")
-    }
+    // 새로운 createMeal 메서드를 사용합니다.
+    let mealID = try await store.createMeal(
+      mealName: originalMealInfo.name,
+      date: originalMealInfo.date,
+      foods: originalMealInfo.foods.map { Food(from: $0) }
+    )
     
     // Then
-    let fetchedEntities = store.fetchAllMeals(context: context)
-    XCTAssertEqual(fetchedEntities.count, 1)
+    // 새로운 fetchAllMealIDs 메서드를 사용합니다.
+    let fetchedIDs = await store.fetchAllMealIDs()
+    XCTAssertEqual(fetchedIDs.count, 1)
     
-    guard let first = fetchedEntities.first else {
+    let firstID = try XCTUnwrap(fetchedIDs.first)
+    XCTAssertEqual(firstID, mealID)
+    
+    guard let firstEntity = context.model(for: firstID) as? Meal else {
       return XCTFail("No meal fetched")
     }
     
-    let fetchedMealModel = MealModel(entity: first)
+    let fetchedMealInfo = MealInfo(entity: firstEntity)
     
-    // Meal 단위 비교
-    XCTAssertEqual(fetchedMealModel.mealName, originalMealModel.mealName)
-    XCTAssertEqual(fetchedMealModel.carbohydrate, originalMealModel.carbohydrate, accuracy: 0.001)
-    XCTAssertEqual(fetchedMealModel.protein, originalMealModel.protein, accuracy: 0.001)
-    XCTAssertEqual(fetchedMealModel.fat, originalMealModel.fat, accuracy: 0.001)
+    XCTAssertEqual(fetchedMealInfo.name, originalMealInfo.name)
+    XCTAssertEqual(fetchedMealInfo.foods.count, originalMealInfo.foods.count)
+    XCTAssertEqual(fetchedMealInfo.date, originalMealInfo.date)
     
-    // Food 배열 비교를 '이름' 기준으로 정렬 후 zip
-    let sortedFetchedFoods = fetchedMealModel.foods.sorted { $0.foodName < $1.foodName }
-    let sortedOriginalFoods = originalMealModel.foods.sorted { $0.foodName < $1.foodName }
+    // 총 영양소 합산 비교
+    let originalMacros = originalMealInfo.foods.reduce(MacroNutrients(carbohydrate: 0, protein: 0, fat: 0)) { acc, foodInfo in
+      MacroNutrients(
+        carbohydrate: acc.carbohydrate + foodInfo.macros.carbohydrate,
+        protein: acc.protein + foodInfo.macros.protein,
+        fat: acc.fat + foodInfo.macros.fat
+      )
+    }
+    let fetchedMacros = fetchedMealInfo.foods.reduce(MacroNutrients(carbohydrate: 0, protein: 0, fat: 0)) { acc, foodInfo in
+      MacroNutrients(
+        carbohydrate: acc.carbohydrate + foodInfo.macros.carbohydrate,
+        protein: acc.protein + foodInfo.macros.protein,
+        fat: acc.fat + foodInfo.macros.fat
+      )
+    }
     
-    XCTAssertEqual(sortedFetchedFoods.count, sortedOriginalFoods.count)
+    XCTAssertEqual(fetchedMacros.carbohydrate, originalMacros.carbohydrate, accuracy: 0.001)
+    XCTAssertEqual(fetchedMacros.protein, originalMacros.protein, accuracy: 0.001)
+    XCTAssertEqual(fetchedMacros.fat, originalMacros.fat, accuracy: 0.001)
+    
+    // 음식별 비교 (이름 기준 정렬)
+    let sortedOriginalFoods = originalMealInfo.foods.sorted { $0.name < $1.name }
+    let sortedFetchedFoods = fetchedMealInfo.foods.sorted { $0.name < $1.name }
+    XCTAssertEqual(sortedOriginalFoods.count, sortedFetchedFoods.count)
     
     for index in 0..<sortedOriginalFoods.count {
-      let fetchedFood = sortedFetchedFoods[index]   // DB에서 꺼낸 데이터
-      let originalFood = sortedOriginalFoods[index] // 기대하는 데이터
+      let original = sortedOriginalFoods[index]
+      let fetched = sortedFetchedFoods[index]
       
-      XCTAssertEqual(fetchedFood.foodName, originalFood.foodName)
-      XCTAssertEqual(fetchedFood.totalGram, originalFood.totalGram, accuracy: 0.001)
-      
-      XCTAssertEqual(fetchedFood.carbohydrateModel.macroType, .carbohydrate)
-      XCTAssertEqual(fetchedFood.carbohydrateModel.gram, originalFood.carbohydrate, accuracy: 0.001)
-      
-      XCTAssertEqual(fetchedFood.proteinModel.macroType, .protein)
-      XCTAssertEqual(fetchedFood.proteinModel.gram, originalFood.protein, accuracy: 0.001)
-      
-      XCTAssertEqual(fetchedFood.fatModel.macroType, .fat)
-      XCTAssertEqual(fetchedFood.fatModel.gram, originalFood.fat, accuracy: 0.001)
+      XCTAssertEqual(fetched.name, original.name)
+      XCTAssertEqual(fetched.weight, original.weight, accuracy: 0.001)
+      XCTAssertEqual(fetched.macros.carbohydrate, original.macros.carbohydrate, accuracy: 0.001)
+      XCTAssertEqual(fetched.macros.protein, original.macros.protein, accuracy: 0.001)
+      XCTAssertEqual(fetched.macros.fat, original.macros.fat, accuracy: 0.001)
     }
   }
-   */
 }

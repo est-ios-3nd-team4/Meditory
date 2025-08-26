@@ -9,27 +9,22 @@
 import Foundation
 import SwiftData
 
-@MainActor
-final class HomeRoutineManager {
-  private let context: ModelContext
-  private let routineStore: RoutineStore
+@ModelActor
+actor HomeRoutineManager {
+  static let shared = HomeRoutineManager(modelContainer: DataController.shared.container)
 
-  /// ModelContext와 RoutineStore를 주입받아 초기화
-  init(context: ModelContext, routineStore: RoutineStore = RoutineStore()) {
-    self.context = context
-    self.routineStore = routineStore
-  }
-
-  /// 단일 RoutineRecord 삭제
-  func delete(record: RoutineRecord) {
-    context.delete(record)
-    try? context.save()
+  /// ID로 단일 RoutineRecord 삭제
+  func delete(recordID: PersistentIdentifier) {
+    guard let record = modelContext.model(for: recordID) as? RoutineRecord else { return }
+    modelContext.delete(record)
+    try? modelContext.save()
   }
 
   /// 특정 루틴/시간에 레코드가 있는지 여부
-  func isCompleted(routine: Routine, at time: Date) -> Bool {
+  func isCompleted(routineID: PersistentIdentifier, at time: Date) -> Bool {
+    guard let routine = modelContext.model(for: routineID) as? Routine else { return false }
+    
     let cal = Calendar.current
-    // 해당 '일자' 범위만 조회 후, 분 단위 키로 비교 (초/타임존 오차 방지)
     let dayRecords = (try? fetchRoutineRecords(on: time)) ?? []
     let targetKey = cal.dateTrimToMinute(time)
     return dayRecords.contains { rec in
@@ -38,53 +33,61 @@ final class HomeRoutineManager {
   }
 
   /// 선택한 날짜에 보여줄 IntakeItem 목록
-  func fetchTodayIntakeItem(on date: Date) -> [IntakeItem] {
+  func fetchTodayIntakeItems(on date: Date) async -> [IntakeItem] {
+     let cal = Calendar.current
+
+     // 해당 날짜에 표시할 Routine 식별자 조회
+     let routineIDs = await RoutineStore.shared.fetchRoutineIDs(for: date)
+
+     // 식별자로 Routine 실체 복원
+     let routines: [Routine] = routineIDs.compactMap { modelContext.model(for: $0) as? Routine }
+
+     // IntakeItem 구성 (RoutineTime.time의 시/분/초 + date의 연/월/일)
+     var items: [IntakeItem] = []
+     for routine in routines {
+       for rt in routine.routineTimes {
+         var comp = cal.dateComponents([.hour, .minute, .second], from: rt.time)
+         let dComp = cal.dateComponents([.year, .month, .day], from: date)
+         comp.year = dComp.year; comp.month = dComp.month; comp.day = dComp.day
+
+         guard let scheduledTime = cal.date(from: comp) else { continue }
+         let completed = isCompleted(routineID: routine.persistentModelID, at: scheduledTime)
+
+         items.append(
+           IntakeItem(
+             id: rt.id,
+             name: routine.displayName,
+             time: scheduledTime,
+             isCompleted: completed,
+             routine: routine
+           )
+         )
+       }
+     }
+
+     // 시간 오름차순 정렬
+     return items.sorted { $0.time < $1.time }
+   }
+
+  /// IntakeItem 체크/해제 토글: 레코드 생성 또는 삭제
+  func toggleIntake(_ item: IntakeItem) async {
     let cal = Calendar.current
-    let routines = routineStore.fetchRoutines(for: date, context: context)
+    let minuteKey = cal.dateTrimToMinute(item.time)
 
-    // 해당 '일자' 레코드만 조회
-    let dayRecords = (try? fetchRoutineRecords(on: date)) ?? []
-    let completedSet: Set<Date> = Set(dayRecords.map { cal.dateTrimToMinute($0.timestamp) })
-
-    var items: [IntakeItem] = []
-    for routine in routines {
-      for t in routine.routineTimes {
-        guard let scheduled = scheduledDate(on: date, from: t.time) else { continue }
-        let key = cal.dateTrimToMinute(scheduled)
-        let isDone = completedSet.contains(key)
-
-        items.append(
-          IntakeItem(
-            id: t.id,
-            name: routine.category ?? routine.displayName,
-            time: scheduled,
-            isCompleted: isDone,
-            routine: routine
-          )
-        )
+    if item.isCompleted {
+      // 이미 체크됨 → 같은 루틴 && 같은 분의 레코드만 삭제
+      let all = (try? modelContext.fetch(FetchDescriptor<RoutineRecord>())) ?? []
+      if let rec = all.first(where: { rec in
+        rec.routine == item.routine &&
+        cal.isDate(rec.timestamp, equalTo: minuteKey, toGranularity: .minute)
+      }) {
+        delete(recordID: rec.persistentModelID)
       }
-    }
-
-    return items.sorted { $0.time < $1.time }
-  }
-
-  /// IntakeItem 체크/낫체크 토글: 레코드 생성 또는 삭제
-  func toggleIntake(_ item: IntakeItem) {
-    let cal = Calendar.current
-    let dayRecords = (try? fetchRoutineRecords(on: item.time)) ?? []
-    let targetKey = cal.dateTrimToMinute(item.time)
-
-    if let rec = dayRecords.first(where: {
-      $0.routine == item.routine && cal.dateTrimToMinute($0.timestamp) == targetKey
-    }) {
-      // 이미 존재 → 삭제
-      delete(record: rec)
     } else {
-      // 없으면 생성
-      routineStore.createRoutineRecord(
-        for: item.routine,
-        timestamp: item.time,
-        context: context
+      // 미체크 → 새 레코드 생성
+      await RoutineStore.shared.createRoutineRecord(
+        forRoutineID: item.routine.persistentModelID,
+        timestamp: item.time
       )
     }
   }
@@ -100,11 +103,8 @@ final class HomeRoutineManager {
     let predicate = #Predicate<RoutineRecord> { rec in
       rec.timestamp >= startOfMonth && rec.timestamp < startOfNext
     }
-    let desc = FetchDescriptor<RoutineRecord>(
-      predicate: predicate,
-      sortBy: [SortDescriptor(\.timestamp)]
-    )
-    return try context.fetch(desc)
+    let desc = FetchDescriptor<RoutineRecord>(predicate: predicate, sortBy: [SortDescriptor(\.timestamp)])
+    return try modelContext.fetch(desc)
   }
 
   /// 하루 범위 레코드
@@ -117,25 +117,24 @@ final class HomeRoutineManager {
       rec.timestamp >= start && rec.timestamp < next
     }
     let desc = FetchDescriptor<RoutineRecord>(predicate: predicate)
-    return try context.fetch(desc)
+    return try modelContext.fetch(desc)
   }
 
   /// 특정 날짜의 (완료 수, 전체 수)
-  func dayCount(on day: Date) -> (done: Int, total: Int) {
+  func dayCount(on day: Date) async -> (done: Int, total: Int) {
     let cal = Calendar.current
-    let routines = routineStore.fetchRoutines(for: day, context: context)
+    
+    let routineIDs = await RoutineStore.shared.fetchRoutineIDs(for: day)
+    let routines = routineIDs.compactMap { modelContext.model(for: $0) as? Routine }
 
-    // 그 날 예정된 모든 시각
     let allTimes: [Date] = routines.flatMap { r in
       r.routineTimes.compactMap { scheduledDate(on: day, from: $0.time) }
     }
     let total = allTimes.count
 
-    // 완료된 분 키 세트
     let doneRecords = (try? fetchRoutineRecords(on: day)) ?? []
     let doneSet: Set<Date> = Set(doneRecords.map { cal.dateTrimToMinute($0.timestamp) })
 
-    // 분 단위로 키 변환하여 교집합 카운트
     let done = allTimes
       .map { cal.dateTrimToMinute($0) }
       .filter { doneSet.contains($0) }
@@ -146,7 +145,6 @@ final class HomeRoutineManager {
 
   // MARK: - Private
 
-  /// `time`의 시/분/초를 `day`의 연-월-일에 덮어쓴 Date
   private func scheduledDate(on day: Date, from time: Date) -> Date? {
     let cal = Calendar.current
     var comp = cal.dateComponents([.hour, .minute, .second], from: time)

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TextInputView: View {
   
+  let title: String
   let placeholder: String
   let unit: String?
   let keyboardType: UIKeyboardType
@@ -17,9 +18,11 @@ struct TextInputView: View {
   let needValidation: Bool
   let validator: (() -> Bool)?
   @Binding var isValid: Bool?
+  let errorMessage: String?
   let onAction:(()->Void)?
   
   init(
+    title: String,
     placeholder: String,
     unit: String? = nil,
     keyboardType: UIKeyboardType = .default,
@@ -27,8 +30,10 @@ struct TextInputView: View {
     needValidation: Bool = false,
     validator: (() -> Bool)? = nil,
     isValid: Binding<Bool?> = .constant(nil),
+    errorMessage: String? = nil,
     onAction:(()->Void)? = nil
   ) {
+    self.title = title
     self.placeholder = placeholder
     self.unit = unit
     self.keyboardType = keyboardType
@@ -36,17 +41,24 @@ struct TextInputView: View {
     self.needValidation = needValidation
     self.validator = validator
     self._isValid = isValid
+    self.errorMessage = errorMessage
     self.onAction = onAction
   }
 
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
-        Text(placeholder)
+        Text(title)
           .foregroundStyle(.gray)
+        if let error = errorMessage {
+          Spacer()
+          Text(error)
+            .foregroundStyle(.red)
+            .font(.notoSans(weight: .medium, size: 12))
+        }
       }
       HStack {
-        NoQuickTypeTextField(text: $inputText, placeholder: "", keyboardType: keyboardType,onSubmit: {
+        NoQuickTypeTextField(text: $inputText, placeholder: placeholder, keyboardType: keyboardType,onSubmit: {
           onAction?()
         })
           .font(.notoSans(weight: .semiBold, size: 16))
@@ -67,21 +79,17 @@ struct TextInputView: View {
           }
       }
       .onChange(of: inputText) {
-        guard needValidation, let validate = validator else { return }
-        let result = validate()
-        isValid = result
+        guard needValidation else { return }
+        _ = validator?()
       }
     }
-    .onDisappear(perform: {
-      isValid = false
-    })
   }
 }
 
 #Preview("Light") {
-  TextInputView(placeholder: "이름", unit: nil, inputText: .constant("Json"))
+  TextInputView(title: "이름",placeholder:"홍길동", unit: nil, inputText: .constant("Json"))
 }
 #Preview("Dark") {
-  TextInputView(placeholder: "이름", unit: nil, inputText: .constant("Json"))
+  TextInputView(title: "이름",placeholder:"홍길동", unit: nil, inputText: .constant("Json"))
     .preferredColorScheme(.dark)
 }

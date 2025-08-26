@@ -2,7 +2,7 @@ import SwiftData
 import Foundation
 
 @Model
-final class UserStatus: @unchecked Sendable {
+final class UserStatus: Sendable {
   @Attribute(.unique) var id: UUID
   var statusType: String // 상태
   var startDate: Date? // 시작 날짜

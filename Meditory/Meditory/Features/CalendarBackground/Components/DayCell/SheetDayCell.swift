@@ -14,13 +14,18 @@ struct SheetDayCell: View {
   let isCurrentMonth: Bool
   let progress: Double
   let onTap: () -> Void
-  private let underlineHeight: CGFloat = 6
 
   @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.horizontalSizeClass) private var hSize
+  @Environment(\.verticalSizeClass) private var vSize
 
-  private let baseSize: CGFloat = 34
-  private let selectedSize: CGFloat = 36
-  private let ringLine: CGFloat = 3
+  private var isPadStyle: Bool { hSize == .regular }
+
+  private var dateFontSize: CGFloat { isPadStyle ? 18 : 16 }
+  private var underlineHeight: CGFloat { isPadStyle ? 8 : 6}
+  private var baseSize: CGFloat{ isPadStyle ? 36 : 34 }
+  private var selectedSize: CGFloat { isPadStyle ? 38 : 36 }
+  private var ringLine: CGFloat { isPadStyle ? 4 : 3 }
 
   var body: some View {
     let clamped = max(0, min(1, progress))
@@ -47,7 +52,8 @@ struct SheetDayCell: View {
           }
 
           Text(date.formattedDate(date, "d"))
-            .font(.notoSans(size: 16)).fontWeight(.semibold)
+            .font(.notoSans(size: dateFontSize))
+            .fontWeight(.semibold)
             .foregroundStyle(.white)
 
           // 완료(=1.0) & 비선택: sub 컬러로 꽉 채움
@@ -57,7 +63,8 @@ struct SheetDayCell: View {
             .frame(width: size, height: size)
 
           Text(date.formattedDate(date, "d"))
-            .font(.notoSans(size: 16)).fontWeight(.semibold)
+            .font(.notoSans(size: dateFontSize))
+            .fontWeight(.semibold)
             .foregroundStyle(colorScheme == .dark ? .black : .white)
 
           // 부분 진행(0~1) & 비선택: sub 컬러 링
@@ -76,13 +83,13 @@ struct SheetDayCell: View {
             .foregroundStyle(.main)
 
           Text(date.formattedDate(date, "d"))
-            .font(.notoSans(size: 16))
+            .font(.notoSans(size: dateFontSize))
             .foregroundStyle(.primary)
 
           // 진행 0 & 비선택: 숫자만
         } else {
           Text(date.formattedDate(date, "d"))
-            .font(.notoSans(size: 16))
+            .font(.notoSans(size: dateFontSize))
             .foregroundStyle(.primary)
         }
       }

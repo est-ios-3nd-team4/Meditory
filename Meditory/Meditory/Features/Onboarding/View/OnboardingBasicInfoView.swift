@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct OnboardingBasicInfoView: View {
-  @ObservedObject var vm: OnboardingViewModel
+  var vm: OnboardingViewModel
   let focusedField: FocusState<FormField?>.Binding
   let bottomSpacing: CGFloat
 
@@ -20,43 +20,57 @@ struct OnboardingBasicInfoView: View {
           }
           VStack(spacing: .defaultSpacing) {
             TextInputView(
-              placeholder: "이름",
+              title: "이름",
+              placeholder: "홍길동",
               inputText: vm.binding(for: .name),
               needValidation: true,
               validator: { vm.isValid(for: .name) },
+              errorMessage: vm.errorMessage[.name],
               onAction:{
                 focusedField.wrappedValue = .birthDate
-              }
+              },
             )
             .id(FormField.name)
             .focused(focusedField, equals: .name)
             TextInputView(
-              placeholder: "출생년도",
+              title: "출생년도",
+              placeholder: "2000",
               unit: "년",
               keyboardType: .decimalPad,
               inputText: vm.binding(for: .birthDate),
               needValidation: true,
               validator: { vm.isValid(for: .birthDate) },
+              errorMessage: vm.errorMessage[.birthDate],
             )
+            .onChange(of: vm.birthDate, { 
+              focusedField.wrappedValue = .height
+            })
             .id(FormField.birthDate)
             .focused(focusedField, equals: .birthDate)
             TextInputView(
-              placeholder: "키",
+              title: "키",
+              placeholder: "170",
               unit: "cm",
               keyboardType: .decimalPad,
               inputText: vm.binding(for: .height),
               needValidation: true,
               validator: { vm.isValid(for: .height) },
+              errorMessage: vm.errorMessage[.height],
             )
             .id(FormField.height)
             .focused(focusedField, equals: .height)
+            .onChange(of: vm.height) {
+              focusedField.wrappedValue = .weight
+            }
             TextInputView(
-              placeholder: "체중",
+              title: "체중",
+              placeholder: "80",
               unit: "kg",
               keyboardType: .decimalPad,
               inputText: vm.binding(for: .weight),
               needValidation: true,
-              validator: { vm.isValid(for: .weight) }
+              validator: { vm.isValid(for: .weight) },
+              errorMessage: vm.errorMessage[.weight],
             )
             .id(FormField.weight)
             .focused(focusedField, equals: .weight)
@@ -70,9 +84,6 @@ struct OnboardingBasicInfoView: View {
         }
       }
       .scrollIndicators(.never)
-      .onAppear {
-        scroll(proxy)
-      }
     }
   }
   private func scroll(_ proxy: ScrollViewProxy) {

@@ -2,7 +2,7 @@ import SwiftData
 import Foundation
 
 @Model
-final class UserProfile: @unchecked Sendable {
+final class UserProfile: Sendable {
   @Attribute(.unique) var id: UUID
   var height: Double? // cm 단위, 선택적
   var weight: Double? // kg 단위, 선택적

@@ -18,6 +18,8 @@ struct NutrientChip: View {
 struct NutrientCardView: View {
   let nutrients: [String]
   let onSeeDetail: () -> Void
+  var isLoading: Bool = false
+
   @Environment(\.colorScheme) private var colorScheme
 
   var body: some View {
@@ -42,12 +44,22 @@ struct NutrientCardView: View {
         .foregroundColor(.gray)
 
       FlowLayout(spacing: .smallSpacing, lineSpacing: .smallSpacing) {
-        ForEach(nutrients, id: \.self) { nutrient in
-          NutrientChip(title: nutrient)
-            .lineLimit(1)
-            .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
+        if isLoading || nutrients.isEmpty {
+          let skeletonCount = 3
+          let skeletonWidth: CGFloat = 80
+
+          ForEach(0..<skeletonCount, id: \.self) { _ in
+            NutrientChipSkeleton(width: skeletonWidth)
+          }
+        } else {
+          ForEach(nutrients, id: \.self) { nutrient in
+            NutrientChip(title: nutrient)
+              .lineLimit(1)
+              .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
+          }
         }
       }
+      .animation(.easeInOut(duration: 0.2), value: isLoading || nutrients.isEmpty)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding(16)

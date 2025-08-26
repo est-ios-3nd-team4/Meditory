@@ -99,11 +99,12 @@ enum ScheduleAIPrompt {
   [작성 규칙]
   1. LifeStyle, 복용 중인 약·영양제, 질환·알레르기 정보 반영  
   2. 최적화 순서: 흡수율↑ → 상호작용↓(2시간 간격) → 생활패턴 반영 → 간격 유지 → 중복 회피  
-  3. precautions 작성 시 고정 멘트 대신 상황과 질환, 생활패턴에 맞춰 문장을 유연하게 표현  
-     - **위장 관련**: 예) "속쓰림이나 소화불량이 있으면 식사 후 복용하세요.", "위장 부담이 될 수 있으니 공복 복용은 피하세요."  
-     - **2시간 간격**: 예) "다른 약물과는 최소 2시간 간격을 두세요.", "비슷한 성분 제품은 2시간 이상 간격을 두고 드세요."  
-     - **조건부 주의**: 질환·알레르기·임신/수유 상태 반영, 구체적으로 표현  
-  4. 모호한 표현(예: "특별한 주의 사항은 없음") 금지  
+  3. schedule.times 작성 시 절대 시각(hour, minute)과 상대 시각(relativeTo, offsetMinutes)을 모두 고려  
+     - 사용자의 생활패턴(LifeStyle: 기상, 취침, 아침, 점심, 저녁)을 반영해 relativeTo로 표현  
+     - 생활패턴과 무관하게 고정된 절대 시각인 경우 relativeTo="추천"으로 표시  
+     - absolute 시간(hour, minute)은 항상 포함  
+  4. precautions 작성 시 고정 멘트 대신 상황과 질환, 생활패턴에 맞춰 문장을 유연하게 표현  
+  5. 모호한 표현(예: "특별한 주의 사항은 없음") 금지  
   """
   /// 출력 스키마
   static let outputSchema = """
@@ -112,14 +113,18 @@ enum ScheduleAIPrompt {
       "schedule": {
         "cycleType": Int, // 1=요일별, 2=주기별
         "times": [
-          { "hour": Int, "minute": Int, "pillsPerDose": Int }, // 절대 시각 및 1회 복용량 (ex: 오전 8시, 2정)
-          { "relativeTo": String, "offsetMinutes": Int, "pillsPerDose": Int } 
-            // relativeTo=["기상","취침","아침","점심","저녁"]
-            // 기준 이벤트(기상, 취침, 아침, 점심, 저녁)으로부터의 상대 시각 및 1회 복용량
-            // ex: 아침 식사 후 +30분, 1정
+          { 
+            "hour": Int, "minute": Int, "pillsPerDose": Int, 
+            "relativeTo": String, "offsetMinutes": Int 
+            // 절대 시간(hour, minute) + 상대 시간(relativeTo, offsetMinutes)을 모두 제공
+            // relativeTo=["기상","취침","아침","점심","저녁","추천"]
+            // "none" → 생활패턴과 무관한 절대 시각
+            // ex: {"hour": 8, "minute": 30, "pillsPerDose": 2, "relativeTo": "아침", "offsetMinutes": 30}
+            // ex: {"hour": 22, "minute": 0, "pillsPerDose": 1, "relativeTo": "none", "offsetMinutes": 0}
+          }
         ],
-        "weekdays": [Int] | null, // cycleType=1이면 "weekdays": ["Int"]를 포함하고 "intervalDays"는 쓰지 않음, 월=0~일=6
-        "intervalDays": Int | null  // cycleType=2이면 "intervalDays": "Int"를 포함하고 "weekdays"는 쓰지 않음, 며칠 간격
+        "weekdays": [Int] | null, // cycleType=1이면 weekdays만 포함
+        "intervalDays": Int | null // cycleType=2이면 intervalDays만 포함
       },
       "usage": [String], // 1~3문장, 공손한 명령형
       "precautions": [String] // 최소 3개 이상, 상황별로 자연스럽게 변형된 문장 사용

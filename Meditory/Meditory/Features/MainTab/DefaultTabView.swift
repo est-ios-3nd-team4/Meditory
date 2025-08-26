@@ -9,31 +9,41 @@ import SwiftUI
 
 struct DefaultTabView: View {
   
+  @Binding var selectedTabItem: TabItem
+  
   var body: some View {
     TabView() {
       HomeView()
         .tabItem {
           Text(TabItem.home.title)
         }
+        .onAppear {
+          selectedTabItem = .home
+        }
       
       RecommendView()
         .tabItem {
           Text(TabItem.recommend.title)
+        }
+        .onAppear {
+          selectedTabItem = .recommend
         }
       
       NutritionHomeView()
         .tabItem {
           Text(TabItem.dailyNutrition.title)
         }
+        .onAppear {
+          selectedTabItem = .dailyNutrition
+        }
       
-      Color.white
+      SettingView()
         .tabItem {
           Text(TabItem.settings.title)
         }
+        .onAppear {
+          selectedTabItem = .settings
+        }
     }
   }
-}
-
-#Preview {
-  DefaultTabView()
 }

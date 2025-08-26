@@ -16,13 +16,15 @@ final class ScheduleAIPromptTests: XCTestCase {
   var userStore: UserStore!
   var routineStore: RoutineStore!
   
-  override func setUpWithError() throws {
-    let schema = Schema([User.self, UserProfile.self, Routine.self, RoutineTime.self, RoutineRecord.self])
+  // 테스트 설정도 비동기 작업을 포함하므로 async로 변경합니다.
+  override func setUp() async throws {
+    let schema = Schema([User.self, UserProfile.self, Routine.self, RoutineTime.self, RoutineRecord.self, UserExtraInfo.self, UserStatus.self, ExtraInfo.self])
     let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
     container = try ModelContainer(for: schema, configurations: [config])
     context = ModelContext(container)
-    userStore = UserStore()
-    routineStore = RoutineStore()
+    userStore = UserStore(modelContainer: container)
+    // RoutineStore도 ModelContainer를 사용해 초기화합니다.
+    routineStore = RoutineStore(modelContainer: container)
   }
   
   override func tearDownWithError() throws {
@@ -32,8 +34,7 @@ final class ScheduleAIPromptTests: XCTestCase {
     routineStore = nil
   }
   
-  @MainActor
-  func testMakePrompt_withValidUserInput_generatesExpectedPrompt() {
+  func testMakePrompt_withValidUserInput_generatesExpectedPrompt() async throws {
     // arrange
     // 1. User 정보 저장
     let user = User(
@@ -61,16 +62,31 @@ final class ScheduleAIPromptTests: XCTestCase {
     user.userStatuses.append(UserStatus(statusType: "임신", startDate: .now, endDate: .now, user: user))
     user.userStatuses.append(UserStatus(statusType: "수유", startDate: .now, endDate: .now, user: user))
     
-    userStore.addUser(user, context: context)
+    _ = await userStore.addUser(user)
     
-    // 2. Routine 정보 저장
-    DummyData.mockRoutines_AllCases.forEach {
-      routineStore.addRoutine($0, context: context)
+    // 2. Routine 정보 저장 (새로운 createRoutine 메서드 사용)
+    for mockRoutine in DummyData.mockRoutines_AllCases {
+      _ = try await routineStore.createRoutine(
+        type: mockRoutine.type,
+        displayName: mockRoutine.displayName,
+        desc: mockRoutine.desc,
+        category: mockRoutine.category,
+        cycleType: mockRoutine.cycleType,
+        cycleValue: mockRoutine.cycleValue,
+        startDate: mockRoutine.startDate,
+        memo: mockRoutine.memo,
+        usage: mockRoutine.usage,
+        precautions: mockRoutine.precautions,
+        routineTimes: mockRoutine.routineTimes,
+        recommendedRoutineTimes: mockRoutine.recommendedRoutineTimes
+      )
     }
     
     // act
-    let vm = SupplementRoutineAIViewModel(context: context)
-    let prompt = vm.makePrompt(
+    // ViewModel의 새로운 init 방식을 사용합니다.
+    let vm = SupplementRoutineAIViewModel()
+    // makePrompt는 이제 context를 인자로 받습니다.
+    let prompt = await vm.makePrompt(
       supplementName: "타이레놀",
       lifestyle: UserLifeStyle(
         wakeTime: "07:30",
@@ -78,7 +94,8 @@ final class ScheduleAIPromptTests: XCTestCase {
         breakfast: nil,
         lunch: "12:30",
         dinner: "19:00"
-      )
+      ),
+      context: context
     )
     
     // assert

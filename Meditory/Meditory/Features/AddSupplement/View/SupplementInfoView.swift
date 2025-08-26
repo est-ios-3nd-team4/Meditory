@@ -10,7 +10,8 @@ import SwiftUI
 struct SupplementInfoView: View {
   
   let defaultFontSize: CGFloat
-  @ObservedObject var addSupplementVM: AddSupplementViewModel
+  // @ObservedObject를 제거하고 일반 변수로 변경합니다.
+  var addSupplementVM: AddSupplementViewModel
   @Binding var isSearchingSupplementSummary: Bool
   
   var body: some View {

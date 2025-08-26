@@ -10,7 +10,7 @@ import SwiftData
 import Foundation
 
 @Model
-final class UserLifeStyle: @unchecked Sendable {
+final class UserLifeStyle: Sendable {
   @Attribute(.unique) var id: UUID
   @Relationship(inverse: \User.userLifeStyle) var user: User?
   
@@ -39,5 +39,45 @@ final class UserLifeStyle: @unchecked Sendable {
     self.breakfast = breakfast
     self.lunch = lunch
     self.dinner = dinner
+  }
+}
+
+
+extension UserLifeStyle {
+  var wakeTimeDate: Date {
+    wakeTime.toDateFromHHmm() ?? Date.makeTime(hour: 7)
+  }
+  var sleepTimeDate: Date {
+    sleepTime.toDateFromHHmm() ?? Date.makeTime(hour: 23, minute: 30)
+  }
+  var breakfastDate: Date? {
+    breakfast?.toDateFromHHmm()
+  }
+  var lunchDate: Date? {
+    lunch?.toDateFromHHmm()
+  }
+  var dinnerDate: Date? {
+    dinner?.toDateFromHHmm()
+  }
+  static var standard: UserLifeStyle {
+    UserLifeStyle(
+      wakeTime: "07:00",
+      sleepTime: "23:30",
+      breakfast: "08:30",
+      lunch: "12:00",
+      dinner: "19:00"
+    )
+  }
+}
+
+
+extension UserLifeStyle: Equatable {
+  static func == (lhs: UserLifeStyle, rhs: UserLifeStyle) -> Bool {
+    return lhs.id == rhs.id &&
+    lhs.wakeTime == rhs.wakeTime &&
+    lhs.sleepTime == rhs.sleepTime &&
+    lhs.breakfast == rhs.breakfast &&
+    lhs.lunch == rhs.lunch &&
+    lhs.dinner == rhs.dinner
   }
 }

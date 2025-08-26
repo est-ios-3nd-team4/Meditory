@@ -5,91 +5,110 @@
 //  Created by 윤혜주 on 8/13/25.
 //
 
-
 import Foundation
 import SwiftData
 
-final class UserLifeStyleStore {
-  var currentUser: User?
-  /// currentUser 기준 LifeStyle 가져오거나 생성
-  @MainActor
-  func fetchOrCreateLifestyle(context: ModelContext) -> UserLifeStyle? {
-    guard let currentUser = currentUser else { return nil }
-
-    let targetID = currentUser.persistentModelID
-
-    // 해당 user와 연결된 LifeStyle 1개만 조회
-    var descriptor = FetchDescriptor<UserLifeStyle>(
-      predicate: #Predicate<UserLifeStyle> { ls in
-        ls.user?.persistentModelID == targetID
-      }
+@ModelActor
+actor UserLifeStyleStore {
+  static let shared = UserLifeStyleStore(modelContainer: DataController.shared.container)
+  
+  // MARK: - 조회 및 생성
+  
+  /// 특정 유저의 LifeStyle ID를 가져오거나, 없으면 기본값으로 생성하여 ID를 반환합니다.
+  func fetchOrCreateLifestyleID(for userID: PersistentIdentifier) -> PersistentIdentifier? {
+    let descriptor = FetchDescriptor<UserLifeStyle>(
+      predicate: #Predicate { $0.user?.persistentModelID == userID }
     )
-    descriptor.fetchLimit = 1
-
-    if let existingLifestyle = try? context.fetch(descriptor).first {
-      return existingLifestyle
+    
+    // 1. 기존 LifeStyle이 있는지 ID로 확인
+    if let existingID = try? modelContext.fetch(descriptor).first?.persistentModelID {
+      return existingID
     }
-
-    // 없으면 기본값으로 생성 (UUID 사용)
+    
+    // 2. 없으면 새로 생성
+    // --- [핵심 수정 사항] ---
+    // model(for:) 대신 FetchDescriptor를 사용해 User를 명시적으로 조회합니다.
+    // 이는 테스트 환경에서 다른 context가 생성한 객체를 더 안정적으로 가져오는 방법입니다.
+    let userDescriptor = FetchDescriptor<User>(predicate: #Predicate { $0.persistentModelID == userID })
+    guard let user = (try? modelContext.fetch(userDescriptor))?.first else {
+      // userID에 해당하는 User가 없으면 nil을 반환합니다.
+      return nil
+    }
+    // --------------------
+    
     let newLifestyle = UserLifeStyle(
-      id: UUID(),
-      user: currentUser,
+      user: user,
       wakeTime: "07:00",
       sleepTime: "23:30",
       breakfast: nil,
       lunch: "12:30",
       dinner: "19:30"
     )
-    context.insert(newLifestyle)
-    try? context.save()
-    return newLifestyle
+    
+    modelContext.insert(newLifestyle)
+    
+    do {
+      try modelContext.save()
+    } catch {
+      // 저장 실패 시 오류를 출력하여 디버깅을 돕습니다.
+      print("Failed to save new lifestyle: \(error)")
+      return nil
+    }
+    
+    return newLifestyle.persistentModelID
   }
-
-  /// 편의 저장 함수
-  @MainActor
-  func saveLifestyle(context: ModelContext) {
-    try? context.save()
+  
+  // MARK: - 업데이트 (기존 메서드들 유지)
+  
+  /// 편의 저장 함수: 이 함수는 이제 역할이 모호해지므로 호출되지 않을 가능성이 높지만,
+  /// 혹시 모를 호환성을 위해 남겨둡니다. (내부적으로는 아무것도 안 해도 무방)
+  /// 모든 업데이트 함수가 스스로 저장하므로 사실상 불필요합니다.
+  func saveLifestyle() {
+    // 이미 다른 메서드에서 저장이 다 이루어지므로 이 함수는 비워두거나,
+    // 만약을 대비해 한번 더 저장 코드를 넣을 수 있습니다.
+    try? modelContext.save()
   }
-
-  // MARK: - 문자열("HH:mm") 기반 일괄 업데이트
-  @MainActor
+  
+  /// 문자열("HH:mm") 기반 일괄 업데이트
   func setLifestyleTimes(
-    _ lifestyle: UserLifeStyle,
-    context: ModelContext,
+    id lifestyleID: PersistentIdentifier,
     wakeTime: String? = nil,
     sleepTime: String? = nil,
     breakfast: String? = nil,
     lunch: String? = nil,
     dinner: String? = nil
   ) {
+    guard let lifestyle = modelContext.model(for: lifestyleID) as? UserLifeStyle else { return }
+    
     if let value = wakeTime { lifestyle.wakeTime = value }
     if let value = sleepTime { lifestyle.sleepTime = value }
-
+    
+    // breakfast는 Optional이므로 그대로 할당
     if let value = breakfast { lifestyle.breakfast = value }
     if let value = lunch { lifestyle.lunch = value }
     if let value = dinner { lifestyle.dinner = value }
-
-    try? context.save()
+    
+    try? modelContext.save()
   }
-
-  // MARK: - Date 기반 일괄 업데이트 (DatePicker용)
-  @MainActor
+  
+  /// Date 기반 일괄 업데이트 (DatePicker용)
   func setLifestyleTimesDate(
-    _ lifestyle: UserLifeStyle,
-    context: ModelContext,
+    id lifestyleID: PersistentIdentifier,
     wakeTime: Date? = nil,
     sleepTime: Date? = nil,
     breakfast: Date? = nil,
     lunch: Date? = nil,
-    dinner: Date? = nil,
-  ) {
-    if let date = wakeTime { lifestyle.wakeTime = date.toHHmmString()}
+    dinner: Date? = nil
+  ) throws {
+    guard let lifestyle = modelContext.model(for: lifestyleID) as? UserLifeStyle else { return }
+    
+    if let date = wakeTime { lifestyle.wakeTime = date.toHHmmString() }
     if let date = sleepTime { lifestyle.sleepTime = date.toHHmmString() }
-
+    
     if let date = breakfast { lifestyle.breakfast = date.toHHmmString() }
     if let date = lunch { lifestyle.lunch = date.toHHmmString() }
     if let date = dinner { lifestyle.dinner = date.toHHmmString() }
-
-    try? context.save()
+    
+    try modelContext.save()
   }
 }

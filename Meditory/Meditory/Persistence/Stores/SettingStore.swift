@@ -1,43 +1,36 @@
 import Foundation
 import SwiftData
 
+// UserStore와 동일한 @ModelActor 패턴을 적용하여 변경
 
-
-final class SettingStore {
-
-
-  // Setting 전체 조회 (1개만 있을 것)
-  @MainActor
-  func fetchSetting(context: ModelContext) -> Setting? {
-      let descriptor = FetchDescriptor<Setting>()
-      return try? context.fetch(descriptor).first
+@ModelActor
+actor SettingStore {
+  static let shared = SettingStore(modelContainer: DataController.shared.container)
+  
+  /// 현재 설정 정보를 가져오는 public 함수
+  func fetchSetting() -> Setting? {
+    let descriptor = FetchDescriptor<Setting>()
+    return try? modelContext.fetch(descriptor).first
   }
-
-  // Setting 업데이트 (없으면 생성)
-  @MainActor
-  func updateNotificationSetting(_ value: Bool, context: ModelContext) {
-      if let setting = fetchSetting(context: context) {
-          setting.isNotificationOn = value
-          try? context.save()
-      } else {
-          createSetting(isNotificationOn: value, context: context)
-      }
+  
+  /// 알림 설정을 업데이트하는 함수 (없으면 새로 생성)
+  func updateNotificationSetting(_ value: Bool) {
+    if let setting = fetchSetting() {
+      setting.isNotificationOn = value
+    } else {
+      let newSetting = Setting(isNotificationOn: value)
+      modelContext.insert(newSetting)
+    }
+    
+    // 작업이 끝난 후 한 번만 저장을 시도
+    try? modelContext.save()
   }
-
-  // 새 Setting 생성 (보통 1개만 생성)
-  @MainActor
-  func createSetting(isNotificationOn: Bool, context: ModelContext) {
-      let newSetting = Setting(isNotificationOn: isNotificationOn)
-      context.insert(newSetting)
-      try? context.save()
-  }
-
-  // Setting 삭제 (예외적으로 필요할 때만)
-  @MainActor
-  func deleteSetting(context: ModelContext) {
-      if let setting = fetchSetting(context: context) {
-          context.delete(setting)
-          try? context.save()
-      }
+  
+  /// 모든 설정 정보를 삭제하는 함수 (초기화 등에 사용)
+  func deleteSetting() {
+    if let setting = fetchSetting() {
+      modelContext.delete(setting)
+      try? modelContext.save()
+    }
   }
 }

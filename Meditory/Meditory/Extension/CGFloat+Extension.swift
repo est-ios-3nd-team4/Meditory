@@ -11,6 +11,7 @@ extension CGFloat {
   // MARK: - Spacing
   static let smallSpacing: CGFloat = 8
   static let defaultSpacing: CGFloat = 16
+  static let bottomInset: CGFloat = 33
   
   // MARK: - CornerRadius
   static let smallRadius: CGFloat = 10

@@ -2,57 +2,71 @@ import SwiftUI
 import SwiftData
 
 struct RecommendView: View {
-  @State private var isOverlappingHeader = false
-  // 헤더의 global maxY
-  @State private var headerBottomY: CGFloat = 0
-  // 첫 카드의 global minY
-  @State private var firstCardTopY: CGFloat = .infinity
-
-  @State private var searchText = ""
-
-  @State private var selectedScene: SceneTab = .recommend
 
   @Environment(\.colorScheme) private var colorScheme
-
   @Environment(\.modelContext) private var context
 
-  @State private var didSeedNutrients = false
-
-  @State private var refreshID = UUID()
-
   @StateObject private var recommendVM = ProductRecommendViewModel()
-
   @StateObject private var nutrientVM = NutrientViewModel()
 
+  @State private var isOverlappingHeader = false
+  @State private var headerBottomY: CGFloat = 0
+  @State private var firstCardTopY: CGFloat = .infinity
+  @State private var searchText = ""
+  @State private var selectedScene: SceneTab = .recommend
+  @State private var didSeedNutrients = false
+  @State private var refreshID = UUID()
   @State private var showNutrientDetail = false
-
   @State private var items: [Product] = []
+  @State private var latestScore: Int? = nil
+  @State private var isLoadingReal = false
+  @State private var hasRealData = false
+  @State private var dummyChipSignature = ""
+  @State private var dummyRecommendSignature = ""
+  @State private var hasRealNutrientData = false
+  @State private var categoryTask: Task<Void, Never>?
+  @State private var hydrateTask: Task<Void, Never>?
 
-  private let imageService = GoogleCSEImageClient()
+  private func chipSignature(_ chips: [String]) -> String {
+    chips.sorted().joined(separator: "|")
+  }
+  private func recommendSignature(_ nutrients: [Nutrient]) -> String {
+    nutrients.map { $0.id }.sorted().joined(separator: "|")
+  }
 
-  private let useDummy = true
+  private var imageService = GoogleCSEImageClient()
 
   private func hydrateImagesForCurrentItems() {
-    guard !useDummy else { return }
+    guard hasRealData else { return }
+
+    hydrateTask?.cancel()
 
     let current = items
-    Task {
-      // id -> url 매핑으로 받아오기
+    hydrateTask = Task {
       var results: [UUID: ImageResult] = [:]
       var errors: [Error] = []
 
       try? await withThrowingTaskGroup(of: (UUID, ImageResult?, Error?).self) { group in
         for product in current {
-          group.addTask { [imageService] in
-            do {
-              let result = try await imageService.fetchImageAndLink(for: product.brand, name: product.name)
-              return (product.id, result, nil)
-            } catch {
-              return (product.id, nil, error)
-            }
+          if Task.isCancelled {
+            group.cancelAll()
+            return
           }
+            group.addTask { [imageService] in
+              do {
+                let result = try await imageService.fetchImageAndLink(for: product.brand, name: product.name)
+                return (product.id, result, nil)
+              } catch {
+                return (product.id, nil, error)
+              }
+            }
+
         }
         for try await (id, result, err) in group {
+          if Task.isCancelled {
+            group.cancelAll()
+            return
+          }
           if let result {
             results[id] = result
           }
@@ -60,6 +74,7 @@ struct RecommendView: View {
           if let err { errors.append(err) }
         }
       }
+      guard !Task.isCancelled else { return }
 
       await MainActor.run {
         // 기존 brand/name/id는 유지하고 image만 채움
@@ -152,7 +167,7 @@ struct RecommendView: View {
 
         GeometryReader { geo in
           ScrollView(.vertical, showsIndicators: false) {
-            ZStack {
+            ZStack(alignment: .topLeading) {
               RoundedRectangle(cornerRadius: .defaultRadius)
                 .fill(colorScheme == .dark ? Color.black : Color.customBackground)
               //.modifier(UnifiedShadow())
@@ -180,10 +195,26 @@ struct RecommendView: View {
 
     }
     .onAppear(perform: onAppear)
+    .onDisappear {
+      categoryTask?.cancel()
+      hydrateTask?.cancel()
+    }
 
     .onChange(of: nutrientVM.recommend) {
       guard !nutrientVM.recommend.isEmpty else { return }
+      let currentSig = recommendSignature(nutrientVM.recommend)
+      guard currentSig != dummyRecommendSignature else { return }
+
+      hasRealNutrientData = true
       nutrientVM.saveRecommendations(to: context)
+    }
+
+    .onChange(of: nutrientVM.chip) {
+      guard !nutrientVM.chip.isEmpty else { return }
+      let currentSig = chipSignature(nutrientVM.chip)
+      if currentSig != dummyChipSignature {
+        hasRealNutrientData = true
+      }
     }
     .navigationDestination(isPresented: $showNutrientDetail) {
       RecommendNutrientsView(nutrients: nutrientVM.recommend)
@@ -191,7 +222,7 @@ struct RecommendView: View {
   }
 
   private var recommendContent: some View {
-    VStack(spacing: 24) {
+    VStack(spacing: 16) {
       Color.clear
         .frame(height: 1)
         .background(
@@ -210,12 +241,31 @@ struct RecommendView: View {
         desc: "* 본결과는 의사의 처방을 대신하지 않습니다.",
         products: items,
         onCategoryTap: { category in
-          if useDummy {
-            items = dummyProducts(for: category)
-          } else {
-            Task {
-              await recommendVM.loadProducts(for: category)
-              items = recommendVM.products
+          categoryTask?.cancel()
+
+          Task { @MainActor in
+            hasRealData = false
+            items = []
+          }
+          categoryTask = Task {
+            defer { categoryTask = nil }
+
+            await recommendVM.loadProducts(for: category)
+            guard !Task.isCancelled else { return }
+
+            let real = recommendVM.products
+
+            await MainActor.run {
+              if real.isEmpty {
+                if !hasRealData {
+                  items = dummyProducts(for: category)
+                  hasRealData = false
+                }
+              } else {
+                items = real
+                hasRealData = true
+                hydrateImagesForCurrentItems()
+              }
             }
           }
         }
@@ -226,16 +276,21 @@ struct RecommendView: View {
 
       NutrientCardView(
         nutrients: nutrientVM.chip,
-        onSeeDetail: { showNutrientDetail = true }
+        onSeeDetail: { showNutrientDetail = true },
+        isLoading: !hasRealNutrientData
       )
       .id(nutrientVM.chip.joined(separator: "|"))
       .padding(.horizontal, 16)
+      .padding(.top, 8)
       .modifier(UnifiedShadow())
 
-      ScoreView()
-        .padding(.horizontal, 16)
-        .modifier(UnifiedShadow())
-        .padding(.bottom, .defaultSpacing)
+      ScoreView(onResultUpdate: { result in
+        latestScore = result.score
+      })
+      .padding(.horizontal, 16)
+      .padding(.top, 8)
+      .modifier(UnifiedShadow())
+      .padding(.bottom, .defaultSpacing)
     }
   }
 
@@ -266,20 +321,41 @@ struct RecommendView: View {
     guard !didSeedNutrients else { return }
     didSeedNutrients = true
 
-    if useDummy {
-      seedDummyData()
-    } else {
+    seedDummyNutrientsIfNeeded()
 
 #if DEBUG
-      print("apiKey len:", GoogleKey.apiKey.count, "cx:", GoogleKey.cx)
+    print("apiKey len:", GoogleKey.apiKey.count, "cx:", GoogleKey.cx)
 #endif
+    hasRealNutrientData = false
 
-      if nutrientVM.chip.isEmpty {
-        nutrientVM.load(userName: "@@")
+    nutrientVM.load(userName: "@@")
+
+    fetchRealDataOnLaunch()
+  }
+
+  private func fetchRealDataOnLaunch() {
+    guard !isLoadingReal else { return }
+    isLoadingReal = true
+
+    Task {
+      defer {
+        isLoadingReal = false
+      }
+
+      nutrientVM.load(userName: "@@")
+
+      await recommendVM.loadProducts(for: "장 건강")
+      let real = recommendVM.products
+
+      await MainActor.run {
+        if !real.isEmpty {
+          items = real
+          hasRealData = true
+          hydrateImagesForCurrentItems()
+        }
       }
     }
   }
-
 
   private func updateOverlapState() {
     isOverlappingHeader = firstCardTopY < (headerBottomY - 2)
@@ -311,11 +387,30 @@ struct RecommendView: View {
     ]
 
     let nutrients = makeDummyNutrients()
-    nutrientVM.recommend = nutrients
+    let dummyChips = ["프로바이오틱스", "오메가3", "마그네슘"]
 
+    dummyRecommendSignature = recommendSignature(nutrients)
+    dummyChipSignature = chipSignature(dummyChips)
+
+    nutrientVM.recommend = nutrients
     if nutrientVM.chip.isEmpty {
-      nutrientVM.chip = ["프로바이오틱스", "오메가3", "마그네슘"]
+      nutrientVM.chip = dummyChips
     }
+    hasRealNutrientData = false
+  }
+
+  private func seedDummyNutrientsIfNeeded() {
+    let nutrients = makeDummyNutrients()
+    let dummyChips = ["프로바이오틱스", "오메가3", "마그네슘"]
+
+    dummyRecommendSignature = recommendSignature(nutrients)
+    dummyChipSignature = chipSignature(dummyChips)
+
+    nutrientVM.recommend = nutrients
+    if nutrientVM.chip.isEmpty {
+      nutrientVM.chip = dummyChips
+    }
+    hasRealNutrientData = false
   }
 
   // 더미데이터 (이미지카드)
@@ -430,7 +525,7 @@ struct RecommendView: View {
         content: """
         프로바이오틱스는 우리 몸속에서 유익균과 유해균의 균형을 맞추어 장 건강을 돕는 살아있는 유산균이에요. 
         규칙적으로 섭취하면 변비, 설사 같은 소화 문제를 완화하는 데 도움을 줄 수 있고, 장내 환경을 개선하여 면역 기능 강화에도 긍정적인 영향을 줍니다.
-
+        
         📌 복용 방법:
         - 식사 직후 섭취 시 정착률이 더 높아져요.
         - 항생제를 복용 중이라면 최소 2시간 간격을 두고 섭취하세요.
@@ -448,9 +543,9 @@ struct RecommendView: View {
         content: """
         오메가3 지방산은 대표적으로 EPA와 DHA가 있으며, 심혈관 건강에 매우 중요한 영양소예요. 
         혈중 중성지방 수치를 낮추고 혈액순환을 개선하는 데 도움을 주어 뇌혈관 질환이나 심장질환 위험을 줄일 수 있습니다. 
-
+        
         또한 뇌세포막을 구성하는 중요한 성분이라 기억력과 집중력 향상에도 긍정적인 역할을 합니다.
-
+        
         📌 복용 방법:
         - 위장 부담을 줄이려면 반드시 식후에 섭취하세요.
         - 꾸준히 복용하면 관절 건강, 안구 건조 개선에도 도움을 줄 수 있습니다.
@@ -468,7 +563,7 @@ struct RecommendView: View {
         content: """
         마그네슘은 300가지 이상의 효소 반응에 관여하는 필수 미네랄로, 특히 근육과 신경 안정에 중요한 역할을 해요. 
         부족하면 눈떨림, 근육 경련, 피로감, 불면 같은 증상이 나타날 수 있습니다. 
-
+        
         📌 복용 방법:
         - 취침 1–2시간 전에 복용하면 숙면에 도움을 줄 수 있습니다.
         - 위장이 예민하다면 글리시네이트, 말레이트 형태가 더 순합니다.

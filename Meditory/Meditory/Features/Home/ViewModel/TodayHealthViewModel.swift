@@ -7,45 +7,83 @@
 
 import Foundation
 
+@MainActor
 final class TodayHealthViewModel: ObservableObject {
-  @Published var healthContent: String = "오늘의 건강 정보를 가져오고 있어요."
+  @Published var healthContent: String = ""
+  @Published var isLoading: Bool = false
+
   private let client: AlanAPIClient
   private let prompt: String
+
+  private static var cachedContent: String?
+  private static var inFlightTask: Task<String, Error>?
 
   init(client: AlanAPIClient = AlanAPIClient()) {
     self.client = client
     self.prompt =
-            """
-            <Instruction>
-            당신은 한의학과 서양 의학 지식을 겸비한 건강 전문가입니다. 사용자가 일상에서 바로 적용할 수 있는 실용적인 팁을 중심으로, 건강 관련 근거와 효과를 간결하게 설명해주세요. 
-            
-            <Requirements>
-            - 공백 포함 80자 내외
-            - 핵심 키워드 2~3개 포함
-            - 명확한 행동 제안 포함
-            
-            <Example>
-            아침 식사 전 따뜻한 레몬물 한 잔은 소화 기능을 돕고 면역력 강화에 효과적입니다.
-            
-            <Query>
-            
-            “오늘의 건강 상식” 키워드에 들어갈 짧고 유익한 문구를 작성해주세요.
-            """
+    """
+    <Instruction>
+    당신은 건강 전문가입니다. 사용자가 일상에서 바로 실천할 수 있는 짧고 실용적인 건강 팁을 제공합니다. 
+    근거와 효과는 간결하게 설명하며, 행동 제안을 포함합니다. 가독성이 좋게 답변해주세요.
+    
+    <Requirements>
+    - 공백 포함 150자 내외
+    - 핵심 키워드 2~3개 포함
+    - 명확한 행동 제안 포함
+    - ""은 불포함한 응답
+    
+    <Example>
+    아침에 물 한 컵을 마시면 밤새 부족했던 수분이 보충되고 신진대사가 활성화됩니다. 특히 집중력 향상과 변비 예방에 효과적입니다. 매일 기상 직후 물 한 컵을 습관으로 만들어보세요.
+    
+    <Query>
+    
+    “오늘의 건강 상식” 키워드에 들어갈 짧고 유익한 문구를 작성해주세요.
+    """
   }
 
-  func fetchHealthContent() {
-    Task {
+  func fetchHealthContent(force: Bool = false) async {
+    if let cached = Self.cachedContent, !force {
+      self.healthContent = cached
+      self.isLoading = false
+      return
+    }
+
+    if let task = Self.inFlightTask, !force {
+      isLoading = true
       do {
-        let result = try await client.request(content: prompt)
-        await MainActor.run {
-          self.healthContent = result
-        }
+        let text = try await task.value
+        self.healthContent = text
       } catch {
-        await MainActor.run {
-          healthContent = "아침 식사 전 따뜻한 레몬물 한 잔은 소화 기능을 돕고 면역력 강화에 효과적입니다."
-        }
+        self.healthContent = Self.fallbackText
         print("TodayHealthView error:", error)
       }
+      self.isLoading = false
+      return
     }
+
+    isLoading = true
+    let task = Task<String, Error> { [client, prompt] in
+      try await client.request(content: prompt)
+    }
+    Self.inFlightTask = task
+
+    do {
+      let text = try await task.value
+      Self.cachedContent = text
+      self.healthContent = text
+    } catch {
+      self.healthContent = Self.fallbackText
+      print("TodayHealthView error:", error)
+    }
+
+    Self.inFlightTask = nil
+    isLoading = false
   }
+
+  private static let fallbackText = "아침에 물 한 컵을 마시면 밤새 부족했던 수분이 보충되고 신진대사가 활성화됩니다. 특히 집중력 향상과 변비 예방에 효과적입니다. 매일 기상 직후 물 한 컵을 습관으로 만들어보세요."
 }
+#if DEBUG
+extension TodayHealthViewModel {
+  static func _resetForTests() { cachedContent = nil; inFlightTask = nil }
+}
+#endif

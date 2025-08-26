@@ -37,13 +37,15 @@ actor UserStore {
   }
   
   /// 외부에서 생성한 User 객체를 DB에 저장하는 함수
-  func addUser(_ user: User) {
+  func addUser(_ user: User) async -> PersistentIdentifier {
     modelContext.insert(user)
     try? modelContext.save()
+    return user.persistentModelID // ID를 반환하도록 추가
   }
   
   /// User 객체를 DB에서 삭제하는 함수
-  func deleteUser(_ user: User) {
+  func deleteUser(id: PersistentIdentifier) async { // User 대신 ID를 받도록 변경
+    guard let user = modelContext.model(for: id) as? User else { return }
     modelContext.delete(user)
     try? modelContext.save()
   }

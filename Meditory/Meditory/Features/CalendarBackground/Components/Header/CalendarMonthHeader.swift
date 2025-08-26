@@ -13,20 +13,27 @@ struct CalendarMonthHeader: View {
   var onPrev: () -> Void
   var onNext: () -> Void
   var onToday: () -> Void
+  @Environment(\.horizontalSizeClass) private var hSize
+  @Environment(\.verticalSizeClass) private var vSize
 
+  private var isPadStyle: Bool { hSize == .regular }
+
+  private var iconFontSize: CGFloat { isPadStyle ? 20 : 18 }
+  private var titleFontSize: CGFloat { isPadStyle ? 22 : 20 }
+  private var todayFontSize: CGFloat { isPadStyle ? 15 : 13 }
   var body: some View {
     ZStack {
       HStack(spacing: .defaultSpacing) {
         Button(action: onPrev) {
           Image(systemName: "chevron.left")
-            .font(.notoSans(size: 18))
+            .font(.notoSans(size: iconFontSize))
             .foregroundStyle(Color.primary.opacity(0.5))
             .frame(width: 40, height: 40)
             .contentShape(Rectangle())
         }
 
         Text(title)
-          .font(.notoSans(size: 20))
+          .font(.notoSans(size: titleFontSize))
           .foregroundStyle(.primary)
           .fontWeight(.bold)
           .lineLimit(1)
@@ -34,7 +41,7 @@ struct CalendarMonthHeader: View {
 
         Button(action: onNext) {
           Image(systemName: "chevron.right")
-            .font(.notoSans(size: 18))
+            .font(.notoSans(size: iconFontSize))
             .foregroundStyle(Color.primary.opacity(0.5))
             .frame(width: 40, height: 40)
             .contentShape(Rectangle())
@@ -46,7 +53,7 @@ struct CalendarMonthHeader: View {
         Button(action: onToday) {
           Text("오늘")
             .foregroundStyle(.secondary)
-            .font(.notoSans(size: 13))
+            .font(.notoSans(size: todayFontSize))
             .fontWeight(.semibold)
             .padding(.horizontal, .defaultSpacing)
             .padding(.vertical, .smallSpacing/2)

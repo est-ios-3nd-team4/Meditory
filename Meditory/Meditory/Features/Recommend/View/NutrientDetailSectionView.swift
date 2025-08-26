@@ -61,19 +61,7 @@ struct NutrientDetailSectionView: View {
           .font(.notoSans(weight: .medium, size: 15))
       }
       .padding(.vertical)
-      .navigationTitle("")
-      .navigationBarTitleDisplayMode(.inline)
-      .navigationBarBackButtonHidden(true)
-      .toolbar {
-        ToolbarItem(placement: .navigationBarLeading) {
-          Button {
-            dismiss()
-          } label: {
-            Image(systemName: "chevron.left")
-              .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
-          }
-        }
-      }
+      .navigationBar(.none, backgroundStyle: .system)
     }
     .scrollIndicators(.hidden)
   }

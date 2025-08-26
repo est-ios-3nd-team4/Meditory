@@ -11,7 +11,7 @@ import SwiftUI
 struct OnboardingView: View {
   @Environment(\.modelContext) var context: ModelContext
 
-  @StateObject var vm: OnboardingViewModel
+  @State var vm: OnboardingViewModel
   @StateObject private var keyboardObserver = KeyboardObserver()
   @FocusState private var focusedField: FormField?
 
@@ -24,7 +24,7 @@ struct OnboardingView: View {
 
   init(userStore: UserStore, onFinished: @escaping () -> Void = {}) {
     self.onFinished = onFinished
-    _vm = StateObject(wrappedValue: OnboardingViewModel(userStore: userStore))
+    _vm = State(wrappedValue: OnboardingViewModel(userStore: userStore))
   }
 
   var body: some View {
@@ -109,27 +109,22 @@ struct OnboardingView: View {
   @ViewBuilder
   func nextButton() -> some View {
     VStack(spacing: .smallSpacing) {
-      Button {
-        if let next = currentStep.nextView() {
-          if currentStep == .base {
-            vm.validateAllField()
-          }
-          currentStep = next
-        } else {
+      PrimaryButton(
+        title: currentStep != .concern ? "다음" : "완료",
+        isEnabled: vm.isNextButtonOn
+      ) {
+        guard let next = currentStep.nextView() else {
           onFinished()
           signUp()
+          return
         }
-      } label: {
-        RoundedRectangle(cornerRadius: .smallRadius)
-          .fill(vm.isNextButtonOn ? Color.main : Color.gray.opacity(0.4))
-          .frame(height: 50)
-          .overlay {
-            Text(currentStep != .concern ? "다음" : "완료")
-              .font(.notoSans(weight: .semiBold, size: 18))
-              .foregroundStyle(.white)
-          }
+        if case .base = currentStep {
+          let invalidFields = vm.validateAllField()
+          guard invalidFields.isEmpty else { return }
+        }
+        currentStep = next
       }
-            .disabled(!vm.isNextButtonOn)
+      .disabled(!vm.isNextButtonOn)
       .padding(.vertical, buttonTopSpacing)
     }
     .padding(.horizontal, .defaultSpacing + 4)
@@ -145,7 +140,7 @@ struct OnboardingView: View {
   
   func signUp() {
     Task {
-      await vm.signUp(context: context)
+      try await vm.signUp()
     }
   }
 }

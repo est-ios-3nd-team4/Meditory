@@ -9,95 +9,111 @@ import Foundation
 import SwiftUI
 import SwiftData
 
-enum PlanTab: String, CaseIterable, Hashable { case mine = "내 일정", ai = "AI 추천" }
-
-@MainActor
-final class SupplementDetailViewModel: ObservableObject {
-  private let routineStore: RoutineStore
-
+@Observable
+final class SupplementDetailViewModel {
   /// SwiftData @Model 이므로 참조 타입으로 유지
   /// - Routine이 갱신되면 아래 computed 프로퍼티들이 최신 상태를 반영
-  let routine: Routine
+  /// - Routine 삭제 시 nil 처리
+  var routine: Routine?
 
   // State
-  @Published var selectedTab: PlanTab = .mine
-  @Published var showDeleteAlert: Bool = false
+  var showDeleteAlert: Bool = false
 
   // Init
-  init(
-    routine: Routine,
-    routineStore: RoutineStore = RoutineStore()
-  ) {
+  init(routine: Routine) {
     self.routine = routine
-    self.routineStore = routineStore
   }
 
   // Header
-  var name: String { routine.displayName }
-  var subtitle: String { routine.desc ?? "" }
+  var name: String { routine?.displayName ?? "" }
+  var subtitle: String { routine?.desc ?? "" }
 
   // Mine (사용자 설정)
+  /// 1) 사용자 지정 시간
+  /// 2) 없으면 추천 시간
+  /// 3) 그래도 없으면 09:00 기본 1회
   var userTimes: [String] {
-    routine.routineTimes
+    guard let routine else { return [] }
+
+    let user = routine.routineTimes
       .sorted { $0.time < $1.time }
       .map { $0.time.timeFormatter }
-  }
 
-  var userCycle: String {
-    RoutineFormatter.renderCycle(cycleType: routine.cycleType, cycleValue: routine.cycleValue)
-  }
+    if !user.isEmpty { return user }
 
-  // AI 추천
-  var recTimes: [String] {
-    routine.recommendedRoutineTimes
+    let recommended = routine.recommendedRoutineTimes
       .sorted { $0.time < $1.time }
-      .map { t in
-        if let label = t.intakeTiming, !label.isEmpty { return label }  // 상대 기준은 라벨 우선
-        return t.time.timeFormatter                                    // 절대 시각은 시간 표기
-      }
+      .map { $0.time.timeFormatter }
+
+    if !recommended.isEmpty { return recommended }
+
+    let nineAM = Calendar.current.date(
+      bySettingHour: 9, minute: 0, second: 0, of: Date()
+    ) ?? Date()
+    return [nineAM.timeFormatter]
   }
 
-  /// 별도 추천 주기가 없다면 사용자 주기와 동일하게 노출
-  var recCycle: String {
-    RoutineFormatter.renderCycle(cycleType: routine.cycleType, cycleValue: routine.cycleValue)
+  /// 비정상(cycleType=0, value="", 포맷 실패 등)일 경우 "매일"로 대체
+  var userCycle: String {
+    guard let routine else { return "매일" }
+
+    let rendered = RoutineFormatter.renderCycle(
+      cycleType: routine.cycleType,
+      cycleValue: routine.cycleValue
+    )
+
+    return rendered.isEmpty ? "매일" : rendered
   }
 
-  var usage: [String] { routine.usage }
-  var precautions: [String] { routine.precautions }
+  /// 시간별 복용 알약 수 정보
+  var pills: [String] {
+    guard let routine else { return ["1정"] }
 
-  func tapMine() {
-    selectedTab = .mine
-    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-  }
+    // 1. 사용자 설정 복용 시간이 있는 경우
+    let userPills = routine.routineTimes
+      .sorted { $0.time < $1.time }
+      .map { "\($0.pillsPerDose)정" }
 
-  func tapAI() {
-    selectedTab = .ai
-    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-  }
-
-  func requestDelete() { showDeleteAlert = true }
-
-  func confirmDelete(context: ModelContext) {
-    routineStore.deleteRoutine(routine, context: context)
-    showDeleteAlert = false
-  }
-
-  func cancelDelete() { showDeleteAlert = false }
-
-  /// AI 추천을 내 일정에 반영하고 싶을 때 호출
-  func applyRecommendationToMine(context: ModelContext) {
-    // 기존 사용자 설정 시간 교체
-    routine.routineTimes.removeAll()
-    // 추천 시간을 그대로 복사(라벨/오프셋은 RoutineTime에 이미 담겨 있으므로 무시하지 않음)
-    let cloned: [RoutineTime] = routine.recommendedRoutineTimes.map {
-      RoutineTime(
-        time: $0.time,
-        intakeTiming: $0.intakeTiming,
-        intakeOffsetMinutes: $0.intakeOffsetMinutes,
-        routine: routine
-      )
+    if !userPills.isEmpty {
+      return userPills
     }
-    routine.routineTimes = cloned
-    try? context.save()
+
+    // 2. 사용자 설정이 없고 AI 추천 시간이 있는 경우
+    let recommendedPills = routine.recommendedRoutineTimes
+      .sorted { $0.time < $1.time }
+      .map { "\($0.pillsPerDose)정" }
+
+    if !recommendedPills.isEmpty {
+      return recommendedPills
+    }
+
+    // 3. 둘 다 없는 경우, 기본값으로 "1정" 반환
+    return ["1정"]
+  }
+
+  /// 메모
+  var memo: String {
+    routine?.memo ?? ""
+  }
+
+  var usage: [String] { routine?.usage ?? [] }
+  var precautions: [String] { routine?.precautions ?? [] }
+
+  func requestDelete() {
+    showDeleteAlert = true
+  }
+
+  @MainActor
+  func confirmDelete(dismiss: DismissAction) async {
+    if let routineToDelete = routine {
+      await RoutineStore.shared.deleteRoutine(id: routineToDelete.persistentModelID)
+      self.routine = nil
+    }
+    showDeleteAlert = false
+    dismiss()
+  }
+  
+  func cancelDelete() {
+    showDeleteAlert = false
   }
 }

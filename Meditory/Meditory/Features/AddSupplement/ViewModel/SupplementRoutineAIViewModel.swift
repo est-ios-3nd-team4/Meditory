@@ -8,31 +8,27 @@
 import Foundation
 import SwiftData
 
-@MainActor
-final class SupplementRoutineAIViewModel: ObservableObject {
+@Observable
+final class SupplementRoutineAIViewModel {
   private let client: AlanAPIClient
-  private let context: ModelContext // TODO: 나머지 Store 수정하면서 얘도 삭제
-  private let userStore: UserStore
-  private let routineStore: RoutineStore
 
-  init(
-    client: AlanAPIClient = AlanAPIClient(),
-    context: ModelContext, // TODO: 나머지 Store 수정하면서 얘도 삭제
-    userStore: UserStore, // Store 는 이것처럼 View 에서 넘겨받는다. ViewModel 이 직접 생성하지 않음.
-    routineStore: RoutineStore = RoutineStore()
-  ) {
+  // Store들을 직접 소유하지 않고, 필요할 때 .shared 인스턴스를 사용합니다.
+  init(client: AlanAPIClient = AlanAPIClient()) {
     self.client = client
-    self.context = context
-    self.userStore = userStore
-    self.routineStore = routineStore
-
-    Task { // Store의 메서드를 쓸때는 await 필수
-      await userStore.loadUser()
-    }
   }
 
-  func requestAISchedule(supplementName: String, lifeStyle: UserLifeStyle) async throws -> SupplementDTO {
-    let prompt = await makePrompt(supplementName: supplementName, lifestyle: lifeStyle)
+  // AI 추천을 요청하는 View로부터 ModelContext를 전달받습니다.
+  func requestAISchedule(
+    supplementName: String,
+    lifeStyle: UserLifeStyle,
+    context: ModelContext
+  ) async throws -> SupplementDTO {
+    // makePrompt를 호출할 때 context를 전달합니다.
+    let prompt = await makePrompt(
+      supplementName: supplementName,
+      lifestyle: lifeStyle,
+      context: context
+    )
     
     print("✅ 요청", Date.now)
     
@@ -44,48 +40,67 @@ final class SupplementRoutineAIViewModel: ObservableObject {
     return dto
   }
   
-  func makePrompt(supplementName: String, lifestyle: UserLifeStyle) async -> String { // async 추가
-    let user = try? await userStore.currentUser()  //  await 사용
+  // AI 프롬프트를 생성할 때 ModelContext를 사용합니다.
+  func makePrompt(
+    supplementName: String,
+    lifestyle: UserLifeStyle,
+    context: ModelContext  // << 이 context를 사용해야 합니다!
+  ) async -> String {
+    
+    // 1. 전달받은 context에서 직접 User 정보를 가져옵니다.
+    let userDescriptor = FetchDescriptor<User>()
+    let user = try? context.fetch(userDescriptor).first
+    
     let gender = user?.gender ?? "미입력"
     let birth = user?.birthDate ?? Date(timeIntervalSince1970: 0)
-    let (diseases, allergies, preg, breast) = await loadExtraHealthInfo()
     
-    let routines = routineStore.fetchAllRoutines(context: context)
-    let scheduleList: [String] = (routines.isEmpty ? [] : routines).map { routine in
-      let timeDoseSummary = routine.routineTimes.map { "\($0.time.toHHmmString())(\($0.pillsPerDose)정)" }.joined(separator: ", ")
+    // 2. 조회한 user 객체에서 건강 정보를 추출합니다.
+    let diseases = user?.userExtraInfos.first?.disease.map { $0.value } ?? []
+    let allergies = user?.userExtraInfos.first?.allergy.map { $0.value } ?? []
+    let isPregnant = user?.userStatuses.contains { $0.statusType == "임신" } ?? false
+    let isBreastfeeding = user?.userStatuses.contains { $0.statusType == "수유" } ?? false
+    
+    // 3. 전달받은 context에서 직접 Routine 정보를 가져옵니다.
+    let routineDescriptor = FetchDescriptor<Routine>(sortBy: [SortDescriptor(\.displayName)])
+    let routines = (try? context.fetch(routineDescriptor)) ?? []
+    
+    let scheduleList: [String] = routines.map { routine in
+      let timeDoseSummary = routine.routineTimes
+        .sorted { $0.time < $1.time } // 시간을 기준으로 정렬
+        .map { "\($0.time.toHHmmString())(\($0.pillsPerDose)정)" }
+        .joined(separator: ", ")
       let cycleHint = RoutineFormatter.renderCycle(cycleType: routine.cycleType, cycleValue: routine.cycleValue)
-
+      
       return """
-        \(routine.displayName) 
-        - 요일: \(cycleHint)
-        - 복용시간: \(timeDoseSummary)
-      """
+                  \(routine.displayName)
+                  - 요일: \(cycleHint)
+                  - 복용시간: \(timeDoseSummary)
+              """
     }
-
+    
+    // 4. 추출한 정보들로 프롬프트를 생성합니다.
     let input = ScheduleAIPrompt.UserInput(
       gender: gender,
       birthDate: birth,
       diseases: diseases,
       allergies: allergies,
-      isPregnant: preg,
-      isBreastfeeding: breast,
+      isPregnant: isPregnant,
+      isBreastfeeding: isBreastfeeding,
       supplementSchedule: scheduleList,
       lifestyle: ScheduleAIPrompt.LifestyleLoad.from(lifestyle)
     )
-
+    
     return ScheduleAIPrompt.makePrompt(user: input, productName: supplementName)
   }
 
-  private func loadExtraHealthInfo() async
-    -> (diseases: [String], allergies: [String], isPregnant: Bool, isBreastfeeding: Bool)
-  {
+  private func loadExtraHealthInfo() async -> (diseases: [String], allergies: [String], isPregnant: Bool, isBreastfeeding: Bool) {
     var diseases: Set<String> = []
     var allergies: Set<String> = []
     var isPregnant = false
     var isBreastfeeding = false
 
-    let all = await userStore.fetchExtraInfos()
-    let currentID = try? await userStore.currentUser().persistentModelID
+    let all = await UserStore.shared.fetchExtraInfos()
+    let currentID = try? await UserStore.shared.currentUser().persistentModelID
     let mine = all.filter { $0.user?.persistentModelID == currentID }
     
     for info in mine {
@@ -93,7 +108,7 @@ final class SupplementRoutineAIViewModel: ObservableObject {
       info.allergy.forEach { allergies.formUnion(parseList($0.value)) }
     }
     
-    let _ = await userStore.fetchStatuses().forEach {
+    _ = await UserStore.shared.fetchStatuses().forEach {
       let status = $0.statusType
       
       if status.contains("임신") || status.contains("pregnan") {
