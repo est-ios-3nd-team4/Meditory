@@ -7,12 +7,11 @@
 
 import SwiftUI
 
-struct MacroGuidePopover: View {
+struct RecommendedMacroGuidePopover: View {
   @EnvironmentObject var viewModel: NutritionMainViewModel
-  
-  let meal = MacroNutrients(carbohydrate: 250,
-                            protein: 50,
-                            fat: 30)
+  var meal: MacroNutrients {
+    viewModel.recommendedCalories
+  }
   
   var body: some View {
     ZStack {
@@ -32,6 +31,7 @@ struct MacroGuidePopover: View {
         
         macroPercentageView()
       }
+      .foregroundStyle(.black)
     }
   }
   
@@ -46,7 +46,6 @@ struct MacroGuidePopover: View {
           HStack {
             Text(item.label)
               .font(.notoSans(weight: .regular, size: 13))
-              .foregroundStyle(.black)
             
             Text("\(Int(item.gram))g")
               .font(.notoSans(weight: .semiBold, size: 11))
@@ -59,5 +58,5 @@ struct MacroGuidePopover: View {
 }
 
 #Preview {
-  MacroGuidePopover()
+  RecommendedMacroGuidePopover()
 }

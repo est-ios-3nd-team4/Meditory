@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct MainTabView: View {
-  
+
   @Environment(\.modelContext) private var context
+  @EnvironmentObject var nutritionViewModel: NutritionMainViewModel
   
   @State private var selectedTabItem: TabItem = .home
   @State private var showIntakeSelector = false

@@ -8,6 +8,6 @@
 import SwiftUI
 
 extension MacroItem {
-  var label: String { type.displayName }
-  var color: Color { type.color }
+    var label: String { type.displayName }
+    var color: Color { type.color }
 }

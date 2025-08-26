@@ -13,6 +13,12 @@ extension View {
       .modifier(CardStyle(padding: padding, cornerRadius: cornerRadius))
   }
   
+  func longPressPopover<Content: View>(
+    @ViewBuilder content: @escaping () -> Content
+  ) -> some View {
+    modifier(LongPressPopoverModifier(popoverContent: content))
+  }
+    
   func navigationBar(
     _ title: NavigationTitle,
     backgroundStyle: PrimaryNavigationBar.BackgroundStyle = .custom,

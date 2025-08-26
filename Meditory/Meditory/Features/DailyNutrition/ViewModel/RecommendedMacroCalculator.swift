@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct NutritionCalculator {
+struct RecommendedMacroCalculator {
   
   /// 기초대사율 계산 (BMR)
   static func calculateBMR(weight: Double, height: Double, age: Int, isMale: Bool) -> Double {
@@ -23,6 +23,7 @@ struct NutritionCalculator {
     return bmr * activityLevel.activityFactor
   }
   
+  /// (일일칼로리 * 탄수화물 비율(0.5)) / 4
   static func calculateMacros(dailyCalories: Double) -> MacroNutrients {
     let carbCalories = dailyCalories * 0.5
     let proteinCalories = dailyCalories * 0.3

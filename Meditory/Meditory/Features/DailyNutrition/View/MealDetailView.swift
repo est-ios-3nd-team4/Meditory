@@ -8,58 +8,58 @@
 import SwiftUI
 
 struct MealDetailView: View {
-  
+  @StateObject private var navigationManager = FoodNavigationManager()
   @Environment(\.dismiss) var dismiss
   @EnvironmentObject var viewModel: NutritionMainViewModel
   
   var body: some View {
-    VStack(spacing: 50) {
-      FoodSearchTextFieldView()
+    VStack {
+      FoodSearchTextFieldView(navigationManager: navigationManager)
         .padding(.horizontal, 16)
       
-      MacroChartView(macros: viewModel.selectedMeal?.macros)
-      .frame(width: 200, height: 200)
-      
-      HStack {
-        Spacer()
-        
-        Image(systemName: "info.circle")
-          .longPressPopover {
-            MacroGuidePopover()
-          }
+      switch navigationManager.currentScreen {
+      case .mealList:
+        AdvancedTopTabBarView()
+      case .mealDetail:
+        MealDetailMainView()
+          .padding(.top, 30)
+      case .addMeal:
+        MealDetailMainView()
       }
-      .frame(width: 250)
-      
-      macroCompositionView()
-      
-      FoodGridView(foods: viewModel.selectedMeal?.foods)
-      Spacer()
     }
-    .navigationBar(.mealDetail)
-  }
-  
-  // MARK: Disposable Components
-  
-  func macroCompositionView() -> some View {
-    let macro = viewModel.selectedMeal?.macros ?? MacroNutrients(carbohydrate: 0, protein: 0, fat: 0)
-    
-    return HStack(spacing: 50) {
-      ForEach(macro.macroItems) { item in
-        VStack {
-          Text(item.label)
-            .font(.notoSans(weight: .bold, size: 18))
+    .navigationBarBackButtonHidden(true)
+    .navigationBarTitleDisplayMode(.inline)
+    .toolbar {
+      ToolbarItem(placement: .navigationBarLeading) {
+        Button {
+          dismiss()
+        } label: {
+          Image(systemName: "chevron.left")
+            .foregroundStyle(.primary)
+        }
+      }
+      
+      ToolbarItem(placement: .principal) {
+        Text("아침 식단 요약")
+          .font(.notoSans(weight: .bold, size: 20))
+          .foregroundStyle(.primary)
+      }
+      
+      ToolbarItem(placement: .navigationBarTrailing) {
+        Button {
           
-          Circle()
-            .fill(item.color)
-            .frame(width: 20, height: 20)
-          
-          Text("\(Int(item.gram))%")
-            .font(.notoSans(weight: .medium, size: 17))
+        } label: {
+          VStack {
+            Text("🍴")
+            
+            Text("직접 입력하기")
+              .font(.notoSans(weight: .medium, size: 15))
+              .foregroundStyle(.accent)
+          }
         }
       }
     }
   }
-  
 }
 
 #Preview {
