@@ -34,6 +34,17 @@ struct OnboardingView: View {
     // ViewModel에게도 isEditing 모드임을 알려줍니다.
     self._vm = State(wrappedValue: OnboardingViewModel(userStore: userStore))
   }
+  
+  // MARK: - 수정 화면의 제목을 동적으로 생성
+  private var editingTitle: String {
+    switch currentStep {
+    case .base: return "기본 정보 수정"
+    case .gender: return "성별 수정"
+    case .allergy: return "알레르기 정보 수정"
+    case .disease: return "질병 정보 수정"
+    case .concern: return "건강 관심사 수정"
+    }
+  }
 
   var body: some View {
     VStack {
@@ -52,10 +63,17 @@ struct OnboardingView: View {
         nextButton()
       }
     }
-    // 수정 모드일 때는 화면 제목을 보여주는 것이 좋습니다.
-    .navigationTitle(isEditing ? "정보 수정" : "")
-    .navigationBarTitleDisplayMode(.inline)
-    .navigationBarBackButtonHidden(isEditing ? false : true)
+    // MARK: - 커스텀 내비게이션 바 적용
+    // isEditing 값에 따라 다른 내비게이션 바 스타일을 적용합니다.
+    .applyIf(isEditing) {
+      $0.navigationBar(.custom(editingTitle)) {
+        dismiss()
+      }
+    }
+    .applyIf(!isEditing) {
+      // 최초 온보딩 시에는 시스템 내비게이션 바를 숨깁니다.
+      $0.navigationBarHidden(true)
+    }
     .onAppear {
       // 수정 모드일 경우에만 데이터를 불러옵니다.
       if isEditing {

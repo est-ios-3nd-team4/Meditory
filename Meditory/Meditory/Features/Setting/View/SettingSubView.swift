@@ -7,6 +7,9 @@ struct SettingSubView: View {
   // OnboardingView에 전달하기 위해 userStore를 가져옵니다.
   @Environment(\.userStore) private var userStore
   
+  // 부모 뷰로부터 초기화 동작을 전달받습니다.
+  // let onReset: () -> Void // TODO: 초기화 기능 구현 시 이 부분을 활성화해야 합니다.
+  
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
       // MARK: - OnboardingView를 수정 모드로 호출
@@ -64,8 +67,9 @@ struct SettingSubView: View {
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-    .navigationTitle("내 정보 ∙ 건강 정보 관리")
-    .navigationBarTitleDisplayMode(.inline)
+    .navigationBar(.custom("내 정보 ∙ 건강 정보 관리")) {
+      dismiss()
+    }
   }
   
   
