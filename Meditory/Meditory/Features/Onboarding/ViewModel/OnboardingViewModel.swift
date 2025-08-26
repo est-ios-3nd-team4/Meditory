@@ -52,7 +52,7 @@ class OnboardingViewModel {
 
       validateTasks[field]?.cancel()
       validateTasks[field] = Task { [weak self] in
-        try? await Task.sleep(nanoseconds: 300_000_000)
+        try? await Task.sleep(nanoseconds: 500_000_000)
         guard !Task.isCancelled else { return }
         await MainActor.run { [weak self] in
           self?.validate(field)
