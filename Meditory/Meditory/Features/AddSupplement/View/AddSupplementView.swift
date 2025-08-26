@@ -152,7 +152,7 @@ extension AddSupplementView {
       .id(ViewID.confirmButton)
       .padding(.bottom, .bottomInset)
     }
-    .padding(.horizontal, .defaultSpacing + 4)
+    .padding(.horizontal, .defaultSpacing)
   }
   
   private func supplementNameInput() -> some View {
