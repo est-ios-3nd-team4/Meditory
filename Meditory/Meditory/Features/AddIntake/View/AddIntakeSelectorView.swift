@@ -19,7 +19,7 @@ struct AddIntakeSelectorView: View {
   @State private var buttonOpacity: CGFloat = .zero
   
   private var transtionDuration: CGFloat {
-    isPresented ? 0.4 : 0.6
+    isPresented ? 0.3 : 0.4
   }
   
   var body: some View {
@@ -61,7 +61,7 @@ struct AddIntakeSelectorView: View {
 // MARK: - Animations
 extension AddIntakeSelectorView {
   private func transitionAnimation() {
-    withAnimation(.easeInOut(duration: 0.3)) {
+    withAnimation(.easeInOut(duration: 0.2)) {
       isRotated.toggle()
     }
     

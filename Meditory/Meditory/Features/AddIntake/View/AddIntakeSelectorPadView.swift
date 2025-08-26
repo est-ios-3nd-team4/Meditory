@@ -16,6 +16,7 @@ struct AddIntakeSelectorPadView: View {
   
   @State private var isRotated = false
   @State private var isPresented = false
+  @State private var sheetOpacity: CGFloat = .zero
   @State private var buttonOpacity: CGFloat = .zero
   
   private var transtionDuration: CGFloat {
@@ -27,25 +28,28 @@ struct AddIntakeSelectorPadView: View {
       
       Spacer()
       
-      VStack(spacing: isPresented ? .defaultSpacing * 2 : .defaultSpacing) {
-        intakeItem(item: .supplement)
-          .opacity(buttonOpacity)
-        
-        intakeItem(item: .meal)
-          .opacity(buttonOpacity)
-      }
-      .offset(y: isPresented ? -(.defaultSpacing * 2) : .zero)
-      
-      
-      AddIntakeButton()
-        .rotationEffect(.degrees(isRotated ? 45 : 0))
-        .onTapGesture {
-          dismissWithAnimation()
+      Group {
+        VStack(spacing: isPresented ? .defaultSpacing * 2 : .defaultSpacing) {
+          intakeItem(item: .supplement)
+            .opacity(buttonOpacity)
+          
+          intakeItem(item: .meal)
+            .opacity(buttonOpacity)
         }
+        .offset(y: isPresented ? -(.defaultSpacing * 2) : .zero)
+        
+        
+        AddIntakeButton()
+          .rotationEffect(.degrees(isRotated ? 45 : 0))
+          .onTapGesture {
+            dismissWithAnimation()
+          }
+      }
+      .padding(.bottom, insets.bottom)
+      .padding(.trailing, insets.right)
     }
     .frame(maxWidth: .infinity, alignment: .trailing)
-    .padding(.bottom, insets.bottom)
-    .padding(.trailing, insets.right)
+    .background(.black.opacity(sheetOpacity))
     .onAppear {
       transitionAnimation()
     }
@@ -58,6 +62,10 @@ extension AddIntakeSelectorPadView {
   private func transitionAnimation() {
     withAnimation(.easeInOut(duration: transtionDuration - 0.1)) {
       isRotated.toggle()
+    }
+    
+    withAnimation(.easeInOut(duration: isPresented ? transtionDuration : 0.15)) {
+      sheetOpacity = isPresented ? 0 : 0.8
     }
     
     withAnimation(.easeInOut(duration: isPresented ? transtionDuration - 0.2 : transtionDuration)) {
@@ -87,34 +95,20 @@ extension AddIntakeSelectorPadView {
 
 // MARK: - Subviews
 extension AddIntakeSelectorPadView {
-  @ViewBuilder
-  private func intakeItemBackgroundCircle(_ imageName: String) -> some View {
-    Group {
-      let circle = Circle().fill(Color.background)
-      
-      if colorScheme == .light {
-        circle
-          .modifier(UnifiedShadow())
-      } else {
-        circle
-          .strokeBorder(Color.white.opacity(0.4), lineWidth: 1)
-      }
-    }
-    .overlay {
-      Image(imageName)
-        .resizable()
-        .scaledToFit()
-        .frame(width: AddIntakeButton.size.width * 0.65)
-    }
-    .frame(width: AddIntakeButton.size.width, height: AddIntakeButton.size.height)
-  }
-
   private func intakeItem(item: AddIntakeItem) -> some View {
     VStack {
-      intakeItemBackgroundCircle(item.imageName)
+      Circle()
+        .fill(Color.init(red: 94, green: 94, blue: 96))
+        .overlay {
+          Image(item.imageName)
+            .resizable()
+            .scaledToFit()
+            .frame(width: AddIntakeButton.size.width * 0.65)
+        }
+        .frame(width: AddIntakeButton.size.width, height: AddIntakeButton.size.height)
       
       Text(item.title)
-        .foregroundStyle(Color.label)
+        .foregroundStyle(.white)
         .frame(width: AddIntakeButton.size.width)
         .font(.notoSans(size: 17))
     }

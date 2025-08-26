@@ -99,7 +99,7 @@ actor UserLifeStyleStore {
     breakfast: Date? = nil,
     lunch: Date? = nil,
     dinner: Date? = nil
-  ) {
+  ) throws {
     guard let lifestyle = modelContext.model(for: lifestyleID) as? UserLifeStyle else { return }
     
     if let date = wakeTime { lifestyle.wakeTime = date.toHHmmString() }
@@ -109,6 +109,6 @@ actor UserLifeStyleStore {
     if let date = lunch { lifestyle.lunch = date.toHHmmString() }
     if let date = dinner { lifestyle.dinner = date.toHHmmString() }
     
-    try? modelContext.save()
+    try modelContext.save()
   }
 }

@@ -24,44 +24,58 @@ struct AddSupplementView: View {
     case confirmButton
   }
   
+  // Properties
   var type: Mode
+  @Binding private var selectedIntakeItem: AddIntakeItem?
   
+  // Environment
   @Environment(\.modelContext) private var context
   @Environment(\.dismiss) private var dismiss
   @Environment(\.colorScheme) private var colorScheme
   
-  @Binding private var selectedIntakeItem: AddIntakeItem?
-  
+  // Query
   @Query private var users: [User]
   
+  // ViewModels
   @State private var addSupplementVM = AddSupplementViewModel()
   @StateObject private var scheduleVM = SupplementScheduleViewModel()
   @State private var lifestyleTimeVM: LifestyleTimeViewModel
   
+  // Schedule
   @State private var selectedScheduleType: SupplementScheduleType = .weekday
   @State private var selectedPicker: SchedulePickerType? {
-    didSet {
-      showSchedulePicker()
-    }
+    didSet { showSchedulePicker() }
   }
+  @State private var selectedTimeIndex = 0
+  @State private var scheduleTypeRectPosition: CGPoint = .zero
+  
+  // Input
   @State private var supplementName = ""
   @State private var memo = ""
   @State private var fieldType: FieldType? = nil
-  @State private var selectedTimeIndex = 0
-  @State private var showScanner = false
-  @State private var scheduleTypeRectPosition: CGPoint = .zero
-  @State private var showTimePicker = false
+  
+  // Lifestyle
   @State private var selectedLifestyleCategory: LifestyleTimeType? = nil
   @State private var selectedLifestyleOption: (any LifestyleTime)?
-  @State private var isSearchingSupplementSummary = false
-  @State private var supplement: SupplementDTO?
-  @State private var showAlert = false
-  @State private var routineSaveError: RoutineSaveError?
-  @State private var isAtTop: Bool = true
   
+  // Supplement
+  @State private var supplement: SupplementDTO?
+  @State private var routineSaveError: RoutineSaveError?
   private var shouldShowSupplementInfo: Bool {
     addSupplementVM.supplemtSummary != nil || isSearchingSupplementSummary
   }
+  
+  // Scroll / Navigation
+  @State private var isAtTop: Bool = true
+  
+  // UI Toggles
+  @State private var showScanner = false
+  @State private var showTimePicker = false
+  @State private var isSearchingSupplementSummary = false
+  @State private var showAlert = false
+  @State private var isSaving = false
+  
+  // Constants
   private let defaultFontSize: CGFloat = 18
   
   init(
@@ -118,9 +132,7 @@ extension AddSupplementView {
     VStack(spacing: 20) {
       supplementNameInput()
       
-      if shouldShowSupplementInfo {
-        supplementInfoSection()
-      }
+      supplementInfoSection()
       
       lifestyleSection()
       
@@ -140,63 +152,7 @@ extension AddSupplementView {
       .id(ViewID.confirmButton)
       .padding(.bottom, .bottomInset)
     }
-    .padding(.horizontal, .defaultSpacing + 4)
-  }
-
-  private func supplementInfoSection() -> some View {
-    SupplementInfoView(
-      defaultFontSize: defaultFontSize,
-      addSupplementVM: addSupplementVM,
-      isSearchingSupplementSummary: $isSearchingSupplementSummary
-    )
-  }
-  
-  private func lifestyleSection() -> some View {
-    Group {
-      LifestyleTimeView(
-        type: .dailyCycle,
-        defaultFontSize: defaultFontSize,
-        lifestyleTimeVM: lifestyleTimeVM,
-        onTapGesture: { option in
-          selectedLifestyleCategory = .dailyCycle
-          selectedLifestyleOption = option
-          showTimePicker = true
-        }
-      )
-      
-      LifestyleTimeView(
-        type: .meal,
-        defaultFontSize: defaultFontSize,
-        lifestyleTimeVM: lifestyleTimeVM,
-        onTapGesture: { option in
-          selectedLifestyleCategory = .meal
-          selectedLifestyleOption = option
-          showTimePicker = true
-        }
-      )
-    }
-  }
-  
-  private func scheduleDetailsSection() -> some View {
-    VStack {
-      switch selectedScheduleType {
-      case .weekday:
-        weekdayScheduleView()
-      case .interval:
-        intervalScheduleView()
-      }
-      supplementCountSelector()
-    }
-    .modifier(CardStyle(padding: .defaultSpacing))
-  }
-  
-  private func aiRecommendationSection() -> some View {
-    AIRecommendedScheduleView(
-      defaultFontSize: defaultFontSize,
-      supplementSummary: addSupplementVM.supplemtSummary,
-      lifestyle: lifestyleTimeVM.userlifeStyle,
-      supplement: $supplement
-    )
+    .padding(.horizontal, .defaultSpacing)
   }
   
   private func supplementNameInput() -> some View {
@@ -249,9 +205,9 @@ extension AddSupplementView {
     .cardStyle(padding: .defaultSpacing)
     .frame(height: 55)
   }
-  
+
   @ViewBuilder
-  private func supplementInfoView() -> some View {
+  private func supplementInfoSection() -> some View {
     if shouldShowSupplementInfo {
       SupplementInfoView(
         defaultFontSize: defaultFontSize,
@@ -261,26 +217,29 @@ extension AddSupplementView {
     }
   }
   
-  @ViewBuilder
-  private func lifestyleTimeViews() -> some View {
-    LifestyleTimeView(
-      type: .dailyCycle,
-      defaultFontSize: defaultFontSize,
-      lifestyleTimeVM: lifestyleTimeVM,
-    ) { option in
-      selectedLifestyleCategory = .dailyCycle
-      selectedLifestyleOption = option
-      showTimePicker = true
-    }
-    
-    LifestyleTimeView(
-      type: .meal,
-      defaultFontSize: defaultFontSize,
-      lifestyleTimeVM: lifestyleTimeVM
-    ) { option in
-      selectedLifestyleCategory = .meal
-      selectedLifestyleOption = option
-      showTimePicker = true
+  private func lifestyleSection() -> some View {
+    Group {
+      LifestyleTimeView(
+        type: .dailyCycle,
+        defaultFontSize: defaultFontSize,
+        lifestyleTimeItems: lifestyleTimeVM.lifestyleTimeItems(for: .dailyCycle),
+        onTapGesture: { option in
+          selectedLifestyleCategory = .dailyCycle
+          selectedLifestyleOption = option
+          showTimePicker = true
+        }
+      )
+      
+      LifestyleTimeView(
+        type: .meal,
+        defaultFontSize: defaultFontSize,
+        lifestyleTimeItems: lifestyleTimeVM.lifestyleTimeItems(for: .meal),
+        onTapGesture: { option in
+          selectedLifestyleCategory = .meal
+          selectedLifestyleOption = option
+          showTimePicker = true
+        }
+      )
     }
   }
   
@@ -327,7 +286,7 @@ extension AddSupplementView {
     .frame(height: 40)
   }
   
-  private func scheduleSection() -> some View {
+  private func scheduleDetailsSection() -> some View {
     VStack {
       switch selectedScheduleType {
       case .weekday:
@@ -335,6 +294,7 @@ extension AddSupplementView {
       case .interval:
         intervalScheduleView()
       }
+      
       supplementCountSelector()
     }
     .modifier(CardStyle(padding: .defaultSpacing))
@@ -507,6 +467,15 @@ extension AddSupplementView {
     .cardStyle(padding: .defaultSpacing)
   }
   
+  private func aiRecommendationSection() -> some View {
+    AIRecommendedScheduleView(
+      defaultFontSize: defaultFontSize,
+      supplementSummary: addSupplementVM.supplemtSummary,
+      lifestyle: lifestyleTimeVM.userlifeStyle,
+      supplement: $supplement
+    )
+  }
+  
   private func memoSection() -> some View {
     VStack(alignment: .leading) {
       Text("메모")
@@ -669,23 +638,35 @@ extension AddSupplementView {
   }
 
   private func saveRoutine() {
+    guard !isSaving else { return }
+    isSaving = true
+    
     Task {
       do {
+        try await lifestyleTimeVM.saveLifestyle()
+        
         try await addSupplementVM.saveRoutine(
           type: selectedScheduleType,
           supplement: supplement,
           memo: memo
         )
+        
         await MainActor.run {
           dismissOrClearSelection()
         }
       } catch let error as RoutineSaveError {
-        routineSaveError = error
-        showAlert = true
+        showAlert(error)
         print("❌ \(error)")
       } catch {
+        showAlert(.saveFailed)
         print("❌ Error is \(error)")
       }
     }
+  }
+  
+  private func showAlert(_ error: RoutineSaveError) {
+    routineSaveError = error
+    showAlert = true
+    isSaving = false
   }
 }

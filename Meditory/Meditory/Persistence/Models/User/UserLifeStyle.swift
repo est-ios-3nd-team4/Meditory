@@ -59,6 +59,15 @@ extension UserLifeStyle {
   var dinnerDate: Date? {
     dinner?.toDateFromHHmm()
   }
+  static var standard: UserLifeStyle {
+    UserLifeStyle(
+      wakeTime: "07:00",
+      sleepTime: "23:30",
+      breakfast: "08:30",
+      lunch: "12:00",
+      dinner: "19:00"
+    )
+  }
 }
 
 

@@ -55,12 +55,12 @@ struct AIRecommendedScheduleView: View {
   init(
     defaultFontSize: CGFloat,
     supplementSummary: SupplementSummary?,
-    lifestyle: UserLifeStyle,
+    lifestyle: UserLifeStyle?,
     supplement: Binding<SupplementDTO?>
   ) {
     self.defaultFontSize = defaultFontSize
     self.supplementSummary = supplementSummary
-    self.lifestyle = lifestyle
+    self.lifestyle = lifestyle ?? .standard
     self._supplement = supplement
   }
   
