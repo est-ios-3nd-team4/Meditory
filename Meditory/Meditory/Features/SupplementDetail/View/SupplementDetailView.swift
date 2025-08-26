@@ -45,12 +45,8 @@ struct SupplementDetailView: View {
             SupplementInfoCard(routine: routine)
               .frame(maxWidth: .infinity, alignment: .leading)
 
-            SchedulePanel(
-              times: vm.userTimes,
-              cycle: vm.userCycle,
-              pills: vm.pills
-            )
-            .frame(maxWidth: .infinity, alignment: .leading)
+            SchedulePanel(routine: routine)
+              .frame(maxWidth: .infinity, alignment: .leading)
 
             if !vm.memo.isEmpty {
               SupplementInfoCard(type: .memo, guide: [vm.memo])
@@ -63,7 +59,6 @@ struct SupplementDetailView: View {
           }
           .frame(maxWidth: maxContentWidth, alignment: .top)
           .padding(.horizontal, .defaultSpacing)
-          .padding(.top, .defaultSpacing)
           .frame(maxWidth: .infinity, alignment: .top)
         }
       } else {
