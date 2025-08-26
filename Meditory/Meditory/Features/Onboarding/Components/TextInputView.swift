@@ -18,6 +18,7 @@ struct TextInputView: View {
   let needValidation: Bool
   let validator: (() -> Bool)?
   @Binding var isValid: Bool?
+  let errorMessage: String?
   let onAction:(()->Void)?
   
   init(
@@ -29,6 +30,7 @@ struct TextInputView: View {
     needValidation: Bool = false,
     validator: (() -> Bool)? = nil,
     isValid: Binding<Bool?> = .constant(nil),
+    errorMessage: String? = nil,
     onAction:(()->Void)? = nil
   ) {
     self.title = title
@@ -39,6 +41,7 @@ struct TextInputView: View {
     self.needValidation = needValidation
     self.validator = validator
     self._isValid = isValid
+    self.errorMessage = errorMessage
     self.onAction = onAction
   }
 
@@ -47,6 +50,12 @@ struct TextInputView: View {
       HStack {
         Text(title)
           .foregroundStyle(.gray)
+        if let error = errorMessage {
+          Spacer()
+          Text(error)
+            .foregroundStyle(.red)
+            .font(.notoSans(weight: .medium, size: 12))
+        }
       }
       HStack {
         NoQuickTypeTextField(text: $inputText, placeholder: placeholder, keyboardType: keyboardType,onSubmit: {
@@ -75,9 +84,6 @@ struct TextInputView: View {
         isValid = result
       }
     }
-    .onDisappear(perform: {
-      isValid = false
-    })
   }
 }
 
