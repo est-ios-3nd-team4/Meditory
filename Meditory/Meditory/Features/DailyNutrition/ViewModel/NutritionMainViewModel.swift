@@ -30,8 +30,8 @@ class NutritionMainViewModel: ObservableObject {
   @Published var userGender: String = ""
   @Published var recommendedCalories = MacroNutrients(carbohydrate: 0,
                                                       protein: 0,
-                                                      fat: 0)
-  // 권장 Macro
+                                                      fat: 0) // 권장 Macro
+  
   
   
   // TODO: SwiftData 쿼리문으로 처리 예정
@@ -116,16 +116,6 @@ class NutritionMainViewModel: ObservableObject {
   func deSelectedMeal() {
     self.selectedMeal = nil
   }
-  //  
-  //  func updateContext(_ context: ModelContext) {
-  //    self.modelContext = context
-  //  }
-  
-  //  func dateChanged() {
-  //    Task {
-  //
-  //    }
-  //  }
   
 }
 
