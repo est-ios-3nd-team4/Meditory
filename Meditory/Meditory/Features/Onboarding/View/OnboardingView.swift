@@ -11,7 +11,6 @@ import SwiftUI
 struct OnboardingView: View {
   @Environment(\.modelContext) var context: ModelContext
 
-  // @StateObject를 @State로 변경
   @State var vm: OnboardingViewModel
   @StateObject private var keyboardObserver = KeyboardObserver()
   @FocusState private var focusedField: FormField?
@@ -25,7 +24,6 @@ struct OnboardingView: View {
 
   init(userStore: UserStore, onFinished: @escaping () -> Void = {}) {
     self.onFinished = onFinished
-    // @State의 초기화 방식으로 변경
     _vm = State(wrappedValue: OnboardingViewModel(userStore: userStore))
   }
 
@@ -117,9 +115,11 @@ struct OnboardingView: View {
       ) {
         if let next = currentStep.nextView() {
           if currentStep == .base {
-            vm.validateAllField()
+            let invalidFields = vm.validateAllField()
+            if invalidFields.isEmpty {
+              currentStep = next
+            }
           }
-          currentStep = next
         } else {
           onFinished()
           signUp()
