@@ -12,7 +12,7 @@ import SwiftUI
 class HealthKitManager: ObservableObject {
   private let healthStore = HKHealthStore()
   
-  @Published var todaySteps: Int = 0
+  @Published var todaySteps: Int = 100
   @Published var isAuthorized = false
   @Published var isLoading = false
   @Published var errorMessage: String?

@@ -9,7 +9,10 @@ import SwiftUI
 
 struct DailyMealSummaryCard: View {
   
-  let meal: MacroNutrients
+  @EnvironmentObject var viewModel: NutritionMainViewModel
+  var meal: MacroNutrients {
+    viewModel.todayTotalMacros
+  }
   
   var body: some View {
     ZStack {
@@ -73,7 +76,5 @@ struct DailyMealSummaryCard: View {
 }
 
 #Preview {
-  DailyMealSummaryCard(meal: MacroNutrients(carbohydrate: 180,
-                                            protein: 40,
-                                            fat: 30))
+  DailyMealSummaryCard()
 }
