@@ -29,7 +29,7 @@ struct SettingView: View {
         print("User가 없습니다.")
       }
       for user in users {
-        print("User: \(user.displayName), id: \(user.id)")
+        print("User: \(user.name), id: \(user.id)")
       }
     }
     let _ = printUsers()
@@ -46,7 +46,7 @@ struct SettingView: View {
           settingItem {
             HStack {
               VStack(alignment: .leading, spacing: 16) {
-                Text(currentUser?.displayName ?? "사용자 미등록")
+                Text(currentUser?.name ?? "사용자 미등록")
                   .font(.notoSans(size: 18))
                   .foregroundColor(.primary)
                 
