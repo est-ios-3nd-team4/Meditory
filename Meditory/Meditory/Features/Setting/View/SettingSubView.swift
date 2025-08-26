@@ -11,62 +11,66 @@ struct SettingSubView: View {
   // let onReset: () -> Void // TODO: 초기화 기능 구현 시 이 부분을 활성화해야 합니다.
   
   var body: some View {
-    VStack(alignment: .leading, spacing: 16) {
-      // MARK: - OnboardingView를 수정 모드로 호출
-      NavigationLink(destination: OnboardingView(userStore: userStore, startAt: .base, isEditing: true)) {
-        settingSubItem {
-          Text("기본 정보")
-            .font(.notoSans(size: 18))
-            .foregroundColor(.primary)
-        }
-      }
+    ZStack {
+      Color.customBackground.ignoresSafeArea()
       
-      NavigationLink(destination: OnboardingView(userStore: userStore, startAt: .gender, isEditing: true)) {
-        settingSubItem {
-          Text("성별")
-            .font(.notoSans(size: 18))
-            .foregroundColor(.primary)
+      VStack(alignment: .leading, spacing: 16) {
+        // MARK: - OnboardingView를 수정 모드로 호출
+        NavigationLink(destination: OnboardingView(userStore: userStore, startAt: .base, isEditing: true)) {
+          settingSubItem {
+            Text("기본 정보")
+              .font(.notoSans(size: 18))
+              .foregroundColor(.primary)
+          }
+        }
+        
+        NavigationLink(destination: OnboardingView(userStore: userStore, startAt: .gender, isEditing: true)) {
+          settingSubItem {
+            Text("성별")
+              .font(.notoSans(size: 18))
+              .foregroundColor(.primary)
+          }
+        }
+        
+        NavigationLink(destination: OnboardingView(userStore: userStore, startAt: .allergy, isEditing: true)) {
+          settingSubItem {
+            Text("알레르기")
+              .font(.notoSans(size: 18))
+              .foregroundColor(.primary)
+          }
+        }
+        
+        NavigationLink(destination: OnboardingView(userStore: userStore, startAt: .disease, isEditing: true)) {
+          settingSubItem {
+            Text("질병")
+              .font(.notoSans(size: 18))
+              .foregroundColor(.primary)
+          }
+        }
+        
+        NavigationLink(destination: OnboardingView(userStore: userStore, startAt: .concern, isEditing: true)) {
+          settingSubItem {
+            Text("건강 관심사")
+              .font(.notoSans(size: 18))
+              .foregroundColor(.primary)
+          }
+        }
+        
+        // '초기화'는 화면 이동이 아닌 동작이므로 Button으로 구현하는 것이 좋습니다.
+        Button(action: {
+          // TODO: 여기에 사용자 정보 초기화 로직을 구현해야 합니다.
+          // 예: userStore.deleteAllUsers() 등
+          print("초기화 버튼 탭됨")
+        }) {
+          settingSubItem {
+            Text("초기화")
+              .font(.notoSans(size: 18))
+              .foregroundColor(.primary)
+          }
         }
       }
-      
-      NavigationLink(destination: OnboardingView(userStore: userStore, startAt: .allergy, isEditing: true)) {
-        settingSubItem {
-          Text("알레르기")
-            .font(.notoSans(size: 18))
-            .foregroundColor(.primary)
-        }
-      }
-      
-      NavigationLink(destination: OnboardingView(userStore: userStore, startAt: .disease, isEditing: true)) {
-        settingSubItem {
-          Text("질병")
-            .font(.notoSans(size: 18))
-            .foregroundColor(.primary)
-        }
-      }
-      
-      NavigationLink(destination: OnboardingView(userStore: userStore, startAt: .concern, isEditing: true)) {
-        settingSubItem {
-          Text("건강 관심사")
-            .font(.notoSans(size: 18))
-            .foregroundColor(.primary)
-        }
-      }
-      
-      // '초기화'는 화면 이동이 아닌 동작이므로 Button으로 구현하는 것이 좋습니다.
-      Button(action: {
-        // TODO: 여기에 사용자 정보 초기화 로직을 구현해야 합니다.
-        // 예: userStore.deleteAllUsers() 등
-        print("초기화 버튼 탭됨")
-      }) {
-        settingSubItem {
-          Text("초기화")
-            .font(.notoSans(size: 18))
-            .foregroundColor(.primary)
-        }
-      }
+      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
-    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     .navigationBar(.custom("내 정보 ∙ 건강 정보 관리")) {
       dismiss()
     }
@@ -98,7 +102,8 @@ struct SettingSubView: View {
 
 #Preview {
   NavigationStack {
-    SettingSubView()
+    // TODO: 초기화 기능 구현 시 onReset 파라미터를 전달해야 합니다.
+    SettingSubView(/*onReset: {}*/)
       .environment(\.userStore, UserStore.shared)
   }
 }
