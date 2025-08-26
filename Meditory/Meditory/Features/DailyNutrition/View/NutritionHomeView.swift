@@ -55,7 +55,7 @@ struct NutritionHomeView: View {
 extension NutritionHomeView {
   func emptyMealView() -> some View {
     Rectangle()
-      .fill(Color("mainColor"))
+      .fill(.main)
       .frame(height: 70)
       .clipShape(RoundedRectangle(cornerRadius: 20))
       .modifier(UnifiedShadow())
