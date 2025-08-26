@@ -10,33 +10,54 @@ import SwiftUI
 struct FoodSearchTextFieldView: View {
   
   @State var searchText: String = ""
+  @ObservedObject var navigationManager: FoodNavigationManager
+  @FocusState private var isTextFieldFocused: Bool
   
   var body: some View {
-    ZStack {
-      Rectangle()
-        .fill(.customTextField)
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-        .frame(height: 50)
-      
-      HStack {
-        ZStack(alignment: .leading) {
-          TextField("", text: $searchText)
-          
-          if searchText.isEmpty {
-            Text("아침에 먹은 음식을 추가해주세요.")
-              .foregroundStyle(.customCarbohydrate)
+    HStack {
+      ZStack {
+        Rectangle()
+          .fill(.customTextField)
+          .clipShape(RoundedRectangle(cornerRadius: 20))
+          .frame(height: 50)
+        
+        HStack {
+          ZStack(alignment: .leading) {
+            
+            TextField("아침에 먹은 음식을 추가해주세요.", text: $searchText)
+              .focused($isTextFieldFocused)
+              .overlay {
+                HStack {
+                  Spacer()
+                  
+                  Image(systemName: "magnifyingglass")
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(.customCarbohydrate)
+                }
+              }
+              .onChange(of: isTextFieldFocused) { _, newValue in
+                if newValue {
+                  navigationManager.navigateTo(.mealList)
+                  print("change mealList \(navigationManager.currentScreen)")
+                }
+              }
           }
         }
-        
-        Image(systemName: "magnifyingglass")
-          .frame(width: 20, height: 20)
-          .foregroundStyle(.customCarbohydrate)
+        .padding(.horizontal, 16)
       }
-      .padding(.horizontal, 16)
+      
+      if navigationManager.isCurrentScreen(.mealList) {
+        Button {
+          navigationManager.navigateTo(.mealDetail)
+          isTextFieldFocused = false
+        } label: {
+          Text("취소")
+        }
+      }
     }
   }
 }
 
 #Preview {
-  FoodSearchTextFieldView()
+  FoodSearchTextFieldView(navigationManager: FoodNavigationManager())
 }

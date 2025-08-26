@@ -8,32 +8,24 @@
 import SwiftUI
 
 struct MealDetailView: View {
-  
+  @StateObject private var navigationManager = FoodNavigationManager()
   @Environment(\.dismiss) var dismiss
   @EnvironmentObject var viewModel: NutritionMainViewModel
   
   var body: some View {
     VStack(spacing: 50) {
-      FoodSearchTextFieldView()
+      FoodSearchTextFieldView(navigationManager: navigationManager)
         .padding(.horizontal, 16)
       
-      MacroChartView(macros: viewModel.selectedMeal?.macros)
-        .frame(width: 200, height: 200)
-      
-      HStack {
-        Spacer()
-        
-        Image(systemName: "info.circle")
-          .longPressPopover {
-            RecommendedMacroGuidePopover()
-          }
+      switch navigationManager.currentScreen {
+      case .mealList:
+        FoodListView()
+      case .mealDetail:
+        detailMainView()
+      case .addMeal:
+        detailMainView()
       }
-      .frame(width: 250)
       
-      macroCompositionView(viewModel: viewModel)
-      
-      FoodGridView(foods: viewModel.selectedMeal?.foods)
-      Spacer()
     }
     .navigationBarBackButtonHidden(true)
     .navigationBarTitleDisplayMode(.inline)
@@ -56,6 +48,27 @@ struct MealDetailView: View {
   }
   
   // MARK: Disposable Components
+  func detailMainView() -> some View {
+    Group {
+      MacroChartView(macros: viewModel.selectedMeal?.macros)
+        .frame(width: 200, height: 200)
+      
+      HStack {
+        Spacer()
+        
+        Image(systemName: "info.circle")
+          .longPressPopover {
+            RecommendedMacroGuidePopover()
+          }
+      }
+      .frame(width: 250)
+      
+      macroCompositionView(viewModel: viewModel)
+      
+      FoodGridView(foods: viewModel.selectedMeal?.foods)
+      Spacer()
+    }
+  }
   
   func macroCompositionView(viewModel: NutritionMainViewModel) -> some View {
     let macro = viewModel.selectedMeal?.macros ?? MacroNutrients(carbohydrate: 0, protein: 0, fat: 0)
