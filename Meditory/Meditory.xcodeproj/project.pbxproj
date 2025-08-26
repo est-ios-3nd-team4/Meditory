@@ -454,7 +454,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = GHGPAZGBBT;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "앱에서 영양제 사진을 촬영하거나 스캔하여 정보를 인식하기 위해 카메라 접근 권한이 필요합니다.";
@@ -487,7 +487,7 @@
 				CODE_SIGN_ENTITLEMENTS = Meditory/Meditory.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = GHGPAZGBBT;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "앱에서 영양제 사진을 촬영하거나 스캔하여 정보를 인식하기 위해 카메라 접근 권한이 필요합니다.";
