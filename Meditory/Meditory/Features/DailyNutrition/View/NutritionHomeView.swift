@@ -56,18 +56,22 @@ extension NutritionHomeView {
   func emptyMealView() -> some View {
     Rectangle()
       .fill(Color("mainColor"))
-      .frame(height: 100)
+      .frame(height: 70)
       .clipShape(RoundedRectangle(cornerRadius: 20))
       .modifier(UnifiedShadow())
       .overlay {
         HStack {
-          Text("식단 직접 생성하기")
-            .font(.notoSans(weight: .bold, size: 18))
+          Image(systemName: "pencil")
           
-          Image(systemName: "chevron.right.2")
+          Text("식단 직접 생성하기")
+          
+          Spacer()
+          
+          Image(systemName: "chevron.right")
         }
-        .font(.notoSans(weight: .bold, size: 18))
+        .font(.notoSans(weight: .medium, size: 17))
         .foregroundColor(.white)
+        .padding(.horizontal, 16)
       }
   }
 }
