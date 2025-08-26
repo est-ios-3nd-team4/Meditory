@@ -19,26 +19,28 @@ struct MainTabView: View {
   private let customTabTopInset: CGFloat = 18
   
   var body: some View {
-    ZStack {
-      if UIDevice.isPad {
-        mainTabPadView()
-      } else {
-        mainTabPhoneView()
+    NavigationStack {
+      ZStack {
+        if UIDevice.isPad {
+          mainTabPadView()
+        } else {
+          mainTabPhoneView()
+        }
       }
-    }
-    .fullScreenCover(
-      isPresented: Binding(
-        get: { selectedIntakeItem != nil && !showIntakeSelector },
-        set: { if !$0 { selectedIntakeItem = nil } }
-      )
-    ) {
-      switch selectedIntakeItem {
-      case .supplement?:
-        AddSupplementView(selectedIntakeItem: $selectedIntakeItem)
-      case .meal?:
-        EmptyView()
-      case nil:
-        EmptyView()
+      .fullScreenCover(
+        isPresented: Binding(
+          get: { selectedIntakeItem != nil && !showIntakeSelector },
+          set: { if !$0 { selectedIntakeItem = nil } }
+        )
+      ) {
+        switch selectedIntakeItem {
+        case .supplement?:
+          AddSupplementView(selectedIntakeItem: $selectedIntakeItem)
+        case .meal?:
+          EmptyView()
+        case nil:
+          EmptyView()
+        }
       }
     }
   }
