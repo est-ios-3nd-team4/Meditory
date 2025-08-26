@@ -26,22 +26,25 @@ struct MainTabView: View {
         } else {
           mainTabPhoneView()
         }
+        
+        intakeDestinationView()
       }
-      .fullScreenCover(
-        isPresented: Binding(
-          get: { selectedIntakeItem != nil && !showIntakeSelector },
-          set: { if !$0 { selectedIntakeItem = nil } }
-        )
-      ) {
-        switch selectedIntakeItem {
-        case .supplement?:
-          AddSupplementView(selectedIntakeItem: $selectedIntakeItem)
-        case .meal?:
-          EmptyView()
-        case nil:
-          EmptyView()
-        }
-      }
+      // 추후 적용 예정
+//      .fullScreenCover(
+//        isPresented: Binding(
+//          get: { selectedIntakeItem != nil && !showIntakeSelector },
+//          set: { if !$0 { selectedIntakeItem = nil } }
+//        )
+//      ) {
+//        switch selectedIntakeItem {
+//        case .supplement?:
+//          AddSupplementView(selectedIntakeItem: $selectedIntakeItem)
+//        case .meal?:
+//          EmptyView()
+//        case nil:
+//          EmptyView()
+//        }
+//      }
     }
   }
 }
