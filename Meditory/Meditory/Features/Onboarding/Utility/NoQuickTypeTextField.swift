@@ -21,12 +21,14 @@ struct NoQuickTypeTextField: UIViewRepresentable {
     tf.spellCheckingType = .no
     tf.keyboardType = keyboardType
     tf.delegate = context.coordinator
-    tf.addTarget(self, action: #selector(Coordinator.returnPressed(_:)), for: .editingDidEndOnExit)
+    tf.addTarget(context.coordinator, action: #selector(Coordinator.returnPressed(_:)), for: .editingDidEndOnExit)
     return tf
   }
 
   func updateUIView(_ uiView: UITextField, context: Context) {
-    uiView.text = text
+    if uiView.text != text {
+      uiView.text = text
+    }
   }
 
   func makeCoordinator() -> Coordinator {
@@ -45,7 +47,7 @@ struct NoQuickTypeTextField: UIViewRepresentable {
     }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
       returnPressed(textField)
-      return false
+      return true
     }
   }
 }
