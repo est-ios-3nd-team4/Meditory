@@ -22,6 +22,12 @@ actor RoutineStore {
     let routines = (try? modelContext.fetch(descriptor)) ?? []
     return routines.map { $0.persistentModelID }
   }
+  
+  func fetchAllRoutines() -> [Routine] {
+    let descriptor = FetchDescriptor<Routine>()
+    let routines = (try? modelContext.fetch(descriptor)) ?? []
+    return routines.map { $0 }
+  }
 
   // MARK: - 생성 (Create)
   
