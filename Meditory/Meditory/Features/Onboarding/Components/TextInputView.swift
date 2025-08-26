@@ -79,9 +79,8 @@ struct TextInputView: View {
           }
       }
       .onChange(of: inputText) {
-        guard needValidation, let validate = validator else { return }
-        let result = validate()
-        isValid = result
+        guard needValidation else { return }
+        _ = validator?()
       }
     }
   }
