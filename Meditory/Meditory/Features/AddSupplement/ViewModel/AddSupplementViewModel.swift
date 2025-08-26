@@ -17,8 +17,6 @@ class AddSupplementViewModel {
   var duration: Int = 1
   var doseSchedules = [SupplementDoseSchedule]()
   var supplemtSummary: SupplementSummary?
-
-  // context 프로퍼티는 더 이상 필요 없습니다.
   
   var weekdaysString: String {
     let selected = weekdays.filter({ $0.value == true })
@@ -31,6 +29,14 @@ class AddSupplementViewModel {
       .map { $0.key }
       .sorted { $0.rawValue < $1.rawValue }
       .map { $0.subTitle }
+      .joined(separator: ", ")
+  }
+  
+  var formattedWeekdays: String {
+    return weekdays.filter({ $0.value == true })
+      .map { $0.key }
+      .sorted { $0.rawValue < $1.rawValue }
+      .map { "\($0.rawValue)" }
       .joined(separator: ", ")
   }
   
@@ -106,7 +112,7 @@ extension AddSupplementViewModel {
       desc: supplemtSummary.description,
       category: supplemtSummary.category,
       cycleType: type.rawValue,
-      cycleValue: type == .weekday ? weekdaysString : "\(duration)",
+      cycleValue: type == .weekday ? formattedWeekdays : "\(duration)",
       startDate: .makeDate(month: startMonth, day: startDay),
       memo: memo,
       usage: usage,
