@@ -4,12 +4,12 @@ import Foundation
 @Model
 final class UserExtraInfo: Sendable {
   @Attribute(.unique) var id: UUID
-  var disease: [ExtraInfo]
-  var allergy: [ExtraInfo]
-  var concern: [ExtraInfo]
   
+  @Relationship(deleteRule: .cascade) var disease: [ExtraInfo]
+  @Relationship(deleteRule: .cascade) var allergy: [ExtraInfo]
+  @Relationship(deleteRule: .cascade) var concern: [ExtraInfo]
   
-  @Relationship(inverse: \User.userExtraInfos) var user: User? // userId 관계
+  @Relationship(inverse: \User.userExtraInfos) var user: User?
   
   init(id: UUID = UUID(), disease: [ExtraInfo] = [], allergy: [ExtraInfo] = [], concern: [ExtraInfo] = [], user: User? = nil) {
     self.id = id

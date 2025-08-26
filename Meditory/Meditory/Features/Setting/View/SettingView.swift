@@ -20,22 +20,7 @@ struct SettingView: View {
   
   
   var body: some View {
-    
-    
-    // 유저 등록 확인용 출력
-    func printUsers() -> Void {
-      
-      if users.isEmpty {
-        print("User가 없습니다.")
-      }
-      for user in users {
-        print("User: \(user.displayName), id: \(user.id)")
-      }
-    }
-    let _ = printUsers()
-    
-  
-    return ZStack(alignment: .top) {
+    ZStack(alignment: .top) {
       (colorScheme == .dark ? Color.black : Color.customBackground)
         .ignoresSafeArea(edges: .top)
       
@@ -46,7 +31,7 @@ struct SettingView: View {
           settingItem {
             HStack {
               VStack(alignment: .leading, spacing: 16) {
-                Text(currentUser?.displayName ?? "사용자 미등록")
+                Text(currentUser?.name ?? "사용자 미등록")
                   .font(.notoSans(size: 18))
                   .foregroundColor(.primary)
                 
@@ -86,6 +71,8 @@ struct SettingView: View {
       Task {
         await viewModel.loadSetting()
       }
+      
+      printUsers()
     }
   }
   
@@ -102,6 +89,61 @@ struct SettingView: View {
           .fill(Color.white.opacity(0.8))
       )
       .modifier(UnifiedShadow())
+  }
+  
+  
+  // 유저 정보 확인용 함수
+  func printUsers() -> Void {
+    if users.isEmpty {
+      print("🤷‍♂️ User가 없습니다.")
+      return
+    }
+    
+    print("---------- 사용자 정보 조회 시작 ----------")
+    for (index, user) in users.enumerated() {
+      print("\n--- [ \(index)번 index 사용자 ] ---")
+      print("🆔 ID: \(user.id)")
+      print("👤 이름: \(user.name)")
+      print("🏷️ 표시 이름: \(user.displayName)")
+      print("🎂 생년월일: \(user.birthDate.formatted(date: .long, time: .omitted))")
+      print("🚻 성별: \(user.gender)")
+      
+      // 1. 최신 사용자 프로필 (키/체중)
+      if let profile = user.currentProfile {
+        let height = profile.height != nil ? "\(profile.height!)cm" : "미입력"
+        let weight = profile.weight != nil ? "\(profile.weight!)kg" : "미입력"
+        print("📏 프로필 (키/체중): \(height) / \(weight)")
+      } else {
+        print("📏 프로필: 정보 없음")
+      }
+      
+      // 2. 사용자 상태 (임신중 등)
+      if !user.userStatuses.isEmpty {
+        print("✨ 건강 상태:")
+        for status in user.userStatuses {
+          print("  - \(status.statusType)")
+        }
+      }
+      
+      // 3. 추가 정보 (알러지, 질병, 관심사)
+      if let extraInfo = user.userExtraInfos.first {
+        if !extraInfo.allergy.isEmpty {
+          print("🤧 알레르기: \(extraInfo.allergy.map { $0.value }.joined(separator: ", "))")
+        }
+        if !extraInfo.disease.isEmpty {
+          print("🩺 질병: \(extraInfo.disease.map { $0.value }.joined(separator: ", "))")
+        }
+        if !extraInfo.concern.isEmpty {
+          print("❤️ 건강 관심사: \(extraInfo.concern.map { $0.value }.joined(separator: ", "))")
+        }
+      }
+      
+      // 4. 생활 습관
+      if let lifeStyle = user.userLifeStyle {
+        print("🌙 생활 습관: 기상 \(lifeStyle.wakeTime), 취침 \(lifeStyle.sleepTime)")
+      }
+    }
+    print("\n---------- 사용자 정보 조회 종료 ----------")
   }
 }
 
