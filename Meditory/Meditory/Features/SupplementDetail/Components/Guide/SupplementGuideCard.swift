@@ -50,6 +50,7 @@ struct SupplementInfoCard: View {
     }
   }
 
+  @Environment(\.colorScheme) private var colorScheme
   @Environment(\.horizontalSizeClass) private var hSize
   private var isPadStyle: Bool { hSize == .regular }
   private var titleFontSize: CGFloat { isPadStyle ? 20 : 18 }
@@ -91,57 +92,74 @@ struct SupplementInfoCard: View {
   }
 
   var body: some View {
-    UnifiedSectionCard(pointColor: mode.tint) {
-      VStack(alignment: .leading, spacing: .smallSpacing) {
-        HStack(spacing: .smallSpacing) {
-          Image(systemName: mode.icon)
-            .imageScale(.medium)
-            .padding(.smallSpacing)
-            .background(Circle().fill(mode.tint.opacity(0.15)))
-            .foregroundStyle(mode.tint)
-            .accessibilityHidden(true)
+    Group {
+      if case .guide(let title, _, let tint, _) = mode,
+         (title == GuideType.info.title || title == GuideType.warn.title) {
+        UnifiedSectionCard(
+          pointColor: mode.tint,
+          backgroundColor: tint.opacity(colorScheme == .dark ? 0.2 : 0.1)
+        ) {
+          content
+        }
+      } else {
+        UnifiedSectionCard() {
+          content
+        }
+      }
+    }
+  }
 
-          Text(mode.title)
-            .font(.notoSans(size: titleFontSize))
-            .fontWeight(.bold)
-            .lineLimit(1)
-            .minimumScaleFactor(0.85)
+  @ViewBuilder
+  private var content: some View {
+    VStack(alignment: .leading, spacing: .smallSpacing) {
+      HStack(spacing: .smallSpacing) {
+        Image(systemName: mode.icon)
+          .imageScale(.medium)
+          .padding(.smallSpacing)
+          .background(Circle().fill(mode.tint.opacity(0.15)))
+          .foregroundStyle(mode.tint)
+          .accessibilityHidden(true)
 
-          Spacer()
+        Text(mode.title)
+          .font(.notoSans(size: titleFontSize))
+          .fontWeight(.bold)
+          .lineLimit(1)
+          .minimumScaleFactor(0.85)
+
+        Spacer()
+      }
+
+      switch mode {
+      case .header:
+        if let subtitle = mode.subtitle?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !subtitle.isEmpty {
+          HStack(alignment: .top, spacing: .smallSpacing) {
+            Circle()
+              .frame(width: 5, height: 5)
+              .foregroundStyle(mode.tint.opacity(0.8))
+              .padding(.top, .smallSpacing)
+
+            Text(subtitle)
+              .font(.notoSans(weight: .regular, size: subtitleFontSize))
+              .foregroundStyle(.secondary)
+              .lineLimit(2)
+              .fixedSize(horizontal: false, vertical: true)
+          }
         }
 
-        switch mode {
-        case .header:
-          if let subtitle = mode.subtitle?.trimmingCharacters(in: .whitespacesAndNewlines),
-             !subtitle.isEmpty {
+      case .guide:
+        VStack(alignment: .leading, spacing: .smallSpacing) {
+          ForEach(mode.bullets, id: \.self) { text in
             HStack(alignment: .top, spacing: .smallSpacing) {
               Circle()
                 .frame(width: 5, height: 5)
                 .foregroundStyle(mode.tint.opacity(0.8))
                 .padding(.top, .smallSpacing)
 
-              Text(subtitle)
-                .font(.notoSans(weight: .regular, size: subtitleFontSize))
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
+              Text(text)
+                .font(.notoSans(weight: .regular, size: textFontSize))
+                .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
-            }
-          }
-
-        case .guide:
-          VStack(alignment: .leading, spacing: .smallSpacing) {
-            ForEach(mode.bullets, id: \.self) { text in
-              HStack(alignment: .top, spacing: .smallSpacing) {
-                Circle()
-                  .frame(width: 5, height: 5)
-                  .foregroundStyle(mode.tint.opacity(0.8))
-                  .padding(.top, .smallSpacing)
-
-                Text(text)
-                  .font(.notoSans(weight: .regular, size: textFontSize))
-                  .foregroundStyle(.primary)
-                  .fixedSize(horizontal: false, vertical: true)
-              }
             }
           }
         }

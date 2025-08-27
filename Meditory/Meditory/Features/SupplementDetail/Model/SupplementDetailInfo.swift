@@ -1,5 +1,5 @@
 //
-//  Display.swift
+//  SupplementDetailInfo.swift
 //  Meditory
 //
 //  Created by 윤혜주 on 8/27/25.
