@@ -27,7 +27,7 @@ struct RowItemCell: View {
           .alignmentGuide(.top) { d in d[.top] - 4 }
         VStack(alignment: .leading, spacing: 2) {
           Text(model.title)
-            .font(.notoSans(weight: .semiBold, size: 14))
+            .font(.notoSans(weight: .medium, size: 14))
           Text(model.subtitle)
             .font(.notoSans(weight: .regular, size: subTitleSize))
         }
