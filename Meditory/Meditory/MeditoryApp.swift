@@ -42,22 +42,31 @@ struct MeditoryApp: App {
             .environment(\.userStore, UserStore.shared)
             .environmentObject(nutritionViewModel)
           //            .task { await UserStore.shared.resetExtraInfos() } // ExtraInfo 의 데이터는 변경이 일어나기 쉬우므로 앱을 켤때마다 기존 데이터 날리고 스크립트로 새로인서트하기 위한 코드
-            .onChange(of: scenePhase) { _, phase in
-              if phase == .active {
-                Task {
-                  let context = DataController.shared.container.mainContext
-                  let isOn = await SettingStore.shared.fetchSetting()?.isNotificationOn ?? false
-                  let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
-                  let systemGranted = (status == .authorized || status == .provisional || status == .ephemeral)
-                  
-                  if isOn && systemGranted {
-                    await RoutineNotificationScheduler().scheduleAll(modelContext: context)
-                  } else {
-                    NotificationManager.shared.cancelAllIncludingDelivered()
-                    if isOn && !systemGranted {
-                      await SettingStore.shared.updateNotificationSetting(false)
-                    }
-                  }
+            .task {
+              let context = DataController.shared.container.mainContext
+              
+              // 최초 실행이면 권한 1회 요청
+              if await SettingStore.shared.fetchSetting() == nil {
+                let granted = await NotificationManager.shared.requestAuthorization()
+                await SettingStore.shared.updateNotificationSetting(granted)
+              }
+              
+              // 저장된 앱 토글 값
+              let isOn = await SettingStore.shared.fetchSetting()?.isNotificationOn ?? false
+              
+              // 시스템 권한
+              let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
+              let systemGranted = (status == .authorized || status == .provisional || status == .ephemeral)
+              
+              if isOn && systemGranted {
+                // 스케줄 가능 → 전체 루틴 스케줄
+                let scheduler = RoutineNotificationScheduler()
+                await scheduler.scheduleAll(modelContext: context)
+              } else {
+                // 예약 정리 및 저장값 보정(토글은 ON인데 권한 거부 상태였다면 OFF로)
+                NotificationManager.shared.cancelAllIncludingDelivered()
+                if isOn && !systemGranted {
+                  await SettingStore.shared.updateNotificationSetting(false)
                 }
               }
             }

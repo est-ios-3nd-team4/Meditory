@@ -46,12 +46,16 @@ final class NotificationManager {
 
   // 최초/필요 시 권한 요청
   func requestAuthorization() async -> Bool {
-    await withCheckedContinuation { cont in
-      UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-        if let error = error { print("권한 요청 실패: \(error)") }
-        else if !granted { print("알림 권한 거부됨") }
-        cont.resume(returning: granted)
+    do {
+      let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge])
+
+      if !granted {
+        print("알림 권한 거부됨")
       }
+      return granted
+    } catch {
+      print("권한 요청 실패: \(error)")
+      return false
     }
   }
 
@@ -81,14 +85,10 @@ final class NotificationManager {
     content.userInfo = userInfo
 
     let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
-
-    await withCheckedContinuation { cont in
-      center.add(request) { error in
-        if let error = error {
-          print("스케줄 실패(\(id)): \(error)")
-        }
-        cont.resume()
-      }
+    do {
+      try await center.add(request)
+    } catch {
+      print("스케줄 실패(\(id)): \(error)")
     }
   }
 
