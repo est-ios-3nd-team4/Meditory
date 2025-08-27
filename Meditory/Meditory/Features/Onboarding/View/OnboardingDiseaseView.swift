@@ -22,7 +22,7 @@ struct OnboardingDiseaseView: View {
   var body: some View {
     ScrollView {
       TitleView(prompt: prompt,name:name)
-      .padding([.horizontal], .defaultSpacing + 4)
+      .padding(.horizontal, .defaultSpacing + 4)
       LazyVGrid(columns: columns, spacing: 24) {
         ForEach(items, id: \.title) { item in
           CollectionItemCell(model: item, isSelected: selections.contains(item))

@@ -23,7 +23,7 @@ struct OnboardingConcernView: View {
   var body: some View {
     ScrollView {
       TitleView(prompt: prompt,extra: itemCount)
-        .padding([.horizontal], .defaultSpacing + 4)
+        .padding(.horizontal, .defaultSpacing + 4)
       OnboardingFlowLayoutLineLimit(items: items, content: { item in
         CapsuleShappedText(title: item.title,isSelected: selections.contains(item))
           .onTapGesture {
