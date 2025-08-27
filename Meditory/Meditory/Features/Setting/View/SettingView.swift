@@ -64,9 +64,16 @@ struct SettingView: View {
         }
         
         settingItem {
-          Text("고객센터 문의하기")
-            .font(.notoSans(size: defaultFontSize))
+          // "mailto:" 링크를 사용하여 탭하면 이메일 앱을 열도록 수정함
+          if let url = URL(string: "mailto:drfranken99@gmail.com") {
+            Link(destination: url) {
+              Text("고객센터 문의하기")
+                .font(.notoSans(size: defaultFontSize))
+                .foregroundStyle(.primary) // 링크의 기본 파란색 스타일을 덮어쓰기 위함
+            }
+          }
         }
+        .buttonStyle(.plain)
       }
       .padding()
       
@@ -97,7 +104,7 @@ struct SettingView: View {
       .padding(.horizontal, 16) //  내부 좌우여백
       .background(
         RoundedRectangle(cornerRadius: 20)
-          .fill(Color.white.opacity(0.8))
+          .fill(colorScheme == .dark ? Color.white.opacity(0.2) : Color.white)
       )
       .modifier(UnifiedShadow())
   }

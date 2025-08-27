@@ -157,7 +157,7 @@ struct SettingSubView: View {
     .padding()
     .background(
       RoundedRectangle(cornerRadius: 20)
-        .fill(Color.white.opacity(0.8))
+        .fill(colorScheme == .dark ? Color.white.opacity(0.2) : Color.white)
     )
     .modifier(UnifiedShadow())
   }
