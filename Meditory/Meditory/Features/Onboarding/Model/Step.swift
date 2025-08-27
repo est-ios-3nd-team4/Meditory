@@ -16,17 +16,17 @@ enum Step: Int, CaseIterable {
     return Self.allCases.count
   }
 
-  func nextView() -> Step? {
-    switch self {
-      case .base: return .gender
-      case .gender: return .allergy
-      case .allergy: return .disease
-      case .disease: return .concern
-      case .concern: return nil
-    }
+  func next() -> Step? {
+    guard let index = Self.allCases.firstIndex(of: self),
+      index < Self.allCases.count - 1
+    else { return nil }
+    return Self.allCases[index + 1]
   }
-  
+
+  func previous() -> Step? {
+    guard let index = Self.allCases.firstIndex(of: self),
+      index > 0
+    else { return nil }
+    return Self.allCases[index - 1]
+  }
 }
-
-
-
