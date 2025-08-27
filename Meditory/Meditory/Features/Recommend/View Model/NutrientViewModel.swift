@@ -153,7 +153,7 @@ final class NutrientViewModel: ObservableObject {
         - name: string (한국어 성분명, 예: "아연")
         - hashtags: string[] (0~2개, 짧은 근거 키워드, 예: "면역 기능", "간 건강")
         - title: string (한 문장 요약, 확정 표현 금지: "~에 도움을 줄 수 있음" 톤)
-        - content: string (이유/권장량 범위/식품 급원/주의·금기 포함, 3~6문장, 단위 표기)
+        - content: string (이유/권장량 범위/식품 급원/주의·금기 포함, 6~10문장, 단위 표기)
       
       [품질 규칙]
       - 과대광고·확정적 표현 금지(“~에 도움을 줄 수 있음”).

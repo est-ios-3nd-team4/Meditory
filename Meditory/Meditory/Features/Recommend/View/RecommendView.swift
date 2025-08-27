@@ -96,18 +96,13 @@ struct RecommendView: View {
     }
   }
 
-  private var displayName: String {
-    let display = users.first?.displayName.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-    if !display.isEmpty { return display }
-    let name = users.first?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-    return name.isEmpty ? "사용자" : name
+  private var name: String {
+    let rawName = users.first?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    return rawName.isEmpty ? "사용자" : rawName
   }
 
   private var userNameKey: String {
-    let raw = (users.first?.displayName.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { $0.isEmpty ? nil : $0 }
-    ?? (users.first?.name.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { $0.isEmpty ? nil : $0 }
-          ?? ""
-    return raw
+    users.first?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
   }
   
   enum SceneTab {
@@ -206,7 +201,7 @@ struct RecommendView: View {
           }
           .task(id: userNameKey) {
             guard !userNameKey.isEmpty else { return }
-            let newName = displayName
+            let newName = name
             guard newName != lastLoadedName else { return }
             lastLoadedName = newName
             nutrientVM.load(userName: newName)
@@ -241,7 +236,7 @@ struct RecommendView: View {
       }
     }
     .navigationDestination(isPresented: $showNutrientDetail) {
-      RecommendNutrientsView(nutrients: nutrientVM.recommend, displayName: displayName)
+      RecommendNutrientsView(nutrients: nutrientVM.recommend, userName: name)
     }
   }
 
@@ -260,7 +255,7 @@ struct RecommendView: View {
           }
         )
       ImageCardView(
-        title: "\(displayName) 님 맞춤 추천",
+        title: "\(name) 님 맞춤 추천",
         categories: ["장 건강", "혈관 & 혈액순환"],
         desc: "* 본결과는 의사의 처방을 대신하지 않습니다.",
         products: items,
@@ -302,7 +297,7 @@ struct RecommendView: View {
         nutrients: nutrientVM.chip,
         onSeeDetail: { showNutrientDetail = true },
         isLoading: !hasRealNutrientData,
-        displayName: displayName
+        userName: name
       )
       .id(nutrientVM.chip.joined(separator: "|"))
       .padding(.horizontal, 16)
@@ -353,7 +348,7 @@ struct RecommendView: View {
 #endif
     hasRealNutrientData = false
 
-    nutrientVM.load(userName: displayName)
+    nutrientVM.load(userName: name)
 
     fetchRealDataOnLaunch()
   }
@@ -367,7 +362,7 @@ struct RecommendView: View {
         isLoadingReal = false
       }
 
-      nutrientVM.load(userName: displayName)
+      nutrientVM.load(userName: name)
 
       await recommendVM.loadProducts(for: "장 건강")
       let real = recommendVM.products

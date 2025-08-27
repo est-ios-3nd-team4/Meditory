@@ -19,13 +19,13 @@ struct NutrientCardView: View {
   let nutrients: [String]
   let onSeeDetail: () -> Void
   var isLoading: Bool = false
-  var displayName: String = "사용자"
+  var userName: String = "사용자"
 
   @Environment(\.colorScheme) private var colorScheme
 
   private var safeName: String {
-    let trimmedDisplayName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
-    return trimmedDisplayName.isEmpty ? "사용자" : trimmedDisplayName
+    let trimmed = userName.trimmingCharacters(in: .whitespacesAndNewlines)
+    return trimmed.isEmpty ? "사용자" : trimmed
   }
   var body: some View {
     VStack(alignment: .leading, spacing: .defaultSpacing) {

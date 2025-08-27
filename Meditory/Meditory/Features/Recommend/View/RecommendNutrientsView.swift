@@ -9,11 +9,11 @@ struct RecommendNutrientsView: View {
   @State private var isAtTop = true
 
   let nutrients: [Nutrient]
-  let displayName: String
+  let userName: String
 
   private var safeName: String {
-    let trimmedDisplayName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
-    return trimmedDisplayName.isEmpty ? "사용자" : trimmedDisplayName
+    let trimmed = userName.trimmingCharacters(in: .whitespacesAndNewlines)
+    return trimmed.isEmpty ? "사용자" : trimmed
   }
 
   var body: some View {
