@@ -130,6 +130,12 @@ class NutritionMainViewModel: ObservableObject {
     self.selectedMeal = nil
   }
   
+  func findMeal(for foodId: UUID) -> MealInfo? {
+    return meals.first { meal in
+      meal.foods.contains { $0.id == foodId }
+    }
+  }
+  
 }
 
 // MARK: RecommendedMacroCalculator
@@ -304,33 +310,85 @@ extension NutritionMainViewModel {
     await loadMealsForDate(selectedDate)
   }
   
-//   // test
-//  func testDataOperations() {
-//          print("=== SwiftData 테스트 시작 ===")
-//          
-//          // 1. 테스트 데이터 추가
-//          let testMacros = MacroNutrients(carbohydrate: 30, protein: 20, fat: 10)
-//          registerFood(name: "테스트 음식", macros: testMacros)
-//          print("테스트 음식 추가 완료")
-//          
-//          // 2. 현재 meals 상태 출력
-//          print("현재 meals 개수: \(meals.count)")
-//          
-//          for (index, meal) in meals.enumerated() {
-//              print("Meal \(index): ID=\(meal.id), 음식 개수=\(meal.foods.count)")
-//              for food in meal.foods {
-//                  print("  - \(food.name): 탄\(food.macros.carbohydrate)g, 단\(food.macros.protein)g, 지\(food.macros.fat)g")
-//              }
-//          }
-//          
-//          // 3. 데이터 다시 로드 테스트
-//          Task {
-//              await loadMealsForDate(selectedDate)
-//              print("데이터 재로드 완료: \(meals.count)개 meals")
-//          }
-//          
-//          print("=== SwiftData 테스트 완료 ===")
-//      }
+}
+
+// MARK: - ViewModel Extension for Food Management
+
+extension NutritionMainViewModel {
+  
+  func updateFood(foodId: UUID, mealId: UUID, name: String, macros: MacroNutrients) {
+    do {
+      let foodDescriptor = FetchDescriptor<Food>(predicate: #Predicate { food in
+        food.id == foodId
+      })
+      
+      guard let existingFood = try modelContext.fetch(foodDescriptor).first else {
+        print("❌ 음식을 찾을 수 없습니다")
+        return
+      }
+      
+      existingFood.foodName = name
+      existingFood.carbohydrate = macros.carbohydrate
+      existingFood.protein = macros.protein
+      existingFood.fat = macros.fat
+      
+      try modelContext.save()
+      
+      if let mealIndex = meals.firstIndex(where: { $0.id == mealId }),
+         let foodIndex = meals[mealIndex].foods.firstIndex(where: { $0.id == foodId }) {
+        meals[mealIndex].foods[foodIndex] = FoodInfo(id: foodId,
+                                                     name: name,
+                                                     weight: existingFood.totalGram,
+                                                     macros: macros)
+      }
+      
+      print("✅ 음식이 성공적으로 업데이트되었습니다")
+    } catch {
+      print("❌ 음식 업데이트 실패: \(error)")
+    }
+  }
+  
+  func deleteFood(foodId: UUID, mealId: UUID) {
+    do {
+      let foodDescriptor = FetchDescriptor<Food>(predicate: #Predicate { food in
+        food.id == foodId
+      })
+      
+      guard let foodToDelete = try modelContext.fetch(foodDescriptor).first else {
+        print("❌ 삭제할 음식을 찾을 수 없습니다")
+        return
+      }
+      
+      modelContext.delete(foodToDelete)
+      try modelContext.save()
+      
+      if let mealIndex = meals.firstIndex(where: { $0.id == mealId }) {
+        meals[mealIndex].foods.removeAll { $0.id == foodId }
+        
+        if meals[mealIndex].foods.isEmpty {
+          let mealDescriptor = FetchDescriptor<Meal>(predicate: #Predicate { meal in
+            meal.id == mealId
+          })
+          
+          if let mealToDelete = try modelContext.fetch(mealDescriptor).first {
+            modelContext.delete(mealToDelete)
+            try modelContext.save()
+          }
+          
+          meals.removeAll() { $0.id == mealId }
+          
+          if selectedMeal?.id == mealId {
+            selectedMeal = nil
+          }
+        }
+      }
+      
+      print("✅ 음식이 성공적으로 삭제되었습니다")
+    } catch {
+      print("❌ 음식 삭제 실패: \(error)")
+    }
+  }
+  
 }
 
 // MARK: - Network

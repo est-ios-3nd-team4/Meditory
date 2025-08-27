@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MealSummaryCard: View {
   
+  @EnvironmentObject var viewModel: NutritionMainViewModel
   let food: FoodInfo
   
   var body: some View {
@@ -41,11 +42,11 @@ struct MealSummaryCard: View {
               .frame(maxWidth: .infinity, alignment: .leading)
             }
           }
-          
         }
         
         Spacer()
       }
+      .foregroundStyle(Color.label)
       .padding(.leading, 16)
     }
   }

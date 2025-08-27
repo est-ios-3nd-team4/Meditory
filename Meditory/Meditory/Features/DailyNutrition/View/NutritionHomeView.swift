@@ -23,9 +23,11 @@ struct NutritionHomeView: View {
           DailyMealSummaryCard()
           
           ForEach(viewModel.foodList, id: \.id) { food in
-//            NavigationLink(value: food) {
-              MealSummaryCard(food: food)
-//            }
+            if let parentMeal = viewModel.findMeal(for: food.id) {
+              NavigationLink(destination: FoodInputView(food: food, meal: parentMeal)) {
+                MealSummaryCard(food: food)
+              }
+            }
           }
           
           Spacer()
@@ -52,28 +54,28 @@ struct NutritionHomeView: View {
   }
 }
 
-extension NutritionHomeView {
-  func emptyMealView() -> some View {
-    Rectangle()
-      .fill(.main)
-      .frame(height: 70)
-      .modifier(CardStyle())
-      .overlay {
-        HStack {
-          Image(systemName: "pencil")
-          
-          Text("음식 추가하기")
-          
-          Spacer()
-          
-          Image(systemName: "chevron.right")
-        }
-        .font(.notoSans(weight: .medium, size: 17))
-        .foregroundStyle(.white)
-        .padding(.horizontal, 16)
-      }
-  }
-}
+//extension NutritionHomeView {
+//  func emptyMealView() -> some View {
+//    Rectangle()
+//      .fill(.main)
+//      .frame(height: 70)
+//      .modifier(CardStyle())
+//      .overlay {
+//        HStack {
+//          Image(systemName: "pencil")
+//          
+//          Text("음식 추가하기")
+//          
+//          Spacer()
+//          
+//          Image(systemName: "chevron.right")
+//        }
+//        .font(.notoSans(weight: .medium, size: 17))
+//        .foregroundStyle(.white)
+//        .padding(.horizontal, 16)
+//      }
+//  }
+//}
 
 #Preview {
 //  NutritionHomeView()
