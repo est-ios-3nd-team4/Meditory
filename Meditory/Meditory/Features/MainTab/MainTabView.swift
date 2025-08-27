@@ -27,7 +27,11 @@ struct MainTabView: View {
         } else {
           mainTabPhoneView()
         }
+        
+        intakeDestinationView()
       }
+
+      // 추후 적용 예정
       .fullScreenCover(
         isPresented: Binding(
           get: { selectedIntakeItem != nil && !showIntakeSelector },

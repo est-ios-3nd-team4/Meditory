@@ -11,6 +11,7 @@ enum RoutineSaveError: Error {
   case supplementSummaryNotFound
   case aiScheduleSaveInterrupted
   case saveFailed
+  case notFound
   
   var title: String {
     switch self {
@@ -18,7 +19,7 @@ enum RoutineSaveError: Error {
       return "영양제 정보 없음"
     case .aiScheduleSaveInterrupted:
       return "AI 스케줄 생성 중"
-    case .saveFailed:
+    case .saveFailed, .notFound:
       return "저장 실패"
     }
   }
@@ -29,7 +30,7 @@ enum RoutineSaveError: Error {
       return "영양제 정보를 먼저 입력해주세요."
     case .aiScheduleSaveInterrupted:
       return "AI 스케줄이 아직 생성 중입니다.\n잠시 후 다시 시도해주세요."
-    case .saveFailed:
+    case .saveFailed, .notFound:
       return "예기치 못한 오류로 저장할 수 없습니다."
     }
   }

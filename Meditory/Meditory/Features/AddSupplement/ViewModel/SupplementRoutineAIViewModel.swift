@@ -12,22 +12,18 @@ import SwiftData
 final class SupplementRoutineAIViewModel {
   private let client: AlanAPIClient
 
-  // Store들을 직접 소유하지 않고, 필요할 때 .shared 인스턴스를 사용합니다.
   init(client: AlanAPIClient = AlanAPIClient()) {
     self.client = client
   }
 
-  // AI 추천을 요청하는 View로부터 ModelContext를 전달받습니다.
   func requestAISchedule(
     supplementName: String,
-    lifeStyle: UserLifeStyle,
+    lifeStyle: UserLifeStyleDTO,
     context: ModelContext
   ) async throws -> SupplementDTO {
-    // makePrompt를 호출할 때 context를 전달합니다.
-    let prompt = await makePrompt(
+    let prompt = try await makePrompt(
       supplementName: supplementName,
-      lifestyle: lifeStyle,
-      context: context
+      lifestyle: lifeStyle
     )
     
     print("✅ 요청", Date.now)
@@ -40,29 +36,27 @@ final class SupplementRoutineAIViewModel {
     return dto
   }
   
-  // AI 프롬프트를 생성할 때 ModelContext를 사용합니다.
   func makePrompt(
     supplementName: String,
-    lifestyle: UserLifeStyle,
-    context: ModelContext  // << 이 context를 사용해야 합니다!
-  ) async -> String {
+    lifestyle: UserLifeStyleDTO,
+    userStore: UserStore = UserStore.shared,
+    routineStore: RoutineStore = RoutineStore.shared
+  ) async throws -> String {
     
-    // 1. 전달받은 context에서 직접 User 정보를 가져옵니다.
-    let userDescriptor = FetchDescriptor<User>()
-    let user = try? context.fetch(userDescriptor).first
+    // 1. User 정보를 가져옵니다.
+    let user = try await userStore.currentUser()
     
-    let gender = user?.gender ?? "미입력"
-    let birth = user?.birthDate ?? Date(timeIntervalSince1970: 0)
+    let gender = user.gender
+    let birth = user.birthDate
     
     // 2. 조회한 user 객체에서 건강 정보를 추출합니다.
-    let diseases = user?.userExtraInfos.first?.disease.map { $0.value } ?? []
-    let allergies = user?.userExtraInfos.first?.allergy.map { $0.value } ?? []
-    let isPregnant = user?.userStatuses.contains { $0.statusType == "임신" } ?? false
-    let isBreastfeeding = user?.userStatuses.contains { $0.statusType == "수유" } ?? false
+    let diseases = user.userExtraInfos.first?.disease.map { $0.value } ?? []
+    let allergies = user.userExtraInfos.first?.allergy.map { $0.value } ?? []
+    let isPregnant = user.userStatuses.contains { $0.statusType == "임신 중" }
+    let isBreastfeeding = user.userStatuses.contains { $0.statusType == "수유 중" }
     
     // 3. 전달받은 context에서 직접 Routine 정보를 가져옵니다.
-    let routineDescriptor = FetchDescriptor<Routine>(sortBy: [SortDescriptor(\.displayName)])
-    let routines = (try? context.fetch(routineDescriptor)) ?? []
+    let routines = await routineStore.fetchAllRoutines()
     
     let scheduleList: [String] = routines.map { routine in
       let timeDoseSummary = routine.routineTimes
@@ -87,7 +81,7 @@ final class SupplementRoutineAIViewModel {
       isPregnant: isPregnant,
       isBreastfeeding: isBreastfeeding,
       supplementSchedule: scheduleList,
-      lifestyle: ScheduleAIPrompt.LifestyleLoad.from(lifestyle)
+      lifestyle: lifestyle
     )
     
     return ScheduleAIPrompt.makePrompt(user: input, productName: supplementName)

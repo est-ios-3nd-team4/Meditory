@@ -174,7 +174,7 @@ final class UserLifeStyleTest: XCTestCase {
     let lifeStyleID = try XCTUnwrap(lifeStyleIDResult)
 
     // When: Date 파라미터로 업데이트
-    await store.setLifestyleTimesDate(
+    try await store.setLifestyleTimesDate(
       id: lifeStyleID,
       breakfast: makeDate(7, 50),
       lunch: makeDate(13, 5)
@@ -194,7 +194,7 @@ final class UserLifeStyleTest: XCTestCase {
     let lifeStyleID = try XCTUnwrap(lifeStyleIDResult)
 
     // When: 9:07을 Date로 설정
-    await store.setLifestyleTimesDate(id: lifeStyleID, wakeTime: makeDate(9, 7))
+    try await store.setLifestyleTimesDate(id: lifeStyleID, wakeTime: makeDate(9, 7))
     await Task.yield() // 수정 작업이 반영될 시간을 줍니다.
 
     // Then: "09:07"로 저장 (context를 통해 검증)

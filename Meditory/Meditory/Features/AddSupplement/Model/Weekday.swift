@@ -8,13 +8,13 @@
 import Foundation
 
 enum Weekday: Int, CaseIterable {
+  case sun
   case mon
   case tue
   case wed
   case thu
   case fri
   case sat
-  case sun
   
   var title: String {
     switch self {

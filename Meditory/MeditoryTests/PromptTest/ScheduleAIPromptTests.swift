@@ -59,12 +59,13 @@ final class ScheduleAIPromptTests: XCTestCase {
       )
     )
     
-    user.userStatuses.append(UserStatus(statusType: "임신", startDate: .now, endDate: .now, user: user))
-    user.userStatuses.append(UserStatus(statusType: "수유", startDate: .now, endDate: .now, user: user))
+    user.userStatuses.append(UserStatus(statusType: "임신 중", startDate: .now, endDate: .now, user: user))
+    user.userStatuses.append(UserStatus(statusType: "수유 중", startDate: .now, endDate: .now, user: user))
     
     _ = await userStore.addUser(user)
+    await userStore.loadUser()
     
-    // 2. Routine 정보 저장 (새로운 createRoutine 메서드 사용)
+    // 2. Routine 정보 저장 
     for mockRoutine in DummyData.mockRoutines_AllCases {
       _ = try await routineStore.createRoutine(
         type: mockRoutine.type,
@@ -83,19 +84,18 @@ final class ScheduleAIPromptTests: XCTestCase {
     }
     
     // act
-    // ViewModel의 새로운 init 방식을 사용합니다.
     let vm = SupplementRoutineAIViewModel()
-    // makePrompt는 이제 context를 인자로 받습니다.
-    let prompt = await vm.makePrompt(
+    let prompt = try! await vm.makePrompt(
       supplementName: "타이레놀",
-      lifestyle: UserLifeStyle(
+      lifestyle: UserLifeStyleDTO(
         wakeTime: "07:30",
         sleepTime: "23:30",
         breakfast: nil,
         lunch: "12:30",
         dinner: "19:00"
       ),
-      context: context
+      userStore: userStore,
+      routineStore: routineStore
     )
     
     // assert

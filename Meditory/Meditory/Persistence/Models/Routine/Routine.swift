@@ -3,7 +3,7 @@ import SwiftData
 
 /// 복용 주기 정보를 저장하는 데이터 모델
 @Model
-final class Routine {
+final class Routine: Sendable {
   /// 루틴 고유 식별자 (UUID)
   @Attribute(.unique) var id: UUID
   

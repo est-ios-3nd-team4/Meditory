@@ -37,12 +37,11 @@ struct AddSupplementView: View {
   @Query private var users: [User]
   
   // ViewModels
-  @State private var addSupplementVM = AddSupplementViewModel()
+  @State private var addSupplementVM: AddSupplementViewModel
   @StateObject private var scheduleVM = SupplementScheduleViewModel()
   @State private var lifestyleTimeVM: LifestyleTimeViewModel
   
   // Schedule
-  @State private var selectedScheduleType: SupplementScheduleType = .weekday
   @State private var selectedPicker: SchedulePickerType? {
     didSet { showSchedulePicker() }
   }
@@ -51,7 +50,6 @@ struct AddSupplementView: View {
   
   // Input
   @State private var supplementName = ""
-  @State private var memo = ""
   @State private var fieldType: FieldType? = nil
   
   // Lifestyle
@@ -59,7 +57,6 @@ struct AddSupplementView: View {
   @State private var selectedLifestyleOption: (any LifestyleTime)?
   
   // Supplement
-  @State private var supplement: SupplementDTO?
   @State private var routineSaveError: RoutineSaveError?
   private var shouldShowSupplementInfo: Bool {
     addSupplementVM.supplemtSummary != nil || isSearchingSupplementSummary
@@ -80,10 +77,12 @@ struct AddSupplementView: View {
   
   init(
     type: Mode = .add,
+    routine: Routine? = nil,
     selectedIntakeItem: Binding<AddIntakeItem?> = .constant(nil)
   ) {
     self.type = type
     self._selectedIntakeItem = selectedIntakeItem
+    self._addSupplementVM = State(initialValue: AddSupplementViewModel(routine: routine))
     self._lifestyleTimeVM = State(initialValue: LifestyleTimeViewModel(lifestyleStore: UserLifeStyleStore.shared))
   }
 
@@ -258,7 +257,10 @@ extension AddSupplementView {
             y: scheduleTypeRectPosition.y
           )
           .onAppear {
-            scheduleTypeRectPosition.x = geometry.size.width * 0.25
+            scheduleTypeRectPosition.x = rectPosition(
+              for: addSupplementVM.selectedScheduleType,
+              width: geometry.size.width
+            )
             scheduleTypeRectPosition.y = geometry.size.height / 2
           }
         
@@ -274,8 +276,8 @@ extension AddSupplementView {
                   scheduleTypeRectPosition.x = rectPosition(for: type, width: geometry.size.width)
                 }
                 
-                if selectedScheduleType != type {
-                  selectedScheduleType = type
+                if addSupplementVM.selectedScheduleType != type {
+                  addSupplementVM.selectedScheduleType = type
                 }
               }
           }
@@ -288,7 +290,7 @@ extension AddSupplementView {
   
   private func scheduleDetailsSection() -> some View {
     VStack {
-      switch selectedScheduleType {
+      switch addSupplementVM.selectedScheduleType {
       case .weekday:
         weekdayScheduleView()
       case .interval:
@@ -471,8 +473,8 @@ extension AddSupplementView {
     AIRecommendedScheduleView(
       defaultFontSize: defaultFontSize,
       supplementSummary: addSupplementVM.supplemtSummary,
-      lifestyle: lifestyleTimeVM.userlifeStyle,
-      supplement: $supplement
+      lifestyle: lifestyleTimeVM.userLifestyle,
+      supplement: $addSupplementVM.supplement
     )
   }
   
@@ -482,7 +484,7 @@ extension AddSupplementView {
         .font(.notoSans(size: defaultFontSize))
       
       InputTextField(
-        text: $memo,
+        text: $addSupplementVM.memo,
         placeHolder: "ex) 따듯한 물과 함께 먹기",
         didBeginEditing: {
           fieldType = .memo
@@ -575,11 +577,11 @@ extension AddSupplementView {
 // MARK: - Colors and Positions
 extension AddSupplementView {
   func backgroundColor(for type: SupplementScheduleType) -> Color {
-    type == selectedScheduleType ? .main : .clear
+    type == addSupplementVM.selectedScheduleType ? .main : .clear
   }
   
   func textColor(for type: SupplementScheduleType) -> Color {
-    type == selectedScheduleType ? .white : .textGray
+    type == addSupplementVM.selectedScheduleType ? .white : .textGray
   }
   
   func rectPosition(for type: SupplementScheduleType, width: CGFloat) -> CGFloat {
@@ -645,11 +647,7 @@ extension AddSupplementView {
       do {
         try await lifestyleTimeVM.saveLifestyle()
         
-        try await addSupplementVM.saveRoutine(
-          type: selectedScheduleType,
-          supplement: supplement,
-          memo: memo
-        )
+        try await addSupplementVM.saveRoutine()
         
         await MainActor.run {
           dismissOrClearSelection()
