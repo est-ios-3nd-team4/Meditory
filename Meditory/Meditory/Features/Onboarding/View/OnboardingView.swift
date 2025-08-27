@@ -69,7 +69,7 @@ struct OnboardingView: View {
     // MARK: - 커스텀 내비게이션 바 적용
     // isEditing 값에 따라 다른 내비게이션 바 스타일을 적용합니다.
     .applyIf(isEditing) {
-      $0.navigationBar(.custom(editingTitle)) {
+      $0.navigationBar(.custom(editingTitle), backgroundStyle: .system) {
         dismiss()
       }
     }
