@@ -15,13 +15,18 @@ struct SupplementDetailView: View {
   @Environment(\.modelContext) private var context
   @Environment(\.horizontalSizeClass) private var hSize
   @Environment(\.verticalSizeClass) private var vSize
-  // @StateObject 대신 @State를 사용합니다.
-  @State private var vm: SupplementDetailViewModel
+  @State private var vm = SupplementDetailViewModel()
+  @Bindable var routine: Routine
+
   @State private var isAtTop: Bool = true
+  @State private var showDeleteAlert: Bool = false
 
   init(routine: Routine) {
-    // @State의 초기화 방식으로 변경합니다.
-    _vm = State(initialValue: SupplementDetailViewModel(routine: routine))
+    self.routine = routine
+  }
+
+  private var supplementInfo: SupplementDetailInfo {
+    vm.makeSupplementDetailInfo(from: routine)
   }
 
   private var isPadStyle: Bool { hSize == .regular }
@@ -37,64 +42,70 @@ struct SupplementDetailView: View {
 
   var body: some View {
     ZStack {
-      if let routine = vm.routine{
-        ScrollView(showsIndicators: false) {
-          ScrollTopObserver(isAtTop: $isAtTop)
-          
-          VStack(spacing: .defaultSpacing + 8) {
-            SupplementInfoCard(routine: routine)
+      ScrollView(showsIndicators: false) {
+        ScrollTopObserver(isAtTop: $isAtTop)
+
+        VStack(spacing: .defaultSpacing + 8) {
+          // 사용 중인 카드들이 Routine을 읽도록 유지
+          SupplementInfoCard(routine: routine)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+          SchedulePanel(routine: routine)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+          if !supplementInfo.memo.isEmpty {
+            SupplementInfoCard(type: .memo, guide: [supplementInfo.memo])
               .frame(maxWidth: .infinity, alignment: .leading)
-
-            SchedulePanel(routine: routine)
-              .frame(maxWidth: .infinity, alignment: .leading)
-
-            if !vm.memo.isEmpty {
-              SupplementInfoCard(type: .memo, guide: [vm.memo])
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-
-            guideGridSection
-
-            deleteButton
           }
-          .frame(maxWidth: maxContentWidth, alignment: .top)
-          .padding(.horizontal, .defaultSpacing)
-          .frame(maxWidth: .infinity, alignment: .top)
+
+          guideGridSection
+
+          deleteButton
         }
-      } else {
-        Color.clear.onAppear { dismiss() }
+        .frame(maxWidth: maxContentWidth, alignment: .top)
+        .padding(.horizontal, .defaultSpacing)
+        .frame(maxWidth: .infinity, alignment: .top)
       }
     }
     .background(.customBackground)
     .navigationBar(.supplementDetail, isAtTop: isAtTop)
     .overlay {
-      if vm.showDeleteAlert {
+      if showDeleteAlert {
         DeleteAlertView(
-          isPresented: $vm.showDeleteAlert,
+          isPresented: $showDeleteAlert,
           onDelete: {
-            // confirmDelete가 비동기 함수가 되었으므로 Task로 감싸줍니다.
-            Task {
-              await vm.confirmDelete(dismiss: dismiss)
+            Task { @MainActor in
+              await vm.delete(routine, in: context)
+              dismiss()
             }
           }
         )
       }
     }
+    .onReceive(NotificationCenter.default.publisher(for: .didUpdateSupplement)) { _ in
+      Task { @MainActor in
+        let latest = context.model(for: routine.persistentModelID) as? Routine
+        if latest == nil { // 삭제됨
+          dismiss()
+        }
+      }
+    }
   }
+
 
   @ViewBuilder
   private var guideGridSection: some View {
-    let hasUsage = vm.usage.first != nil
-    let hasPrecaution = vm.precautions.first != nil
+    let hasUsage = supplementInfo.usage.first != nil
+    let hasPrecaution = supplementInfo.precautions.first != nil
 
     if hasUsage || hasPrecaution {
       VStack(alignment: .leading, spacing: .defaultSpacing) {
-        if let usage = vm.usage.first {
+        if let usage = supplementInfo.usage.first {
           SupplementInfoCard(type: .info, guide: [usage])
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        if let precaution = vm.precautions.first {
-          SupplementInfoCard(type: .warn, guide: [precaution])
+        if let precautions = supplementInfo.precautions.first {
+          SupplementInfoCard(type: .warn, guide: [precautions])
             .frame(maxWidth: .infinity, alignment: .leading)
         }
       }
@@ -104,7 +115,7 @@ struct SupplementDetailView: View {
 
   private var deleteButton: some View {
     Button(role: .destructive) {
-      vm.requestDelete()
+      showDeleteAlert = true
     } label: {
       Label("루틴 삭제", systemImage: "trash.fill")
         .font(.notoSans(weight: .bold, size: 17))
@@ -124,6 +135,7 @@ struct SupplementDetailView: View {
     )
   }
 }
+
 extension SupplementDetailView {
   private struct DeleteAlertView: View {
     @Binding var isPresented: Bool
