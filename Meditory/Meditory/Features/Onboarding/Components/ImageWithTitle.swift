@@ -22,14 +22,15 @@ struct ImageWithTitle: View {
         .saturation(isSelected ? 1 : 0)
         .overlay(
           RoundedRectangle(cornerRadius: .defaultRadius)
-            .stroke(isSelected ? Color.clear : Color.gray.opacity(0.4))
-            .fill(isSelected ? Color.sub.opacity(0.18) : Color.clear)
+            .stroke(isSelected ? Color.clear : Color.gray.opacity(0.3))
+            .fill(isSelected ? Color.sub.opacity(0.14) : Color.clear)
         )
         .onTapGesture {
           onAction?()
         }
       Text(gender.title)
-        .font(.headline)
+        .font(.notoSans(weight: .medium, size: 18))
+        .foregroundStyle(.textGray)
     }
   }
 }

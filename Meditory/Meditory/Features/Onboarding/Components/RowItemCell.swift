@@ -15,8 +15,8 @@ struct RowItemCell: View {
   var body: some View {
     ZStack {
       RoundedRectangle(cornerRadius: 8)
-        .stroke(isSelected ? Color.main : Color.gray.opacity(0.4), lineWidth: 1)
-        .fill(isSelected ? Color.sub.opacity(0.18) : Color.clear)
+        .stroke(isSelected ? Color.main : Color.gray.opacity(0.3), lineWidth: 1)
+        .fill(isSelected ? Color.sub.opacity(0.14) : Color.clear)
         .frame(height: 100)
       HStack(alignment: .center) {
         Image(model.image)
@@ -27,11 +27,11 @@ struct RowItemCell: View {
           .alignmentGuide(.top) { d in d[.top] - 4 }
         VStack(alignment: .leading, spacing: 2) {
           Text(model.title)
-            .font(.notoSans(weight: .semiBold, size: 16))
+            .font(.notoSans(weight: .medium, size: 14))
           Text(model.subtitle)
             .font(.notoSans(weight: .regular, size: subTitleSize))
-            .foregroundStyle(.textGray)
         }
+        .foregroundStyle(.textGray)
         Spacer()
         CircleCheck(isCompleted: isSelected, size: 25)
           .padding(.trailing, 20)
