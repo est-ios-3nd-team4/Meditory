@@ -18,20 +18,19 @@ struct RowItemCell: View {
         .stroke(isSelected ? Color.main : Color.gray.opacity(0.4), lineWidth: 1)
         .fill(isSelected ? Color.sub.opacity(0.18) : Color.clear)
         .frame(height: 100)
-      HStack (alignment: .center){
-          if let imageName = model.toggleImage?.selectedImage(isSelect: isSelected) {
-            Image(imageName)
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(width: 60, height: 60)
-              .alignmentGuide(.top) { d in d[.top] - 4 }
-          VStack(alignment: .leading,spacing: 2) {
-            Text(model.title)
-              .font(.notoSans(weight: .semiBold, size: 16))
-            Text(model.subtitle)
-              .font(.notoSans(weight: .regular, size: subTitleSize))
-              .foregroundStyle(.textGray)
-          }
+      HStack(alignment: .center) {
+        Image(model.image)
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(width: 60, height: 60)
+          .saturation(isSelected ? 1 : 0 )
+          .alignmentGuide(.top) { d in d[.top] - 4 }
+        VStack(alignment: .leading, spacing: 2) {
+          Text(model.title)
+            .font(.notoSans(weight: .semiBold, size: 16))
+          Text(model.subtitle)
+            .font(.notoSans(weight: .regular, size: subTitleSize))
+            .foregroundStyle(.textGray)
         }
         Spacer()
         CircleCheck(isCompleted: isSelected, size: 25)

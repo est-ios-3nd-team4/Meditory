@@ -19,6 +19,7 @@ struct ImageWithTitle: View {
         .resizable()
         .aspectRatio(contentMode: .fit)
         .frame(width: 110, height: 110)
+        .saturation(isSelected ? 1 : 0)
         .overlay(
           RoundedRectangle(cornerRadius: .defaultRadius)
             .stroke(isSelected ? Color.clear : Color.gray.opacity(0.4))
