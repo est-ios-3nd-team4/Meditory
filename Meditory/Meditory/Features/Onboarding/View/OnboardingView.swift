@@ -57,10 +57,13 @@ struct OnboardingView: View {
       Spacer(minLength: 0)
       
       // 수정 모드일 때는 '다음' 버튼 대신 '저장' 버튼을 보여줍니다.
-      if isEditing {
-        saveButton()
-      } else {
-        nextButton()
+      HStack(spacing:.defaultSpacing) {
+        prevButton()
+        if isEditing {
+          saveButton()
+        } else {
+          nextButton()
+        }
       }
     }
     // MARK: - 커스텀 내비게이션 바 적용
@@ -153,6 +156,22 @@ struct OnboardingView: View {
     }
     .padding(.top, 60)
   }
+  
+  @ViewBuilder
+  func prevButton() -> some View {
+    VStack(spacing: .smallSpacing) {
+      PrimaryButton(
+        title: "이전"
+        ,isSub: true
+      ) {
+        guard let prev = currentStep.previous() else { return }
+        currentStep = prev
+      }
+      .opacity(currentStep == .base ? 0 : 1)
+      .padding(.vertical, buttonTopSpacing)
+    }
+    .padding(.leading, .defaultSpacing)
+  }
 
   @ViewBuilder
   func nextButton() -> some View {
@@ -161,7 +180,7 @@ struct OnboardingView: View {
         title: currentStep != .concern ? "다음" : "완료",
         isEnabled: vm.isNextButtonOn
       ) {
-        guard let next = currentStep.nextView() else {
+        guard let next = currentStep.next() else {
           onFinished()
           signUp()
           return
@@ -175,7 +194,7 @@ struct OnboardingView: View {
       .disabled(!vm.isNextButtonOn)
       .padding(.vertical, buttonTopSpacing)
     }
-    .padding(.horizontal, .defaultSpacing + 4)
+    .padding(.trailing, .defaultSpacing)
   }
   
   // MARK: - '저장' 버튼 (수정 모드용)
@@ -195,7 +214,7 @@ struct OnboardingView: View {
       .disabled(!vm.isNextButtonOn)
       .padding(.vertical, 8)
     }
-    .padding(.horizontal, .defaultSpacing + 4)
+    .padding(.trailing, .defaultSpacing)
   }
 
   func selectItem(item: QuestionModel, vm: OnboardingViewModel) {
