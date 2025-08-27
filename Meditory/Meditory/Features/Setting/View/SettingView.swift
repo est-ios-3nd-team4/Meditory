@@ -5,49 +5,41 @@ import SwiftData
 struct SettingView: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.modelContext) private var context
-
+  
   @Environment(\.userStore) private var userStore
   @Environment(\.scenePhase) private var scenePhase
   @State private var viewModel: SettingViewModel
-
+  
+  private let defaultFontSize: CGFloat = 18
+  
   init() {
-    // 앱의 실제 Store 싱글턴을 주입합니다.
-    _viewModel = State(initialValue: SettingViewModel(settingStore: SettingStore.shared))
+      // 앱의 실제 Store 싱글턴을 주입함
+      _viewModel = State(initialValue: SettingViewModel(settingStore: SettingStore.shared))
   }
-
+  
   // DB의 User 목록 자동 바인딩
   @Query private var users: [User]
-
-
+  
+  
   var body: some View {
+    // users 배열에서 첫 번째 사용자를 가져옴
+    let currentUser = users.first
+    
     ZStack(alignment: .top) {
       (colorScheme == .dark ? Color.black : Color.customBackground)
         .ignoresSafeArea(edges: .top)
-
+      
       VStack(spacing: .defaultSpacing) {
-        let currentUser = users.first
-
+        
         NavigationLink(destination: SettingSubView()) {
           settingItem {
-            HStack {
-              VStack(alignment: .leading, spacing: 16) {
-                Text(currentUser?.name ?? "사용자 미등록")
-                  .font(.notoSans(size: 18))
-                  .foregroundColor(.primary)
-
-                Text("내 정보 ∙ 건강 정보 관리")
-                  .font(.subheadline)
-                  .foregroundColor(.secondary)
-              }
-
-              Spacer()
-
-              Image(systemName: "chevron.right")
-                .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
-            }
+            Text("내 정보 ∙ 건강 정보 관리")
+              .font(.notoSans(size: defaultFontSize))
+              .foregroundStyle(.primary)
           }
         }
-
+        .buttonStyle(.plain) // NavigationLink의 기본 스타일(파란색)을 제거함
+        
         settingItem {
           Button {
             NotificationManager.shared.openSystemSettings()
@@ -56,34 +48,35 @@ struct SettingView: View {
               Text("알림")
                 .font(.notoSans(size: 18))
                 .foregroundStyle(.primary)
-
+              
               Spacer()
-
+              
               Text(viewModel.isSystemGranted ? "ON" : "OFF")
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .padding(.trailing, 4)
-
+              
               Image(systemName: "chevron.right")
                 .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
             }
           }
           .buttonStyle(.plain) // 기본 버튼 스타일 제거 → 기존 settingItem 스타일 유지
         }
-
+        
         settingItem {
           Text("고객센터 문의하기")
-            .font(.notoSans(size: 18))
+            .font(.notoSans(size: defaultFontSize))
         }
       }
       .padding()
-
+      
     }
+    .navigationTitle(currentUser?.name ?? "설정")
     .onAppear {
       Task {
-       await viewModel.refreshAndSync()
+        await viewModel.loadSetting()
       }
-
+      
       printUsers()
     }
     .onChange(of: scenePhase) { _, phase in
@@ -92,14 +85,15 @@ struct SettingView: View {
       }
     }
   }
-
-
+  
+  
   // 둥근네모 만드는 함수
   @ViewBuilder
   func settingItem<Content: View>(@ViewBuilder content: () -> Content) -> some View {
     content()
       .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(.vertical, 20)   //  내부 상하여백
+      .frame(height: 26) // 토글버튼때문에 각 항목의 높이가 달라지는 것 때문에 추가
+      .padding(.vertical, 16)   //  내부 상하여백
       .padding(.horizontal, 16) //  내부 좌우여백
       .background(
         RoundedRectangle(cornerRadius: 20)
@@ -107,15 +101,15 @@ struct SettingView: View {
       )
       .modifier(UnifiedShadow())
   }
-
-
+  
+  
   // 유저 정보 확인용 함수
   func printUsers() -> Void {
     if users.isEmpty {
       print("🤷‍♂️ User가 없습니다.")
       return
     }
-
+    
     print("---------- 사용자 정보 조회 시작 ----------")
     for (index, user) in users.enumerated() {
       print("\n--- [ \(index)번 index 사용자 ] ---")
@@ -124,7 +118,7 @@ struct SettingView: View {
       print("🏷️ 표시 이름: \(user.displayName)")
       print("🎂 생년월일: \(user.birthDate.formatted(date: .long, time: .omitted))")
       print("🚻 성별: \(user.gender)")
-
+      
       // 1. 최신 사용자 프로필 (키/체중)
       if let profile = user.currentProfile {
         let height = profile.height != nil ? "\(profile.height!)cm" : "미입력"
@@ -133,7 +127,7 @@ struct SettingView: View {
       } else {
         print("📏 프로필: 정보 없음")
       }
-
+      
       // 2. 사용자 상태 (임신중 등)
       if !user.userStatuses.isEmpty {
         print("✨ 건강 상태:")
@@ -141,7 +135,7 @@ struct SettingView: View {
           print("  - \(status.statusType)")
         }
       }
-
+      
       // 3. 추가 정보 (알러지, 질병, 관심사)
       if let extraInfo = user.userExtraInfos.first {
         if !extraInfo.allergy.isEmpty {
@@ -154,7 +148,7 @@ struct SettingView: View {
           print("❤️ 건강 관심사: \(extraInfo.concern.map { $0.value }.joined(separator: ", "))")
         }
       }
-
+      
       // 4. 생활 습관
       if let lifeStyle = user.userLifeStyle {
         print("🌙 생활 습관: 기상 \(lifeStyle.wakeTime), 취침 \(lifeStyle.sleepTime)")
@@ -166,7 +160,10 @@ struct SettingView: View {
 
 
 #Preview {
-  SettingView()
-    .modelContainer(DataController.shared.container)
-    .environment(\.userStore, UserStore.shared)
+  // NavigationView 또는 NavigationStack으로 감싸야 타이틀이 보임
+  NavigationView {
+    SettingView()
+      .modelContainer(DataController.shared.container)
+      .environment(\.userStore, UserStore.shared)
+  }
 }
