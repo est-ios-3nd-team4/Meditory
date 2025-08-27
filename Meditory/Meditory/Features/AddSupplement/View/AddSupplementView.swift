@@ -652,7 +652,7 @@ extension AddSupplementView {
         try await lifestyleTimeVM.saveLifestyle()
 //        try await addSupplementVM.saveRoutine()
 
-        try await addSupplementVM.saveAneEditRoutine(
+        try await addSupplementVM.saveAndEditRoutine(
           modelContext: context,
           editingRoutine: editingRoutine,
           lifestyleVM: lifestyleTimeVM
