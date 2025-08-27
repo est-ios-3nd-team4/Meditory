@@ -8,7 +8,7 @@
 import Foundation
 
 struct FoodInfo: Identifiable, Codable {
-  var id = UUID()
+  var id: UUID
   var name: String // 음식 이름
   var weight: Double // 음식의 총 g 수
   var macros: MacroNutrients

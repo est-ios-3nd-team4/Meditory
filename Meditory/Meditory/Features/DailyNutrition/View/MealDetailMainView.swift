@@ -42,6 +42,7 @@ struct MealDetailMainView: View {
       
       Spacer()
     }
+    .padding(.top, 30)
   }
   
   func macroCompositionView(viewModel: NutritionMainViewModel) -> some View {

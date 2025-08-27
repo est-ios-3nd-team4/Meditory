@@ -48,6 +48,7 @@ final class MealModelConversionTest: XCTestCase {
     // When
     // 새로운 createMeal 메서드를 사용합니다.
     let mealID = try await store.createMeal(
+      id: originalMealInfo.id,
       mealName: originalMealInfo.name,
       date: originalMealInfo.date,
       foods: originalMealInfo.foods.map { Food(from: $0) }

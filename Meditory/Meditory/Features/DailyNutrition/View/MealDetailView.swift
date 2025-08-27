@@ -22,7 +22,6 @@ struct MealDetailView: View {
         AdvancedTopTabBarView(navigationManager: navigationManager)
       case .mealDetail:
         MealDetailMainView()
-          .padding(.top, 30)
       case .addFood:
         FoodInputView()
       }

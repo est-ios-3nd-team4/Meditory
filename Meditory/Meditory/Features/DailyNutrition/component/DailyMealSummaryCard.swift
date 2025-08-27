@@ -36,7 +36,7 @@ struct DailyMealSummaryCard: View {
               }
           }
           
-          MacroChartView(macros: meal)
+          MacroChartView(macros: viewModel.macroPercent)
             .frame(width: 130, height: 130)
           
           macroPercentageView()
@@ -49,19 +49,17 @@ struct DailyMealSummaryCard: View {
   func macroPercentageView() -> some View {
     HStack(spacing: 40) {
       ForEach(meal.macroItems) { item in
-        HStack {
+        HStack(spacing: 5) {
           Circle()
             .fill(item.color)
-            .frame(width: 15, height: 15)
+            .frame(width: 14, height: 14)
           
-          HStack {
             Text(item.label.prefix(1))
-              .font(.notoSans(weight: .regular, size: 15))
+              .font(.notoSans(weight: .regular, size: 13))
               .foregroundStyle(.black)
             
             Text("\(Int(item.gram))%")
-              .font(.notoSans(weight: .semiBold, size: 17))
-          }
+              .font(.notoSans(weight: .semiBold, size: 13))
         }
       }
     }

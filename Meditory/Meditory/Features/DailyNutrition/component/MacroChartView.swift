@@ -79,9 +79,11 @@ struct CircularKnobAnimationModifier: AnimatableModifier {
 
 struct MacroChartView: View {
   
-  var carbohydrateProgressTarget: Double
-  var proteinProgressTarget: Double
-  var fatProgressTarget: Double
+//  var carbohydrateProgressTarget: Double
+//  var proteinProgressTarget: Double
+//  var fatProgressTarget: Double
+  
+  var macrosPercentage: MacroNutrients?
   
   @State private var carbohydrateProgress: Double = 0
   @State private var proteinProgress: Double = 0
@@ -89,11 +91,11 @@ struct MacroChartView: View {
   
   /// macros인자 값으로 MacroNutrients gram 데이터를 받아야 합니다.
   init(macros: MacroNutrients?) {
-    let safeMacros = macros ?? MacroNutrients(carbohydrate: 0, protein: 0, fat: 0)
+    macrosPercentage = macros
     
-    self.carbohydrateProgressTarget = Double(safeMacros.carbohydrate) / 100
-    self.proteinProgressTarget = Double(safeMacros.protein) / 100
-    self.fatProgressTarget = Double(safeMacros.fat) / 100
+//    self.carbohydrateProgressTarget = safeMacros.carbohydrate
+//    self.proteinProgressTarget = safeMacros.protein
+//    self.fatProgressTarget = safeMacros.fat
   }
   
   var body: some View {
@@ -175,13 +177,24 @@ struct MacroChartView: View {
     }
     .aspectRatio(1, contentMode: .fit)
     .onAppear {
-      withAnimation(.easeInOut(duration: 1.0)) {
-        carbohydrateProgress = carbohydrateProgressTarget
-        proteinProgress = proteinProgressTarget
-        fatProgress = fatProgressTarget
-      }
+      updateProgress()
+    }
+    .onChange(of: macrosPercentage) { oldValue, newValue in
+      updateProgress()
     }
     
+  }
+  
+  private func updateProgress() {
+    let safeMacros = macrosPercentage ?? MacroNutrients(carbohydrate: 0,
+                                                        protein: 0,
+                                                        fat: 0)
+    
+    withAnimation(.easeInOut(duration: 1)) {
+      carbohydrateProgress = safeMacros.carbohydrate
+      proteinProgress = safeMacros.protein
+      fatProgress = safeMacros.fat
+    }
   }
 }
 

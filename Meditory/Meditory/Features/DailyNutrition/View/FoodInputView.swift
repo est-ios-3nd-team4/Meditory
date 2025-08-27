@@ -98,9 +98,15 @@ struct FoodInputView: View {
         .fixedSize(horizontal: false, vertical: true)
       
       PrimaryButton(title: "음식 등록") {
-        print("음식 등록")
+        let macroNutrients = MacroNutrients(carbohydrate:Double(macroValues[.carbohydrate] ?? "0") ?? 0.0,
+                                            protein: Double(macroValues[.protein] ?? "0") ?? 0.0,
+                                            fat: Double(macroValues[.fat] ?? "0") ?? 0.0)
+        
+        viewModel.registerFood(name: foodName,
+                               macros: macroNutrients)
+        
+        dismiss()
       }
-      
     }
     .navigationBarBackButtonHidden(true)
     .navigationBarTitleDisplayMode(.inline)

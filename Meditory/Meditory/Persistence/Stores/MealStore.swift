@@ -13,8 +13,8 @@ actor MealStore {
   ///   - mealName: 식사 이름 (예: "아침", "점심")
   ///   - date: 식사 날짜
   ///   - foods: 식사에 포함된 [Food] 객체 배열
-  func createMeal(mealName: String, date: Date, foods: [Food]) throws -> PersistentIdentifier {
-    let newMeal = Meal(mealName: mealName, date: date, foods: foods)
+  func createMeal(id: UUID, mealName: String, date: Date, foods: [Food]) throws -> PersistentIdentifier {
+    let newMeal = Meal(id: id,mealName: mealName, date: date, foods: foods)
     modelContext.insert(newMeal)
     try modelContext.save()
     return newMeal.persistentModelID

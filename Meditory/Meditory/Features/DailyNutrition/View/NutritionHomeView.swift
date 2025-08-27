@@ -22,17 +22,11 @@ struct NutritionHomeView: View {
         VStack {
           DailyMealSummaryCard()
           
-          ForEach(viewModel.meals, id: \.id) { meal in
-            NavigationLink(value: meal) {
-              MealSummaryCard(meal: meal)
-            }
-          }
-          
-//          if viewModel.meals.isEmpty {
-//            NavigationLink(destination: MealDetailView()) {
-//              emptyMealView()
+          ForEach(viewModel.foodList, id: \.id) { food in
+//            NavigationLink(value: food) {
+              MealSummaryCard(food: food)
 //            }
-//          }
+          }
           
           Spacer()
         }
@@ -46,7 +40,13 @@ struct NutritionHomeView: View {
         Task {
           await viewModel.loadUserData()
           await viewModel.requestHealthKitPermission()
+          await viewModel.loadMealForSelectedDate()
         }
+      }
+    }
+    .onChange(of: viewModel.selectedDate) { _, newDate in
+      Task {
+        await viewModel.loadMealsForDate(newDate)
       }
     }
   }
