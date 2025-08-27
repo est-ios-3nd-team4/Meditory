@@ -74,7 +74,9 @@ struct AddSupplementView: View {
   
   // Constants
   private let defaultFontSize: CGFloat = 18
-  
+
+  // Edit 시 사용하는 루틴
+  private let editingRoutine: Routine?
   init(
     type: Mode = .add,
     routine: Routine? = nil,
@@ -84,6 +86,7 @@ struct AddSupplementView: View {
     self._selectedIntakeItem = selectedIntakeItem
     self._addSupplementVM = State(initialValue: AddSupplementViewModel(routine: routine))
     self._lifestyleTimeVM = State(initialValue: LifestyleTimeViewModel(lifestyleStore: UserLifeStyleStore.shared))
+    self.editingRoutine = routine
   }
 
   var body: some View {
@@ -639,16 +642,22 @@ extension AddSupplementView {
     supplementName = ""
   }
 
+  @MainActor
   private func saveRoutine() {
     guard !isSaving else { return }
     isSaving = true
-    
+
     Task {
       do {
         try await lifestyleTimeVM.saveLifestyle()
-        
-        try await addSupplementVM.saveRoutine()
-        await RoutineNotificationScheduler().scheduleAll(modelContext: context)
+//        try await addSupplementVM.saveRoutine()
+
+        try await addSupplementVM.saveAneEditRoutine(
+          modelContext: context,
+          editingRoutine: editingRoutine,
+          lifestyleVM: lifestyleTimeVM
+        )
+
         await MainActor.run {
           dismissOrClearSelection()
         }
@@ -661,7 +670,7 @@ extension AddSupplementView {
       }
     }
   }
-  
+
   private func showAlert(_ error: RoutineSaveError) {
     routineSaveError = error
     showAlert = true
