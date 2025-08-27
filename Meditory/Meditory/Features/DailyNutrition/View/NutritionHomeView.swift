@@ -28,11 +28,11 @@ struct NutritionHomeView: View {
             }
           }
           
-          if viewModel.meals.isEmpty {
-            NavigationLink(destination: MealDetailView()) {
-              emptyMealView()
-            }
-          }
+//          if viewModel.meals.isEmpty {
+//            NavigationLink(destination: MealDetailView()) {
+//              emptyMealView()
+//            }
+//          }
           
           Spacer()
         }
@@ -57,13 +57,12 @@ extension NutritionHomeView {
     Rectangle()
       .fill(.main)
       .frame(height: 70)
-      .clipShape(RoundedRectangle(cornerRadius: 20))
-      .modifier(UnifiedShadow())
+      .modifier(CardStyle())
       .overlay {
         HStack {
           Image(systemName: "pencil")
           
-          Text("식단 직접 생성하기")
+          Text("음식 추가하기")
           
           Spacer()
           

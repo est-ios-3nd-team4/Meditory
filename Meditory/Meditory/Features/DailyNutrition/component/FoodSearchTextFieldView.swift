@@ -16,17 +16,7 @@ struct FoodSearchTextFieldView: View {
   var body: some View {
     HStack {
       ZStack {
-        Rectangle()
-          .fill(.customTextField)
-          .clipShape(RoundedRectangle(cornerRadius: 20))
-        
         HStack {
-          Image(systemName: navigationManager.isCurrentScreen(.addFood) ? "fork.knife" : "magnifyingglass")
-            .frame(width: 20, height: 20)
-            .foregroundStyle(.customCarbohydrate)
-          
-          Spacer()
-          
           TextField("음식 이름을 입력해주세요.", text: $searchText)
             .focused($isTextFieldFocused)
             .onChange(of: isTextFieldFocused) { _, newValue in
@@ -35,6 +25,12 @@ struct FoodSearchTextFieldView: View {
                 print("change mealList \(navigationManager.currentScreen)")
               }
             }
+          
+          Spacer()
+          
+          Image(systemName: navigationManager.isCurrentScreen(.addFood) ? "fork.knife" : "magnifyingglass")
+            .frame(width: 20, height: 20)
+            .foregroundStyle(.gray)
         }
         .padding(.horizontal, 16)
       }

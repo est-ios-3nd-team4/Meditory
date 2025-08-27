@@ -15,7 +15,7 @@ struct MealDetailView: View {
   
   var body: some View {
     VStack {
-      FoodSearchTextFieldView(navigationManager: navigationManager)
+      toolBarView()
       
       switch navigationManager.currentScreen {
       case .mealList:
@@ -29,37 +29,20 @@ struct MealDetailView: View {
     }
     .navigationBarBackButtonHidden(true)
     .navigationBarTitleDisplayMode(.inline)
-    .toolbar {
-      ToolbarItem(placement: .topBarLeading) {
-        Button {
-          dismiss()
-        } label: {
-          Image(systemName: "chevron.left")
-            .foregroundStyle(.accent)
-        }
+    .padding([.horizontal], 16)
+  }
+  
+  func toolBarView() -> some View {
+    HStack {
+      Button {
+        dismiss()
+      } label: {
+        Image(systemName: "chevron.left")
+          .foregroundStyle(Color.label)
       }
       
-      ToolbarItem(placement: .principal) {
-        Text("식단 요약")
-          .font(.notoSans(weight: .bold, size: 20))
-          .foregroundStyle(.primary)
-      }
-      
-      ToolbarItem(placement: .topBarTrailing) {
-        Button {
-          
-        } label: {
-          VStack {
-            Image(systemName: "pencil")
-            
-            Text("식단 이름 수정")
-              .font(.notoSans(weight: .semiBold, size: 12))
-          }
-          .foregroundStyle(.accent)
-        }
-      }
+      FoodSearchTextFieldView(navigationManager: navigationManager)
     }
-    .padding([.horizontal, .top], 16)
   }
 }
 

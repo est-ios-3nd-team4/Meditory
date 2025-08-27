@@ -38,7 +38,7 @@ struct MainTabView: View {
         case .supplement?:
           AddSupplementView(selectedIntakeItem: $selectedIntakeItem)
         case .meal?:
-          EmptyView()
+          FoodInputView()
         case nil:
           EmptyView()
         }
@@ -135,7 +135,7 @@ extension MainTabView {
       case .supplement:
         AddSupplementView(selectedIntakeItem: $selectedIntakeItem)
       case .meal:
-        EmptyView()
+        FoodInputView()
       }
     }
   }

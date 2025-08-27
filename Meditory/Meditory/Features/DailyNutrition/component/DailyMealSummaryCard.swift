@@ -18,59 +18,52 @@ struct DailyMealSummaryCard: View {
     ZStack {
       Rectangle()
         .fill(Color.customContainer)
-        .frame(height: 140)
+        .frame(height: 250)
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .modifier(UnifiedShadow())
       
-      HStack {
-        VStack {
-          Text("오늘 하루 식단")
-            .font(.notoSans(weight: .bold, size: 15))
-            .foregroundStyle(.black)
-          
-          macroPercentageView()
-        }
-        
-        Spacer()
-        
-        MacroChartView(macros: meal)
-          .frame(width: 80, height: 80)
-        
-        HStack {
-          VStack {
+        VStack(spacing: 16) {
+          HStack {
+            Text("오늘 하루 식단")
+              .font(.notoSans(weight: .bold, size: 15))
+              .foregroundStyle(.black)
+            
+            Spacer()
+            
             Image(systemName: "info.circle")
               .longPressPopover {
                 RecommendedMacroGuidePopover()
               }
-            
-            Spacer()
           }
+          
+          MacroChartView(macros: meal)
+            .frame(width: 130, height: 130)
+          
+          macroPercentageView()
         }
-      }
-      .padding(16)
-      
+        .padding(.horizontal, 16)
     }
   }
   
   /// 탄, 단, 지 오늘 하루 목표치 대비 퍼센트값을 나타냄
   func macroPercentageView() -> some View {
-    VStack(alignment: .leading, spacing: 0) {
+    HStack(spacing: 40) {
       ForEach(meal.macroItems) { item in
+        HStack {
+          Circle()
+            .fill(item.color)
+            .frame(width: 15, height: 15)
+          
           HStack {
-            Circle()
-              .fill(item.color)
-              .frame(width: 15, height: 15)
+            Text(item.label.prefix(1))
+              .font(.notoSans(weight: .regular, size: 15))
+              .foregroundStyle(.black)
             
-            HStack {
-              Text(item.label)
-                .font(.notoSans(weight: .regular, size: 15))
-                .foregroundStyle(.black)
-              
-              Text("\(Int(item.gram))%")
-                .font(.notoSans(weight: .semiBold, size: 17))
-            }
+            Text("\(Int(item.gram))%")
+              .font(.notoSans(weight: .semiBold, size: 17))
           }
         }
+      }
     }
   }
 }
