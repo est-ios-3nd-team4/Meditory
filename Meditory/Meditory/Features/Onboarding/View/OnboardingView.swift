@@ -121,7 +121,7 @@ struct OnboardingView: View {
         OnboardingConcernView(
           prompt: prompt,
           name: name,
-          itemCount: vm.selectionColunt,
+          itemCount: vm.selectionCount,
           selections: $vm.selectionSet,
           isSelected: $isSelected
         ) { selectItem(item: $0, vm: vm) }

@@ -19,7 +19,10 @@ final class OnboardingUnitTest: XCTestCase {
 
   // 테스트 준비 과정에 비동기 작업이 있으므로, setUp을 async로 변경합니다.
   override func setUp() async throws {
-    let schema = Schema([User.self, UserExtraInfo.self, UserProfile.self, UserStatus.self, ExtraInfo.self])
+    let schema = Schema([
+      User.self, UserExtraInfo.self, UserProfile.self, UserStatus.self,
+      ExtraInfo.self,
+    ])
     let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
     container = try ModelContainer(for: schema, configurations: [config])
     userStore = UserStore(modelContainer: container)
@@ -60,7 +63,7 @@ final class OnboardingUnitTest: XCTestCase {
       XCTAssertTrue(bodResult ?? false, "생년월일이 유효하지 않습니다")
     }
   }
-  
+
   /// 기본 가입정보들이 모두 유효할 경우 다음 버튼이 활성화되어야 한다
   func test_nextButton_shouldActivate_whenInputsAreValid() async throws {
     // given
@@ -70,12 +73,12 @@ final class OnboardingUnitTest: XCTestCase {
     await sut.updateContent(.birthDate, context: "1999")
 
     // when
-    await sut.validateAllField()
+    _ = await sut.validateAllField()
 
     // then
     // isNextButtonOn은 @MainActor로 보호되므로, MainActor.run 블록 안에서 접근합니다.
     await MainActor.run {
-      XCTAssertTrue(sut.isNextButtonOn,"다음 버튼이 활성화되어있지 않습니다.")
+      XCTAssertTrue(sut.isNextButtonOn, "다음 버튼이 활성화되어있지 않습니다.")
     }
   }
 
@@ -96,9 +99,24 @@ final class OnboardingUnitTest: XCTestCase {
         .init(code: "concern_16", title: "비만", type: .concern),
       ]
       let diseasesSet: Set<QuestionModel> = [
-        .init(code: "disease_4", title: "뇌 질환", type: .disease, image: "icon_brain"),
-        .init(code: "disease_8", title: "폐 질환", type: .disease, image: "icon_bone"),
-        .init(code: "disease_11", title: "비만 질환", type: .disease, image: "icon_weight"),
+        .init(
+          code: "disease_4",
+          title: "뇌 질환",
+          type: .disease,
+          image: "icon_brain"
+        ),
+        .init(
+          code: "disease_8",
+          title: "폐 질환",
+          type: .disease,
+          image: "icon_bone"
+        ),
+        .init(
+          code: "disease_11",
+          title: "비만 질환",
+          type: .disease,
+          image: "icon_weight"
+        ),
       ]
       let allergySets: Set<QuestionModel> = [
         .init(
@@ -131,11 +149,86 @@ final class OnboardingUnitTest: XCTestCase {
     // signUp 함수가 이제 모든 작업이 끝날 때까지 기다리므로, 안전하게 currentUser를 조회할 수 있습니다.
     let user = try await userStore.currentUser()
     XCTAssertNotNil(user, "회원가입 후 User 객체가 생성되어야 합니다.")
-    
+
     XCTAssertEqual(user.gender, "남성")
-    
+
     let userStatus = await userStore.fetchStatuses()
-    let result = userStatus.contains(where: { $0.statusType == "임신 중" || $0.statusType == "수유 중" })
-    XCTAssertFalse(result,"남성 유저의 상태 정보에 여성 관련 옵션(임신, 수유)이 포함되면 안 됩니다.")
+    let result = userStatus.contains(where: {
+      $0.statusType == "임신 중" || $0.statusType == "수유 중"
+    })
+    XCTAssertFalse(result, "남성 유저의 상태 정보에 여성 관련 옵션(임신, 수유)이 포함되면 안 됩니다.")
+  }
+
+  ///범위값으로 받는 필드들의 경계값 테스트
+  func test_numberType_boundaries() async throws {
+    //키의 경계값 테스트
+    await sut.updateContent(.height, context: "59")
+    await sut.validate(.height)
+    await MainActor.run {
+      if let heightResult = try? XCTUnwrap(sut.fieldStates[.height]?.isValid) {
+        XCTAssertFalse(heightResult)
+      }
+    }
+    await sut.updateContent(.height, context: "251")
+    await sut.validate(.height)
+    await MainActor.run {
+      if let heightResult = try? XCTUnwrap(sut.fieldStates[.height]?.isValid) {
+        XCTAssertFalse(heightResult)
+      }
+    }
+
+    //몸무게의 경계값 테스트
+    await sut.updateContent(.weight, context: "19")
+    await sut.validate(.weight)
+    await MainActor.run {
+      if let weightResult = try? XCTUnwrap(sut.fieldStates[.weight]?.isValid) {
+        XCTAssertFalse(weightResult)
+      }
+    }
+    await sut.updateContent(.weight, context: "301")
+    await sut.validate(.weight)
+    await MainActor.run {
+      if let weightResult = try? XCTUnwrap(sut.fieldStates[.weight]?.isValid) {
+        XCTAssertFalse(weightResult)
+      }
+    }
+  }
+
+  ///사용자의 관심사선택이 카운팅에 반영되는지 테스트
+  func test_selectionCount_countingCorrectly() async {
+    var concernSet: Set<QuestionModel> = [
+      .init(code: "concern_6", title: "간 질환", type: .concern),
+      .init(code: "concern_11", title: "갑상선 질환", type: .concern),
+    ]
+
+    do {
+      let isolatedConcernSet = concernSet
+      await MainActor.run {
+        sut.selectionSet = isolatedConcernSet
+        XCTAssertEqual(sut.selectionCount, "2")
+      }
+    }
+
+    //추가된 아이템이 반영되었는지 테스트
+    concernSet.insert(
+      .init(code: "concern_16", title: "비만 질환", type: .concern)
+    )
+    do {
+      let isolatedConcernSet = concernSet
+      await MainActor.run {
+        sut.selectionSet = isolatedConcernSet
+        XCTAssertEqual(sut.selectionCount, "3")
+      }
+    }
+
+    //아이템을 모두 지웠다 가정하에 테스트
+    concernSet.removeAll()
+    do {
+      let isolatedConcernSet = concernSet
+      await MainActor.run {
+        sut.selectionSet = isolatedConcernSet
+        XCTAssertEqual(sut.selectionCount, "0")
+      }
+    }
   }
 }
