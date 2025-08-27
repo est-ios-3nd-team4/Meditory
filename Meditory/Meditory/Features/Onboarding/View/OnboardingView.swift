@@ -57,9 +57,8 @@ struct OnboardingView: View {
       Spacer(minLength: 0)
       
       // 수정 모드일 때는 '다음' 버튼 대신 '저장' 버튼을 보여줍니다.
-      HStack {
+      HStack(spacing:.defaultSpacing) {
         prevButton()
-        Spacer(minLength: 5)
         if isEditing {
           saveButton()
         } else {
@@ -163,6 +162,7 @@ struct OnboardingView: View {
     VStack(spacing: .smallSpacing) {
       PrimaryButton(
         title: "이전"
+        ,isSub: true
       ) {
         guard let prev = currentStep.previous() else { return }
         currentStep = prev
