@@ -35,14 +35,14 @@ struct QuestionModel: Hashable {
     .init(code: "concern_17", title: "대사증후군", type: .concern),
   ]
   static let diseaseModel: [QuestionModel] = [
-    .init(code: "disease_1", title: "간 질환", type: .disease, image: "icon_lung"),
+    .init(code: "disease_1", title: "간 질환", type: .disease, image: "icon_liver"),
     .init(code: "disease_2", title: "노화 질환", type: .disease, image: "icon_aging"),
     .init(code: "disease_3", title: "뼈 질환", type: .disease, image: "icon_bone"),
     .init(code: "disease_4", title: "뇌 질환", type: .disease, image: "icon_brain"),
     .init(code: "disease_5", title: "눈 질환", type: .disease, image: "icon_eye"),
     .init(code: "disease_6", title: "면역 질환", type: .disease, image: "icon_immune"),
     .init(code: "disease_7", title: "피로 질환", type: .disease, image: "icon_tiredness"),
-    .init(code: "disease_8", title: "폐 질환", type: .disease, image: "icon_bone"),
+    .init(code: "disease_8", title: "폐 질환", type: .disease, image: "icon_lung"),
     .init(code: "disease_9", title: "근육 질환", type: .disease, image: "icon_muscle"),
     .init(code: "disease_10", title: "수면 질환", type: .disease, image: "icon_sleep"),
     .init(code: "disease_11", title: "비만 질환", type: .disease, image: "icon_weight"),
