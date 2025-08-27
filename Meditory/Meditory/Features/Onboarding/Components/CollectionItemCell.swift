@@ -25,6 +25,7 @@ struct CollectionItemCell: View {
             .resizable()
             .scaledToFit()
             .frame(width: 100,height: 100)
+            .saturation(isSelected ? 1 : 0)
             .cornerRadius(.defaultRadius)
       }
       .modifier(UnifiedShadow())
