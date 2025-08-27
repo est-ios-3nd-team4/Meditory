@@ -212,7 +212,7 @@ extension AddSupplementViewModel {
 
   /// 편집/신규 추가 모두 처리. 편집 시 기존 인스턴스를 덮어쓰기.
   @MainActor
-  func saveAneEditRoutine(
+  func saveAndEditRoutine(
     modelContext context: ModelContext,
     editingRoutine: Routine?,
     lifestyleVM: LifestyleTimeViewModel
@@ -238,7 +238,6 @@ extension AddSupplementViewModel {
 
     // 정렬된 복용시간
     let sortedRoutineTimes = self.doseSchedules
-      .sorted(by: { $0.time < $1.time })
       .map { $0.routineTime }
 
     if let r = editingRoutine {
