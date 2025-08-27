@@ -10,6 +10,8 @@ struct OnboardingBasicInfoView: View {
   var vm: OnboardingViewModel
   let focusedField: FocusState<FormField?>.Binding
   let bottomSpacing: CGFloat
+  @State private var preScroll: FormField? = nil
+  @State private var scrollTask: Task<Void,Never>? = nil
 
   var body: some View {
     ScrollViewReader { proxy in
@@ -80,7 +82,11 @@ struct OnboardingBasicInfoView: View {
         .padding(.horizontal, .defaultSpacing + 4)
         .padding(.bottom, bottomSpacing)
         .onChange(of: focusedField.wrappedValue) {
-          scroll(proxy)
+          scrollTask?.cancel()
+          scrollTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(0.1))
+            scroll(proxy)
+          }
         }
       }
       .scrollIndicators(.never)
@@ -88,7 +94,16 @@ struct OnboardingBasicInfoView: View {
   }
   private func scroll(_ proxy: ScrollViewProxy) {
     guard let id = focusedField.wrappedValue else { return }
-    withAnimation(.easeOut(duration: 0.2)) {
+    if preScroll != id {
+      var transaction = Transaction()
+      transaction.disablesAnimations = true
+      withTransaction(transaction) {
+        proxy.scrollTo(id, anchor: .bottom)
+        preScroll = id
+        return
+      }
+    }
+    withAnimation(.easeOut(duration: 0.15)) {
       proxy.scrollTo(id, anchor: .bottom)
     }
   }

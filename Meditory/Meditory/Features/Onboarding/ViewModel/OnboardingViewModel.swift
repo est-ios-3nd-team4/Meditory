@@ -250,8 +250,12 @@ class OnboardingViewModel {
   func binding(for field: ValidationField) -> Binding<String> {
     Binding {
       self.fieldStates[field]?.content ?? ""
-    } set: {
-      self.updateContent(field, context: $0)
+    } set: { newValue in
+      var value = newValue
+      if field == .name {
+        value = String(newValue.prefix(20))
+      }
+      self.updateContent(field, context: value)
     }
   }
 
