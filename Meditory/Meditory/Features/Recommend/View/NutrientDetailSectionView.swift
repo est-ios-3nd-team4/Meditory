@@ -76,7 +76,6 @@ struct NutrientDetailSectionView: View {
           Text("🧪 \(nutrient.name)")
             .font(.notoSans(weight: .bold, size: 30))
 
-
           Spacer()
 
           Button {
@@ -89,15 +88,15 @@ struct NutrientDetailSectionView: View {
 
         ForEach(nutrient.hashtags, id: \.self) { tag in
           Text("# \(tag)")
-            .font(.notoSans(weight: .bold, size: 15))
+            .font(.notoSans(weight: .medium, size: 15))
         }
 
         Text(nutrient.title)
-          .font(.notoSans(weight: .medium, size: 15))
+          .font(.notoSans(weight: .regular, size: 15))
           .padding(.vertical, 8)
 
         Text(nutrient.content)
-          .font(.notoSans(weight: .medium, size: 15))
+          .font(.notoSans(weight: .regular, size: 15))
       }
       .padding(.vertical)
     }

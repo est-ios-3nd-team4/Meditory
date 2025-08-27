@@ -10,6 +10,20 @@ final class NutrientViewModel: ObservableObject {
 
   private let client = AlanAPIClient()
 
+  private struct CacheEntry {
+    let chips: [String]
+    let nutrients: [Nutrient]
+    let cachedAt: Date
+  }
+  private static var cache: [String: CacheEntry] = [:]
+  private static var inFlight: [String: Task<(chips: [String], nutrients: [Nutrient]), Error>] = [:]
+  private static let ttl: TimeInterval = 60 * 60 * 12
+
+  private func cacheKey(_ userName: String?) -> String {
+    let raw = (userName ?? "@@").trimmingCharacters(in: .whitespacesAndNewlines)
+    return "nutrients:\(raw.isEmpty ? "@@" : raw)".lowercased()
+  }
+
   private struct AINutrient: Codable, Identifiable {
     let id: String
     let name: String
@@ -175,33 +189,82 @@ final class NutrientViewModel: ObservableObject {
       """
   }
 
-  func load(userName: String? = "@@") {
-    guard !isLoading else { return }
+  func load(userName: String? = "@@", force: Bool = false) {
+    let key = cacheKey(userName)
+
+    if let entry = Self.cache[key],
+       Date().timeIntervalSince(entry.cachedAt) < Self.ttl,
+       !force {
+      self.chip = entry.chips
+      self.recommend = entry.nutrients
+      self.isLoading = false
+      self.errorMessage = nil
+      return
+    }
+    if let task = Self.inFlight[key], !force {
+      isLoading = true
+      errorMessage = nil
+      Task {
+        do {
+          let result = try await task.value
+          self.chip = result.chips
+          self.recommend = result.nutrients
+          self.isLoading = false
+        } catch {
+          self.errorMessage = "추천을 불러오지 못했어요."
+          self.isLoading = false
+        }
+      }
+      return
+    }
+
+    // 3) 새 요청 수행
     isLoading = true
     errorMessage = nil
 
+    let task = Task<(chips: [String], nutrients: [Nutrient]), Error> { [client, userName] in
+      let raw = try await client.request(content: prompt(userName: userName))
+      let cleaned = raw
+        .replacingOccurrences(of: "```json", with: "")
+        .replacingOccurrences(of: "```", with: "")
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+
+      guard let data = cleaned.data(using: .utf8) else {
+        throw NSError(domain: "AI", code: -1, userInfo: [NSLocalizedDescriptionKey: "인코딩 오류"])
+      }
+      let aiItems = try JSONDecoder().decode([AINutrient].self, from: data)
+      let mapped = toNutrients(aiItems)
+      return (mapped.map { $0.name }, mapped)
+    }
+
+    // 인플라이트 등록
+    Self.inFlight[key] = task
+
     Task {
+      defer { Self.inFlight[key] = nil; self.isLoading = false }
       do {
-        let raw = try await client.request(content: prompt(userName: userName))
-        let cleaned = raw
-          .replacingOccurrences(of: "```json", with: "")
-          .replacingOccurrences(of: "```", with: "")
-          .trimmingCharacters(in: .whitespacesAndNewlines)
+        let result = try await task.value
 
-        guard let data = cleaned.data(using: .utf8) else {
-          throw NSError(domain: "AI", code: -1, userInfo: [NSLocalizedDescriptionKey: "인코딩 오류"])
-        }
+        // 결과 반영
+        self.chip = result.chips
+        self.recommend = result.nutrients
 
-        let aiItems = try JSONDecoder().decode([AINutrient].self, from: data)
-        let mapped = toNutrients(aiItems)
-
-        self.recommend = mapped
-        self.chip = mapped.map { $0.name }
+        // 캐시에 저장
+        Self.cache[key] = CacheEntry(chips: result.chips, nutrients: result.nutrients, cachedAt: Date())
       } catch {
         self.errorMessage = "추천을 불러오지 못했어요."
       }
-      self.isLoading = false
     }
   }
 }
+
+#if DEBUG
+extension NutrientViewModel {
+  static func _resetForTests() {
+    cache.removeAll()
+    inFlight.removeAll()
+  }
+}
+#endif
+
 

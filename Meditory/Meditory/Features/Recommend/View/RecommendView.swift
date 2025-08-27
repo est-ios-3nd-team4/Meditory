@@ -55,14 +55,14 @@ struct RecommendView: View {
             group.cancelAll()
             return
           }
-            group.addTask { [imageService] in
-              do {
-                let result = try await imageService.fetchImageAndLink(for: product.brand, name: product.name)
-                return (product.id, result, nil)
-              } catch {
-                return (product.id, nil, error)
-              }
+          group.addTask { [imageService] in
+            do {
+              let result = try await imageService.fetchImageAndLink(for: product.brand, name: product.name)
+              return (product.id, result, nil)
+            } catch {
+              return (product.id, nil, error)
             }
+          }
 
         }
         for try await (id, result, err) in group {
@@ -104,7 +104,7 @@ struct RecommendView: View {
   private var userNameKey: String {
     users.first?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
   }
-  
+
   enum SceneTab {
     case recommend
     case scrap
@@ -283,7 +283,6 @@ struct RecommendView: View {
               } else {
                 items = real
                 hasRealData = true
-                hydrateImagesForCurrentItems()
               }
             }
           }
@@ -299,7 +298,7 @@ struct RecommendView: View {
         isLoading: !hasRealNutrientData,
         userName: name
       )
-      .id(nutrientVM.chip.joined(separator: "|"))
+      .id(chipSignature(nutrientVM.chip))
       .padding(.horizontal, 16)
       .padding(.top, 8)
       .modifier(UnifiedShadow())
@@ -371,7 +370,6 @@ struct RecommendView: View {
         if !real.isEmpty {
           items = real
           hasRealData = true
-          hydrateImagesForCurrentItems()
         }
       }
     }

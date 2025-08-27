@@ -8,7 +8,24 @@ final class ScoreViewModel: ObservableObject {
 
   private let client = AlanAPIClient()
 
-  func loadMockIntake(weights: ScoreWeights = .default) {
+  private struct CacheEntry {
+    let result: ScoreResult
+    let cachedAt: Date
+  }
+  private static var cache: [String: CacheEntry] = [:]
+  private static var inFlight: [String: Task<ScoreResult, Error>] = [:]
+  private static let ttl: TimeInterval = 60 * 60 * 12
+
+  private func cacheKey(diet: DietInput, supplements: SupplementInput, weights: ScoreWeights) -> String {
+    struct KeyBody: Codable { let diet: DietInput; let supplements: SupplementInput; let weights: ScoreWeights }
+    let enc = JSONEncoder()
+    enc.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
+    let data = (try? enc.encode(KeyBody(diet: diet, supplements: supplements, weights: weights))) ?? Data()
+    let json = String(data: data, encoding: .utf8) ?? ""
+    return "score:\(json)"
+  }
+
+  func loadMockIntake(weights: ScoreWeights = .default, force: Bool = false) {
     guard !isLoading else { return }
     isLoading = true
     errorMessage = nil
@@ -22,57 +39,103 @@ final class ScoreViewModel: ObservableObject {
       SupplementItem(name: "비타민 C", dose: "500mg",  frequencyPerWeek: 5)
     ])
 
-    Task {
-      defer { self.isLoading = false }
-      do {
-        let prompt = buildIntakeAnalysisPrompt(diet: diet, supplements: supplements)
-        let raw = try await client.request(content: prompt)
-        guard let json = extractJSON(raw), let data = json.data(using: .utf8) else {
-          throw NSError(domain: "AI", code: -1, userInfo: [NSLocalizedDescriptionKey: "JSON 추출 실패"])
+    load(diet: diet, supplements: supplements, weights: weights, force: force)
+  }
+
+  func load(diet: DietInput,
+            supplements: SupplementInput,
+            weights: ScoreWeights = .default,
+            force: Bool = false) {
+    let key = cacheKey(diet: diet, supplements: supplements, weights: weights)
+
+    // 강제 새로고침이면 진행 중 요청 취소
+    if force {
+      Self.inFlight[key]?.cancel()
+      Self.inFlight[key] = nil
+    }
+
+    // 1) 캐시 HIT
+    if let entry = Self.cache[key],
+       Date().timeIntervalSince(entry.cachedAt) < Self.ttl,
+       !force {
+      self.result = entry.result
+      self.isLoading = false
+      self.errorMessage = nil
+      return
+    }
+
+    // 2) 이미 같은 키로 요청 중이면 그 결과에 합류
+    if let t = Self.inFlight[key], !force {
+      self.isLoading = true
+      self.errorMessage = nil
+      Task {
+        defer { self.isLoading = false }
+        do {
+          let r = try await t.value
+          self.result = r
+        } catch is CancellationError {
+          // 강제 새로고침 등으로 취소된 경우
+        } catch {
+          self.errorMessage = "계산 실패"
         }
+      }
+      return
+    }
 
-        let analysis = try JSONDecoder().decode(IntakeAnalysis.self, from: data)
+    // 3) 새 요청 수행
+    self.isLoading = true
+    self.errorMessage = nil
 
-        // 배열 길이로 카운트 산출
-        let counts = ScoreCounts(
-          deficient: analysis.deficient.count,
-          caution:   analysis.caution.count,
-          optimal:   analysis.optimal.count,
-          adequate:  analysis.adequate.count
-        )
+    let task = Task<ScoreResult, Error> { [client] in
+      let prompt = buildIntakeAnalysisPrompt(diet: diet, supplements: supplements)
+      let raw = try await client.request(content: prompt)
+      guard let json = extractJSON(raw), let data = json.data(using: .utf8) else {
+        throw NSError(domain: "AI", code: -1, userInfo: [NSLocalizedDescriptionKey: "JSON 추출 실패"])
+      }
 
-        // 점수는 로컬 계산
-        let score = computeLocal(counts: counts, weights: weights)
+      let analysis = try JSONDecoder().decode(IntakeAnalysis.self, from: data)
 
-        self.result = ScoreResult(
-          score: score,
-          counts: counts,
-          deficient: dedup(analysis.deficient),
-          caution: dedup(analysis.caution),
-          optimal: dedup(analysis.optimal),
-          adequate: dedup(analysis.adequate),
-          summaries: analysis.summaries
-        )
+      // 배열 길이로 카운트 산출
+      let counts = ScoreCounts(
+        deficient: analysis.deficient.count,
+        caution:   analysis.caution.count,
+        optimal:   analysis.optimal.count,
+        adequate:  analysis.adequate.count
+      )
+
+      // 점수 로컬 계산
+      let score = computeLocal(counts: counts, weights: weights)
+
+      return ScoreResult(
+        score: score,
+        counts: counts,
+        deficient: dedup(analysis.deficient),
+        caution:   dedup(analysis.caution),
+        optimal:   dedup(analysis.optimal),
+        adequate:  dedup(analysis.adequate),
+        summaries: analysis.summaries
+      )
+    }
+
+    Self.inFlight[key] = task
+
+    Task {
+      defer { Self.inFlight[key] = nil; self.isLoading = false }
+      do {
+        let res = try await task.value
+        self.result = res
+        // 캐시에 저장
+        Self.cache[key] = CacheEntry(result: res, cachedAt: Date())
+      } catch is CancellationError {
+        // 무시
       } catch {
-        let counts = ScoreCounts(deficient: 0, caution: 0, optimal: 0, adequate: 0)
-        self.result = ScoreResult(
-          score: 0,
-          counts: counts,
-          deficient: [],
-          caution: [],
-          optimal: [],
-          adequate: [],
-          summaries: AnalysisSummaries(
-            deficient: "현재 데이터로 부족 영양성분을 특정하지 못했어요. 식단 다양화와 기본 종합비타민을 고려해보세요.",
-            caution: "과다/상호작용 가능성에 유의하세요. 라벨의 1일 권장량(%)을 확인해 주세요.",
-            optimal: "일부 성분은 권장량에 잘 맞습니다. 현재 패턴을 유지해 보세요.",
-            adequate: "충족 성분은 과하지 않게만 관리하면 됩니다."
-          )
-        )
         self.errorMessage = "계산 실패"
+        self.result = nil
       }
     }
   }
+
+
 
   private func computeLocal(counts: ScoreCounts, weights: ScoreWeights) -> Int {
     let total = counts.deficient + counts.caution + counts.optimal + counts.adequate
@@ -84,7 +147,7 @@ final class ScoreViewModel: ObservableObject {
     + weights.adequate  * counts.adequate
     return max(0, min(100, raw))
   }
-  
+
   private func dedup(_ arr: [String]) -> [String] {
     var seen = Set<String>(), out: [String] = []
     for newScore in arr.map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) }) where !newScore.isEmpty {
