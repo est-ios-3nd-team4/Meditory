@@ -15,10 +15,10 @@ struct CollectionItemCell: View {
     VStack {
       ZStack {
         RoundedRectangle(cornerRadius: .defaultSpacing)
-          .stroke(Color.gray.opacity(0.4), lineWidth: isSelected ? 0 : 1.4)
-          .fill(isSelected ? Color.sub.opacity(0.18) : Color.clear)
+          .stroke(Color.gray.opacity(0.3), lineWidth: isSelected ? 0 : 1)
+          .fill(isSelected ? Color.sub.opacity(0.14) : Color.clear)
           .frame(width: 100, height: 100)
-          .foregroundStyle(.sub.opacity(0.18))
+          .foregroundStyle(.sub.opacity(0.14))
           .zIndex(0)
         Image(model.image)
             .renderingMode(.original)
@@ -30,7 +30,8 @@ struct CollectionItemCell: View {
       }
       .modifier(UnifiedShadow())
       Text(model.title)
-        .font(.notoSans(weight: .medium, size: 18))
+        .font(.notoSans(weight: .medium, size: 14))
+        .foregroundStyle(.textGray)
     }
     .frame(width: 140,height: 140)
   }
