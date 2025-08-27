@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Observable
-class LifestyleTimeViewModel {
+final class LifestyleTimeViewModel {
   var wakeTime: Date?
   var sleepTime: Date?
   
@@ -27,10 +27,10 @@ class LifestyleTimeViewModel {
     ]
   }
   
-  var userlifeStyle: UserLifeStyle? {
+  var userLifestyle: UserLifeStyleDTO? {
     guard let wakeTime, let sleepTime else { return nil }
     
-    return UserLifeStyle(
+    return UserLifeStyleDTO(
       wakeTime: wakeTime.toHHmmString(),
       sleepTime: sleepTime.toHHmmString(),
       breakfast: breakfastTime?.toHHmmString(),

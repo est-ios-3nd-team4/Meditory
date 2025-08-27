@@ -9,38 +9,6 @@ import Foundation
 
 enum ScheduleAIPrompt {
 
-  struct LifestyleLoad: Sendable {
-    var wakeTime: String?
-    var sleepTime: String?
-    var breakfast: String?
-    var lunch: String?
-    var dinner: String?
-
-    init(
-      wakeTime: String? = nil,
-      sleepTime: String? = nil,
-      breakfast: String? = nil,
-      lunch: String? = nil,
-      dinner: String? = nil,
-    ) {
-      self.wakeTime = wakeTime
-      self.sleepTime = sleepTime
-      self.breakfast = breakfast
-      self.lunch = lunch
-      self.dinner = dinner
-    }
-
-    static func from(_ ls: UserLifeStyle) -> LifestyleLoad {
-      .init(
-        wakeTime: ls.wakeTime,
-        sleepTime: ls.sleepTime,
-        breakfast: ls.breakfast,
-        lunch: ls.lunch,
-        dinner: ls.dinner
-      )
-    }
-  }
-
   struct UserInput: Sendable {
     var gender: String
     var birthDate: Date
@@ -49,7 +17,7 @@ enum ScheduleAIPrompt {
     var isPregnant: Bool
     var isBreastfeeding: Bool
     var supplementSchedule: [String]
-    var lifestyle: LifestyleLoad?
+    var lifestyle: UserLifeStyleDTO
 
     init(
       gender: String,
@@ -59,7 +27,7 @@ enum ScheduleAIPrompt {
       isPregnant: Bool,
       isBreastfeeding: Bool,
       supplementSchedule: [String],
-      lifestyle: LifestyleLoad? = nil
+      lifestyle: UserLifeStyleDTO
     ) {
       self.gender = gender
       self.birthDate = birthDate
@@ -80,7 +48,7 @@ enum ScheduleAIPrompt {
       isBreastfeeding: Bool,
       supplementSchedule: [String],
       dosageCycleHint: String? = nil,
-      lifestyle: UserLifeStyle? = nil
+      lifestyle: UserLifeStyleDTO
     ) -> UserInput {
       UserInput(
         gender: gender,
@@ -90,7 +58,7 @@ enum ScheduleAIPrompt {
         isPregnant: isPregnant,
         isBreastfeeding: isBreastfeeding,
         supplementSchedule: supplementSchedule,
-        lifestyle: lifestyle.map { LifestyleLoad.from($0) }
+        lifestyle: lifestyle
       )
     }
   }
@@ -150,17 +118,7 @@ enum ScheduleAIPrompt {
     let breast = user.isBreastfeeding ? "예" : "아니오"
     let items = user.supplementSchedule.isEmpty ? "없음" : user.supplementSchedule.joined(separator: ", ")
 
-
-    // user의 lifestyle이 입력되어 있지 않다면 한국 직장인 평균(GPT 피셜) 기준으로 넣음
-    let defaultLifestyle = LifestyleLoad(
-      wakeTime: "07:00",
-      sleepTime: "23:30",
-      breakfast: "07:30",
-      lunch: "12:30",
-      dinner: "19:00"
-    )
-
-    let ls = user.lifestyle ?? defaultLifestyle
+    let ls = user.lifestyle
     let lifestyleBlock = """
      - 기상 시간: \(show(ls.wakeTime))
      - 취침 시간: \(show(ls.sleepTime))

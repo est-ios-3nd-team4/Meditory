@@ -43,25 +43,30 @@ struct AIRecommendedScheduleView: View {
   
   let defaultFontSize: CGFloat
   let supplementSummary: SupplementSummary?
-  let lifestyle: UserLifeStyle
+  let lifestyle: UserLifeStyleDTO
   
   @State private var routineAIVM = SupplementRoutineAIViewModel()
   @Binding private var supplement: SupplementDTO?
-  @State private var aiPlanState: AIPlanState = .idle(reason: .initial)
+  @State private var aiPlanState: AIPlanState
   @State private var trigger = false
   @State private var isLifestyleUpdated = false
   
-  // init에서 context와 userStore를 받을 필요가 없어졌습니다.
   init(
     defaultFontSize: CGFloat,
     supplementSummary: SupplementSummary?,
-    lifestyle: UserLifeStyle?,
+    lifestyle: UserLifeStyleDTO?,
     supplement: Binding<SupplementDTO?>
   ) {
     self.defaultFontSize = defaultFontSize
     self.supplementSummary = supplementSummary
     self.lifestyle = lifestyle ?? .standard
     self._supplement = supplement
+    
+    if supplement.wrappedValue != nil {
+      aiPlanState = .created
+    } else {
+      aiPlanState = .idle(reason: .initial)
+    }
   }
   
   var body: some View {
@@ -188,9 +193,8 @@ struct AIRecommendedScheduleView: View {
         .modifier(UnifiedShadow())
     )
     .onChange(of: lifestyle) { oldValue, newValue in
-      if oldValue != newValue {
-        isLifestyleUpdated = true
-      }
+      guard oldValue != newValue, isLifestyleUpdated == false else { return }
+      isLifestyleUpdated = true
     }
   }
 }
@@ -259,7 +263,6 @@ extension AIRecommendedScheduleView {
     
     Task {
       do {
-        // ViewModel의 메서드를 호출할 때 context를 전달합니다.
         let result = try await routineAIVM.requestAISchedule(
           supplementName: supplementSummary.name,
           lifeStyle: lifestyle,

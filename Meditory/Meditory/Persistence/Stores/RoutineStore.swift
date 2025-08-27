@@ -22,6 +22,12 @@ actor RoutineStore {
     let routines = (try? modelContext.fetch(descriptor)) ?? []
     return routines.map { $0.persistentModelID }
   }
+  
+  func fetchAllRoutines() -> [Routine] {
+    let descriptor = FetchDescriptor<Routine>()
+    let routines = (try? modelContext.fetch(descriptor)) ?? []
+    return routines.map { $0 }
+  }
 
   // MARK: - 생성 (Create)
   
@@ -76,6 +82,43 @@ actor RoutineStore {
     let newRecord = RoutineRecord(timestamp: timestamp, routine: routine)
     modelContext.insert(newRecord)
     try? modelContext.save()
+  }
+  
+  // MARK: - 수정 (Update)
+  func updateRoutine(
+    id: UUID,
+    type: Int,
+    displayName: String,
+    desc: String?,
+    category: String?,
+    cycleType: Int,
+    cycleValue: String,
+    startDate: Date,
+    memo: String?,
+    usage: [String],
+    precautions: [String],
+    routineTimes: [RoutineTime],
+    recommendedRoutineTimes: [RoutineTime]
+  ) throws {
+    guard let routine = try modelContext.fetch(FetchDescriptor<Routine>())
+      .first(where: { $0.id == id }) else {
+      throw RoutineSaveError.notFound
+    }
+    
+    routine.type = type
+    routine.displayName = displayName
+    routine.desc = desc
+    routine.category = category
+    routine.cycleType = cycleType
+    routine.cycleValue = cycleValue
+    routine.startDate = startDate
+    routine.memo = memo
+    routine.usage = usage
+    routine.precautions = precautions
+    routine.routineTimes = routineTimes
+    routine.recommendedRoutineTimes = recommendedRoutineTimes
+
+    try modelContext.save()
   }
   
   // MARK: - 삭제 (Delete)

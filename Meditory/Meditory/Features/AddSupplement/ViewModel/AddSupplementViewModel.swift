@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Observable
-class AddSupplementViewModel {
+final class AddSupplementViewModel {
   
   var weekdays: [Weekday: Bool] = Weekday.allCases.reduce(into: [:]) { $0[$1] = true }
   var startMonth: Int = Calendar.current.component(.month, from: .now)
@@ -17,8 +17,10 @@ class AddSupplementViewModel {
   var duration: Int = 1
   var doseSchedules = [SupplementDoseSchedule]()
   var supplemtSummary: SupplementSummary?
-
-  // context 프로퍼티는 더 이상 필요 없습니다.
+  var supplement: SupplementDTO?
+  var routineId: UUID?
+  var memo: String
+  var selectedScheduleType: SupplementScheduleType
   
   var weekdaysString: String {
     let selected = weekdays.filter({ $0.value == true })
@@ -34,10 +36,87 @@ class AddSupplementViewModel {
       .joined(separator: ", ")
   }
   
-  init() {
-    doseSchedules = [
-      SupplementDoseSchedule(time: Date.makeTime(hour: 8), pillsPerDose: 1)
-    ]
+  var formattedWeekdays: String {
+    return weekdays.filter({ $0.value == true })
+      .map { $0.key }
+      .sorted { $0.rawValue < $1.rawValue }
+      .map { "\($0.rawValue)" }
+      .joined(separator: ", ")
+  }
+  
+  init(routine: Routine? = nil) {
+    weekdays = Weekday.allCases.reduce(into: [:]) { $0[$1] = true }
+    startMonth = Date.now.month
+    startDay = Date.now.day
+    duration = 1
+    doseSchedules = [SupplementDoseSchedule]()
+    memo = ""
+    selectedScheduleType = .weekday
+    
+    if let routine {
+      routineId = routine.id
+      initialize(with: routine)
+    } else {
+      doseSchedules = [
+        SupplementDoseSchedule(time: Date.makeTime(hour: 8), pillsPerDose: 1)
+      ]
+    }
+  }
+  
+  func initialize(with routine: Routine) {
+    let scheduleType = SupplementScheduleType(rawValue: routine.cycleType)
+    
+    selectedScheduleType = scheduleType ?? .weekday
+    memo = routine.memo ?? ""
+    
+    switch scheduleType {
+    case .weekday:
+      routine.cycleValue.split(separator: ",").forEach {
+        if let rawValue = Int($0),
+           let weekday = Weekday(rawValue: rawValue) {
+          weekdays[weekday] = true
+        }
+      }
+    case .interval:
+      duration = Int(routine.cycleValue) ?? 1
+      startMonth = Int(routine.startDate.month)
+      startDay = Int(routine.startDate.day)
+    default: break
+    }
+    
+    doseSchedules = routine.routineTimes.map {
+      SupplementDoseSchedule(time: $0.time, pillsPerDose: $0.pillsPerDose)
+    }
+    
+    supplemtSummary = SupplementSummary(
+      type: routine.type,
+      name: routine.displayName,
+      description: routine.desc ?? "",
+      category: routine.category ?? "",
+      usage: routine.usage,
+      precautions: routine.precautions
+    )
+    
+    if routine.recommendedRoutineTimes.count > 0, let scheduleType {
+      let times = routine.recommendedRoutineTimes.map {
+        DoseTime(
+          hour: $0.time.hour,
+          minute: $0.time.minute,
+          relativeTo: $0.intakeTiming ?? "",
+          offsetMinutes: $0.intakeOffsetMinutes ?? 0,
+          pillsPerDose: $0.pillsPerDose
+        )
+      }
+
+      supplement = SupplementDTO(
+        schedule: DoseSchedule(
+          cycleType: scheduleType,
+          times: times
+        ),
+        usage: routine.usage,
+        precautions: routine.precautions
+      )
+    }
   }
 
   func addRoutineTime() {
@@ -83,11 +162,7 @@ class AddSupplementViewModel {
 // MARK: - DB
 extension AddSupplementViewModel {
   @MainActor
-  func saveRoutine(
-    type: SupplementScheduleType,
-    supplement: SupplementDTO?,
-    memo: String
-  ) async throws {
+  func saveRoutine() async throws {
     guard let supplemtSummary = supplemtSummary else { throw RoutineSaveError.supplementSummaryNotFound }
     var usage = supplemtSummary.usage
     var precautions = supplemtSummary.precautions
@@ -99,21 +174,39 @@ extension AddSupplementViewModel {
       precautions = supplement.precautions
       recommendedRoutineTimes = supplement.schedule.routineTimes
     }
-        
-    _ = try await RoutineStore.shared.createRoutine(
-      type: supplemtSummary.type,
-      displayName: supplemtSummary.name,
-      desc: supplemtSummary.description,
-      category: supplemtSummary.category,
-      cycleType: type.rawValue,
-      cycleValue: type == .weekday ? weekdaysString : "\(duration)",
-      startDate: .makeDate(month: startMonth, day: startDay),
-      memo: memo,
-      usage: usage,
-      precautions: precautions,
-      routineTimes: doseSchedules.map { $0.routineTime },
-      recommendedRoutineTimes: recommendedRoutineTimes
-    )
+            
+    if let routineId {
+      _ = try await RoutineStore.shared.updateRoutine(
+        id: routineId,
+        type: supplemtSummary.type,
+        displayName: supplemtSummary.name,
+        desc: supplemtSummary.description,
+        category: supplemtSummary.category,
+        cycleType: selectedScheduleType.rawValue,
+        cycleValue: selectedScheduleType == .weekday ? formattedWeekdays : "\(duration)",
+        startDate: .makeDate(month: startMonth, day: startDay),
+        memo: memo,
+        usage: usage,
+        precautions: precautions,
+        routineTimes: doseSchedules.map { $0.routineTime },
+        recommendedRoutineTimes: recommendedRoutineTimes
+      )
+    } else {
+      _ = try await RoutineStore.shared.createRoutine(
+        type: supplemtSummary.type,
+        displayName: supplemtSummary.name,
+        desc: supplemtSummary.description,
+        category: supplemtSummary.category,
+        cycleType: selectedScheduleType.rawValue,
+        cycleValue: selectedScheduleType == .weekday ? formattedWeekdays : "\(duration)",
+        startDate: .makeDate(month: startMonth, day: startDay),
+        memo: memo,
+        usage: usage,
+        precautions: precautions,
+        routineTimes: doseSchedules.map { $0.routineTime },
+        recommendedRoutineTimes: recommendedRoutineTimes
+      )
+    }
   }
 }
 
