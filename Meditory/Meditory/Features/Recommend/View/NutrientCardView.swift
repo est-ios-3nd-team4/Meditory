@@ -30,7 +30,7 @@ struct NutrientCardView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: .defaultSpacing) {
       HStack {
-        Text("\(safeName)님 맞춤 영양소 추천")
+        Text("\(safeName) 님 맞춤 영양소 추천")
           .font(.notoSans(weight: .medium, size: 18))
 
         Spacer()
@@ -44,7 +44,7 @@ struct NutrientCardView: View {
         .buttonStyle(PlainButtonStyle())
       }
 
-      Text("식단을 분석해 \(safeName)님께 부족한 영양소를 추천드려요.")
+      Text("식단을 분석해 \(safeName) 님께 부족한 영양소를 추천드려요.")
         .font(.notoSans(weight: .medium, size: 12))
         .foregroundColor(.gray)
 

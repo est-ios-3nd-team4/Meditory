@@ -26,7 +26,7 @@ struct RecommendNutrientsView: View {
             .font(.notoSans(weight: .medium, size: 15))
             .foregroundColor(.gray)
 
-          Text("\(safeName)님의")
+          Text("\(safeName) 님의")
             .font(.notoSans(weight: .bold, size: 25))
             .fontWeight(.bold)
 

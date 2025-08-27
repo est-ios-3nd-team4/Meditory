@@ -260,7 +260,7 @@ struct RecommendView: View {
           }
         )
       ImageCardView(
-        title: "\(displayName)님 맞춤 추천",
+        title: "\(displayName) 님 맞춤 추천",
         categories: ["장 건강", "혈관 & 혈액순환"],
         desc: "* 본결과는 의사의 처방을 대신하지 않습니다.",
         products: items,
