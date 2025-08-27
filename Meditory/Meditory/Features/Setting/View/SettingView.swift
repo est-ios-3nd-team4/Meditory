@@ -30,6 +30,11 @@ struct SettingView: View {
         .ignoresSafeArea(edges: .top)
       
       VStack(spacing: .defaultSpacing) {
+        Text(currentUser?.name ?? "설정")
+          .font(.largeTitle)
+          .fontWeight(.bold) // 폰트 두께를 bold로 설정함
+          .frame(maxWidth: .infinity, alignment: .leading) // 왼쪽 정렬
+          .padding(.bottom, 10) // 아래쪽에 약간의 여백을 줌
         
         NavigationLink(destination: SettingSubView()) {
           settingItem {
@@ -78,7 +83,6 @@ struct SettingView: View {
       .padding()
       
     }
-    .navigationTitle(currentUser?.name ?? "설정")
     .onAppear {
       Task {
         await viewModel.loadSetting()
