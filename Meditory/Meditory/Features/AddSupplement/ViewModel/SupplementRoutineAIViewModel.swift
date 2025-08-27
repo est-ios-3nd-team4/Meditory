@@ -56,7 +56,7 @@ final class SupplementRoutineAIViewModel {
     let isBreastfeeding = user.userStatuses.contains { $0.statusType == "수유 중" }
     
     // 3. 전달받은 context에서 직접 Routine 정보를 가져옵니다.
-    let routines = await routineStore.fetchAllRoutine()
+    let routines = await routineStore.fetchAllRoutines()
     
     let scheduleList: [String] = routines.map { routine in
       let timeDoseSummary = routine.routineTimes
