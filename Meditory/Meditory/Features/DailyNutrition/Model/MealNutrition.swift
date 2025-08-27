@@ -1,0 +1,16 @@
+//
+//  MealNutrition.swift
+//  Meditory
+//
+//  Created by 홍승아 on 8/27/25.
+//
+
+import Foundation
+
+struct MealNutrition: Codable {
+  let type: Int
+  let name: String
+  let carbohydrate: Double
+  let protein: Double
+  let fat: Double
+}
