@@ -209,7 +209,7 @@ struct OnboardingView: View {
       .disabled(!vm.isNextButtonOn)
       .padding(.vertical, 8)
     }
-    .padding(.trailing, .defaultSpacing)
+    .padding(.horizontal, .defaultSpacing)
   }
 
   func selectItem(item: QuestionModel, vm: OnboardingViewModel) {
