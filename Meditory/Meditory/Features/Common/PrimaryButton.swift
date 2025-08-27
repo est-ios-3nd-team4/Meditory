@@ -18,8 +18,7 @@ struct PrimaryButton: View {
       action()
     } label: {
       RoundedRectangle(cornerRadius: 10)
-        .fill(isEnabled ? Color.main : Color.gray.opacity(0.4))
-        .fill(isSub ? Color.init(red: 229, green: 242, blue: 255) : Color.main)
+        .fill(isSub ? Color.init(red: 229, green: 242, blue: 255) : (isEnabled ? .main : .gray.opacity(0.4)))
         .frame(height: 50)
         .overlay {
           Text(title)
