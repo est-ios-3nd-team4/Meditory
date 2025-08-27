@@ -1,14 +1,17 @@
 import SwiftUI
 import SwiftData
+import Foundation
 
 struct RecommendView: View {
 
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.modelContext) private var context
+  @Query private var users: [User]
 
   @StateObject private var recommendVM = ProductRecommendViewModel()
   @StateObject private var nutrientVM = NutrientViewModel()
 
+  @State private var lastLoadedName: String = ""
   @State private var isOverlappingHeader = false
   @State private var headerBottomY: CGFloat = 0
   @State private var firstCardTopY: CGFloat = .infinity
@@ -93,6 +96,20 @@ struct RecommendView: View {
     }
   }
 
+  private var displayName: String {
+    let display = users.first?.displayName.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    if !display.isEmpty { return display }
+    let name = users.first?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    return name.isEmpty ? "사용자" : name
+  }
+
+  private var userNameKey: String {
+    let raw = (users.first?.displayName.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { $0.isEmpty ? nil : $0 }
+    ?? (users.first?.name.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { $0.isEmpty ? nil : $0 }
+          ?? ""
+    return raw
+  }
+  
   enum SceneTab {
     case recommend
     case scrap
@@ -181,11 +198,18 @@ struct RecommendView: View {
               }
             }
           }
-          .onChange(of: headerBottomY) {
-            isOverlappingHeader = firstCardTopY < (headerBottomY - 2)
+          .onChange(of: headerBottomY, initial: false) { _, new in
+            isOverlappingHeader = firstCardTopY < (new - 2)
           }
-          .onChange(of: firstCardTopY) {
-            isOverlappingHeader = firstCardTopY < (headerBottomY - 2)
+          .onChange(of: firstCardTopY, initial: false) { _, new in
+            isOverlappingHeader = new < (headerBottomY - 2)
+          }
+          .task(id: userNameKey) {
+            guard !userNameKey.isEmpty else { return }
+            let newName = displayName
+            guard newName != lastLoadedName else { return }
+            lastLoadedName = newName
+            nutrientVM.load(userName: newName)
           }
           .scrollClipDisabled(true)
           .zIndex(1)
@@ -217,7 +241,7 @@ struct RecommendView: View {
       }
     }
     .navigationDestination(isPresented: $showNutrientDetail) {
-      RecommendNutrientsView(nutrients: nutrientVM.recommend)
+      RecommendNutrientsView(nutrients: nutrientVM.recommend, displayName: displayName)
     }
   }
 
@@ -236,7 +260,7 @@ struct RecommendView: View {
           }
         )
       ImageCardView(
-        title: "@@님 맞춤 추천",
+        title: "\(displayName)님 맞춤 추천",
         categories: ["장 건강", "혈관 & 혈액순환"],
         desc: "* 본결과는 의사의 처방을 대신하지 않습니다.",
         products: items,
@@ -277,7 +301,8 @@ struct RecommendView: View {
       NutrientCardView(
         nutrients: nutrientVM.chip,
         onSeeDetail: { showNutrientDetail = true },
-        isLoading: !hasRealNutrientData
+        isLoading: !hasRealNutrientData,
+        displayName: displayName
       )
       .id(nutrientVM.chip.joined(separator: "|"))
       .padding(.horizontal, 16)
@@ -328,7 +353,7 @@ struct RecommendView: View {
 #endif
     hasRealNutrientData = false
 
-    nutrientVM.load(userName: "@@")
+    nutrientVM.load(userName: displayName)
 
     fetchRealDataOnLaunch()
   }
@@ -342,7 +367,7 @@ struct RecommendView: View {
         isLoadingReal = false
       }
 
-      nutrientVM.load(userName: "@@")
+      nutrientVM.load(userName: displayName)
 
       await recommendVM.loadProducts(for: "장 건강")
       let real = recommendVM.products

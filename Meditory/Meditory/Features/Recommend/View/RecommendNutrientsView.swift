@@ -9,18 +9,24 @@ struct RecommendNutrientsView: View {
   @State private var isAtTop = true
 
   let nutrients: [Nutrient]
+  let displayName: String
+
+  private var safeName: String {
+    let trimmedDisplayName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+    return trimmedDisplayName.isEmpty ? "사용자" : trimmedDisplayName
+  }
 
   var body: some View {
     ScrollView {
       ScrollTopObserver(isAtTop: $isAtTop)
-      
+
       VStack(alignment: .leading) {
         VStack(alignment: .leading, spacing: .smallSpacing) {
           Text("최종결과")
             .font(.notoSans(weight: .medium, size: 15))
             .foregroundColor(.gray)
 
-          Text("@@님의")
+          Text("\(safeName)님의")
             .font(.notoSans(weight: .bold, size: 25))
             .fontWeight(.bold)
 
@@ -28,7 +34,7 @@ struct RecommendNutrientsView: View {
             .font(.notoSans(weight: .medium, size: 15))
             .fontWeight(.semibold)
 
-          Text("* 본결과는 의사의 처방을 대신하지 않습니다.")
+          Text("* 본 결과는 의사의 처방을 대신하지 않습니다.")
             .font(.notoSans(weight: .medium, size: 15))
             .foregroundColor(.gray)
         }
@@ -86,11 +92,7 @@ struct RecommendNutrientsView: View {
       }
     }
     .scrollIndicators(.hidden)
-    .navigationBar(
-      .none,
-      backgroundStyle: .system,
-      isAtTop: isAtTop
-    )
+    .navigationBar(.none, backgroundStyle: .system, isAtTop: isAtTop)
   }
 }
 

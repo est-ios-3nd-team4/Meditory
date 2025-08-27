@@ -91,7 +91,6 @@ final class GoogleCSEClientTests: XCTestCase {
       let resp = HTTPURLResponse(url: req.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
       return ("{ invalid json".data(using: .utf8), resp, nil)
     }
-
     do {
       _ = try await client.fetchImageAndLink(for: "A", name: "B")
       XCTFail("여기 오면 안 됨")

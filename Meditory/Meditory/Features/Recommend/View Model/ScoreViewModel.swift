@@ -69,7 +69,7 @@ final class ScoreViewModel: ObservableObject {
             adequate: "충족 성분은 과하지 않게만 관리하면 됩니다."
           )
         )
-        self.errorMessage = "AI 점수 계산 실패 — 로컬 계산으로 대체"
+        self.errorMessage = "계산 실패"
       }
     }
   }

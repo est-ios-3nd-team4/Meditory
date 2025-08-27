@@ -1,10 +1,3 @@
-//
-//  ProductTile.swift
-//  Meditory
-//
-//  Created by Jaehun Kim on 8/22/25.
-//
-
 import SwiftUI
 
 struct ProductTile: View {

@@ -33,16 +33,6 @@ struct ImageCardView: View {
 
   @Environment(\.colorScheme) private var colorScheme
 
-  init(title: String, categories: [String], desc: String, products: [Product], onCategoryTap: ((String) -> Void)? = nil) {
-    self.title = title
-    self.categories = categories
-    self.desc = desc
-    self.products = products
-    self.onCategoryTap = onCategoryTap
-    _selectedCategory = State(initialValue: categories.first)
-  }
-
-
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
       HStack {
@@ -51,7 +41,7 @@ struct ImageCardView: View {
         Spacer()
 
         Button {
-
+          //onEditTap?()
         } label: {
           Text("수정하기")
             .font(.notoSans(weight: .medium, size: 12))
@@ -62,7 +52,7 @@ struct ImageCardView: View {
         HStack {
           ForEach(categories, id: \.self) { category in
             Button {
-              onCategoryTap?(category)
+              //onCategoryTap?(category)
               selectedCategory = category
             } label: {
               Text(category)
