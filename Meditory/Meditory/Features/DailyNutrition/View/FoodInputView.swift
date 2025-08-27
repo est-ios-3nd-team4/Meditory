@@ -85,14 +85,17 @@ struct FoodInputView: View {
       
       Rectangle()
         .fill(.white)
-        .frame(height: 70)
+        .frame(minHeight: 70)
         .cardStyle()
         .overlay {
           Text(tipComment)
             .font(.notoSans(weight: .medium, size: 12))
             .padding(.vertical, 8)
-            .padding(16)
+            .padding(.horizontal,16)
+            .multilineTextAlignment(.leading)
+            .lineLimit(nil)
         }
+        .fixedSize(horizontal: false, vertical: true)
       
       PrimaryButton(title: "음식 등록") {
         print("음식 등록")
@@ -101,21 +104,6 @@ struct FoodInputView: View {
     }
     .navigationBarBackButtonHidden(true)
     .navigationBarTitleDisplayMode(.inline)
-//    .toolbar {
-//      ToolbarItem(placement: .topBarLeading) {
-//        Button {
-//          dismiss()
-//        } label: {
-//          Image(systemName: "chevron.left")
-//            .foregroundStyle(Color.label)
-//        }
-//      }
-//      
-//      ToolbarItem(placement: .principal) {
-//        Text("식단 상세 정보")
-//          .font(.notoSans(weight: .semiBold, size: 18))
-//      }
-//    }
     .padding(.horizontal, 16)
     
   }
