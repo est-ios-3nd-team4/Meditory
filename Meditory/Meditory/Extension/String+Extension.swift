@@ -28,4 +28,19 @@ extension String {
     guard let d = toDateFromHHmm() else { return "식사 안함" }
     return d.timeFormatter
   }
+  
+  /// 받침 여부에 따라 '을/를' 조사 반환
+  func eulReul() -> String {
+     guard let last = self.unicodeScalars.last else { return "를" }
+     let scalar = last.value
+
+     // 한글 범위(가~힣)인지 확인
+     if (0xAC00...0xD7A3).contains(scalar) {
+       let base = scalar - 0xAC00
+       let jong = base % 28   // 종성(받침) 여부
+       return jong == 0 ? "를" : "을"
+     }
+     // 한글이 아닌 경우 기본 '를'
+     return "를"
+   }
 }

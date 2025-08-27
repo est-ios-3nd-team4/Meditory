@@ -648,7 +648,7 @@ extension AddSupplementView {
         try await lifestyleTimeVM.saveLifestyle()
         
         try await addSupplementVM.saveRoutine()
-        
+        await RoutineNotificationScheduler().scheduleAll(modelContext: context)
         await MainActor.run {
           dismissOrClearSelection()
         }
