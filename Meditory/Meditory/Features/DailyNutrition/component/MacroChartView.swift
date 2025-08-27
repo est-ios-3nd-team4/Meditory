@@ -77,11 +77,9 @@ struct CircularKnobAnimationModifier: AnimatableModifier {
   }
 }
 
+// - MARK: MacroChartView
+
 struct MacroChartView: View {
-  
-//  var carbohydrateProgressTarget: Double
-//  var proteinProgressTarget: Double
-//  var fatProgressTarget: Double
   
   var macrosPercentage: MacroNutrients?
   
@@ -92,10 +90,6 @@ struct MacroChartView: View {
   /// macros인자 값으로 MacroNutrients gram 데이터를 받아야 합니다.
   init(macros: MacroNutrients?) {
     macrosPercentage = macros
-    
-//    self.carbohydrateProgressTarget = safeMacros.carbohydrate
-//    self.proteinProgressTarget = safeMacros.protein
-//    self.fatProgressTarget = safeMacros.fat
   }
   
   var body: some View {

@@ -48,7 +48,7 @@ struct DailyMealSummaryCard: View {
   /// 탄, 단, 지 오늘 하루 목표치 대비 퍼센트값을 나타냄
   func macroPercentageView() -> some View {
     HStack(spacing: 40) {
-      ForEach(meal.macroItems) { item in
+      ForEach(viewModel.macroPercent.macroItems) { item in
         HStack(spacing: 5) {
           Circle()
             .fill(item.color)
@@ -58,7 +58,7 @@ struct DailyMealSummaryCard: View {
               .font(.notoSans(weight: .regular, size: 13))
               .foregroundStyle(.black)
             
-            Text("\(Int(item.gram))%")
+            Text("\(Int(item.gram * 100))%")
               .font(.notoSans(weight: .semiBold, size: 13))
         }
       }
