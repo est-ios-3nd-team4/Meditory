@@ -60,9 +60,6 @@ struct SettingView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .padding(.trailing, 4)
-              
-              Image(systemName: "chevron.right")
-                .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
             }
           }
           .buttonStyle(.plain) // 기본 버튼 스타일 제거 → 기존 settingItem 스타일 유지
