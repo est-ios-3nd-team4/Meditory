@@ -17,14 +17,14 @@ struct OnboardingAllergyView: View {
   var body: some View {
     ScrollView {
       TitleView(prompt: prompt,name: name)
-      .padding([.horizontal],.defaultSpacing + 4)
+        .padding(.horizontal,.defaultSpacing + 4)
       ForEach(questions, id: \.self) { item in
         RowItemCell(model: item, isSelected: selections.contains(item))
           .onTapGesture {
             onAction?(item)
           }
+          .padding(.horizontal, .defaultSpacing + 4)
       }
-      .padding(.horizontal, .defaultSpacing + 4)
     }
     .scrollIndicators(.never)
   }

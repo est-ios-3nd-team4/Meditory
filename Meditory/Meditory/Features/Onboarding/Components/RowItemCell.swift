@@ -10,7 +10,6 @@ import SwiftUI
 struct RowItemCell: View {
   var model: QuestionModel
   var isSelected: Bool
-//  var subTitleSize:Double = 14
   
   var body: some View {
     ZStack {
@@ -27,20 +26,17 @@ struct RowItemCell: View {
           .alignmentGuide(.top) { d in d[.top] - 4 }
         VStack(alignment: .leading, spacing: 2) {
           Text(model.title)
-//            .font(.notoSans(weight: .medium, size: 14))
             .adaptiveFont(14,weight: .medium)
             .foregroundStyle(isSelected ? Color.label : .textGray)
           Text(model.subtitle)
-//            .font(.notoSans(weight: .regular, size: subTitleSize))
             .adaptiveFont(12,weight: .regular)
             .foregroundStyle(.textGray)
         }
         Spacer()
         CircleCheck(isCompleted: isSelected, size: 25)
-          .padding(.trailing, 20)
+          .padding(.trailing, .defaultSpacing)
       }
-//      .padding(10)
-      .padding(4)
+      .adaptivePadding(.horizontal, .defaultSpacing)
     }
   }
 }
