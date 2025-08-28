@@ -31,7 +31,7 @@ struct CollectionItemCell: View {
       .modifier(UnifiedShadow())
       Text(model.title)
         .font(.notoSans(weight: .medium, size: 14))
-        .foregroundStyle(.textGray)
+        .foregroundStyle(isSelected ? Color.label : .textGray)
     }
     .frame(width: 140,height: 140)
   }

@@ -28,10 +28,11 @@ struct RowItemCell: View {
         VStack(alignment: .leading, spacing: 2) {
           Text(model.title)
             .font(.notoSans(weight: .medium, size: 14))
+            .foregroundStyle(isSelected ? Color.label : .textGray)
           Text(model.subtitle)
             .font(.notoSans(weight: .regular, size: subTitleSize))
+            .foregroundStyle(.textGray)
         }
-        .foregroundStyle(.textGray)
         Spacer()
         CircleCheck(isCompleted: isSelected, size: 25)
           .padding(.trailing, 20)
