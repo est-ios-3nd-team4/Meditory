@@ -173,7 +173,7 @@ struct OnboardingView: View {
     VStack(spacing: .smallSpacing) {
       PrimaryButton(
         title: currentStep != .concern ? "다음" : "완료",
-        isEnabled: vm.isNextButtonOn
+        isEnabled: vm.isNextButtonOn(step: currentStep)
       ) {
         guard let next = currentStep.next() else {
           onFinished()
@@ -186,7 +186,7 @@ struct OnboardingView: View {
         }
         currentStep = next
       }
-      .disabled(!vm.isNextButtonOn)
+      .disabled(!vm.isNextButtonOn(step: currentStep))
       .padding(.vertical, buttonTopSpacing)
     }
     .padding(.trailing, .defaultSpacing)

@@ -157,6 +157,8 @@ class OnboardingViewModel {
     ValidationField.allCases.allSatisfy { fieldStates[$0]?.isValid == true }
   }
   
+  var isGenderSelected: Bool { !gender.isEmpty }
+  
   func updateContent(_ field: ValidationField, context: String) {
       var state = fieldStates[field] ?? ValidationState()
       state.content = context
@@ -206,7 +208,7 @@ class OnboardingViewModel {
         (1900...currentYear).contains(year),
         let birthYear = Date().dateFromYearString(yearString: String(year))
       else {
-        errorMessage[field] = "출생년도를 입력해주세요."
+        errorMessage[field] = "올바른 출생년도를 입력해주세요."
         target.isValid = false
         return
       }
@@ -254,6 +256,8 @@ class OnboardingViewModel {
       var value = newValue
       if field == .name {
         value = String(newValue.prefix(20))
+      } else if field == .birthDate {
+        value = String(newValue.prefix(4))
       }
       self.updateContent(field, context: value)
     }
@@ -261,6 +265,15 @@ class OnboardingViewModel {
 
   func isValid(for field: ValidationField) -> Bool {
     fieldStates[field]?.isValid == true
+  }
+  
+  func isNextButtonOn(step:Step) -> Bool {
+    switch step {
+    case .gender:
+      return isNextButtonOn && isGenderSelected
+    default:
+      return isNextButtonOn
+    }
   }
 
   func signUp() async throws {
