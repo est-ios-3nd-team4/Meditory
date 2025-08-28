@@ -91,14 +91,7 @@ struct AIRecommendedScheduleView: View {
         Spacer()
         
         if !aiPlanState.isIdle {
-          Button {
-            // TODO: 경고 팝업
-            // 이 스케줄은 기상·취침 시간, 식사 패턴, 복용 중인 약물 정보를 기반으로 추천됩니다.
-          } label: {
-            Image(systemName: "info.circle")
-              .font(.system(size: 14, weight: .medium))
-              .foregroundStyle(.textGray)
-          }
+          InfoButton()
         }
       }
       
