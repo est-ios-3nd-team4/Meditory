@@ -214,7 +214,6 @@ extension AddSupplementViewModel {
 // MARK: - Network
 extension AddSupplementViewModel {
   func request(productNameInput: String, nameSource: SupplementNameSource) async throws {
-    /*
     print("✅ 요청", Date.now)
     
     await MainActor.run {
@@ -233,17 +232,5 @@ extension AddSupplementViewModel {
     }
     
     print("✅ 응답", Date.now)
-    */
-    
-    await MainActor.run {
-      self.supplemtSummary = SupplementSummary(
-        type: 1,
-        name: productNameInput,
-        description: productNameInput + "는 혈관 기능을 유지하고 피로 개선에 기여할 수 있습니다.",
-        category: productNameInput,
-        usage: [""],
-        precautions: [""]
-      )
-    }
   }
 }

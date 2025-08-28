@@ -257,18 +257,12 @@ extension AIRecommendedScheduleView {
     
     Task {
       do {
-        /*
         let result = try await routineAIVM.requestAISchedule(
           supplementName: supplementSummary.name,
           lifeStyle: lifestyle,
           context: context
         )
         supplement = result
-        */
-        
-        try await Task.sleep(for: .seconds(2))
-        
-        supplement = .mock
         
         aiPlanState = .created
       } catch {
