@@ -100,7 +100,7 @@ final class NutrientViewModel: ObservableObject {
     }
   }
 
-  private func prompt(userName: String?) -> String {
+  private func prompt(userName: String?, ageGroup: String? = nil) -> String {
     //    let display = userName ?? "@@"
     //    return """
     //      [역할]
