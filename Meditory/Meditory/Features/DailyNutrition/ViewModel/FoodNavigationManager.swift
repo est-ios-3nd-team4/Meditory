@@ -10,7 +10,7 @@ import Foundation
 enum FoodScreen {
   case mealList
   case mealDetail
-  case addMeal
+  case addFood
 }
 
 class FoodNavigationManager: ObservableObject {
@@ -21,10 +21,6 @@ class FoodNavigationManager: ObservableObject {
   }
   
   func isCurrentScreen(_ screen: FoodScreen) -> Bool {
-      defer {
-          print("current: \(currentScreen)")
-          print("input: \(screen)")
-      }
-      return currentScreen == screen
+    currentScreen == screen
   }
 }

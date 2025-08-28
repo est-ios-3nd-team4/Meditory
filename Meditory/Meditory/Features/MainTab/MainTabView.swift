@@ -30,22 +30,23 @@ struct MainTabView: View {
         
         intakeDestinationView()
       }
+
       // 추후 적용 예정
-//      .fullScreenCover(
-//        isPresented: Binding(
-//          get: { selectedIntakeItem != nil && !showIntakeSelector },
-//          set: { if !$0 { selectedIntakeItem = nil } }
-//        )
-//      ) {
-//        switch selectedIntakeItem {
-//        case .supplement?:
-//          AddSupplementView(selectedIntakeItem: $selectedIntakeItem)
-//        case .meal?:
-//          EmptyView()
-//        case nil:
-//          EmptyView()
-//        }
-//      }
+      .fullScreenCover(
+        isPresented: Binding(
+          get: { selectedIntakeItem != nil && !showIntakeSelector },
+          set: { if !$0 { selectedIntakeItem = nil } }
+        )
+      ) {
+        switch selectedIntakeItem {
+        case .supplement?:
+          AddSupplementView(selectedIntakeItem: $selectedIntakeItem)
+        case .meal?:
+          FoodInputView()
+        case nil:
+          EmptyView()
+        }
+      }
     }
   }
 }
@@ -138,7 +139,7 @@ extension MainTabView {
       case .supplement:
         AddSupplementView(selectedIntakeItem: $selectedIntakeItem)
       case .meal:
-        EmptyView()
+        FoodInputView()
       }
     }
   }

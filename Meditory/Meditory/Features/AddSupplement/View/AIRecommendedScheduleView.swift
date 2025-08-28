@@ -91,14 +91,7 @@ struct AIRecommendedScheduleView: View {
         Spacer()
         
         if !aiPlanState.isIdle {
-          Button {
-            // TODO: 경고 팝업
-            // 이 스케줄은 기상·취침 시간, 식사 패턴, 복용 중인 약물 정보를 기반으로 추천됩니다.
-          } label: {
-            Image(systemName: "info.circle")
-              .font(.system(size: 14, weight: .medium))
-              .foregroundStyle(.textGray)
-          }
+          InfoButton()
         }
       }
       
@@ -249,6 +242,7 @@ extension AIRecommendedScheduleView {
 }
 
 
+// MARK: - Network
 extension AIRecommendedScheduleView {
   private func requestAISchedule() {
     guard let supplementSummary, supplementSummary.type < 3 else {
@@ -270,8 +264,6 @@ extension AIRecommendedScheduleView {
         )
         supplement = result
         
-        try await Task.sleep(for: .seconds(1))
-        
         aiPlanState = .created
       } catch {
         aiPlanState = .idle(reason: .networkFailed)
@@ -281,6 +273,8 @@ extension AIRecommendedScheduleView {
   }
 }
 
+
+// MARK: - ShakeEffect
 fileprivate struct ShakeEffect: GeometryEffect {
   /// 흔드는 강도
   var amplitude: CGFloat

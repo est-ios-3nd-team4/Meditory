@@ -17,5 +17,5 @@ enum MacroType: String, Codable, CaseIterable {
 struct MacroItem: Identifiable {
   var id: String { type.rawValue }
   let type: MacroType
-  let gram: Double
+  var gram: Double
 }

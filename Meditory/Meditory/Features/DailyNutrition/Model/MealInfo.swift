@@ -8,7 +8,7 @@
 import Foundation
 
 struct MealInfo: Identifiable, Codable {
-  var id = UUID()
+  var id: UUID
   var name: String // 식단 이름 (ex: 아침, 점심, 저녁)
   var date: Date = Date() // 날짜
   
@@ -23,15 +23,5 @@ struct MealInfo: Identifiable, Codable {
                      protein: result.protein + food.macros.protein,
                      fat: result.fat + food.macros.fat)
     }
-  }
-}
-
-extension MealInfo: Hashable {
-  static func == (lhs: MealInfo, rhs: MealInfo) -> Bool {
-    lhs.id == rhs.id
-  }
-  
-  func hash(into hasher: inout Hasher) {
-    hasher.combine(id)
   }
 }

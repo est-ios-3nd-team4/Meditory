@@ -32,6 +32,7 @@ struct RecommendedMacroGuidePopover: View {
         macroPercentageView()
       }
       .foregroundStyle(.black)
+      .padding(.horizontal, 16)
     }
   }
   
@@ -43,13 +44,13 @@ struct RecommendedMacroGuidePopover: View {
             .fill(item.color)
             .frame(width: 10, height: 10)
           
-          HStack {
             Text(item.label)
               .font(.notoSans(weight: .regular, size: 13))
             
+            Spacer()
+            
             Text("\(Int(item.gram))g")
               .font(.notoSans(weight: .semiBold, size: 11))
-          }
         }
       }
     }

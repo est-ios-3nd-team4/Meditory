@@ -9,9 +9,19 @@ import SwiftUI
 
 struct MealDetailMainView: View {
   @EnvironmentObject var viewModel: NutritionMainViewModel
-  
+  @State private var text: String = ""
   var body: some View {
     VStack(spacing: 20) {
+      Rectangle()
+        .fill(.backgroundGray)
+        .modifier(CardStyle())
+        .frame(width: 200, height: 50)
+        .overlay {
+          TextField("식단 이름", text: $text)
+            .padding(.horizontal, 18)
+        }
+        .padding(.bottom, 10)
+      
       MacroChartView(macros: viewModel.selectedMeal?.macros)
         .frame(width: 200,
                height: 200)
@@ -32,6 +42,7 @@ struct MealDetailMainView: View {
       
       Spacer()
     }
+    .padding(.top, 30)
   }
   
   func macroCompositionView(viewModel: NutritionMainViewModel) -> some View {
