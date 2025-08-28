@@ -26,7 +26,7 @@ struct DailyMealSummaryCard: View {
           HStack {
             Text("오늘 하루 식단")
               .font(.notoSans(weight: .bold, size: 15))
-              .foregroundStyle(.black)
+              .foregroundStyle(Color.label)
             
             Spacer()
             
@@ -56,11 +56,11 @@ struct DailyMealSummaryCard: View {
           
             Text(item.label.prefix(1))
               .font(.notoSans(weight: .regular, size: 13))
-              .foregroundStyle(.black)
             
             Text("\(Int(item.gram * 100))%")
               .font(.notoSans(weight: .semiBold, size: 13))
         }
+        .foregroundStyle(Color.label)
       }
     }
   }

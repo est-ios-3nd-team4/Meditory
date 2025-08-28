@@ -44,7 +44,7 @@ struct MealSummaryCard: View {
               HStack(spacing: 5) {
                 Circle()
                   .fill(item.color)
-                  .frame(width: 10, height: 10)
+                  .frame(width: 12, height: 12)
                 
                 
                 Text(item.label)

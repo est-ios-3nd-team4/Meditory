@@ -33,8 +33,8 @@ struct FoodInputView: View {
   }
   
   var tipComment: String = Bool.random() == true
-  ? "Tip‼️ : 음식 이름을 입력하고, 탄수화물·단백질·지방(g)을 직접 기록해 보세요."
-  : "Tip‼️ : 정확한 g 단위를 모르면 대략적인 값으로 입력해도 괜찮아요."
+  ? ": 음식 이름을 입력하고, 탄수화물·단백질·지방(g)을 직접 기록해 보세요."
+  : ": 정확한 g 단위를 모르면 대략적인 값으로 입력해도 괜찮아요."
   
   var navigationTitle: String {
     switch mode {
@@ -94,54 +94,47 @@ struct FoodInputView: View {
             .opacity(0)
         }
       }
+      .padding(.horizontal, 16)
       
       // MARK: Food Name Input
-      Rectangle()
-        .fill(.white)
-        .frame(height: 50)
-        .cardStyle()
-        .overlay {
-          HStack {
-            TextField("스파게티", text: $foodName)
-              .focused($isFoodNameFocused)
-              .onSubmit {
-                searchFood()
-              }
-              .submitLabel(mode == .create ? .search : .done)
-            
-            Button {
+      UnifiedSectionCard {
+        HStack {
+          TextField("스파게티", text: $foodName)
+            .focused($isFoodNameFocused)
+            .onSubmit {
               searchFood()
-              isFoodNameFocused = false
-            } label: {
-              Image(systemName: "magnifyingglass")
-                .foregroundStyle(.gray)
             }
+            .submitLabel(mode == .create ? .search : .done)
+          
+          Button {
+            searchFood()
+            isFoodNameFocused = false
+          } label: {
+            Image(systemName: "magnifyingglass")
+              .foregroundStyle(.gray)
           }
-          .padding(.horizontal, 16)
         }
+      }
+      .padding(.horizontal, 16)
       
       VStack(spacing: 5) {
-        Rectangle()
-          .fill(.white)
-          .frame(height: 200)
-          .cardStyle()
-          .overlay {
-            VStack {
-              HStack {
-                Text("영양정보")
-                
-                Spacer()
-                
-                Image(systemName: "info.circle")
-                  .longPressPopover {
-                    RecommendedMacroGuidePopover()
-                  }
-              }
+        UnifiedSectionCard {
+          VStack {
+            HStack {
+              Text("영양정보")
               
-              macroPercentage()
+              Spacer()
+              
+              Image(systemName: "info.circle")
+                .longPressPopover {
+                  RecommendedMacroGuidePopover()
+                }
             }
-            .padding(.horizontal, 16)
+            
+            macroPercentage()
           }
+        }
+        .padding(.horizontal, 16)
         
         Text("AI 생성 영양정보로 실제 값과 다를 수 있습니다. 건강 관련 중요한 결정은 의료 전문가와 상의하세요.")
           .font(.notoSans(weight: .medium, size: 7))
@@ -151,23 +144,24 @@ struct FoodInputView: View {
       
       Spacer()
       
-      Rectangle()
-        .fill(.white)
-        .frame(minHeight: 70)
-        .cardStyle()
-        .overlay {
+      UnifiedSectionCard {
+        HStack {
+          Text("Tip‼️")
+          
           Text(tipComment)
             .font(.notoSans(weight: .medium, size: 12))
-            .padding(.vertical, 8)
-            .padding(.horizontal,16)
             .multilineTextAlignment(.leading)
             .lineLimit(nil)
         }
-        .fixedSize(horizontal: false, vertical: true)
+        .padding(.vertical, 8)
+      }
+      .fixedSize(horizontal: false, vertical: true)
+      .padding(.horizontal, 16)
       
       PrimaryButton(title: primaryButtonTitle) {
         handlePrimaryAction()
       }
+      .padding(.horizontal, 16)
     }
     .navigationBarBackButtonHidden(true)
     .navigationBarTitleDisplayMode(.inline)
@@ -217,21 +211,37 @@ struct FoodInputView: View {
               .fill(.backgroundGray)
               .frame(width: 70, height: 40)
               .overlay {
-                ZStack {
-                  TextField("0", text: binding(for: type))
-                    .keyboardType(.decimalPad)
-                    .padding(.horizontal, 16)
-                  
-                  if isLoading {
-                    NutrientChipSkeleton(width: 50)
-                  }
-                }
+                macroInputField(for: type)
               }
             
             Text("g")
+              .frame(width: 10)
+              .foregroundStyle(Color.label)
           }
           .font(.notoSans(weight: .medium, size: 13))
         }
+      }
+    }
+  }
+  
+  @ViewBuilder
+  private func macroInputField(for type: MacroType) -> some View {
+    ZStack {
+      if binding(for: type).wrappedValue.isEmpty {
+        Text("0")
+          .foregroundStyle(Color.gray)
+          .padding(.horizontal, 16)
+
+      }
+      TextField("", text: binding(for: type))
+        .foregroundStyle(Color.black)
+        .keyboardType(.decimalPad)
+        .padding(.horizontal, 16)
+        .multilineTextAlignment(.center)
+      
+      
+      if isLoading {
+        NutrientChipSkeleton(width: 50)
       }
     }
   }
