@@ -14,6 +14,17 @@ struct SearchView: View {
   @Query private var users: [User]
   @StateObject private var ageNutrientVM = SearchViewModel()
 
+  @FocusState private var isQueryFocused: Bool
+
+  private var canSearch: Bool {
+    !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+  }
+
+  private var searchIconColor: Color {
+    let base = (colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
+    return canSearch ? base : base.opacity(0.4)
+  }
+
   // 최근 검색어 저장 키 & 최대 개수
   private let recentKey = "recent_search_words"
   private let recentMaxCount = 10
@@ -81,7 +92,7 @@ struct SearchView: View {
             }
           }
           Group {
-            Text("맞춤 추천 영양 성분")
+            Text("맞춤 영양 성분 추천")
               .font(.title3).bold()
               .padding(.horizontal)
 
@@ -160,12 +171,28 @@ struct SearchView: View {
           .textInputAutocapitalization(.never)
           .disableAutocorrection(true)
           .submitLabel(.search)
-          .onSubmit {
-            performSearch() // 엔터 키 눌렀을 때 검색 실행
+          .focused($isQueryFocused)
+          .onSubmit { performSearch() }
+          .onChange(of: query) { newValue in
+            if newValue.count > 20 {
+              query = String(newValue.prefix(20))
+            }
           }
-        Image(systemName: "magnifyingglass")
-          .symbolRenderingMode(.monochrome) // 있으면 확실
-          .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
+
+        Button {
+          // 키보드 내려주고 검색 실행
+          isQueryFocused = false
+          performSearch()
+        } label: {
+          Image(systemName: "magnifyingglass")
+            .symbolRenderingMode(.monochrome)
+            .foregroundColor(searchIconColor)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 4)
+            .contentShape(Rectangle())
+            .accessibilityLabel("검색")
+        }
+        .disabled(!canSearch)
       }
       .padding(.horizontal, 12)
       .padding(.vertical, 10)
