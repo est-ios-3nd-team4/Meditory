@@ -131,7 +131,7 @@ struct ImageCardView: View {
       }
     }
     .padding()
-    .background(colorScheme == .dark ? Color.white.opacity(0.2) : Color.white)
+    .background(colorScheme == .dark ? Color.white.opacity(0.3) : Color.white)
     .cornerRadius(.defaultRadius)
     .background(
       NavigationLink(

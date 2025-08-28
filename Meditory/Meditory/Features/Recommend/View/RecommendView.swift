@@ -349,7 +349,7 @@ struct RecommendView: View {
     GeometryReader { geo in
       let topH = geo.size.height * 0.5 + geo.safeAreaInsets.top
       VStack(spacing: 0) {
-        (colorScheme == .dark ? Color.black : Color.main)
+          Color.main
           .frame(height: topH)
           .ignoresSafeArea(edges: .top)
 
