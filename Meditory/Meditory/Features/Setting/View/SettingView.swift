@@ -53,8 +53,8 @@ struct SettingView: View {
               Text("알림")
                 .font(.notoSans(size: 18))
                 .foregroundStyle(.primary)
-              
-              Spacer()
+                .frame(maxWidth: .infinity, alignment: .leading) // 레이아웃을 전체 너비로 확장함
+                .contentShape(Rectangle()) // 터치 영역을 사각형 프레임 전체로 확장함
               
               Text(viewModel.isSystemGranted ? "ON" : "OFF")
                 .font(.caption)
