@@ -10,6 +10,10 @@ struct OnboardingBasicInfoView: View {
   var vm: OnboardingViewModel
   let focusedField: FocusState<FormField?>.Binding
   let bottomSpacing: CGFloat
+  
+  let isInitialLoadComplete: Bool
+  let isEditing: Bool
+  
   @State private var preScroll: FormField? = nil
   @State private var scrollTask: Task<Void,Never>? = nil
 
@@ -34,6 +38,7 @@ struct OnboardingBasicInfoView: View {
             )
             .id(FormField.name)
             .focused(focusedField, equals: .name)
+            
             TextInputView(
               title: "출생년도",
               placeholder: "2000",
@@ -44,11 +49,14 @@ struct OnboardingBasicInfoView: View {
               validator: { vm.isValid(for: .birthDate) },
               errorMessage: vm.errorMessage[.birthDate],
             )
-            .onChange(of: vm.birthDate, { 
-              focusedField.wrappedValue = .height
+            .onChange(of: vm.birthDate, {
+              if !isEditing || isEditing && !isInitialLoadComplete {
+                focusedField.wrappedValue = .height
+              }
             })
             .id(FormField.birthDate)
             .focused(focusedField, equals: .birthDate)
+            
             TextInputView(
               title: "키",
               placeholder: "170",
@@ -62,8 +70,11 @@ struct OnboardingBasicInfoView: View {
             .id(FormField.height)
             .focused(focusedField, equals: .height)
             .onChange(of: vm.height) {
-              focusedField.wrappedValue = .weight
+              if !isEditing || isEditing && !isInitialLoadComplete {
+                focusedField.wrappedValue = .weight
+              }
             }
+            
             TextInputView(
               title: "체중",
               placeholder: "80",

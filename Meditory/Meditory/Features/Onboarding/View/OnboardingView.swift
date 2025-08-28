@@ -18,6 +18,8 @@ struct OnboardingView: View {
 
   @State private var currentStep: Step = .base
   @State private var isSelected: Bool = false
+  
+  @State private var isInitialLoadComplete = false // 데이터 로딩완료 여부
   private let isEditing: Bool // 편집모드여부(세팅에서 진입시 true)
 
   private let buttonHeight: CGFloat = 50
@@ -77,6 +79,7 @@ struct OnboardingView: View {
       if isEditing {
         Task {
           await vm.fetchCurrentUser()
+          isInitialLoadComplete = true
         }
       }
     }
@@ -88,7 +91,13 @@ struct OnboardingView: View {
       let name = vm.name
       switch step {
       case .base:
-        OnboardingBasicInfoView(vm: vm, focusedField: $focusedField, bottomSpacing: keyboardObserver.bottomInset + 50)
+        OnboardingBasicInfoView(
+          vm: vm,
+          focusedField: $focusedField,
+          bottomSpacing: keyboardObserver.bottomInset + 50,
+          isInitialLoadComplete: isInitialLoadComplete,
+          isEditing: isEditing,
+        )
       case .gender:
         OnboardingGenderView(
           vm: vm,
