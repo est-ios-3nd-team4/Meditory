@@ -10,7 +10,6 @@ import SwiftData
 
 struct NutritionHomeView: View {
   
-  //  @State private var selectedDate: Date = Date()
   @EnvironmentObject var viewModel: NutritionMainViewModel
   @Environment(\.modelContext) private var context
   @State private var hasRequestedHealthKit = false
@@ -22,15 +21,13 @@ struct NutritionHomeView: View {
         VStack {
           DailyMealSummaryCard()
           
-          ForEach(viewModel.meals, id: \.id) { meal in
-            NavigationLink(value: meal) {
-              MealSummaryCard(meal: meal)
-            }
-          }
-          
-          if viewModel.meals.isEmpty {
-            NavigationLink(destination: MealDetailView()) {
-              emptyMealView()
+          ForEach(viewModel.foodList, id: \.id) { food in
+            if let parentMeal = viewModel.findMeal(for: food.id) {
+              NavigationLink(destination: FoodInputView(food: food,
+                                                        meal: parentMeal)) {
+                MealSummaryCard(foodId: food.id)
+              }
+                                                        .buttonStyle(.plain)
             }
           }
           
@@ -40,39 +37,17 @@ struct NutritionHomeView: View {
       }
     }
     .onAppear {
-      if !hasRequestedHealthKit {
-        hasRequestedHealthKit = true
-        
         Task {
           await viewModel.loadUserData()
           await viewModel.requestHealthKitPermission()
+          await viewModel.loadMealForSelectedDate()
         }
+    }
+    .onChange(of: viewModel.selectedDate) { _, newDate in
+      Task {
+        await viewModel.loadMealsForDate(newDate)
       }
     }
-  }
-}
-
-extension NutritionHomeView {
-  func emptyMealView() -> some View {
-    Rectangle()
-      .fill(.main)
-      .frame(height: 70)
-      .clipShape(RoundedRectangle(cornerRadius: 20))
-      .modifier(UnifiedShadow())
-      .overlay {
-        HStack {
-          Image(systemName: "pencil")
-          
-          Text("식단 직접 생성하기")
-          
-          Spacer()
-          
-          Image(systemName: "chevron.right")
-        }
-        .font(.notoSans(weight: .medium, size: 17))
-        .foregroundColor(.white)
-        .padding(.horizontal, 16)
-      }
   }
 }
 

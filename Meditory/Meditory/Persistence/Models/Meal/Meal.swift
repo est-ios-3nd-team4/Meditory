@@ -12,7 +12,7 @@ final class Food {
   var protein: Double
   var fat: Double
   
-  init(foodName: String, totalGram: Double,
+  init(id: UUID, foodName: String, totalGram: Double,
        carbohydrate: Double, protein: Double, fat: Double) {
     self.foodName = foodName
     self.totalGram = totalGram
@@ -23,7 +23,8 @@ final class Food {
   
   // 편의 생성자 (UI 모델 변환용)
   convenience init(from foodInfo: FoodInfo) {
-    self.init(foodName: foodInfo.name,
+    self.init(id: foodInfo.id,
+              foodName: foodInfo.name,
               totalGram: foodInfo.weight,
               carbohydrate: foodInfo.macros.carbohydrate,
               protein: foodInfo.macros.protein,
@@ -38,7 +39,7 @@ final class Meal {
   var date: Date
   var foods: [Food] = []
   
-  init(mealName: String, date: Date, foods: [Food]) {
+  init(id: UUID, mealName: String, date: Date, foods: [Food]) {
     self.mealName = mealName
     self.date = date
     self.foods = foods

@@ -6,6 +6,7 @@ import SwiftData
 extension Food {
   convenience init(model: FoodInfo) {
     self.init(
+      id: model.id,
       foodName: model.name,
       totalGram: model.weight,
       carbohydrate: model.macros.carbohydrate,
@@ -33,7 +34,7 @@ extension FoodInfo {
 extension Meal {
   convenience init(model: MealInfo) {
     self.init(
-//      id: model.id,
+      id: model.id,
       mealName: model.name,
       date: model.date,
       foods: model.foods.map { Food(model: $0) }

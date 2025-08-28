@@ -9,9 +9,24 @@ import SwiftUI
 
 struct MealSummaryCard: View {
   
-  let meal: MealInfo
-  // TODO: Food로 변경
+  @EnvironmentObject var viewModel: NutritionMainViewModel
+//  let food: FoodInfo  
+  let foodId: UUID
+  
+  private var food: FoodInfo? {
+    viewModel.foodList.first { $0.id == foodId }
+  }
+  
   var body: some View {
+    if let food = food {
+      cardContent(for: food)
+    } else {
+      EmptyView()
+    }
+  }
+  
+  @ViewBuilder
+  private func cardContent(for food: FoodInfo) -> some View {
     ZStack {
       Rectangle()
         .fill(.customContainer)
@@ -21,47 +36,32 @@ struct MealSummaryCard: View {
       
       HStack {
         VStack(alignment: .leading, spacing: 16) {
-          Text("아침")
-            .font(.notoSans(weight: .bold, size: 18))
+          Text(food.name)
+            .font(.notoSans(weight: .bold, size: 15))
           
           HStack(spacing: 40) {
-            ForEach(meal.macros.macroItems) { item in
-              HStack {
+            ForEach(food.macros.macroItems) { item in
+              HStack(spacing: 5) {
                 Circle()
                   .fill(item.color)
-                  .frame(width: 15, height: 15)
+                  .frame(width: 10, height: 10)
                 
-                HStack {
-                  Text(item.label)
-                    .font(.notoSans(weight: .bold, size: 17))
-                  
-                  Text("\(Int(item.gram))g")
-                    .font(.notoSans(weight: .medium, size: 18))
-                }
+                
+                Text(item.label)
+                  .font(.notoSans(weight: .regular, size: 11))
+                
+                Text("\(Int(item.gram))g")
+                  .font(.notoSans(weight: .semiBold, size: 11))
               }
+              .frame(maxWidth: .infinity, alignment: .leading)
             }
           }
-          
         }
         
         Spacer()
       }
+      .foregroundStyle(Color.label)
       .padding(.leading, 16)
     }
   }
-}
-
-#Preview {
-  MealSummaryCard(meal: MealInfo(name: "아침",
-                                 foods: [FoodInfo(name: "짜장면",
-                                                  weight: 120,
-                                                  macros: .init(carbohydrate: 30,
-                                                                protein: 10,
-                                                                fat: 5)),
-                                         FoodInfo(name: "스파게티",
-                                                  weight: 150,
-                                                  macros: .init(carbohydrate: 40,
-                                                                protein: 50,
-                                                                fat: 10))
-                                 ]))
 }

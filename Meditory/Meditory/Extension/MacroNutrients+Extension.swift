@@ -13,3 +13,11 @@ extension MacroNutrients {
     }
   }
 }
+
+extension MacroNutrients: Equatable {
+  static func == (lhs: MacroNutrients, rhs: MacroNutrients) -> Bool {
+    return lhs.carbohydrate == rhs.carbohydrate &&
+    lhs.protein == rhs.protein &&
+    lhs.fat == rhs.fat
+  }
+}
