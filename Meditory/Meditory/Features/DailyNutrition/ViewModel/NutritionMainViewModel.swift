@@ -387,13 +387,9 @@ extension NutritionMainViewModel {
 // MARK: - Network
 extension NutritionMainViewModel {
   func request(mealName: String) async throws {
-    print("✅ 요청", Date.now)
-    
     let prompt = MealNutritionPrompt.makePrompt(mealName: mealName)
     
     let response = try await AlanAPIClient().request(content: prompt)
-    
-    print("✅ 응답", Date.now)
     
     let mealNutrition = try? JSONDecoder().decode(MealNutrition.self, from: Data(response.utf8))
     

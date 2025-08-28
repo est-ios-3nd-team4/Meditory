@@ -25,13 +25,9 @@ final class SupplementRoutineAIViewModel {
       supplementName: supplementName,
       lifestyle: lifeStyle
     )
-    
-    print("✅ 요청", Date.now)
-    
+
     let result = try await client.request(content: prompt)
     let dto = try SupplementDecoder.decode(result)
-    
-    print("✅ 응답", Date.now)
     
     return dto
   }

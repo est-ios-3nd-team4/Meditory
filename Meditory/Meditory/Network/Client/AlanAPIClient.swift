@@ -18,8 +18,14 @@ final class AlanAPIClient {
     let endpoint = AlanAPIEndpoint.question(content: content)
     let request = endpoint.makeURLRequest()
     
-    let data: AlanResponse = try await NetworkService.shared.request(with: request, session: session)
+    print("✅ 요청", Date.now)
     
-    return data.content
+    let data: AlanResponse = try await NetworkService.shared.request(with: request, session: session)
+    let response = data.content
+    
+    print("✅ 응답", Date.now)
+    dump(response)
+    
+    return response
   }
 }

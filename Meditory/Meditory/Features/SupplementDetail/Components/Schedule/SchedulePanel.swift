@@ -12,7 +12,7 @@ struct SchedulePanel: View {
   @Environment(\.colorScheme) private var colorScheme
 
   var body: some View {
-    UnifiedSectionCard(pointColor: .orange) {
+    UnifiedSectionCard() {
       HStack(spacing: .smallSpacing) {
         Image(systemName: "calendar.badge.clock")
           .imageScale(.medium)

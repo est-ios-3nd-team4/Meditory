@@ -15,3 +15,14 @@ struct SupplementDetailInfo {
   let usage: [String]
   let precautions: [String]
 }
+
+extension SupplementDetailInfo {
+  static let empty = SupplementDetailInfo(
+    userTimes: [],
+    userCycle: "",
+    pills: [],
+    memo: "",
+    usage: [],
+    precautions: []
+  )
+}
