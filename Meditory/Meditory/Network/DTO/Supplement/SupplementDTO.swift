@@ -35,14 +35,28 @@ struct DoseTime: Codable, Equatable {
     let minutes = abs(offsetMinutes)
     switch relativeTo {
     case "아침", "점심", "저녁":
+      if offsetMinutes == 0 {
+        return "식사 직후"
+      }
       return offsetMinutes < 0 ? "식전 \(minutes)분" : "식후 \(minutes)분"
-    case "기상", "취침":
-      return offsetMinutes < 0 ? "직후 \(minutes)분" : "직전 \(minutes)분"
+
+    case "기상":
+      if offsetMinutes == 0 {
+        return "기상 직후"
+      }
+      return offsetMinutes > 0 ? "직후 \(minutes)분" : "직전 \(minutes)분"
+
+    case "취침":
+      if offsetMinutes == 0 {
+        return "취침 직전"
+      }
+      return offsetMinutes > 0 ? "직후 \(minutes)분" : "직전 \(minutes)분"
+
     default:
       return ""
     }
   }
-  
+
   var isNotNone: Bool {
     relativeTo != "추천"
   }
@@ -78,6 +92,42 @@ struct SupplementDTO: Codable {
   var schedule: DoseSchedule // 추천 일정
   var usage: [String] // 복용법
   var precautions: [String] // 복용 시 주의 사항
+}
+
+extension SupplementDTO {
+  static var mock: SupplementDTO {
+    SupplementDTO(
+      schedule: DoseSchedule(
+        cycleType: .weekday,
+        times: [
+          DoseTime(
+            hour: 8,
+            minute: 30,
+            relativeTo: "아침",
+            offsetMinutes: 0,
+            pillsPerDose: 2
+          ),
+          DoseTime(
+            hour: 22,
+            minute: 0,
+            relativeTo: "취침",
+            offsetMinutes: -30,
+            pillsPerDose: 1
+          )
+        ],
+        weekdays: [1, 3, 5],
+        intervalDays: nil
+      ),
+      usage: [
+        "물과 함께 복용하세요.",
+        "하루 최대 2정을 초과하지 마세요."
+      ],
+      precautions: [
+        "임산부, 수유부는 복용 전 전문가와 상담하세요.",
+        "다른 약물과 함께 복용 시 상호작용에 주의하세요."
+      ]
+    )
+  }
 }
 
 enum SupplementDecoder {

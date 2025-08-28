@@ -16,9 +16,16 @@ struct TodayHealthView: View {
 
     UnifiedSectionCard(showsStroke: false) {
       VStack(alignment: .leading, spacing: .smallSpacing) {
-        Text("오늘의 건강 상식")
-          .font(.notoSans(size: 18))
-          .padding(.bottom, .smallSpacing)
+        HStack {
+          Text("오늘의 건강 상식")
+            .font(.notoSans(size: 18))
+            .padding(.bottom, .smallSpacing)
+          
+          Spacer()
+          
+          InfoButton()
+            .offset(y: -3)
+        }
 
         Group {
           if vm.isLoading {
