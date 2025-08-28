@@ -9,6 +9,7 @@ import Foundation
 
 enum NavigationTitle {
   case addSupplement
+  case editSupplement
   case supplementDetail
   case mealDetail
   case aiAnalysisResult
@@ -18,6 +19,7 @@ enum NavigationTitle {
   var text: String {
     switch self {
     case .addSupplement: return "복용 약 추가"
+    case .editSupplement: return "복용 약 수정"
     case .supplementDetail: return "복용 약 정보"
     case .mealDetail: return "식단 상세 정보"
     case .aiAnalysisResult: return "AI분석 전체 결과"

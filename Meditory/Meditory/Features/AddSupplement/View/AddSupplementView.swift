@@ -103,7 +103,10 @@ struct AddSupplementView: View {
           }
           .scrollDismissesKeyboard(.immediately)
           .scrollIndicators(.hidden)
-          .navigationBar(.addSupplement, isAtTop: isAtTop) {
+          .navigationBar(
+            type == .add ? .addSupplement : .editSupplement,
+            isAtTop: isAtTop
+          ) {
             dismissOrClearSelection()
           }
           .onChange(of: fieldType) { oldValue, newValue in
