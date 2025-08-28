@@ -291,7 +291,6 @@ extension AddSupplementViewModel {
 // MARK: - Network
 extension AddSupplementViewModel {
   func request(productNameInput: String, nameSource: SupplementNameSource) async throws {
-    print("✅ 요청", Date.now)
 
     await MainActor.run {
       self.supplemtSummary = nil
@@ -308,6 +307,5 @@ extension AddSupplementViewModel {
       self.supplemtSummary = try? JSONDecoder().decode(SupplementSummary.self, from: Data(response.utf8))
     }
 
-    print("✅ 응답", Date.now)
   }
 }
