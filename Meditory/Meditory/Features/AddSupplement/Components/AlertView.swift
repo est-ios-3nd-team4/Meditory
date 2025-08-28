@@ -33,6 +33,7 @@ struct AlertView: View {
         .frame(maxWidth: .infinity)
         .foregroundStyle(.gray)
         .padding(.vertical, .smallSpacing)
+        .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
     .background(Color.secondary.opacity(0.2))
