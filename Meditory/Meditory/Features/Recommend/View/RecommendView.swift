@@ -1,14 +1,17 @@
 import SwiftUI
 import SwiftData
+import Foundation
 
 struct RecommendView: View {
 
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.modelContext) private var context
+  @Query private var users: [User]
 
   @StateObject private var recommendVM = ProductRecommendViewModel()
   @StateObject private var nutrientVM = NutrientViewModel()
 
+  @State private var lastLoadedName: String = ""
   @State private var isOverlappingHeader = false
   @State private var headerBottomY: CGFloat = 0
   @State private var firstCardTopY: CGFloat = .infinity
@@ -36,6 +39,11 @@ struct RecommendView: View {
 
   private var imageService = GoogleCSEImageClient()
 
+  private var userConcerns: [String] {
+    guard let concerns = users.first?.userExtraInfos.first?.concern else { return [] }
+    return concerns.map { $0.value }
+  }
+
   private func hydrateImagesForCurrentItems() {
     guard hasRealData else { return }
 
@@ -52,14 +60,14 @@ struct RecommendView: View {
             group.cancelAll()
             return
           }
-            group.addTask { [imageService] in
-              do {
-                let result = try await imageService.fetchImageAndLink(for: product.brand, name: product.name)
-                return (product.id, result, nil)
-              } catch {
-                return (product.id, nil, error)
-              }
+          group.addTask { [imageService] in
+            do {
+              let result = try await imageService.fetchImageAndLink(for: product.brand, name: product.name)
+              return (product.id, result, nil)
+            } catch {
+              return (product.id, nil, error)
             }
+          }
 
         }
         for try await (id, result, err) in group {
@@ -91,6 +99,15 @@ struct RecommendView: View {
         }
       }
     }
+  }
+
+  private var name: String {
+    let rawName = users.first?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    return rawName.isEmpty ? "사용자" : rawName
+  }
+
+  private var userNameKey: String {
+    users.first?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
   }
 
   enum SceneTab {
@@ -181,11 +198,18 @@ struct RecommendView: View {
               }
             }
           }
-          .onChange(of: headerBottomY) {
-            isOverlappingHeader = firstCardTopY < (headerBottomY - 2)
+          .onChange(of: headerBottomY, initial: false) { _, new in
+            isOverlappingHeader = firstCardTopY < (new - 2)
           }
-          .onChange(of: firstCardTopY) {
-            isOverlappingHeader = firstCardTopY < (headerBottomY - 2)
+          .onChange(of: firstCardTopY, initial: false) { _, new in
+            isOverlappingHeader = new < (headerBottomY - 2)
+          }
+          .task(id: userNameKey) {
+            guard !userNameKey.isEmpty else { return }
+            let newName = name
+            guard newName != lastLoadedName else { return }
+            lastLoadedName = newName
+            nutrientVM.load(userName: newName)
           }
           .scrollClipDisabled(true)
           .zIndex(1)
@@ -217,7 +241,7 @@ struct RecommendView: View {
       }
     }
     .navigationDestination(isPresented: $showNutrientDetail) {
-      RecommendNutrientsView(nutrients: nutrientVM.recommend)
+      RecommendNutrientsView(nutrients: nutrientVM.recommend, userName: name)
     }
   }
 
@@ -236,8 +260,8 @@ struct RecommendView: View {
           }
         )
       ImageCardView(
-        title: "@@님 맞춤 추천",
-        categories: ["장 건강", "혈관 & 혈액순환"],
+        title: "\(name) 님 맞춤 추천",
+        categories: userConcerns,
         desc: "* 본결과는 의사의 처방을 대신하지 않습니다.",
         products: items,
         onCategoryTap: { category in
@@ -264,7 +288,6 @@ struct RecommendView: View {
               } else {
                 items = real
                 hasRealData = true
-                hydrateImagesForCurrentItems()
               }
             }
           }
@@ -277,9 +300,10 @@ struct RecommendView: View {
       NutrientCardView(
         nutrients: nutrientVM.chip,
         onSeeDetail: { showNutrientDetail = true },
-        isLoading: !hasRealNutrientData
+        isLoading: !hasRealNutrientData,
+        userName: name
       )
-      .id(nutrientVM.chip.joined(separator: "|"))
+      .id(chipSignature(nutrientVM.chip))
       .padding(.horizontal, 16)
       .padding(.top, 8)
       .modifier(UnifiedShadow())
@@ -328,7 +352,7 @@ struct RecommendView: View {
 #endif
     hasRealNutrientData = false
 
-    nutrientVM.load(userName: "@@")
+    nutrientVM.load(userName: name)
 
     fetchRealDataOnLaunch()
   }
@@ -342,7 +366,7 @@ struct RecommendView: View {
         isLoadingReal = false
       }
 
-      nutrientVM.load(userName: "@@")
+      nutrientVM.load(userName: name)
 
       await recommendVM.loadProducts(for: "장 건강")
       let real = recommendVM.products
@@ -351,7 +375,6 @@ struct RecommendView: View {
         if !real.isEmpty {
           items = real
           hasRealData = true
-          hydrateImagesForCurrentItems()
         }
       }
     }

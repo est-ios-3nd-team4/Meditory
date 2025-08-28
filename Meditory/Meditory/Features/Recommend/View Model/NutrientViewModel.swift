@@ -8,7 +8,30 @@ final class NutrientViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var errorMessage: String?
 
+  private struct NutrientDTO: Codable, Identifiable, Sendable {
+    let id: String
+    let name: String
+    var hashtags: [String]
+    let title: String
+    let content: String
+  }
+
   private let client = AlanAPIClient()
+
+  private struct CacheEntry {
+    let chips: [String]
+    let nutrients: [Nutrient]
+    let cachedAt: Date
+  }
+
+  private static var cache: [String: CacheEntry] = [:]
+  private static var inFlight: [String: Task<(chips: [String], nutrients: [NutrientDTO]), Error>] = [:]
+  private static let ttl: TimeInterval = 60 * 60 * 12
+
+  private func cacheKey(_ userName: String?) -> String {
+    let raw = (userName ?? "@@").trimmingCharacters(in: .whitespacesAndNewlines)
+    return "nutrients:\(raw.isEmpty ? "@@" : raw)".lowercased()
+  }
 
   private struct AINutrient: Codable, Identifiable {
     let id: String
@@ -153,7 +176,7 @@ final class NutrientViewModel: ObservableObject {
         - name: string (한국어 성분명, 예: "아연")
         - hashtags: string[] (0~2개, 짧은 근거 키워드, 예: "면역 기능", "간 건강")
         - title: string (한 문장 요약, 확정 표현 금지: "~에 도움을 줄 수 있음" 톤)
-        - content: string (이유/권장량 범위/식품 급원/주의·금기 포함, 3~6문장, 단위 표기)
+        - content: string (이유/권장량 범위/식품 급원/주의·금기 포함, 6~10문장, 단위 표기)
       
       [품질 규칙]
       - 과대광고·확정적 표현 금지(“~에 도움을 줄 수 있음”).
@@ -175,33 +198,110 @@ final class NutrientViewModel: ObservableObject {
       """
   }
 
-  func load(userName: String? = "@@") {
-    guard !isLoading else { return }
+  func load(userName: String? = "@@", force: Bool = false) {
+    let key = cacheKey(userName)
+
+    if let entry = Self.cache[key],
+       Date().timeIntervalSince(entry.cachedAt) < Self.ttl,
+       !force {
+      self.chip = entry.chips
+      self.recommend = entry.nutrients
+      self.isLoading = false
+      self.errorMessage = nil
+      return
+    }
+
+    if let task = Self.inFlight[key], !force {
+      isLoading = true
+      errorMessage = nil
+      Task { @MainActor in
+        do {
+          let result = try await task.value
+
+          // NutrientDTO → Nutrient 변환
+          let mapped = result.nutrients.map {
+            Nutrient(
+              id: $0.id,
+              name: $0.name,
+              hashtags: $0.hashtags,
+              description: "",
+              title: $0.title,
+              content: $0.content,
+              positiveKeywords: [],
+              negativeKeywords: []
+            )
+          }
+          self.chip = result.chips
+          self.recommend = mapped
+          self.isLoading = false
+        } catch {
+          self.errorMessage = "추천을 불러오지 못했어요."
+          self.isLoading = false
+        }
+      }
+      return
+    }
+
+    // 3) 새 요청 수행
     isLoading = true
     errorMessage = nil
 
-    Task {
-      do {
-        let raw = try await client.request(content: prompt(userName: userName))
-        let cleaned = raw
-          .replacingOccurrences(of: "```json", with: "")
-          .replacingOccurrences(of: "```", with: "")
-          .trimmingCharacters(in: .whitespacesAndNewlines)
+    let task = Task<(chips: [String], nutrients: [NutrientDTO]), Error> { [client, userName] in
+      let raw = try await client.request(content: prompt(userName: userName))
+      let cleaned = raw
+        .replacingOccurrences(of: "```json", with: "")
+        .replacingOccurrences(of: "```", with: "")
+        .trimmingCharacters(in: .whitespacesAndNewlines)
 
-        guard let data = cleaned.data(using: .utf8) else {
-          throw NSError(domain: "AI", code: -1, userInfo: [NSLocalizedDescriptionKey: "인코딩 오류"])
+      guard let data = cleaned.data(using: .utf8) else {
+        throw NSError(domain: "AI", code: -1, userInfo: [NSLocalizedDescriptionKey: "인코딩 오류"])
+      }
+
+      let aiItems = try JSONDecoder().decode([NutrientDTO].self, from: data)
+      return (aiItems.map { $0.name }, aiItems)
+    }
+
+
+    // 인플라이트 등록
+    Self.inFlight[key] = task
+
+    Task {
+      defer { Self.inFlight[key] = nil; self.isLoading = false }
+      do {
+        let result = try await task.value
+
+        //  MainActor에서 SwiftData 모델 생성
+        let mapped = result.nutrients.map {
+          Nutrient(
+            id: $0.id,
+            name: $0.name,
+            hashtags: $0.hashtags,
+            description: "",
+            title: $0.title,
+            content: $0.content,
+            positiveKeywords: [],
+            negativeKeywords: []
+          )
         }
 
-        let aiItems = try JSONDecoder().decode([AINutrient].self, from: data)
-        let mapped = toNutrients(aiItems)
-
+        self.chip = result.chips
         self.recommend = mapped
-        self.chip = mapped.map { $0.name }
+
+        Self.cache[key] = CacheEntry(chips: result.chips, nutrients: mapped, cachedAt: Date())
       } catch {
         self.errorMessage = "추천을 불러오지 못했어요."
       }
-      self.isLoading = false
     }
   }
 }
+
+#if DEBUG
+extension NutrientViewModel {
+  static func _resetForTests() {
+    cache.removeAll()
+    inFlight.removeAll()
+  }
+}
+#endif
+
 
