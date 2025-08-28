@@ -33,12 +33,11 @@ struct OnboardingGenderView: View {
     }
     .padding(.horizontal, .defaultSpacing + 4)
     .frame(maxWidth: .infinity)
-    .padding(.bottom, 20)
+    .adaptivePadding(.bottom, 20,small: -10)
     VStack(alignment: .leading, spacing: .defaultSpacing) {
       if let info = prompt.info {
         Text(info)
-//          .font(.notoSans(weight: .medium, size: 16))
-          .adaptiveFont(16,weight: .medium)
+          .adaptiveFont(16,small: -4,weight: .medium)
           .foregroundStyle(.textGray)
           .padding(.bottom,.defaultSpacing)
       }

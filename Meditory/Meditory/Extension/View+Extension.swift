@@ -47,12 +47,7 @@ extension View {
     _ condition: Bool,
     modifier: M
   ) -> some View {
-    if condition {
-      self.modifier(modifier)
-    } else {
-      self
-    }
-  }
+    if condition { self.modifier(modifier) } else { self }}
 
   @ViewBuilder
   func applyIf<Content: View>(
@@ -61,11 +56,21 @@ extension View {
   ) -> some View {
     if condition {
       transform(self)
-    } else {
-      self
-    }
-  }
+    } else { self }}
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   func adaptiveFont(
     _ baseSize: CGFloat,
     small: CGFloat = -2,

@@ -13,7 +13,6 @@ struct CapsuleShappedText: View {
 
   var body: some View {
     Text("\(title)")
-//      .font(.notoSans(weight: .medium, size: 15))
       .adaptiveFont(15,weight: .medium)
       .foregroundStyle(isSelected ? Color.white: .sub)
       .padding(.horizontal, 12)
