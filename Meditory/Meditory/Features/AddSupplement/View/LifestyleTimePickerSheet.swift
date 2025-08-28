@@ -225,12 +225,14 @@ extension LifestyleTimePickerSheet {
           }
         }
         
-        DatePicker("", selection: $dates[index], displayedComponents: .hourAndMinute)
-        .datePickerStyle(.wheel)
-        .environment(\.locale, Locale(identifier: "ko_KR"))
-        .labelsHidden()
-        .disabled(isMealSkipped(index: index))
+        FullWidthDatePicker(
+          selection: $dates[index],
+          isDisabled: isMealSkipped(index: index)
+        )
+        .animation(nil, value: dates[index])
+        .transaction { $0.disablesAnimations = true }
         .opacity(isMealSkipped(index: index) ? 0.8 : 1.0)
+        .frame(height: 216)
       }
     }
   }

@@ -21,6 +21,10 @@ extension Date {
     return dateFormatter.string(from: self)
   }
 
+  var year: Int {
+    Calendar.current.component(.year, from: self)
+  }
+
   var month: Int {
     Calendar.current.component(.month, from: self)
   }
@@ -37,6 +41,20 @@ extension Date {
     Calendar.current.component(.minute, from: self)
   }
 
+  static func daysInMonth(year: Int = Date().year, month: Int) -> [Int] {
+    let calendar = Calendar.current
+    var components = DateComponents()
+    components.year = year
+    components.month = month
+    
+    if let date = calendar.date(from: components),
+       let range = calendar.range(of: .day, in: .month, for: date) {
+      return range.map { Int($0) }
+    }
+    
+    return (1...31).map { Int($0) }
+  }
+  
   func formattedDate(_ date: Date, _ format: String) -> String {
     let df = DateFormatter()
     df.dateFormat = format

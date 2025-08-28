@@ -12,5 +12,5 @@ enum SchedulePickerValue {
   case day(Int)
   case duration(Int)
   case weekday([Weekday: Bool])
-  case time(Date, Int)
+  case time(SupplementDoseSchedule)
 }

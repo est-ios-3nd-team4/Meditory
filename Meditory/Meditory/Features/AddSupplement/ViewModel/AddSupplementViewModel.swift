@@ -11,11 +11,11 @@ import UserNotifications
 
 @Observable
 final class AddSupplementViewModel {
-
-  var weekdays: [Weekday: Bool] = Weekday.allCases.reduce(into: [:]) { $0[$1] = true }
-  var startMonth: Int = Calendar.current.component(.month, from: .now)
-  var startDay: Int = Calendar.current.component(.day, from: .now)
-  var duration: Int = 1
+  
+  var weekdays: [Weekday: Bool]
+  var startMonth: Int
+  var startDay: Int
+  var duration: Int
   var doseSchedules = [SupplementDoseSchedule]()
   var supplemtSummary: SupplementSummary?
   var supplement: SupplementDTO?
@@ -150,10 +150,8 @@ final class AddSupplementViewModel {
       self.duration = duration
     case .weekday(let days):
       self.weekdays = days
-    case .time(let time, let pillsPerDose):
-      doseSchedules[index].time = time
-      doseSchedules[index].pillsPerDose = pillsPerDose
-
+    case .time(let doseSchedule):
+      doseSchedules[index] = doseSchedule
       doseSchedules.sort(by: { $0.time < $1.time })
     }
   }
