@@ -57,23 +57,21 @@ struct OnboardingView: View {
       Spacer(minLength: 0)
       
       // 수정 모드일 때는 '다음' 버튼 대신 '저장' 버튼을 보여줍니다.
-      if isEditing {
-        saveButton()
-      } else {
-        nextButton()
+      HStack(spacing:.defaultSpacing) {
+        if isEditing {
+          saveButton()
+        } else {
+          prevButton()
+          nextButton()
+        }
       }
     }
-    // MARK: - 커스텀 내비게이션 바 적용
+    // MARK: - 내비게이션 바
     // isEditing 값에 따라 다른 내비게이션 바 스타일을 적용합니다.
-    .applyIf(isEditing) {
-      $0.navigationBar(.custom(editingTitle)) {
-        dismiss()
-      }
-    }
-    .applyIf(!isEditing) {
-      // 최초 온보딩 시에는 시스템 내비게이션 바를 숨깁니다.
-      $0.navigationBarHidden(true)
-    }
+    .navigationTitle(isEditing ? editingTitle : "")
+    .navigationBarTitleDisplayMode(.inline) // 타이틀을 작은 스타일로 고정함
+    .navigationBarBackButtonHidden(isEditing) // 수정 모드일 때 뒤로가기 버튼을 숨김
+    .toolbar(isEditing ? .visible : .hidden, for: .navigationBar) // 온보딩 시에는 네비게이션 바 전체를 숨김
     .onAppear {
       // 수정 모드일 경우에만 데이터를 불러옵니다.
       if isEditing {
@@ -123,7 +121,7 @@ struct OnboardingView: View {
         OnboardingConcernView(
           prompt: prompt,
           name: name,
-          itemCount: vm.selectionColunt,
+          itemCount: vm.selectionCount,
           selections: $vm.selectionSet,
           isSelected: $isSelected
         ) { selectItem(item: $0, vm: vm) }
@@ -153,6 +151,22 @@ struct OnboardingView: View {
     }
     .padding(.top, 60)
   }
+  
+  @ViewBuilder
+  func prevButton() -> some View {
+    VStack(spacing: .smallSpacing) {
+      PrimaryButton(
+        title: "이전"
+        ,isSub: true
+      ) {
+        guard let prev = currentStep.previous() else { return }
+        currentStep = prev
+      }
+      .opacity(currentStep == .base ? 0 : 1)
+      .padding(.vertical, buttonTopSpacing)
+    }
+    .padding(.leading, .defaultSpacing)
+  }
 
   @ViewBuilder
   func nextButton() -> some View {
@@ -161,7 +175,7 @@ struct OnboardingView: View {
         title: currentStep != .concern ? "다음" : "완료",
         isEnabled: vm.isNextButtonOn
       ) {
-        guard let next = currentStep.nextView() else {
+        guard let next = currentStep.next() else {
           onFinished()
           signUp()
           return
@@ -175,7 +189,7 @@ struct OnboardingView: View {
       .disabled(!vm.isNextButtonOn)
       .padding(.vertical, buttonTopSpacing)
     }
-    .padding(.horizontal, .defaultSpacing + 4)
+    .padding(.trailing, .defaultSpacing)
   }
   
   // MARK: - '저장' 버튼 (수정 모드용)
@@ -195,7 +209,7 @@ struct OnboardingView: View {
       .disabled(!vm.isNextButtonOn)
       .padding(.vertical, 8)
     }
-    .padding(.horizontal, .defaultSpacing + 4)
+    .padding(.horizontal, .defaultSpacing)
   }
 
   func selectItem(item: QuestionModel, vm: OnboardingViewModel) {

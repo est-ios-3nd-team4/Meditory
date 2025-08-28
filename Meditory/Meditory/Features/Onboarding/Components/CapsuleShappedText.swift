@@ -23,7 +23,7 @@ struct CapsuleShappedText: View {
       }
       .overlay {
         RoundedRectangle(cornerRadius: .defaultRadius)
-          .stroke(isSelected ? Color.main : Color.gray.opacity(0.4),lineWidth: 1)
+          .stroke(isSelected ? Color.main : Color.gray.opacity(0.3),lineWidth: 1)
       }
       .animation(.easeInOut(duration: 0.3), value: isSelected)
   }

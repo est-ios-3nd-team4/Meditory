@@ -7,11 +7,13 @@ struct SettingView: View {
   @Environment(\.modelContext) private var context
   
   @Environment(\.userStore) private var userStore
-  
+  @Environment(\.scenePhase) private var scenePhase
   @State private var viewModel: SettingViewModel
   
+  private let defaultFontSize: CGFloat = 18
+  
   init() {
-      // 앱의 실제 Store 싱글턴을 주입합니다.
+      // 앱의 실제 Store 싱글턴을 주입함
       _viewModel = State(initialValue: SettingViewModel(settingStore: SettingStore.shared))
   }
   
@@ -20,49 +22,60 @@ struct SettingView: View {
   
   
   var body: some View {
+    // users 배열에서 첫 번째 사용자를 가져옴
+    let currentUser = users.first
+    
     ZStack(alignment: .top) {
       (colorScheme == .dark ? Color.black : Color.customBackground)
         .ignoresSafeArea(edges: .top)
       
       VStack(spacing: .defaultSpacing) {
-        let currentUser = users.first
+        Text(currentUser?.name ?? "설정")
+          .font(.largeTitle)
+          .fontWeight(.bold) // 폰트 두께를 bold로 설정함
+          .frame(maxWidth: .infinity, alignment: .leading) // 왼쪽 정렬
+          .padding(.bottom, 10) // 아래쪽에 약간의 여백을 줌
         
         NavigationLink(destination: SettingSubView()) {
           settingItem {
+            Text("내 정보 ∙ 건강 정보 관리")
+              .font(.notoSans(size: defaultFontSize))
+              .foregroundStyle(.primary)
+          }
+        }
+        .buttonStyle(.plain) // NavigationLink의 기본 스타일(파란색)을 제거함
+        
+        settingItem {
+          Button {
+            NotificationManager.shared.openSystemSettings()
+          } label: {
             HStack {
-              VStack(alignment: .leading, spacing: 16) {
-                Text(currentUser?.name ?? "사용자 미등록")
-                  .font(.notoSans(size: 18))
-                  .foregroundColor(.primary)
-                
-                Text("내 정보 ∙ 건강 정보 관리")
-                  .font(.subheadline)
-                  .foregroundColor(.secondary)
-              }
+              Text("알림")
+                .font(.notoSans(size: 18))
+                .foregroundStyle(.primary)
               
               Spacer()
               
-              Image(systemName: "chevron.right")
-                .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
+              Text(viewModel.isSystemGranted ? "ON" : "OFF")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding(.trailing, 4)
+            }
+          }
+          .buttonStyle(.plain) // 기본 버튼 스타일 제거 → 기존 settingItem 스타일 유지
+        }
+        
+        settingItem {
+          // "mailto:" 링크를 사용하여 탭하면 이메일 앱을 열도록 수정함
+          if let url = URL(string: "mailto:drfranken99@gmail.com") {
+            Link(destination: url) {
+              Text("고객센터 문의하기")
+                .font(.notoSans(size: defaultFontSize))
+                .foregroundStyle(.primary) // 링크의 기본 파란색 스타일을 덮어쓰기 위함
             }
           }
         }
-        
-        settingItem {
-          Toggle("알림 수신 설정", isOn: $viewModel.isNotificationOn)
-            .font(.notoSans(size: 18))
-            .tint(.accent)
-            .onChange(of: viewModel.isNotificationOn) { oldValue, newValue in
-              Task {
-                await viewModel.updateNotificationSetting(newValue)
-              }
-            }
-        }
-        
-        settingItem {
-          Text("고객센터 문의하기")
-            .font(.notoSans(size: 18))
-        }
+        .buttonStyle(.plain)
       }
       .padding()
       
@@ -74,6 +87,11 @@ struct SettingView: View {
       
       printUsers()
     }
+    .onChange(of: scenePhase) { _, phase in
+      if phase == .active {
+        Task { await viewModel.refreshAndSync() }
+      }
+    }
   }
   
   
@@ -82,11 +100,12 @@ struct SettingView: View {
   func settingItem<Content: View>(@ViewBuilder content: () -> Content) -> some View {
     content()
       .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(.vertical, 20)   //  내부 상하여백
+      .frame(height: 26) // 토글버튼때문에 각 항목의 높이가 달라지는 것 때문에 추가
+      .padding(.vertical, 16)   //  내부 상하여백
       .padding(.horizontal, 16) //  내부 좌우여백
       .background(
         RoundedRectangle(cornerRadius: 20)
-          .fill(Color.white.opacity(0.8))
+          .fill(colorScheme == .dark ? Color.white.opacity(0.2) : Color.white)
       )
       .modifier(UnifiedShadow())
   }
@@ -149,7 +168,10 @@ struct SettingView: View {
 
 
 #Preview {
-  SettingView()
-    .modelContainer(DataController.shared.container)
-    .environment(\.userStore, UserStore.shared)
+  // NavigationView 또는 NavigationStack으로 감싸야 타이틀이 보임
+  NavigationView {
+    SettingView()
+      .modelContainer(DataController.shared.container)
+      .environment(\.userStore, UserStore.shared)
+  }
 }

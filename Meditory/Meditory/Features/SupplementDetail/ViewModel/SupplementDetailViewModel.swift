@@ -108,11 +108,12 @@ final class SupplementDetailViewModel {
     if let routineToDelete = routine {
       await RoutineStore.shared.deleteRoutine(id: routineToDelete.persistentModelID)
       self.routine = nil
+      NotificationManager.shared.cancelForRoutineID(routineToDelete.id)
     }
     showDeleteAlert = false
     dismiss()
   }
-  
+
   func cancelDelete() {
     showDeleteAlert = false
   }

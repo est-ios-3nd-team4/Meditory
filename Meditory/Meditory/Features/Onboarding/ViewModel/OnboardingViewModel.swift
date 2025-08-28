@@ -33,7 +33,7 @@ class OnboardingViewModel {
   var selectionSet: Set<QuestionModel> = []
   var isValid: Bool? = false
   var birthDate: Date = Date.now
-  var selectionColunt: String {
+  var selectionCount: String {
     "\(selectionSet.lazy.filter{$0.type == .concern}.count)"
   }
 

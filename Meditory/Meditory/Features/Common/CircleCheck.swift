@@ -14,7 +14,7 @@ struct CircleCheck: View {
   var body: some View {
     ZStack {
       Circle()
-        .fill(isCompleted ? Color.main : Color.white)
+        .fill(isCompleted ? Color.main : Color.clear)
       
       if isCompleted {
         Image(systemName: "checkmark")
