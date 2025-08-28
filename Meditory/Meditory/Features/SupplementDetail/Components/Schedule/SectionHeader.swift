@@ -10,6 +10,7 @@ import SwiftUI
 struct SectionHeader: View {
   let title: String
   let systemImage: String
+  @Environment(\.colorScheme) private var colorScheme
 
   var body: some View {
     HStack(spacing: .smallSpacing / 2) {
@@ -27,7 +28,7 @@ struct SectionHeader: View {
 
       Text(title)
         .font(.notoSans(size: 13))
-        .foregroundStyle(.main)
+        .foregroundStyle(colorScheme == .dark ? .white : .main)
     }
     .padding(.horizontal, .smallSpacing)
     .padding(.vertical, .smallSpacing / 2)
