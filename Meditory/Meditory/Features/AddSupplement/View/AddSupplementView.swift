@@ -314,14 +314,14 @@ extension AddSupplementView {
       
       Spacer()
       
-      Button {
-        selectedPicker = .weekday
-      } label: {
-        Text(addSupplementVM.weekdaysString)
-          .font(.notoSans(size: defaultFontSize))
-          .padding(.bottom, 2)
-      }
-      .foregroundStyle(.textGray)
+      Text(addSupplementVM.weekdaysString)
+        .font(.notoSans(size: defaultFontSize))
+        .padding(.bottom, 2)
+        .foregroundStyle(.textGray)
+    }
+    .contentShape(Rectangle())
+    .onTapGesture {
+      selectedPicker = .weekday
     }
   }
   
@@ -373,21 +373,21 @@ extension AddSupplementView {
         
         Spacer()
         
-        Button {
-          selectedPicker = .duration
-        } label: {
-          RoundedRectangle(cornerRadius: 10)
-            .fill(.backgroundGray)
-            .frame(width: 48, height: 36)
-            .overlay {
-              Text("\(addSupplementVM.duration)")
-                .font(.notoSans(size: defaultFontSize))
-                .foregroundStyle(.textGray)
-            }
-        }
+        RoundedRectangle(cornerRadius: 10)
+          .fill(.backgroundGray)
+          .frame(width: 48, height: 36)
+          .overlay {
+            Text("\(addSupplementVM.duration)")
+              .font(.notoSans(size: defaultFontSize))
+              .foregroundStyle(.textGray)
+          }
         
         Text("일")
           .font(.notoSans(weight: .regular, size: defaultFontSize))
+      }
+      .contentShape(Rectangle())
+      .onTapGesture {
+        selectedPicker = .duration
       }
     }
   }
@@ -464,6 +464,7 @@ extension AddSupplementView {
             .foregroundStyle(.textGray)
             .padding(.bottom, 2)
         }
+        .contentShape(Rectangle())
         .onTapGesture {
           selectedTimeIndex = index
           selectedPicker = .time
