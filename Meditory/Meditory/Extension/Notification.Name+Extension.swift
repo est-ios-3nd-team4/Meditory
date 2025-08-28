@@ -1,5 +1,5 @@
 //
-//  Noification.Name+Extension.swift
+//  Notification.Name+Extension.swift
 //  Meditory
 //
 //  Created by 홍승아 on 8/21/25.
