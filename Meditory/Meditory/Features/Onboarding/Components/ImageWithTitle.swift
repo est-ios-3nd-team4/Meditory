@@ -30,7 +30,7 @@ struct ImageWithTitle: View {
         }
       Text(gender.title)
         .font(.notoSans(weight: .medium, size: 18))
-        .foregroundStyle(.textGray)
+        .foregroundStyle(isSelected ? Color.label : .textGray)
     }
   }
 }
