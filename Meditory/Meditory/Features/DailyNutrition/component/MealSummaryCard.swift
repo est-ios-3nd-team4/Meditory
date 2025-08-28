@@ -48,10 +48,10 @@ struct MealSummaryCard: View {
                 
                 
                 Text(item.label)
-                  .font(.notoSans(weight: .regular, size: 11))
+                  .font(.notoSans(weight: .regular, size: 12))
                 
                 Text("\(Int(item.gram))g")
-                  .font(.notoSans(weight: .semiBold, size: 11))
+                  .font(.notoSans(weight: .semiBold, size: 12))
               }
               .frame(maxWidth: .infinity, alignment: .leading)
             }
