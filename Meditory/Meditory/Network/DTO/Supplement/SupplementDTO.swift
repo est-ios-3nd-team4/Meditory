@@ -35,14 +35,28 @@ struct DoseTime: Codable, Equatable {
     let minutes = abs(offsetMinutes)
     switch relativeTo {
     case "아침", "점심", "저녁":
+      if offsetMinutes == 0 {
+        return "식사 직후"
+      }
       return offsetMinutes < 0 ? "식전 \(minutes)분" : "식후 \(minutes)분"
-    case "기상", "취침":
-      return offsetMinutes < 0 ? "직후 \(minutes)분" : "직전 \(minutes)분"
+
+    case "기상":
+      if offsetMinutes == 0 {
+        return "기상 직후"
+      }
+      return offsetMinutes > 0 ? "직후 \(minutes)분" : "직전 \(minutes)분"
+
+    case "취침":
+      if offsetMinutes == 0 {
+        return "취침 직전"
+      }
+      return offsetMinutes > 0 ? "직후 \(minutes)분" : "직전 \(minutes)분"
+
     default:
       return ""
     }
   }
-  
+
   var isNotNone: Bool {
     relativeTo != "추천"
   }
