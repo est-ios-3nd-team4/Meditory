@@ -8,6 +8,14 @@ final class NutrientViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var errorMessage: String?
 
+  private struct NutrientDTO: Codable, Identifiable, Sendable {
+    let id: String
+    let name: String
+    var hashtags: [String]
+    let title: String
+    let content: String
+  }
+
   private let client = AlanAPIClient()
 
   private struct CacheEntry {
@@ -15,8 +23,9 @@ final class NutrientViewModel: ObservableObject {
     let nutrients: [Nutrient]
     let cachedAt: Date
   }
+
   private static var cache: [String: CacheEntry] = [:]
-  private static var inFlight: [String: Task<(chips: [String], nutrients: [Nutrient]), Error>] = [:]
+  private static var inFlight: [String: Task<(chips: [String], nutrients: [NutrientDTO]), Error>] = [:]
   private static let ttl: TimeInterval = 60 * 60 * 12
 
   private func cacheKey(_ userName: String?) -> String {
@@ -201,14 +210,29 @@ final class NutrientViewModel: ObservableObject {
       self.errorMessage = nil
       return
     }
+
     if let task = Self.inFlight[key], !force {
       isLoading = true
       errorMessage = nil
-      Task {
+      Task { @MainActor in
         do {
           let result = try await task.value
+
+          // NutrientDTO → Nutrient 변환
+          let mapped = result.nutrients.map {
+            Nutrient(
+              id: $0.id,
+              name: $0.name,
+              hashtags: $0.hashtags,
+              description: "",
+              title: $0.title,
+              content: $0.content,
+              positiveKeywords: [],
+              negativeKeywords: []
+            )
+          }
           self.chip = result.chips
-          self.recommend = result.nutrients
+          self.recommend = mapped
           self.isLoading = false
         } catch {
           self.errorMessage = "추천을 불러오지 못했어요."
@@ -222,7 +246,7 @@ final class NutrientViewModel: ObservableObject {
     isLoading = true
     errorMessage = nil
 
-    let task = Task<(chips: [String], nutrients: [Nutrient]), Error> { [client, userName] in
+    let task = Task<(chips: [String], nutrients: [NutrientDTO]), Error> { [client, userName] in
       let raw = try await client.request(content: prompt(userName: userName))
       let cleaned = raw
         .replacingOccurrences(of: "```json", with: "")
@@ -232,10 +256,11 @@ final class NutrientViewModel: ObservableObject {
       guard let data = cleaned.data(using: .utf8) else {
         throw NSError(domain: "AI", code: -1, userInfo: [NSLocalizedDescriptionKey: "인코딩 오류"])
       }
-      let aiItems = try JSONDecoder().decode([AINutrient].self, from: data)
-      let mapped = toNutrients(aiItems)
-      return (mapped.map { $0.name }, mapped)
+
+      let aiItems = try JSONDecoder().decode([NutrientDTO].self, from: data)
+      return (aiItems.map { $0.name }, aiItems)
     }
+
 
     // 인플라이트 등록
     Self.inFlight[key] = task
@@ -245,12 +270,24 @@ final class NutrientViewModel: ObservableObject {
       do {
         let result = try await task.value
 
-        // 결과 반영
-        self.chip = result.chips
-        self.recommend = result.nutrients
+        //  MainActor에서 SwiftData 모델 생성
+        let mapped = result.nutrients.map {
+          Nutrient(
+            id: $0.id,
+            name: $0.name,
+            hashtags: $0.hashtags,
+            description: "",
+            title: $0.title,
+            content: $0.content,
+            positiveKeywords: [],
+            negativeKeywords: []
+          )
+        }
 
-        // 캐시에 저장
-        Self.cache[key] = CacheEntry(chips: result.chips, nutrients: result.nutrients, cachedAt: Date())
+        self.chip = result.chips
+        self.recommend = mapped
+
+        Self.cache[key] = CacheEntry(chips: result.chips, nutrients: mapped, cachedAt: Date())
       } catch {
         self.errorMessage = "추천을 불러오지 못했어요."
       }
