@@ -88,7 +88,7 @@ enum ScheduleAIPrompt {
             // relativeTo=["기상","취침","아침","점심","저녁","추천"]
             // "none" → 생활패턴과 무관한 절대 시각
             // ex: {"hour": 8, "minute": 30, "pillsPerDose": 2, "relativeTo": "아침", "offsetMinutes": 30}
-            // ex: {"hour": 22, "minute": 0, "pillsPerDose": 1, "relativeTo": "none", "offsetMinutes": 0}
+            // ex: {"hour": 22, "minute": 0, "pillsPerDose": 1, "relativeTo": "추천", "offsetMinutes": 0}
           }
         ],
         "weekdays": [Int] | null, // cycleType=1이면 weekdays만 포함
