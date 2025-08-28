@@ -105,49 +105,22 @@ struct FoodInputView: View {
             TextField("스파게티", text: $foodName)
               .focused($isFoodNameFocused)
               .onSubmit {
-                if mode == .create {
-                  guard !foodName.isEmpty else { return }
-                  
-                  Task {
-                    isLoading = true
-                    
-                    do {
-                      var nutritionData = try await viewModel.request(mealName: foodName)
-                      
-                      if nutritionData.name == "알 수 없음" {
-                        nutritionData.name = foodName
-                        showInvalidFoodAlert = true
-                      }
-                      
-                      await MainActor.run {
-                        if !nutritionData.name.isEmpty {
-                          self.foodName = nutritionData.name
-                        }
-                        
-                        self.macroValues = [
-                          .carbohydrate: String(nutritionData.macros.carbohydrate),
-                          .protein: String(nutritionData.macros.protein),
-                          .fat: String(nutritionData.macros.fat)
-                        ]
-                        
-                      }
-                    } catch {
-                      print("요청 실패: \(error)")
-                    }
-                    
-                    isLoading = false
-                  }
-                }
+                searchFood()
               }
               .submitLabel(mode == .create ? .search : .done)
             
-            Image(systemName: "magnifyingglass")
-              .foregroundStyle(.gray)
+            Button {
+              searchFood()
+              isFoodNameFocused = false
+            } label: {
+              Image(systemName: "magnifyingglass")
+                .foregroundStyle(.gray)
+            }
           }
           .padding(.horizontal, 16)
         }
       
-      VStack {
+      VStack(spacing: 5) {
         Rectangle()
           .fill(.white)
           .frame(height: 200)
@@ -264,6 +237,42 @@ struct FoodInputView: View {
   }
   
   // MARK: Helper Methods
+  
+  private func searchFood() {
+    if mode == .create {
+      guard !foodName.isEmpty else { return }
+      
+      Task {
+        isLoading = true
+        
+        do {
+          var nutritionData = try await viewModel.request(mealName: foodName)
+          
+          if nutritionData.name == "알 수 없음" {
+            nutritionData.name = foodName
+            showInvalidFoodAlert = true
+          }
+          
+          await MainActor.run {
+            if !nutritionData.name.isEmpty {
+              self.foodName = nutritionData.name
+            }
+            
+            self.macroValues = [
+              .carbohydrate: String(nutritionData.macros.carbohydrate),
+              .protein: String(nutritionData.macros.protein),
+              .fat: String(nutritionData.macros.fat)
+            ]
+            
+          }
+        } catch {
+          print("요청 실패: \(error)")
+        }
+        
+        isLoading = false
+      }
+    }
+  }
   
   private func loadFoodData() {
     guard let food = existingFood else { return }
