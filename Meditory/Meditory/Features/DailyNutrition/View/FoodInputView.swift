@@ -23,6 +23,9 @@ struct FoodInputView: View {
   ]
   @State private var foodName = ""
   @State private var showingDeleteAlert: Bool = false
+  @State private var isLoading = false
+  @State private var showInvalidFoodAlert = false
+  @FocusState private var isFoodNameFocused: Bool
   
   enum ViewMode {
     case create
@@ -100,13 +103,21 @@ struct FoodInputView: View {
         .overlay {
           HStack {
             TextField("스파게티", text: $foodName)
+              .focused($isFoodNameFocused)
               .onSubmit {
                 if mode == .create {
                   guard !foodName.isEmpty else { return }
                   
                   Task {
+                    isLoading = true
+                    
                     do {
-                      let nutritionData = try await viewModel.request(mealName: foodName)
+                      var nutritionData = try await viewModel.request(mealName: foodName)
+                      
+                      if nutritionData.name == "알 수 없음" {
+                        nutritionData.name = foodName
+                        showInvalidFoodAlert = true
+                      }
                       
                       await MainActor.run {
                         if !nutritionData.name.isEmpty {
@@ -118,10 +129,13 @@ struct FoodInputView: View {
                           .protein: String(nutritionData.macros.protein),
                           .fat: String(nutritionData.macros.fat)
                         ]
+                        
                       }
                     } catch {
                       print("요청 실패: \(error)")
                     }
+                    
+                    isLoading = false
                   }
                 }
               }
@@ -133,27 +147,34 @@ struct FoodInputView: View {
           .padding(.horizontal, 16)
         }
       
-      Rectangle()
-        .fill(.white)
-        .frame(height: 200)
-        .cardStyle()
-        .overlay {
-          VStack {
-            HStack {
-              Text("영양정보")
+      VStack {
+        Rectangle()
+          .fill(.white)
+          .frame(height: 200)
+          .cardStyle()
+          .overlay {
+            VStack {
+              HStack {
+                Text("영양정보")
+                
+                Spacer()
+                
+                Image(systemName: "info.circle")
+                  .longPressPopover {
+                    RecommendedMacroGuidePopover()
+                  }
+              }
               
-              Spacer()
-              
-              Image(systemName: "info.circle")
-                .longPressPopover {
-                  RecommendedMacroGuidePopover()
-                }
+              macroPercentage()
             }
-            
-            macroPercentage()
+            .padding(.horizontal, 16)
           }
-          .padding(.horizontal, 16)
-        }
+        
+        Text("AI 생성 영양정보로 실제 값과 다를 수 있습니다. 건강 관련 중요한 결정은 의료 전문가와 상의하세요.")
+          .font(.notoSans(weight: .medium, size: 7))
+            .foregroundColor(.secondary)
+            .multilineTextAlignment(.center)
+      }
       
       Spacer()
       
@@ -179,6 +200,10 @@ struct FoodInputView: View {
     .navigationBarTitleDisplayMode(.inline)
     .padding(.horizontal, 16)
     .onAppear {
+      if mode == .create {
+        isFoodNameFocused = true
+      }
+      
       loadFoodData()
     }
     .alert("음식 삭제", isPresented: $showingDeleteAlert) {
@@ -188,6 +213,16 @@ struct FoodInputView: View {
       }
     } message: {
       Text("이 음식을 삭제하시겠습니까? 삭제된 음식은 복구할 수 없습니다.")
+    }
+    .alert("음식 정보를 찾을 수 없습니다.", isPresented: $showInvalidFoodAlert) {
+      Button("다시 검색") {
+        foodName = ""
+        isFoodNameFocused = true
+        showInvalidFoodAlert = false
+      }
+      Button("이대로 등록") { }
+    } message: {
+      Text("음식 이름을 확인하고 다시 검색하거나, 영양 정보를 직접 입력해주세요.")
     }
   }
   
@@ -209,9 +244,15 @@ struct FoodInputView: View {
               .fill(.backgroundGray)
               .frame(width: 70, height: 40)
               .overlay {
-                TextField("0", text: binding(for: type))
-                  .keyboardType(.decimalPad)
-                  .padding(.horizontal, 16)
+                ZStack {
+                  TextField("0", text: binding(for: type))
+                    .keyboardType(.decimalPad)
+                    .padding(.horizontal, 16)
+                  
+                  if isLoading {
+                    NutrientChipSkeleton(width: 50)
+                  }
+                }
               }
             
             Text("g")
@@ -245,6 +286,11 @@ struct FoodInputView: View {
   }
   
   private func registerNewFood() {
+    guard foodName != "알 수 없음" else {
+      showInvalidFoodAlert = true
+      return
+    }
+    
     let macroNutrients = MacroNutrients(carbohydrate: Double(macroValues[.carbohydrate] ?? "0") ?? 0.0,
                                         protein: Double(macroValues[.protein] ?? "0") ?? 0.0,
                                         fat: Double(macroValues[.fat] ?? "0") ?? 0.0)
