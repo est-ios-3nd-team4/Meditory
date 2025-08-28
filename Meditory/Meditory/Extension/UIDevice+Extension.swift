@@ -13,13 +13,13 @@ extension UIDevice {
     }
 }
 
-enum widthTier {
+enum widthSize {
   case small
   case regular
   case plus
 }
 
-func deviceWidthTier() -> widthTier {
+func deviceWidthSize() -> widthSize {
   let width = UIScreen.main.bounds.width
   if width <= 375 {
     return .small

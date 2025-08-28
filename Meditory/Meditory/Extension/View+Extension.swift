@@ -78,7 +78,7 @@ extension View {
     weight: Font.NotoSansWeight = .regular
   ) -> some View {
     let size: CGFloat
-    switch deviceWidthTier() {
+    switch deviceWidthSize() {
     case .small:
       size = small
     case .regular:
@@ -96,7 +96,7 @@ extension View {
     plus: CGFloat = +10
   ) -> some View {
     let size: CGFloat
-    switch deviceWidthTier() {
+    switch deviceWidthSize() {
     case .small:
       size = small
     case .regular:
@@ -115,7 +115,7 @@ extension View {
     plus: CGFloat = +2
   )->some View {
     let size: CGFloat
-    switch deviceWidthTier() {
+    switch deviceWidthSize() {
     case .small:
       size = small
     case .regular:
