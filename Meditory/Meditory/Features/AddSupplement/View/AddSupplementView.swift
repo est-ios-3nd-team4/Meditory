@@ -37,14 +37,12 @@ struct AddSupplementView: View {
   @Query private var users: [User]
   
   // ViewModels
-  @State private var addSupplementVM: AddSupplementViewModel
-  @StateObject private var scheduleVM = SupplementScheduleViewModel()
+  @State private var addSupplementVM = AddSupplementViewModel()
   @State private var lifestyleTimeVM: LifestyleTimeViewModel
   
   // Schedule
-  @State private var selectedPicker: SchedulePickerType? {
-    didSet { showSchedulePicker() }
-  }
+  @State private var selectedScheduleType: SupplementScheduleType = .weekday
+  @State private var selectedPicker: SchedulePickerType?
   @State private var selectedTimeIndex = 0
   @State private var scheduleTypeRectPosition: CGPoint = .zero
   
@@ -109,6 +107,7 @@ struct AddSupplementView: View {
         }
         
         lifestyleTimePickerSheet()
+        schedulePickerSheet()
       }
       .background(.customBackground)
       .fullScreenCover(isPresented: $showScanner) {
@@ -461,7 +460,6 @@ extension AddSupplementView {
         }
         .onTapGesture {
           selectedTimeIndex = index
-          scheduleVM.time = routine.time
           selectedPicker = .time
         }
       }
@@ -497,31 +495,6 @@ extension AddSupplementView {
     }
     .cardStyle(padding: .defaultSpacing)
     .frame(height: 95)
-  }
-  
-  private func showSchedulePicker() {
-    guard let selectedPicker else { return }
-    let vc = SchedulePickerViewController(type: selectedPicker, scheduleVM: scheduleVM)
-    vc.modalPresentationStyle = .overFullScreen
-    vc.onDismiss = {
-      switch selectedPicker {
-      case .month:
-        addSupplementVM.setValue(.month(scheduleVM.month))
-      case .day:
-        addSupplementVM.setValue(.day(scheduleVM.day))
-      case .duration:
-        addSupplementVM.setValue(.duration(scheduleVM.duration))
-      case .weekday:
-        addSupplementVM.setValue(.weekday(scheduleVM.days))
-      case .time:
-        addSupplementVM.setValue(.time(scheduleVM.time, scheduleVM.pillsPerDose), index: selectedTimeIndex)
-      }
-    }
-    
-    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-       let rootVC = windowScene.windows.first?.rootViewController {
-      rootVC.present(vc, animated: false)
-    }
   }
 }
 
@@ -569,6 +542,55 @@ extension AddSupplementView {
           showAlert = false
         }
       )
+    }
+  }
+  
+  @ViewBuilder
+  private func schedulePickerSheet() -> some View {
+    if let selectedPicker {
+      switch selectedPicker {
+      case .month:
+        MonthPickerSheet (
+          selectedMonth: addSupplementVM.startMonth
+        ) { month in
+            self.selectedPicker = nil
+            guard let month else { return }
+            addSupplementVM.setValue(.month(month))
+          }
+      case .day:
+        DayPickerSheet(
+          selectedDay: addSupplementVM.startDay,
+          days: Date.daysInMonth(month: addSupplementVM.startMonth)
+        ) { day in
+            self.selectedPicker = nil
+            guard let day else { return }
+            addSupplementVM.setValue(.day(day))
+          }
+      case .duration:
+        DurationPickerSheet(
+          selectedDuration: addSupplementVM.duration
+        ) { duration in
+          self.selectedPicker = nil
+          guard let duration else { return }
+          addSupplementVM.setValue(.duration(duration))
+        }
+      case .weekday:
+        WeekdayPickerSheet(
+          weekdays: addSupplementVM.weekdays
+        ) { weekdays in
+          self.selectedPicker = nil
+          guard let weekdays else { return }
+          addSupplementVM.setValue(.weekday(weekdays))
+        }
+      case .time:
+        TimePickerSheet (
+          doseSchedule: addSupplementVM.doseSchedules[selectedTimeIndex]
+        ) { doseSchedule in
+          self.selectedPicker = nil
+          guard let doseSchedule else { return }
+          addSupplementVM.setValue(.time(doseSchedule), index: selectedTimeIndex)
+        }
+      }
     }
   }
 }
