@@ -9,4 +9,5 @@ import SwiftUI
 
 extension Notification.Name {
   static let didUpdateSupplement = Notification.Name("didUpdateSupplement")
+  static let didUpdateLifestyle =  Notification.Name("didUpdateLifestyle")
 }

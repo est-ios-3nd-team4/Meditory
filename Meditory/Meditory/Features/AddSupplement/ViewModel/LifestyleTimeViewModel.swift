@@ -97,29 +97,43 @@ final class LifestyleTimeViewModel {
     }
   }
   
-  func setTime(_ result: LifestyleTimeResult) {
+  func setTime(_ result: LifestyleTimeResult) -> Bool {
+    var didChange = false
+    
+    func updateIfChanged<T: Equatable>(_ current: inout T?, _ newValue: T?) {
+      if current != newValue {
+        current = newValue
+        didChange = true
+      }
+    }
+    
     switch result {
     case .dailyCycle(let dailyCycleTimes):
-      dailyCycleTimes.forEach {
-        switch $0.type {
+      for item in dailyCycleTimes {
+        switch item.type {
         case .wakeTime:
-          self.wakeTime = $0.time
+          updateIfChanged(&wakeTime, item.time)
+          break
         case .sleepTime:
-          self.sleepTime = $0.time
+          updateIfChanged(&sleepTime, item.time)
         }
       }
+      
     case .meal(let mealTimes):
-      mealTimes.forEach {
-        switch $0.type {
+      for item in mealTimes {
+        let newValue = item.isEaten ? item.time : nil
+        switch item.type {
         case .breakfast:
-          self.breakfastTime = $0.isEaten ? $0.time : nil
+          updateIfChanged(&breakfastTime, newValue)
         case .lunch:
-          self.lunchTime = $0.isEaten ? $0.time : nil
+          updateIfChanged(&lunchTime, newValue)
         case .dinner:
-          self.dinnerTime = $0.isEaten ? $0.time : nil
+          updateIfChanged(&dinnerTime, newValue)
         }
       }
     }
+    
+    return didChange
   }
   
   func lifestyleTimeItems(for type: LifestyleTimeType) -> [LifestyleTimeItem] {

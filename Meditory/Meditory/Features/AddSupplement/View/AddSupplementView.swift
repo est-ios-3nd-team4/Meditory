@@ -519,8 +519,8 @@ extension AddSupplementView {
         dates: lifestyleTimeVM.times(for: category),
         mealSelections: lifestyleTimeVM.mealSelections(for: category)
       ) { result in
-        if let result {
-          lifestyleTimeVM.setTime(result)
+        if let result, lifestyleTimeVM.setTime(result) {
+          NotificationCenter.default.post(name: .didUpdateLifestyle, object: nil)
         }
         showTimePicker = false
       }
