@@ -656,15 +656,21 @@ extension AddSupplementView {
 extension AddSupplementView {
   private func searchSupplementSummary(productNameInput: String, nameSource: SupplementNameSource) {
     guard !isSearchingSupplementSummary else { return }
+    
     Task {
       do {
         try await Task.sleep(for: .seconds(2))
         
         try await addSupplementVM.request(productNameInput: productNameInput, nameSource: nameSource)
+        
+        await MainActor.run {
+          isSearchingSupplementSummary = false
+        }
       } catch {
         print("❌ Error is \(error)")
       }
     }
+    
     isSearchingSupplementSummary = true
     supplementName = ""
   }
