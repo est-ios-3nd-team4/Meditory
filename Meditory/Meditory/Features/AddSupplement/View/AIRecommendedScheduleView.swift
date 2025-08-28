@@ -249,6 +249,7 @@ extension AIRecommendedScheduleView {
 }
 
 
+// MARK: - Network
 extension AIRecommendedScheduleView {
   private func requestAISchedule() {
     guard let supplementSummary, supplementSummary.type < 3 else {
@@ -263,14 +264,18 @@ extension AIRecommendedScheduleView {
     
     Task {
       do {
+        /*
         let result = try await routineAIVM.requestAISchedule(
           supplementName: supplementSummary.name,
           lifeStyle: lifestyle,
           context: context
         )
         supplement = result
+        */
         
-        try await Task.sleep(for: .seconds(1))
+        try await Task.sleep(for: .seconds(2))
+        
+        supplement = .mock
         
         aiPlanState = .created
       } catch {
@@ -281,6 +286,8 @@ extension AIRecommendedScheduleView {
   }
 }
 
+
+// MARK: - ShakeEffect
 fileprivate struct ShakeEffect: GeometryEffect {
   /// 흔드는 강도
   var amplitude: CGFloat

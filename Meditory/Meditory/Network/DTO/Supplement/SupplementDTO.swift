@@ -80,6 +80,42 @@ struct SupplementDTO: Codable {
   var precautions: [String] // 복용 시 주의 사항
 }
 
+extension SupplementDTO {
+  static var mock: SupplementDTO {
+    SupplementDTO(
+      schedule: DoseSchedule(
+        cycleType: .weekday,
+        times: [
+          DoseTime(
+            hour: 8,
+            minute: 30,
+            relativeTo: "아침",
+            offsetMinutes: 0,
+            pillsPerDose: 2
+          ),
+          DoseTime(
+            hour: 22,
+            minute: 0,
+            relativeTo: "취침",
+            offsetMinutes: -30,
+            pillsPerDose: 1
+          )
+        ],
+        weekdays: [1, 3, 5],
+        intervalDays: nil
+      ),
+      usage: [
+        "물과 함께 복용하세요.",
+        "하루 최대 2정을 초과하지 마세요."
+      ],
+      precautions: [
+        "임산부, 수유부는 복용 전 전문가와 상담하세요.",
+        "다른 약물과 함께 복용 시 상호작용에 주의하세요."
+      ]
+    )
+  }
+}
+
 enum SupplementDecoder {
   private static func jsonBody(in response: String) -> String {
     if let start = response.firstIndex(of: "{"),
