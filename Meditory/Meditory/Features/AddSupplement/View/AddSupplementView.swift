@@ -633,6 +633,8 @@ extension AddSupplementView {
     guard !isSearchingSupplementSummary else { return }
     Task {
       do {
+        try await Task.sleep(for: .seconds(2))
+        
         try await addSupplementVM.request(productNameInput: productNameInput, nameSource: nameSource)
       } catch {
         print("❌ Error is \(error)")
