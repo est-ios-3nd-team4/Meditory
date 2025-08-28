@@ -75,6 +75,7 @@ struct AddSupplementView: View {
 
   // Edit 시 사용하는 루틴
   private let editingRoutine: Routine?
+  
   init(
     type: Mode = .add,
     routine: Routine? = nil,
@@ -676,12 +677,10 @@ extension AddSupplementView {
     Task {
       do {
         try await lifestyleTimeVM.saveLifestyle()
-//        try await addSupplementVM.saveRoutine()
-
+        
         try await addSupplementVM.saveAndEditRoutine(
           modelContext: context,
-          editingRoutine: editingRoutine,
-          lifestyleVM: lifestyleTimeVM
+          editingRoutine: editingRoutine
         )
 
         await MainActor.run {

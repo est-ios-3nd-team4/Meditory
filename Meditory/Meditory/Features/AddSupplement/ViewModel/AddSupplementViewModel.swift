@@ -212,77 +212,12 @@ extension AddSupplementViewModel {
   @MainActor
   func saveAndEditRoutine(
     modelContext context: ModelContext,
-    editingRoutine: Routine?,
-    lifestyleVM: LifestyleTimeViewModel
+    editingRoutine: Routine?
   ) async throws {
-    try await lifestyleVM.saveLifestyle()
+    try await saveRoutine()
 
-    // 필수 요약
-    guard let summary = self.supplemtSummary else {
-      throw RoutineSaveError.supplementSummaryNotFound
-    }
-
-    // 사용자 입력 > 요약값 순으로 우선값 구성
-    let usage = self.supplement?.usage ?? summary.usage
-    let precautions = self.supplement?.precautions ?? summary.precautions
-    let recTimes: [RoutineTime] =
-    self.supplement?.schedule.routineTimes ?? []
-
-    // 파생값 계산
-    let cycleType  = self.selectedScheduleType.rawValue
-    let cycleValue = (self.selectedScheduleType == .weekday) ? self.formattedWeekdays : "\(self.duration)"
-
-    let startDate  = Date.makeDate(month: self.startMonth, day: self.startDay)
-
-    // 정렬된 복용시간
-    let sortedRoutineTimes = self.doseSchedules
-      .map { $0.routineTime }
-
-    if let r = editingRoutine {
-      // 편집: 같은 루틴 수정
-      r.type = summary.type
-      r.displayName = summary.name
-      r.desc = summary.description
-      r.category = summary.category
-      r.cycleType = cycleType
-      r.cycleValue = cycleValue
-      r.startDate = startDate
-      r.memo = self.memo
-      r.usage = usage
-      r.precautions = precautions
-
-      // 시간 교체
-      r.routineTimes = sortedRoutineTimes
-      r.recommendedRoutineTimes = recTimes
-
-      try context.save()
-
-    } else {
-      // 추가: 새 루틴
-      let new = Routine(
-        type: summary.type,
-        displayName: summary.name,
-        desc: summary.description,
-        category: summary.category,
-        cycleType: cycleType,
-        cycleValue: cycleValue,
-        startDate: startDate,
-        memo: self.memo,
-        hasPush: false
-      )
-      new.usage = usage
-      new.precautions = precautions
-      new.routineTimes = sortedRoutineTimes
-      new.recommendedRoutineTimes = recTimes
-
-      context.insert(new)
-      try context.save()
-    }
-
-    // 알림 재구성
     await RoutineNotificationScheduler().scheduleAll(modelContext: context)
 
-    // 다른 화면 갱신을 위한 노티
     NotificationCenter.default.post(name: .didUpdateSupplement, object: nil)
   }
 }
