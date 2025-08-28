@@ -100,6 +100,7 @@ struct AddSupplementView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
           }
+          .scrollDismissesKeyboard(.immediately)
           .scrollIndicators(.hidden)
           .navigationBar(.addSupplement, isAtTop: isAtTop) {
             dismissOrClearSelection()
@@ -154,6 +155,7 @@ extension AddSupplementView {
       .padding(.bottom, .bottomInset)
     }
     .padding(.horizontal, .defaultSpacing)
+    .dismissKeyboardOnTap()
   }
   
   private func supplementNameInput() -> some View {
