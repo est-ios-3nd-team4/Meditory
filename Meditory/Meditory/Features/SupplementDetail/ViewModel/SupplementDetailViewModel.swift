@@ -13,8 +13,6 @@ import SwiftData
 final class SupplementDetailViewModel {
   var showDeleteAlert = false
 
-
-
   // 표시용 DTO 생성기 (순수 함수)
   @MainActor
   func makeSupplementDetailInfo(from routine: Routine) -> SupplementDetailInfo {
@@ -74,14 +72,25 @@ final class SupplementDetailViewModel {
   }
 
   // MARK: - 도메인 액션
+
+  @MainActor
+  func deleteByIDs(
+    pid: PersistentIdentifier,
+    uuid: UUID,
+    viewContext: ModelContext
+  ) async {
+    // Store에서 삭제
+    await RoutineStore.shared.deleteRoutine(id: pid)
+
+    // 알림 정리 및 재스케줄은 뷰 컨텍스트에서 수행
+    NotificationManager.shared.cancelForRoutineID(uuid)
+    await RoutineNotificationScheduler().scheduleAll(modelContext: viewContext)
+    NotificationCenter.default.post(name: .didUpdateSupplement, object: nil)
+  }
+
   @MainActor
   func delete(_ routine: Routine, in context: ModelContext) async {
-    context.delete(routine)
-    do { try context.save() } catch { print("delete save error: \(error)") }
-
-    NotificationManager.shared.cancelForRoutineID(routine.id)
-    await RoutineNotificationScheduler().scheduleAll(modelContext: context)
-    NotificationCenter.default.post(name: .didUpdateSupplement, object: nil)
+    await deleteByIDs(pid: routine.persistentModelID, uuid: routine.id, viewContext: context)
   }
 
   func validate(_ routine: Routine) -> Bool { true }

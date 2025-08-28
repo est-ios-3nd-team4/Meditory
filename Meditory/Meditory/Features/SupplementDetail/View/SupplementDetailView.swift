@@ -20,13 +20,12 @@ struct SupplementDetailView: View {
 
   @State private var isAtTop: Bool = true
   @State private var showDeleteAlert: Bool = false
+  @State private var isDeleting: Bool = false
+
+  @State private var infoSnapshot: SupplementDetailInfo = .empty
 
   init(routine: Routine) {
     self.routine = routine
-  }
-
-  private var supplementInfo: SupplementDetailInfo {
-    vm.makeSupplementDetailInfo(from: routine)
   }
 
   private var isPadStyle: Bool { hSize == .regular }
@@ -42,29 +41,29 @@ struct SupplementDetailView: View {
 
   var body: some View {
     ZStack {
-      ScrollView(showsIndicators: false) {
-        ScrollTopObserver(isAtTop: $isAtTop)
+      if !isDeleting {
+        ScrollView(showsIndicators: false) {
+          ScrollTopObserver(isAtTop: $isAtTop)
 
-        VStack(spacing: .defaultSpacing + 8) {
-          // 사용 중인 카드들이 Routine을 읽도록 유지
-          SupplementInfoCard(routine: routine)
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-          SchedulePanel(routine: routine)
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-          if !supplementInfo.memo.isEmpty {
-            SupplementInfoCard(type: .memo, guide: [supplementInfo.memo])
+          VStack(spacing: .defaultSpacing + 8) {
+            SupplementInfoCard(routine: routine)
               .frame(maxWidth: .infinity, alignment: .leading)
+
+            SchedulePanel(routine: routine)
+              .frame(maxWidth: .infinity, alignment: .leading)
+
+            if !infoSnapshot.memo.isEmpty {
+              SupplementInfoCard(type: .memo, guide: [infoSnapshot.memo])
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            guideGridSection
+            deleteButton
           }
-
-          guideGridSection
-
-          deleteButton
+          .frame(maxWidth: maxContentWidth, alignment: .top)
+          .padding(.horizontal, .defaultSpacing)
+          .frame(maxWidth: .infinity, alignment: .top)
         }
-        .frame(maxWidth: maxContentWidth, alignment: .top)
-        .padding(.horizontal, .defaultSpacing)
-        .frame(maxWidth: .infinity, alignment: .top)
       }
     }
     .background(.customBackground)
@@ -74,37 +73,66 @@ struct SupplementDetailView: View {
         DeleteAlertView(
           isPresented: $showDeleteAlert,
           onDelete: {
+            let pid  = routine.persistentModelID
+            let uuid = routine.id
+
+            isDeleting = true
+            dismiss()
+
             Task { @MainActor in
-              await vm.delete(routine, in: context)
-              dismiss()
+              await vm.deleteByIDs(pid: pid, uuid: uuid, viewContext: context)
             }
           }
         )
       }
     }
-    .onReceive(NotificationCenter.default.publisher(for: .didUpdateSupplement)) { _ in
+    .onAppear {
       Task { @MainActor in
-        let latest = context.model(for: routine.persistentModelID) as? Routine
-        if latest == nil { // 삭제됨
-          dismiss()
-        }
+        refreshInfoSnapshot()
+      }
+    }
+    .onChange(of: routine.id) { _ in
+      Task { @MainActor in
+        refreshInfoSnapshot()
+      }
+    }
+    .onReceive(NotificationCenter.default.publisher(for: .didUpdateSupplement)) { _ in
+      guard !isDeleting else { return }
+      Task { @MainActor in
+        refreshInfoSnapshot()
       }
     }
   }
 
+  @MainActor
+  private func refreshInfoSnapshot() {
+    guard !isDeleting else { return }
+
+    let targetID: UUID = routine.id
+
+    let fetchDescriptor = FetchDescriptor<Routine>(
+      predicate: #Predicate<Routine> { $0.id == targetID }
+    )
+
+    if let fresh = try? context.fetch(fetchDescriptor).first {
+      infoSnapshot = vm.makeSupplementDetailInfo(from: fresh)
+    } else {
+      dismiss()
+    }
+  }
 
   @ViewBuilder
   private var guideGridSection: some View {
-    let hasUsage = supplementInfo.usage.first != nil
-    let hasPrecaution = supplementInfo.precautions.first != nil
+    let hasUsage = infoSnapshot.usage.first != nil
+    let hasPrecaution = infoSnapshot.precautions.first != nil
 
     if hasUsage || hasPrecaution {
       VStack(alignment: .leading, spacing: .defaultSpacing) {
-        if let usage = supplementInfo.usage.first {
+        if let usage = infoSnapshot.usage.first {
           SupplementInfoCard(type: .info, guide: [usage])
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        if let precautions = supplementInfo.precautions.first {
+        if let precautions = infoSnapshot.precautions.first {
           SupplementInfoCard(type: .warn, guide: [precautions])
             .frame(maxWidth: .infinity, alignment: .leading)
         }
