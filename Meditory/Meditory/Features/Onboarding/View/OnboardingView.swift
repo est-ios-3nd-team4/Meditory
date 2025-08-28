@@ -158,7 +158,7 @@ struct OnboardingView: View {
       .padding(.horizontal, .defaultSpacing + 4)
       Spacer()
     }
-    .padding(.top, 60)
+    .padding(.top, 50)
   }
   
   @ViewBuilder

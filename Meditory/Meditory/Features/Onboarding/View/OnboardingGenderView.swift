@@ -37,12 +37,13 @@ struct OnboardingGenderView: View {
     VStack(alignment: .leading, spacing: .defaultSpacing) {
       if let info = prompt.info {
         Text(info)
-          .font(.notoSans(weight: .medium, size: 16))
+//          .font(.notoSans(weight: .medium, size: 16))
+          .adaptiveFont(16,weight: .medium)
           .foregroundStyle(.textGray)
           .padding(.bottom,.defaultSpacing)
       }
         ForEach(question, id: \.self) { item in
-          RowItemCell(model: item, isSelected: vm.selectionSet.contains(item), subTitleSize: 12)
+          RowItemCell(model: item, isSelected: vm.selectionSet.contains(item))
             .onTapGesture {
               onAction?(item)
             }

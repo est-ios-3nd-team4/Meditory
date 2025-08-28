@@ -15,12 +15,14 @@ struct TitleView: View {
     HStack {
       VStack(alignment: .leading) {
         Text(prompt.title(name: name))
-          .font(.notoSans(weight: .bold, size: 28))
+//          .font(.notoSans(weight: .bold, size: 28))
+          .adaptiveFont(28,small: -8,weight: .bold)
           .padding(.vertical, 10)
           .fixedSize()
         if let secondary = prompt.info(context: extra) ?? prompt.subtitle {
           Text(secondary)
-            .font(.notoSans(weight: .medium, size: 16))
+//            .font(.notoSans(weight: .medium, size: 16))
+            .adaptiveFont(16,weight: .medium)
             .foregroundStyle(.textGray)
         }
       }

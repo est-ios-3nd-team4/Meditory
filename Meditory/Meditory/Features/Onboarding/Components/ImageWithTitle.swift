@@ -18,7 +18,8 @@ struct ImageWithTitle: View {
       Image(gender.image)
         .resizable()
         .aspectRatio(contentMode: .fit)
-        .frame(width: 110, height: 110)
+//        .frame(width: 110, height: 110)
+        .adaptiveImage(110,small: -30)
         .saturation(isSelected ? 1 : 0)
         .overlay(
           RoundedRectangle(cornerRadius: .defaultRadius)
@@ -30,7 +31,9 @@ struct ImageWithTitle: View {
         }
       Text(gender.title)
         .font(.notoSans(weight: .medium, size: 18))
+        .adaptiveFont(18,small: -4,weight: .medium)
         .foregroundStyle(isSelected ? Color.label : .textGray)
+        .padding(.bottom,4)
     }
   }
 }
