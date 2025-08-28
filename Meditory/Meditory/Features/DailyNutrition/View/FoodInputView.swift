@@ -101,29 +101,31 @@ struct FoodInputView: View {
           HStack {
             TextField("스파게티", text: $foodName)
               .onSubmit {
-                guard !foodName.isEmpty else { return }
-                
-                Task {
-                  do {
-                    let nutritionData = try await viewModel.request(mealName: foodName)
-                    
-                    await MainActor.run {
-                      if !nutritionData.name.isEmpty {
-                        self.foodName = nutritionData.name
-                      }
+                if mode == .create {
+                  guard !foodName.isEmpty else { return }
+                  
+                  Task {
+                    do {
+                      let nutritionData = try await viewModel.request(mealName: foodName)
                       
-                      self.macroValues = [
-                        .carbohydrate: String(nutritionData.macros.carbohydrate),
-                        .protein: String(nutritionData.macros.protein),
-                        .fat: String(nutritionData.macros.fat)
-                      ]
+                      await MainActor.run {
+                        if !nutritionData.name.isEmpty {
+                          self.foodName = nutritionData.name
+                        }
+                        
+                        self.macroValues = [
+                          .carbohydrate: String(nutritionData.macros.carbohydrate),
+                          .protein: String(nutritionData.macros.protein),
+                          .fat: String(nutritionData.macros.fat)
+                        ]
+                      }
+                    } catch {
+                      print("요청 실패: \(error)")
                     }
-                  } catch {
-                    print("요청 실패: \(error)")
                   }
                 }
               }
-              .submitLabel(.search)
+              .submitLabel(mode == .create ? .search : .done)
             
             Image(systemName: "magnifyingglass")
               .foregroundStyle(.gray)
