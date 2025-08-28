@@ -24,6 +24,6 @@ struct SupplementDoseSchedule {
   }
   
   var routineTime: RoutineTime {
-    RoutineTime(time: .makeTime(hour: hour, minute: minute))
+    RoutineTime(time: .makeTime(hour: hour, minute: minute), pillsPerDose: pillsPerDose)
   }
 }
