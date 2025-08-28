@@ -10,9 +10,23 @@ import SwiftUI
 struct MealSummaryCard: View {
   
   @EnvironmentObject var viewModel: NutritionMainViewModel
-  let food: FoodInfo
+//  let food: FoodInfo  
+  let foodId: UUID
+  
+  private var food: FoodInfo? {
+    viewModel.foodList.first { $0.id == foodId }
+  }
   
   var body: some View {
+    if let food = food {
+      cardContent(for: food)
+    } else {
+      EmptyView()
+    }
+  }
+  
+  @ViewBuilder
+  private func cardContent(for food: FoodInfo) -> some View {
     ZStack {
       Rectangle()
         .fill(.customContainer)
@@ -33,11 +47,11 @@ struct MealSummaryCard: View {
                   .frame(width: 10, height: 10)
                 
                 
-                  Text(item.label)
-                    .font(.notoSans(weight: .regular, size: 11))
- 
-                  Text("\(Int(item.gram))g")
-                    .font(.notoSans(weight: .semiBold, size: 11))
+                Text(item.label)
+                  .font(.notoSans(weight: .regular, size: 11))
+                
+                Text("\(Int(item.gram))g")
+                  .font(.notoSans(weight: .semiBold, size: 11))
               }
               .frame(maxWidth: .infinity, alignment: .leading)
             }

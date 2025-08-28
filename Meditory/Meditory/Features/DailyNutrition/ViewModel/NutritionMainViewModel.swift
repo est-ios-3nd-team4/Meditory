@@ -19,7 +19,6 @@ class NutritionMainViewModel: ObservableObject {
   @Published var healthKitManager = HealthKitManager()
   
   // SwiftData
-  //  @Environment(\.modelContext) private var modelContext
   private let modelContext: ModelContext
   
   // SwiftData - User
@@ -46,13 +45,6 @@ class NutritionMainViewModel: ObservableObject {
                           protein: totalMacros.protein / recommendedCalories.protein,
                           fat: totalMacros.fat / recommendedCalories.fat)
   }
-  
-  
-  
-  // TODO: SwiftData 쿼리문으로 처리 예정
-  //  var todayMeals: [MealInfo] {
-  //    meals.filter { Calendar.current.isDate($0.date, inSameDayAs: selectredDate) }
-  //  }
   
   init(modelContext: ModelContext) {
     self.modelContext = modelContext
@@ -260,7 +252,7 @@ extension NutritionMainViewModel {
       
       meals.append(mealInfo)
       selectedMeal = mealInfo
-      
+
       print("✅ 새 식단이 생성되었습니다")
     } catch {
       print("❌ Meal 생성 실패: \(error)")
@@ -308,6 +300,7 @@ extension NutritionMainViewModel {
   // MARK: SwiftDataLoad
   func loadMealForSelectedDate() async {
     await loadMealsForDate(selectedDate)
+    print("func loadMealForSelectedDate() async called")
   }
   
 }

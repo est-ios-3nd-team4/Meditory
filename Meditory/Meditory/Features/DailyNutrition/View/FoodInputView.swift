@@ -241,10 +241,11 @@ struct FoodInputView: View {
                          macros: updatedMacros)
     
     Task {
-      await viewModel.loadMealForSelectedDate()
+      await MainActor.run {
+         dismiss()
+      }
     }
     
-    dismiss()
   }
   
   private func deleteFood() {
