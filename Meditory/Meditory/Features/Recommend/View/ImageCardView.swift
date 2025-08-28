@@ -1,6 +1,5 @@
 import SwiftUI
 
-// 이미지 캐싱해보기
 struct Product: Identifiable, Codable {
   var id = UUID()
   var imageName: String = ""
@@ -30,8 +29,10 @@ struct ImageCardView: View {
 
   @State private var selectedCategory: String?
   @State private var didTriggerInitialLoad = false
+  @State private var showConcernEdit = false
 
   @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.userStore) private var userStore
 
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
@@ -41,7 +42,7 @@ struct ImageCardView: View {
         Spacer()
 
         Button {
-          //onEditTap?()
+          showConcernEdit = true
         } label: {
           Text("수정하기")
             .font(.notoSans(weight: .medium, size: 12))
@@ -130,13 +131,22 @@ struct ImageCardView: View {
     .padding()
     .background(colorScheme == .dark ? Color.white.opacity(0.2) : Color.white)
     .cornerRadius(.defaultRadius)
+    .background(
+      NavigationLink(
+        destination: OnboardingView(userStore: userStore, startAt: .concern, isEditing: true),
+        isActive: $showConcernEdit
+      ) {
+        EmptyView()
+      }
+      .hidden()
+    )
     .onAppear {
-      if let initial = selectedCategory {
-        guard !didTriggerInitialLoad else { return }
-        didTriggerInitialLoad = true
-        if let initial = selectedCategory {
-          onCategoryTap?(initial)
-        }
+      guard !didTriggerInitialLoad else { return }
+      didTriggerInitialLoad = true
+
+      if selectedCategory == nil, let first = categories.first {
+        selectedCategory = first
+        onCategoryTap?(first)
       }
     }
   }

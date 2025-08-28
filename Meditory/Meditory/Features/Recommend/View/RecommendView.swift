@@ -39,6 +39,11 @@ struct RecommendView: View {
 
   private var imageService = GoogleCSEImageClient()
 
+  private var userConcerns: [String] {
+    guard let concerns = users.first?.userExtraInfos.first?.concern else { return [] }
+    return concerns.map { $0.value }
+  }
+
   private func hydrateImagesForCurrentItems() {
     guard hasRealData else { return }
 
@@ -256,7 +261,7 @@ struct RecommendView: View {
         )
       ImageCardView(
         title: "\(name) 님 맞춤 추천",
-        categories: ["장 건강", "혈관 & 혈액순환"],
+        categories: userConcerns,
         desc: "* 본결과는 의사의 처방을 대신하지 않습니다.",
         products: items,
         onCategoryTap: { category in
