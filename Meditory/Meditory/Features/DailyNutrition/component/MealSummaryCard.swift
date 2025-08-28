@@ -10,7 +10,7 @@ import SwiftUI
 struct MealSummaryCard: View {
   
   @EnvironmentObject var viewModel: NutritionMainViewModel
-//  let food: FoodInfo  
+
   let foodId: UUID
   
   private var food: FoodInfo? {

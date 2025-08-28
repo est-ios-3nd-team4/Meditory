@@ -386,7 +386,7 @@ extension NutritionMainViewModel {
 
 // MARK: - Network
 extension NutritionMainViewModel {
-  func request(mealName: String) async throws {
+  func request(mealName: String) async throws -> FoodInfo {
     print("✅ 요청", Date.now)
     
     let prompt = MealNutritionPrompt.makePrompt(mealName: mealName)
@@ -397,6 +397,13 @@ extension NutritionMainViewModel {
     
     let mealNutrition = try? JSONDecoder().decode(MealNutrition.self, from: Data(response.utf8))
     
+    let safeyMealNutrition = mealNutrition ?? MealNutrition(type: 1,
+                                                   name: "알 수 없음",
+                                                   carbohydrate: 0,
+                                                   protein: 0,
+                                                   fat: 0)
     dump(mealNutrition)
+    
+    return safeyMealNutrition.toFoodInfo()
   }
 }

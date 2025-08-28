@@ -14,3 +14,14 @@ struct MealNutrition: Codable {
   let protein: Double
   let fat: Double
 }
+
+extension MealNutrition {
+  func toFoodInfo() -> FoodInfo {
+    FoodInfo(id: UUID(),
+             name: name,
+             weight: carbohydrate + protein + fat,
+             macros: MacroNutrients(carbohydrate: carbohydrate,
+                                    protein: protein,
+                                    fat: fat))
+  }
+}
