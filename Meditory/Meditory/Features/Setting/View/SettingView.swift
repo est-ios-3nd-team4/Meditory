@@ -69,9 +69,13 @@ struct SettingView: View {
           // "mailto:" 링크를 사용하여 탭하면 이메일 앱을 열도록 수정함
           if let url = URL(string: "mailto:drfranken99@gmail.com") {
             Link(destination: url) {
-              Text("고객센터 문의하기")
-                .font(.notoSans(size: defaultFontSize))
-                .foregroundStyle(.primary) // 링크의 기본 파란색 스타일을 덮어쓰기 위함
+              HStack {
+                Text("고객센터 문의하기")
+                  .font(.notoSans(size: defaultFontSize))
+                  .foregroundStyle(.primary) // 링크의 기본 파란색 스타일을 덮어쓰기 위함
+                  .frame(maxWidth: .infinity, alignment: .leading) // 레이아웃을 전체 너비로 확장함
+                  .contentShape(Rectangle()) // 터치 영역을 사각형 프레임 전체로 확장함
+              }
             }
           }
         }
