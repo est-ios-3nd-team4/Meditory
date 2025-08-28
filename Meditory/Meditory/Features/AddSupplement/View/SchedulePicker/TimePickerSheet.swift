@@ -10,7 +10,27 @@ import SwiftUI
 struct TimePickerSheet: View {
   
   @State var doseSchedule: SupplementDoseSchedule
+  let selectedIndex: Int
+  let doseSchedules: [SupplementDoseSchedule]
   var onDismiss: ((SupplementDoseSchedule?)) -> Void
+  
+  @State private var showAlert: Bool = false
+  private var isUniqueTime: Bool {
+    !doseSchedules.enumerated().contains { index, item in
+      item.time == doseSchedule.time && index != selectedIndex
+    }
+  }
+    
+  init(
+    selectedIndex: Int,
+    doseSchedules: [SupplementDoseSchedule],
+    onDismiss: @escaping ((SupplementDoseSchedule?)) -> Void
+  ){
+    self._doseSchedule = State(initialValue: doseSchedules[selectedIndex])
+    self.selectedIndex = selectedIndex
+    self.doseSchedules = doseSchedules
+    self.onDismiss = onDismiss
+  }
   
   private var doseSection: some View {
     HStack {
@@ -50,9 +70,23 @@ struct TimePickerSheet: View {
     }
   }
   
+  private var alert: AlertView {
+    AlertView(
+      alertType: .confirm,
+      title: "중복된 복용 시간",
+      message: "동일한 시간에 이미 복용 스케줄이 설정되어 있습니다.\n다른 시간을 선택해주세요.",
+      onConfirm: {
+        showAlert = false
+      }
+    )
+  }
+  
   var body: some View {
     SchedulePickerSheet(
-      title: SchedulePickerType.time.title
+      title: SchedulePickerType.time.title,
+      needsAlert: !isUniqueTime,
+      showAlert: $showAlert,
+      alert: alert,
     ) { didConfirm in
       onDismiss(didConfirm ? doseSchedule : nil)
     } content: {

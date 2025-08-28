@@ -591,7 +591,8 @@ extension AddSupplementView {
         }
       case .time:
         TimePickerSheet (
-          doseSchedule: addSupplementVM.doseSchedules[selectedTimeIndex]
+          selectedIndex: selectedTimeIndex,
+          doseSchedules: addSupplementVM.doseSchedules
         ) { doseSchedule in
           self.selectedPicker = nil
           guard let doseSchedule else { return }
