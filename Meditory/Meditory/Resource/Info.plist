@@ -5,7 +5,7 @@
 	<key>NSHealthShareUsageDescription</key>
 	<string>걸음 수 데이터를 확인하여 건강 정보를 제공합니다.</string>
 	<key>AlanAPIKey</key>
-	<string>e7f36d90-86dd-4d3a-bd31-8e687d430a37</string>
+	<string></string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>NotoSansKR-Bold.ttf</string>
