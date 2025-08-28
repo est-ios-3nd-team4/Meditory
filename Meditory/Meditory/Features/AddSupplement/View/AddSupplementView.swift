@@ -659,8 +659,6 @@ extension AddSupplementView {
     
     Task {
       do {
-        try await Task.sleep(for: .seconds(2))
-        
         try await addSupplementVM.request(productNameInput: productNameInput, nameSource: nameSource)
         
         await MainActor.run {
