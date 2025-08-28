@@ -80,8 +80,18 @@ final class ProductRecommendViewModel: ObservableObject {
   // MARK: - 기존 메서드들
   private func makePrompt(for category: String) -> String {
     """
-    다음과 같은 건강/영양제 카테고리에 적절한 제품(최소 5개이상 최대 10개이하)을 추천해줘.
-    각 제품은 브랜드명과 제품명으로 구성해줘.
+    다음과 같은 건강/영양제 카테고리에 적절한 제품(최소 3개 이상 최대 10개 이하)을 추천해줘.
+    단, 추천하는 제품은 반드시 아래 사이트들에서 실제 판매 중인 브랜드와 제품명을 사용해야 해.
+
+    허용된 사이트:
+    - iherb.com
+    - coupang.com
+    - smartstore.naver.com
+    - lotteon.com
+    - lotteimall.com
+    - cjmall.com
+    - gsshop.com
+    - hyundaihmall.com
 
     카테고리: "\(category)"
 

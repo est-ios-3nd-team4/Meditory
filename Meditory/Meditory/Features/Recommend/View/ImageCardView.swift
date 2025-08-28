@@ -25,11 +25,13 @@ struct ImageCardView: View {
   let categories: [String]
   let desc: String
   let products: [Product]
+  let isLoading: Bool
   var onCategoryTap: ((String) -> Void)?
 
   @State private var selectedCategory: String?
   @State private var didTriggerInitialLoad = false
   @State private var showConcernEdit = false
+  @State private var isLoadingProducts = false
 
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.userStore) private var userStore
@@ -93,7 +95,7 @@ struct ImageCardView: View {
               .frame(width: 1, height: 1)
               .id("HEAD")
 
-            if products.isEmpty {
+            if isLoadingProducts || products.isEmpty {
               ForEach(0..<6, id: \.self) { _ in
                 VStack(alignment: .leading, spacing: .smallSpacing) {
                   ShimmerView(widthRatio: 1.0, cornerRadius: .fixed(10))

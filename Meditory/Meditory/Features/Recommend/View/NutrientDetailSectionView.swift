@@ -86,9 +86,12 @@ struct NutrientDetailSectionView: View {
         }
         .padding(.bottom, 16)
 
-        ForEach(nutrient.hashtags, id: \.self) { tag in
-          Text("# \(tag)")
-            .font(.notoSans(weight: .medium, size: 15))
+        HStack {
+          ForEach(nutrient.hashtags, id: \.self) { tag in
+            Text("# \(tag)")
+              .font(.notoSans(weight: .medium, size: 15))
+              .foregroundColor(.main)
+          }
         }
 
         Text(nutrient.title)
@@ -97,6 +100,7 @@ struct NutrientDetailSectionView: View {
 
         Text(nutrient.content)
           .font(.notoSans(weight: .regular, size: 15))
+          .foregroundColor(.secondary)
       }
       .padding(.vertical)
     }
