@@ -70,10 +70,15 @@ struct OnboardingView: View {
     }
     // MARK: - 내비게이션 바
     // isEditing 값에 따라 다른 내비게이션 바 스타일을 적용합니다.
-    .navigationTitle(isEditing ? editingTitle : "")
-    .navigationBarTitleDisplayMode(.inline) // 타이틀을 작은 스타일로 고정함
-    .navigationBarBackButtonHidden(isEditing) // 수정 모드일 때 뒤로가기 버튼을 숨김
-    .toolbar(isEditing ? .visible : .hidden, for: .navigationBar) // 온보딩 시에는 네비게이션 바 전체를 숨김
+    .applyIf(isEditing) {
+      $0.navigationBar(.custom(editingTitle), backgroundStyle: .system) {
+        dismiss()
+      }
+    }
+    .applyIf(!isEditing) {
+      // 최초 온보딩 시에는 시스템 내비게이션 바를 숨깁니다.
+      $0.navigationBarHidden(true)
+    }
     .onAppear {
       // 수정 모드일 경우에만 데이터를 불러옵니다.
       if isEditing {
