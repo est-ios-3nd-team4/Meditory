@@ -28,8 +28,8 @@ final class Routine: Sendable {
   var category: String?
   
   /// 복용 주기 유형
-   /// - 1: 요일별
-   /// - 2: 주기별
+  /// - 1: 요일별
+  /// - 2: 주기별
   var cycleType: Int
   
   /// 복용 주기 값
@@ -46,15 +46,51 @@ final class Routine: Sendable {
   
   /// 알림 여부 (true면 푸시 알림 활성화)
   var hasPush: Bool
-  
-  /// 제품 이미지 데이터
-  var imageData: Data?
 
+  // MARK: - [String]을 Data로 저장하기 위한 수정
+  
+  private var _usageData: Data
+  private var _precautionsData: Data
+  
   /// 복용 방법 목록
-  var usage: [String] = []
+  var usage: [String] {
+    get {
+      do {
+        return try JSONDecoder().decode([String].self, from: _usageData)
+      } catch {
+        print("Failed to decode usage: \(error)")
+        return []
+      }
+    }
+    set {
+      do {
+        _usageData = try JSONEncoder().encode(newValue)
+      } catch {
+        print("Failed to encode usage: \(error)")
+        _usageData = Data()
+      }
+    }
+  }
   
   /// 주의 사항 목록
-  var precautions: [String] = []
+  var precautions: [String] {
+    get {
+      do {
+        return try JSONDecoder().decode([String].self, from: _precautionsData)
+      } catch {
+        print("Failed to decode precautions: \(error)")
+        return []
+      }
+    }
+    set {
+      do {
+        _precautionsData = try JSONEncoder().encode(newValue)
+      } catch {
+        print("Failed to encode precautions: \(error)")
+        _precautionsData = Data()
+      }
+    }
+  }
   
   /// 사용자 설정 복용 시간 목록
   /// - RoutineTime과 1:N 관계
@@ -84,7 +120,6 @@ final class Routine: Sendable {
     startDate: Date = .now,
     memo: String? = nil,
     hasPush: Bool = true,
-    imageData: Data? = nil,
     usage: [String] = [],
     precautions: [String] = [],
     routineTimes: [RoutineTime] = [],
@@ -100,10 +135,11 @@ final class Routine: Sendable {
     self.startDate = startDate
     self.memo = memo
     self.hasPush = hasPush
-    self.imageData = imageData
-    self.usage = usage
-    self.precautions = precautions
     self.routineTimes = routineTimes
     self.recommendedRoutineTimes = recommendedRoutineTimes
+    
+    // 초기화 시 [String]을 Data로 인코딩함
+    self._usageData = (try? JSONEncoder().encode(usage)) ?? Data()
+    self._precautionsData = (try? JSONEncoder().encode(precautions)) ?? Data()
   }
 }

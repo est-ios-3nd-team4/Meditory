@@ -24,7 +24,6 @@ final class HomeViewModelTests: XCTestCase {
       startDate: Date(),
       memo: nil,
       hasPush: true,
-      imageData: nil,
       usage: [],
       precautions: [],
       routineTimes: [],

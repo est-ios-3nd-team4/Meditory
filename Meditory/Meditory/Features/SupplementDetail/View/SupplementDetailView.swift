@@ -261,7 +261,6 @@ struct SupplementDetailView_Previews: PreviewProvider {
       startDate: Date(),
       memo: "면역력 강화",
       hasPush: true,
-      imageData: nil,
       usage: ["식사 후 30분 이내 복용 권장"],
       precautions: ["공복에 복용 시 위장 장애가 발생할 수 있습니다."]
     )
@@ -283,7 +282,6 @@ struct SupplementDetailView_Previews: PreviewProvider {
       startDate: Date().addingTimeInterval(-86400 * 7),
       memo: "심장 건강",
       hasPush: false,
-      imageData: nil,
       usage: ["식사와 함께 충분한 물과 복용하세요."],
       precautions: ["수술 예정인 경우 복용 전에 전문의와 상담하세요."]
     )
@@ -303,7 +301,6 @@ struct SupplementDetailView_Previews: PreviewProvider {
       startDate: Date(),
       memo: nil,
       hasPush: false,
-      imageData: nil
     )
     // usage/precautions를 추가하여 디테일 화면에서 표시될 수 있도록 함
     empty.usage = ["의사와 상의하여 복용 방법을 정하세요."]

@@ -19,61 +19,58 @@ private enum OBTheme {
   static let minCardHeight: CGFloat = 640
   static let dotsTopPadding: CGFloat = 8
   static let dotsBottomPadding: CGFloat = 8
-  static let mockMaxWidth: CGFloat = 420
-  static let mockWidthRatio: CGFloat = 0.88
+  static let mockMaxWidthPhone: CGFloat = 420
+  static let mockMaxWidthPad: CGFloat = 620
+  static let mockWidthRatioPhone: CGFloat = 0.88
+  static let mockWidthRatioPad: CGFloat = 0.72
 }
 
 struct IntroduceOnboardingView: View {
   @Binding var hasSeenOnboarding: Bool
   private var isLastPage: Bool { index == pages.count - 1 }
   @State private var isFadingOut = false
-   private let fadeDuration: Double = 0.35
+  private let fadeDuration: Double = 0.35
 
   @State private var pages: [OnboardingPage] = [
-    .init(
-      title: "오늘 먹은 영양제",
-      subtitle: "섭취 현황을 한눈에 확인하세요",
-      imageName: "img_Onboarding_1"
-    ),
-    .init(
-      title: "복용 주기·시간 고민 없이",
-      subtitle: "AI가 맞춤 스케줄을 추천해줘요",
-      imageName: "img_Onboarding_2"
-    ),
-    .init(
-      title: "영양제 사기 전에 필수!",
-      subtitle: "영양제 성분, 효과 확인해요",
-      imageName: "img_Onboarding_3"
-    ),
-    .init(
-      title: "오늘 먹은 식단 기록하고",
-      subtitle: "부족한 영양소를 확인해요",
-      imageName: "img_Onboarding_4"
-    ),
-    .init(
-      title: "과도한지 부족하지?",
-      subtitle: "내 영양제 AI로 분석해보세요",
-      imageName: "img_Onboarding_5"
-    )
+    .init(title: "오늘 먹은 영양제",
+          subtitle: "섭취 현황을 한눈에 확인하세요",
+          imageName: "img_Onboarding_1"),
+    .init(title: "복용 주기·시간 고민 없이",
+          subtitle: "AI가 맞춤 스케줄을 추천해줘요",
+          imageName: "img_Onboarding_2"),
+    .init(title: "영양제 사기 전에 필수!",
+          subtitle: "영양제 성분, 효과 확인해요",
+          imageName: "img_Onboarding_3"),
+    .init(title: "오늘 먹은 식단 기록하고",
+          subtitle: "부족한 영양소를 확인해요",
+          imageName: "img_Onboarding_4"),
+    .init(title: "과도한지 부족하지?",
+          subtitle: "내 영양제 AI로 분석해보세요",
+          imageName: "img_Onboarding_5")
   ]
 
   @State private var index: Int = 0
-  @Environment(\.horizontalSizeClass) private var hSize
 
-  private var isPadStyle: Bool { hSize == .regular }
-  private var buttonFontSize: CGFloat { isPadStyle ? 17 : 15 }
+  private var isPadStyle: Bool { UIDevice.isPad }
+  private var buttonFontSize: CGFloat { isPadStyle ? 25 : 15 }
 
   var body: some View {
     ZStack {
-      Color.background.ignoresSafeArea()
+      Color.background.ignoresSafeArea(.all)
 
       TabView(selection: $index) {
         ForEach(Array(pages.enumerated()), id: \.offset) { offset, page in
-          OnboardingCard(page: page, indicatorIndex: index, indicatorCount: pages.count)
-            .tag(offset)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+          OnboardingCard(
+            isPadStyle: isPadStyle,
+            page: page,
+            indicatorIndex: index,
+            indicatorCount: pages.count
+          )
+          .tag(offset)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
       }
+      .ignoresSafeArea(.all)
       .tabViewStyle(.page(indexDisplayMode: .never))
       .animation(.easeInOut, value: index)
     }
@@ -106,7 +103,8 @@ struct IntroduceOnboardingView: View {
           }
         }
         .padding(.trailing, .defaultSpacing)
-        PageIndicator(count: pages.count, index: index)
+
+        PageIndicator(count: pages.count, index: index, isPadStyle: isPadStyle)
       }
       .padding(.top, .smallSpacing)
     }
@@ -116,13 +114,17 @@ struct IntroduceOnboardingView: View {
 struct PageIndicator: View {
   let count: Int
   let index: Int
+  let isPadStyle: Bool
+
+  private var dotSize: CGFloat { isPadStyle ? 15 : 10 }
+  private var dotSpacing: CGFloat { isPadStyle ? .defaultSpacing : .smallSpacing }
 
   var body: some View {
-    HStack(spacing: .smallSpacing) {
+    HStack(spacing: dotSpacing) {
       ForEach(0..<count, id: \.self) { i in
         Circle()
           .fill(i == index ? Color.main : Color.secondary.opacity(0.3))
-          .frame(width: 10, height: 10)
+          .frame(width: dotSize, height: dotSize)
           .accessibilityHidden(true)
       }
     }
@@ -131,10 +133,14 @@ struct PageIndicator: View {
 }
 
 struct OnboardingCard: View {
-  @Environment(\.horizontalSizeClass) private var hSize
-  private var isPadStyle: Bool { hSize == .regular }
-  private var titleFontSize: CGFloat { isPadStyle ? 27 : 25 }
-  private var subTitleFontSize: CGFloat { isPadStyle ? 29 : 27 }
+  let isPadStyle: Bool
+
+  private var titleFontSize: CGFloat { isPadStyle ? 38 : 25 }
+  private var subTitleFontSize: CGFloat { isPadStyle ? 40 : 27 }
+  private var topPadding: CGFloat { isPadStyle ? 120 : 100 }
+  private var bottomPadding: CGFloat { isPadStyle ? 100: 10 }
+  private var verticalOffset: CGFloat { isPadStyle ? 120 : 80 }
+  private var imageRatio: CGFloat { isPadStyle ? 0.8 : 0.9 }
 
   let page: OnboardingPage
   let indicatorIndex: Int
@@ -142,7 +148,9 @@ struct OnboardingCard: View {
 
   var body: some View {
     GeometryReader { geo in
-      let mockWidth = min(geo.size.width * OBTheme.mockWidthRatio, OBTheme.mockMaxWidth)
+      let ratio = isPadStyle ? OBTheme.mockWidthRatioPad : OBTheme.mockWidthRatioPhone
+      let cap = isPadStyle ? OBTheme.mockMaxWidthPad   : OBTheme.mockMaxWidthPhone
+      let mockWidth = min(geo.size.width * ratio, cap)
 
       VStack(spacing: 30) {
         VStack(spacing: .smallSpacing) {
@@ -156,11 +164,11 @@ struct OnboardingCard: View {
             .foregroundStyle(Color.primary)
             .multilineTextAlignment(.center)
             .lineSpacing(2)
-            .minimumScaleFactor(0.92)
+            .minimumScaleFactor(0.9)
             .lineLimit(2)
         }
-        .padding(.top, 60)
-        .padding(.bottom, 30)
+        .padding(.top, topPadding)
+        .padding(.bottom, bottomPadding)
 
         Image(page.imageName)
           .resizable()
@@ -168,26 +176,23 @@ struct OnboardingCard: View {
           .antialiased(true)
           .renderingMode(.original)
           .scaledToFit()
-          .frame(width: mockWidth * 0.9)
+          .frame(width: mockWidth * imageRatio)
           .modifier(UnifiedShadow())
           .accessibilityHidden(true)
 
         Spacer(minLength: 0)
       }
-      .offset(y: 100)
-      .padding(.horizontal)
+      .offset(y: verticalOffset)
+      .padding(.horizontal, .smallSpacing)
       .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .background(Color.background)
+      .background(Color.background.ignoresSafeArea(.all))
     }
     .frame(minHeight: OBTheme.minCardHeight, maxHeight: .infinity)
-    .background(Color.background)
+    .background(Color.background.ignoresSafeArea(.all))
   }
 }
 // MARK: - Previews
 #if DEBUG
-import SwiftUI
-
-/// 바인딩이 필요한 뷰를 위한 래퍼
 private struct IntroduceOnboardingView_PreviewWrapper: View {
   @State private var seen = false
   var body: some View {
@@ -195,39 +200,7 @@ private struct IntroduceOnboardingView_PreviewWrapper: View {
   }
 }
 
-#Preview("iPhone • Light") {
+#Preview {
   IntroduceOnboardingView_PreviewWrapper()
-    .environment(\.horizontalSizeClass, .compact)
-    .preferredColorScheme(.light)
-    .previewDevice("iPhone 15 Pro")
-}
-
-#Preview("iPhone • Dark") {
-  IntroduceOnboardingView_PreviewWrapper()
-    .environment(\.horizontalSizeClass, .compact)
-    .preferredColorScheme(.dark)
-    .previewDevice("iPhone 15 Pro")
-}
-
-#Preview("iPad • Landscape") {
-  IntroduceOnboardingView_PreviewWrapper()
-    .environment(\.horizontalSizeClass, .regular)
-    .previewInterfaceOrientation(.landscapeLeft)
-    .preferredColorScheme(.light)
-    .previewDevice("iPad Pro (12.9-inch) (6th generation)")
-}
-
-/// 단일 카드 프리뷰 (디자인 확인용)
-#Preview("OnboardingCard Only") {
-  let sample = OnboardingPage(
-    title: "복용 주기·시간 고민 없이",
-    subtitle: "AI가 맞춤 스케줄을 추천해줘요",
-    imageName: "img_Onboarding_2"
-  )
-  return OnboardingCard(page: sample, indicatorIndex: 1, indicatorCount: 5)
-    .frame(height: 720)
-    .padding()
-    .background(Color.background)
-    .previewLayout(.sizeThatFits)
 }
 #endif
