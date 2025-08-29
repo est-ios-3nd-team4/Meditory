@@ -73,7 +73,6 @@ final class AddSupplementViewModel {
 
     switch scheduleType {
     case .weekday:
-      print(routine.cycleValue)
       routine.cycleValue.split(separator: String.separatorCommaSpace).forEach {
         if let rawValue = Int($0),
            let weekday = Weekday(rawValue: rawValue) {
