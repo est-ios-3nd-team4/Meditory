@@ -8,7 +8,6 @@ class DataController {
     
     private init() {
         let schema = Schema([
-          Item.self,
           Nutrient.self,
           Scrap.self,
           NutrientRecommendation.self,
