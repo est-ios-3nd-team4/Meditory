@@ -156,6 +156,39 @@ struct FoodInputView: View {
           }
         }
       }
+      .overlay {
+        if showingDeleteAlert {
+          AlertView(alertType: .delete,
+                    title: "음식 삭제",
+                    message: "음식을 삭제하시겠습니까? 삭제된 음식은 복구할 수 없습니다.",
+                    onCancel: {
+            showingDeleteAlert = false
+          },
+                    onDelete: {
+            deleteFood()
+            showingDeleteAlert = false
+          })
+        } else if showInvalidFoodAlert {
+          AlertView(alertType: .notFound,
+                    title: "음식 정보를 찾을 수 없습니다.",
+                    message: "음식 이름을 확인하고 다시 검색하거나, 영양 정보를 직접 입력해주세요.",
+                    onConfirm: {
+            showInvalidFoodAlert = false
+          },
+                    onResearch: {
+            foodName = ""
+            isFoodNameFocused = true
+            showInvalidFoodAlert = false
+          })
+        } else if showLimitAlert {
+          AlertView(alertType: .confirm,
+                    title: "2000g을 초과할 수 없습니다.",
+                    message: "2000 이하의 g수를 입력해주세요.",
+                    onConfirm: {
+            showLimitAlert = false
+          })
+        }
+      }
       
       HStack {
         Button {
@@ -186,40 +219,9 @@ struct FoodInputView: View {
         }
       }
       .padding(.horizontal, 16)
+      .zIndex(999)
     }
-    .overlay {
-      if showingDeleteAlert {
-        AlertView(alertType: .delete,
-                  title: "음식 삭제",
-                  message: "음식을 삭제하시겠습니까? 삭제된 음식은 복구할 수 없습니다.",
-                  onCancel: {
-          showingDeleteAlert = false
-        },
-                  onDelete: {
-          deleteFood()
-          showingDeleteAlert = false
-        })
-      } else if showInvalidFoodAlert {
-        AlertView(alertType: .notFound,
-                  title: "음식 정보를 찾을 수 없습니다.",
-                  message: "음식 이름을 확인하고 다시 검색하거나, 영양 정보를 직접 입력해주세요.",
-                  onConfirm: {
-          showInvalidFoodAlert = false
-        },
-                  onResearch: {
-          foodName = ""
-          isFoodNameFocused = true
-          showInvalidFoodAlert = false
-        })
-      } else if showLimitAlert {
-        AlertView(alertType: .confirm,
-                  title: "2000g을 초과할 수 없습니다.",
-                  message: "2000 이하의 g수를 입력해주세요.",
-                  onConfirm: {
-          showLimitAlert = false
-        })
-      }
-    }
+    
   }
   
   // MARK: - Macro Input Section
