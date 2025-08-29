@@ -114,6 +114,7 @@ struct AIRecommendedScheduleView: View {
             .font(.notoSans(weight: .regular, size: 13))
             .foregroundStyle(.textGray)
             .padding(.top, 4)
+            .multilineTextAlignment(.center)
             .modifier(
               ShakeEffect(
                 amplitude: 1,
