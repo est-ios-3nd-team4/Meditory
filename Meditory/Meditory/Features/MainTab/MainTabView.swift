@@ -27,8 +27,6 @@ struct MainTabView: View {
         } else {
           mainTabPhoneView()
         }
-        
-        intakeDestinationView()
       }
 
       // 추후 적용 예정
@@ -64,7 +62,7 @@ extension MainTabView {
         right: .defaultSpacing * 2
       )
       
-      if selectedTabItem == .home {
+      if selectedTabItem == .home || selectedTabItem == .dailyNutrition {
         VStack(spacing: .zero) {
           Spacer()
           
@@ -130,17 +128,5 @@ extension MainTabView {
       }
     }
     .ignoresSafeArea(edges: .bottom)
-  }
-  
-  @ViewBuilder
-  private func intakeDestinationView() -> some View {
-    if !showIntakeSelector, let intakeItem = selectedIntakeItem {
-      switch intakeItem {
-      case .supplement:
-        AddSupplementView(selectedIntakeItem: $selectedIntakeItem)
-      case .meal:
-        FoodInputView()
-      }
-    }
   }
 }

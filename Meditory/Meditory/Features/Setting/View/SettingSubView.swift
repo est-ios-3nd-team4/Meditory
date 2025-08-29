@@ -11,8 +11,6 @@ struct SettingSubView: View {
   // DB에서 User 목록을 가져오기 위함
   @Query private var users: [User]
   
-  private let defaultFontSize: CGFloat = 18
-  
   var body: some View {
     // users 배열에서 첫 번째 사용자를 가져옴
     let currentUser = users.first
@@ -132,7 +130,7 @@ struct SettingSubView: View {
       HStack {
         Text(title)
           // .font 파라미터 순서를 weight -> size로 수정함
-          .font(.notoSans(size: defaultFontSize))
+          .font(.notoSans(size: .defaultFontSize))
           .foregroundStyle(.primary)
         
         Spacer()

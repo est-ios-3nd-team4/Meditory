@@ -19,9 +19,10 @@ final class AddSupplementViewModel {
   var doseSchedules = [SupplementDoseSchedule]()
   var supplemtSummary: SupplementSummary?
   var supplement: SupplementDTO?
-  var routineId: UUID?
   var memo: String
   var selectedScheduleType: SupplementScheduleType
+  
+  let editingRoutine: Routine?
 
   var weekdaysString: String {
     let selected = weekdays.filter({ $0.value == true })
@@ -34,7 +35,7 @@ final class AddSupplementViewModel {
       .map { $0.key }
       .sorted { $0.rawValue < $1.rawValue }
       .map { $0.subTitle }
-      .joined(separator: ", ")
+      .joined(separator: .separatorCommaSpace)
   }
 
   var formattedWeekdays: String {
@@ -42,22 +43,24 @@ final class AddSupplementViewModel {
       .map { $0.key }
       .sorted { $0.rawValue < $1.rawValue }
       .map { "\($0.rawValue)" }
-      .joined(separator: ", ")
+      .joined(separator: .separatorCommaSpace)
   }
 
   init(routine: Routine? = nil) {
-    weekdays = Weekday.allCases.reduce(into: [:]) { $0[$1] = true }
     startMonth = Date.now.month
     startDay = Date.now.day
     duration = 1
     doseSchedules = [SupplementDoseSchedule]()
     memo = ""
     selectedScheduleType = .weekday
+    
+    editingRoutine = routine
 
     if let routine {
-      routineId = routine.id
+      weekdays = Weekday.allCases.reduce(into: [:]) { $0[$1] = false }
       initialize(with: routine)
     } else {
+      weekdays = Weekday.allCases.reduce(into: [:]) { $0[$1] = true }
       doseSchedules = [
         SupplementDoseSchedule(time: Date.makeTime(hour: 8), pillsPerDose: 1)
       ]
@@ -72,7 +75,7 @@ final class AddSupplementViewModel {
 
     switch scheduleType {
     case .weekday:
-      routine.cycleValue.split(separator: ",").forEach {
+      routine.cycleValue.split(separator: String.separatorCommaSpace).forEach {
         if let rawValue = Int($0),
            let weekday = Weekday(rawValue: rawValue) {
           weekdays[weekday] = true
@@ -88,6 +91,7 @@ final class AddSupplementViewModel {
     doseSchedules = routine.routineTimes.map {
       SupplementDoseSchedule(time: $0.time, pillsPerDose: $0.pillsPerDose)
     }
+    doseSchedules.sort(by: { $0.time < $1.time })
 
     supplemtSummary = SupplementSummary(
       type: routine.type,
@@ -174,9 +178,9 @@ extension AddSupplementViewModel {
       recommendedRoutineTimes = supplement.schedule.routineTimes
     }
 
-    if let routineId {
+    if let editingRoutine {
       _ = try await RoutineStore.shared.updateRoutine(
-        id: routineId,
+        routine: editingRoutine,
         type: supplemtSummary.type,
         displayName: supplemtSummary.name,
         desc: supplemtSummary.description,
@@ -212,77 +216,12 @@ extension AddSupplementViewModel {
   @MainActor
   func saveAndEditRoutine(
     modelContext context: ModelContext,
-    editingRoutine: Routine?,
-    lifestyleVM: LifestyleTimeViewModel
+    editingRoutine: Routine?
   ) async throws {
-    try await lifestyleVM.saveLifestyle()
+    try await saveRoutine()
 
-    // 필수 요약
-    guard let summary = self.supplemtSummary else {
-      throw RoutineSaveError.supplementSummaryNotFound
-    }
-
-    // 사용자 입력 > 요약값 순으로 우선값 구성
-    let usage = self.supplement?.usage ?? summary.usage
-    let precautions = self.supplement?.precautions ?? summary.precautions
-    let recTimes: [RoutineTime] =
-    self.supplement?.schedule.routineTimes ?? []
-
-    // 파생값 계산
-    let cycleType  = self.selectedScheduleType.rawValue
-    let cycleValue = (self.selectedScheduleType == .weekday) ? self.formattedWeekdays : "\(self.duration)"
-
-    let startDate  = Date.makeDate(month: self.startMonth, day: self.startDay)
-
-    // 정렬된 복용시간
-    let sortedRoutineTimes = self.doseSchedules
-      .map { $0.routineTime }
-
-    if let r = editingRoutine {
-      // 편집: 같은 루틴 수정
-      r.type = summary.type
-      r.displayName = summary.name
-      r.desc = summary.description
-      r.category = summary.category
-      r.cycleType = cycleType
-      r.cycleValue = cycleValue
-      r.startDate = startDate
-      r.memo = self.memo
-      r.usage = usage
-      r.precautions = precautions
-
-      // 시간 교체
-      r.routineTimes = sortedRoutineTimes
-      r.recommendedRoutineTimes = recTimes
-
-      try context.save()
-
-    } else {
-      // 추가: 새 루틴
-      let new = Routine(
-        type: summary.type,
-        displayName: summary.name,
-        desc: summary.description,
-        category: summary.category,
-        cycleType: cycleType,
-        cycleValue: cycleValue,
-        startDate: startDate,
-        memo: self.memo,
-        hasPush: false
-      )
-      new.usage = usage
-      new.precautions = precautions
-      new.routineTimes = sortedRoutineTimes
-      new.recommendedRoutineTimes = recTimes
-
-      context.insert(new)
-      try context.save()
-    }
-
-    // 알림 재구성
     await RoutineNotificationScheduler().scheduleAll(modelContext: context)
 
-    // 다른 화면 갱신을 위한 노티
     NotificationCenter.default.post(name: .didUpdateSupplement, object: nil)
   }
 }

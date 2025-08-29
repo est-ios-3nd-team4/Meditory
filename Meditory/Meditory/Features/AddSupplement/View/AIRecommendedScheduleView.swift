@@ -40,8 +40,8 @@ struct AIRecommendedScheduleView: View {
   
   @Environment(\.modelContext) private var context
   @Environment(\.colorScheme) private var colorScheme
+  private let isPad = UIDevice.isPad
   
-  let defaultFontSize: CGFloat
   let supplementSummary: SupplementSummary?
   let lifestyle: UserLifeStyleDTO
   
@@ -50,22 +50,23 @@ struct AIRecommendedScheduleView: View {
   @State private var aiPlanState: AIPlanState
   @State private var trigger = false
   @State private var isLifestyleUpdated = false
+  @State private var isInitiallyCreated: Bool
   
   init(
-    defaultFontSize: CGFloat,
     supplementSummary: SupplementSummary?,
     lifestyle: UserLifeStyleDTO?,
     supplement: Binding<SupplementDTO?>
   ) {
-    self.defaultFontSize = defaultFontSize
     self.supplementSummary = supplementSummary
     self.lifestyle = lifestyle ?? .standard
     self._supplement = supplement
     
     if supplement.wrappedValue != nil {
       aiPlanState = .created
+      isInitiallyCreated = true
     } else {
       aiPlanState = .idle(reason: .initial)
+      isInitiallyCreated = false
     }
   }
   
@@ -86,7 +87,7 @@ struct AIRecommendedScheduleView: View {
           .frame(width: 20, height: 20)
         
         Text("AI 추천 복용 스케줄")
-          .font(.notoSans(size: defaultFontSize))
+          .font(.notoSans(size: .defaultFontSize))
         
         Spacer()
         
@@ -101,16 +102,17 @@ struct AIRecommendedScheduleView: View {
           requestAISchedule()
         } label: {
           Text("생성하기")
-            .font(.notoSans(size: defaultFontSize))
+            .font(.notoSans(size: .defaultFontSize))
             .foregroundStyle(.main)
         }
         
         switch reason {
         case .missingSupplementInput, .networkFailed:
           Text(reason.description)
-            .font(.notoSans(weight: .regular, size: 13))
+            .font(.notoSans(weight: .regular, size: .defaultFontSize - 5))
             .foregroundStyle(.textGray)
             .padding(.top, 4)
+            .multilineTextAlignment(.center)
             .modifier(
               ShakeEffect(
                 amplitude: 1,
@@ -131,28 +133,11 @@ struct AIRecommendedScheduleView: View {
         VStack(alignment: .leading, spacing: .smallSpacing) {
           ForEach(Array(scales.enumerated()), id: \.offset) { idx, scale in
             ShimmerView(widthRatio: scale)
-              .frame(height: 15)
+              .frame(height: isPad ? 18 : 15)
           }
         }
       case .created:
-        if isLifestyleUpdated {
-          Button {
-            requestAISchedule()
-          } label: {
-            HStack(spacing: .zero) {
-              let fontSize: CGFloat = 13
-              Text("변경된 생활 패턴에 맞춰 ")
-                .font(.notoSans(weight: .regular, size: fontSize))
-                .foregroundStyle(.textGray)
-              
-              Text("스케줄 새로 추천받기")
-                .font(.notoSans(size: fontSize))
-                .foregroundStyle(.main)
-            }
-            .padding(.bottom, .smallSpacing)
-            .padding(.top, -4)
-          }
-        }
+        updateScheduleSection()
         
         if let supplement {
           ForEach(Array(supplement.schedule.times.enumerated()), id: \.offset) { index, doseTime in
@@ -185,47 +170,48 @@ struct AIRecommendedScheduleView: View {
         )
         .modifier(UnifiedShadow())
     )
-    .onChange(of: lifestyle) { oldValue, newValue in
-      guard oldValue != newValue, isLifestyleUpdated == false else { return }
+    .onReceive(NotificationCenter.default.publisher(for: .didUpdateLifestyle)) { _ in
+      guard !isLifestyleUpdated else { return }
       isLifestyleUpdated = true
     }
   }
 }
 
 
+// MARK: - Subviews
 extension AIRecommendedScheduleView {
   private func scheduleInfoRow(index: Int, doseTime: DoseTime) -> some View {
     HStack(spacing: .defaultSpacing) {
+      let circleWidth: CGFloat = isPad ? 25 : 18
+      
       ZStack {
         Circle()
           .fill(.main)
-          .frame(width: 18, height: 18)
+          .frame(width: circleWidth, height: circleWidth)
         
         Text("\(index + 1)")
-          .font(.notoSans(weight: .bold, size: 10))
+          .font(.notoSans(weight: .bold, size: .defaultFontSize - 8))
           .foregroundStyle(.white)
           .padding(.bottom, 1)
       }
       
       Text(doseTime.timeString)
-        .font(.notoSans(weight: .regular, size: defaultFontSize))
+        .font(.notoSans(weight: .regular, size: .defaultFontSize))
         .padding(.bottom, 2)
       
       HStack(spacing: 4) {
-        let fontSize: CGFloat = 12
-        
         Text(doseTime.relativeTo)
-          .font(.notoSans(weight: .semiBold, size: fontSize))
+          .font(.notoSans(weight: .semiBold, size: .defaultFontSize - 6))
           .foregroundStyle(.main)
         
         if doseTime.isNotNone {
           Text(doseTime.relativeTimeDescription)
-            .font(.notoSans(size: fontSize))
+            .font(.notoSans(size: .defaultFontSize - 6))
             .foregroundStyle(.main)
         }
       }
-      .padding(.horizontal, .smallSpacing)
-      .padding(.vertical, 2)
+      .padding(.horizontal, isPad ? .smallSpacing + 4 : .smallSpacing)
+      .padding(.vertical, isPad ? 4 : 2)
       .background(
         Capsule()
           .fill(.sub.opacity(0.18))
@@ -234,9 +220,33 @@ extension AIRecommendedScheduleView {
       Spacer()
       
       Text(doseTime.doseString)
-        .font(.notoSans(weight: .regular, size: defaultFontSize))
+        .font(.notoSans(weight: .regular, size: .defaultFontSize))
         .foregroundStyle(.textGray)
         .padding(.bottom, 2)
+    }
+  }
+  
+  @ViewBuilder
+  private func updateScheduleSection() -> some View {
+    if isLifestyleUpdated || isInitiallyCreated {
+      let prefixText = isLifestyleUpdated ? "변경된 생활 패턴에 맞춰  " : "AI 추천 스케줄  "
+      let actionText = isLifestyleUpdated ? "스케줄 새로 추천받기" : "다시 생성하기"
+      
+      Button {
+        requestAISchedule()
+      } label: {
+        HStack(spacing: .zero) {
+          Text(prefixText)
+            .font(.notoSans(weight: .regular, size: .defaultFontSize - 5))
+            .foregroundStyle(.textGray)
+          
+          Text(actionText)
+            .font(.notoSans(size: .defaultFontSize - 5))
+            .foregroundStyle(.main)
+        }
+        .padding(.bottom, .smallSpacing)
+        .padding(.top, -4)
+      }
     }
   }
 }

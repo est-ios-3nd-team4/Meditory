@@ -27,12 +27,13 @@ struct RecommendedMacroGuidePopover: View {
       
       VStack(alignment: .leading, spacing: 5) {
         Text("오늘 섭취 권장량")
-          .font(.notoSans(weight: .semiBold, size: 15))
+          .font(.notoSans(weight: .semiBold, size: .defaultFontSize - 3))
         
         macroPercentageView()
       }
       .foregroundStyle(.black)
-      .padding(.horizontal, 16)
+      .padding(.vertical, UIDevice.isPad ? .smallSpacing : .zero)
+      .padding(.horizontal, .defaultSpacing)
     }
   }
   
@@ -45,12 +46,12 @@ struct RecommendedMacroGuidePopover: View {
             .frame(width: 10, height: 10)
           
             Text(item.label)
-              .font(.notoSans(weight: .regular, size: 13))
+              .font(.notoSans(weight: .regular, size: .defaultFontSize - 5))
             
             Spacer()
             
             Text("\(Int(item.gram))g")
-              .font(.notoSans(weight: .semiBold, size: 11))
+              .font(.notoSans(weight: .semiBold, size: .defaultFontSize - 7))
         }
       }
     }

@@ -150,7 +150,7 @@ struct RecommendView: View {
                 HStack {
                   Text(searchText.isEmpty ? "영양성분 또는 영양제를 검색해보세요!" : searchText)
                     .foregroundColor(searchText.isEmpty ? .gray : .black)
-                    .font(.notoSans(weight: .medium, size: 15))
+                    .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                   Image(systemName: "magnifyingglass")
@@ -175,7 +175,7 @@ struct RecommendView: View {
                 VStack {
                   Text("추천")
                     .foregroundColor(selectedScene == .recommend ? .white : Color.white.opacity(0.5))
-                    .font(.notoSans(weight: .bold, size: 16))
+                    .font(.notoSans(weight: .bold, size: .defaultFontSize - 2))
                 }
               }
               .padding(.trailing, 16)
@@ -186,7 +186,7 @@ struct RecommendView: View {
                 VStack {
                   Text("스크랩")
                     .foregroundColor(selectedScene == .scrap ? .white : Color.white.opacity(0.5))
-                    .font(.notoSans(weight: .bold, size: 16))
+                    .font(.notoSans(weight: .bold, size: .defaultFontSize - 2))
                 }
               }
             }
@@ -306,7 +306,7 @@ struct RecommendView: View {
           }
         }
       )
-      .font(.notoSans(weight: .medium, size: 15))
+      .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
       .modifier(UnifiedShadow())
       .padding(.horizontal, 16)
 

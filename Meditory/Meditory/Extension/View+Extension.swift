@@ -115,4 +115,7 @@ extension View {
     return self.padding(edge, value)
   }
   
+  func dismissKeyboardOnTap() -> some View {
+    modifier(DismissKeyboardOnTap())
+  }
 }

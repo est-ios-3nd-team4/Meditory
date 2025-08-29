@@ -23,19 +23,19 @@ struct RecommendNutrientsView: View {
       VStack(alignment: .leading) {
         VStack(alignment: .leading, spacing: .smallSpacing) {
           Text("최종결과")
-            .font(.notoSans(weight: .medium, size: 15))
+            .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
             .foregroundColor(.gray)
 
           Text("\(safeName) 님의")
-            .font(.notoSans(weight: .bold, size: 25))
+            .font(.notoSans(weight: .bold, size: .defaultFontSize + 7))
             .fontWeight(.bold)
 
           Text("식단을 고려한 추천하는 영양성분이에요.")
-            .font(.notoSans(weight: .medium, size: 15))
+            .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
             .fontWeight(.semibold)
 
           Text("* 본 결과는 의사의 처방을 대신하지 않습니다.")
-            .font(.notoSans(weight: .medium, size: 15))
+            .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
             .foregroundColor(.gray)
         }
         .padding(.horizontal, 16)
@@ -45,12 +45,12 @@ struct RecommendNutrientsView: View {
         VStack(alignment: .leading, spacing: .defaultSpacing) {
           HStack {
             Text("🤟🏻 추천 영양성분")
-              .font(.notoSans(weight: .bold, size: 15))
+              .font(.notoSans(weight: .bold, size: .defaultFontSize - 3))
               .fontWeight(.bold)
 
 
             Text("3")
-              .font(.notoSans(weight: .bold, size: 15))
+              .font(.notoSans(weight: .bold, size: .defaultFontSize - 3))
               .fontWeight(.bold)
               .foregroundColor(.main)
           }
@@ -66,7 +66,7 @@ struct RecommendNutrientsView: View {
               .cornerRadius(.smallRadius)
 
             Text("추천하는 영양성분은 꼭 필요한 것만 추천되므로 아래 성분들을 모두 섭취하는것이 좋아요.")
-              .font(.notoSans(weight: .medium, size: 15))
+              .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
               .foregroundColor(Color.main)
               .multilineTextAlignment(.leading)
 

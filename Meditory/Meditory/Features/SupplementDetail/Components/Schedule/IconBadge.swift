@@ -18,7 +18,7 @@ struct IconBadge: View {
         .fill(backgroundColor)
 
       Image(systemName: systemName)
-        .font(.notoSans(size: 14))
+        .font(.notoSans(size: .defaultFontSize - 4))
         .fontWeight(.semibold)
         .foregroundStyle(foregroundColor)
     }

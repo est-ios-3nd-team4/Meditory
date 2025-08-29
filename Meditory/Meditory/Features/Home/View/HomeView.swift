@@ -58,7 +58,7 @@ private struct AchievementSection: View {
   var body: some View {
     UnifiedSectionCard(showsStroke: false) {
       Text("오늘 복용 달성률")
-        .font(.notoSans(size: 20))
+        .font(.notoSans(size: .defaultFontSize + 2))
         .frame(maxWidth: .infinity, alignment: .leading)
       if isPadStyle {
         VStack(spacing: 24) {
@@ -155,13 +155,13 @@ private struct AchievementSection: View {
           NavigationLink(destination: SupplementDetailView(routine: item.routine)) {
             HStack(spacing: .defaultSpacing) {
               Text(item.name)
-                .font(.notoSans(size: 18))
+                .font(.notoSans(size: .defaultFontSize))
                 .foregroundColor(.primary)
 
               Spacer()
 
               Text(item.time.timeFormatter)
-                .font(.notoSans(size: 15))
+                .font(.notoSans(size: .defaultFontSize - 3))
                 .foregroundStyle(
                   colorScheme == .dark ? Color.secondary : Color.main
                 )

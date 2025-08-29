@@ -9,9 +9,13 @@ import SwiftUI
 
 struct SchedulePickerSheet<Content: View>: View {
   
-  @Environment(\.dismiss) var dismiss
+  @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.dismiss) private var dismiss
   
   private let title: String?
+  private let needsAlert: Bool
+  @Binding var showAlert: Bool
+  private let alert: AlertView?
   private let onDismiss: (Bool) -> Void
   private let content: Content
   
@@ -22,10 +26,16 @@ struct SchedulePickerSheet<Content: View>: View {
   
   init(
     title: String? = nil,
+    needsAlert: Bool = false,
+    showAlert: Binding<Bool> = .constant(false),
+    alert: AlertView? = nil,
     onDismiss: @escaping (Bool) -> Void,
     @ViewBuilder content: () -> Content
   ) {
     self.title = title
+    self.needsAlert = needsAlert
+    self._showAlert = showAlert
+    self.alert = alert
     self.onDismiss = onDismiss
     self.content = content()
   }
@@ -62,13 +72,22 @@ struct SchedulePickerSheet<Content: View>: View {
             
             if let title {
               Text(title)
-                .font(.notoSans(weight: .medium, size: 16))
+                .font(
+                  .notoSans(
+                    weight: .medium,
+                    size: .defaultFontSize - 2
+                  )
+                )
             }
             
             content
             
             ConfirmButton {
-              dismissWithAnimation(isConfirm: true)
+              if needsAlert {
+                showAlert = true
+              } else {
+                dismissWithAnimation(isConfirm: true)
+              }
             }
             .padding(.bottom, geometry.safeAreaInsets.bottom)
           }
@@ -76,7 +95,9 @@ struct SchedulePickerSheet<Content: View>: View {
           .background(
             GeometryReader { geometry in
               Rectangle()
-                .fill(.background)
+                .fill(
+                  colorScheme.isLightMode ? .white : Color.init(red: 36, green: 36, blue: 36)
+                )
                 .clipShape(
                   RoundedCorner(radius: 20, corners: [.topLeft, .topRight])
                 )
@@ -105,6 +126,11 @@ struct SchedulePickerSheet<Content: View>: View {
       .ignoresSafeArea()
     }
     .opacity(sheetOpacity)
+    .overlay {
+      if showAlert {
+        alert
+      }
+    }
     .onAppear {
       withAnimation(.easeInOut(duration: 0.3)) {
         sheetOpacity = 1

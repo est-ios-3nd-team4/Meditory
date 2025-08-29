@@ -64,7 +64,7 @@ struct NutrientCardCell: View {
       VStack(alignment: .leading, spacing: .smallSpacing) {
         HStack {
           Text(nutrient.name)
-            .font(.notoSans(weight: .medium, size: 15))
+            .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
 
           Spacer()
 
@@ -80,7 +80,7 @@ struct NutrientCardCell: View {
         HStack {
           ForEach(nutrient.hashtags.prefix(2), id: \.self) { tag in
             Text("#\(tag)")
-              .font(.notoSans(weight: .medium, size: 12))
+              .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
               .lineLimit(1)
           }
         }

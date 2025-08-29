@@ -45,10 +45,18 @@ struct CalendarWeeklyHeader: View {
       UIScreen.main.bounds.width > UIScreen.main.bounds.height
   }
 
-  private var yearMonthFontSize: CGFloat { isPadStyle ? 22 : 20 }
-  private var chevronFontSize: CGFloat { isPadStyle ? 17 : 15 }
-  private var weekNameFontSize: CGFloat { isPadStyle ? 15 : 13 }
-  private var dateFontSize: CGFloat { isPadStyle ? 18 : 16 }
+  private var yearMonthFontSize: CGFloat { .defaultFontSize + 2 }
+  private var chevronFontSize: CGFloat { .defaultFontSize - 3 }
+  private var weekNameFontSize: CGFloat { .defaultFontSize - 5 }
+  private var dateFontSize: CGFloat { .defaultFontSize - 2 }
+  private var circleSize: CGSize {
+    let isPad = UIDevice.isPad
+    
+    return CGSize(
+      width: isPad ? 35 : 25,
+      height: isPad ? 35 : 25
+    )
+  }
 
   private var horizontalInset: CGFloat {
     let screenWidth = UIScreen.main.bounds.width
@@ -115,12 +123,12 @@ struct CalendarWeeklyHeader: View {
             if selected {
               Circle()
                 .fill(.white)
-                .frame(width: 25, height: 25)
+                .frame(width: circleSize.width, height: circleSize.height)
                 .matchedGeometryEffect(id: "backgroundCircle", in: namespace)
             } else if today {
               Circle()
                 .fill(.white)
-                .frame(width: 25, height: 25)
+                .frame(width: circleSize.width, height: circleSize.height)
                 .opacity(0.3) // 오늘(비선택) 흐린 원
             }
 

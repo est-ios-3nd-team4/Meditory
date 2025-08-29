@@ -22,7 +22,7 @@ struct DurationPickerSheet: View {
       Picker("Duration", selection: $selectedDuration) {
         ForEach(1...30, id: \.self) { day in
           Text("\(day)")
-            .font(.notoSans(size: 25))
+            .font(.notoSans(size: UIDevice.isPad ? 27 : 25))
         }
       }
       .pickerStyle(.wheel)

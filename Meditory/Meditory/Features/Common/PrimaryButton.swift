@@ -24,7 +24,7 @@ struct PrimaryButton: View {
         .fill(isSub
               ? (isEnabled ? .main.opacity(0.3) : .main)
               : (isEnabled ? .main : .gray.opacity(0.4)))
-        .frame(height: 50)
+        .frame(height: isPad ? 60 : 50)
         .overlay {
           Text(title)
             .font(.notoSans(weight: .semiBold, size: isPad ? 28 : 18))

@@ -12,7 +12,7 @@ struct InputTextField: UIViewRepresentable {
   
   @Binding var text: String
   
-  let font: UIFont? = .notoSans(size: 16)
+  let font: UIFont? = .notoSans(size: UIDevice.isPad ? 20 : 16)
   let placeHolder: String
   let placHolderTextColor: UIColor = .textGray
   let tintColor: UIColor = .textGray

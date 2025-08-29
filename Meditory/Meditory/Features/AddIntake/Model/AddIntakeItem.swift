@@ -5,7 +5,7 @@
 //  Created by 홍승아 on 8/21/25.
 //
 
-import Foundation
+import UIKit
 
 enum AddIntakeItem: String, CaseIterable {
   case supplement
@@ -18,7 +18,7 @@ enum AddIntakeItem: String, CaseIterable {
   var title: String {
     switch self {
     case .supplement:
-      return "영양제 추가"
+      return UIDevice.isPad ? "복용 약\n추가" : "복용 약 추가"
     case .meal:
       return "식단 추가"
     }

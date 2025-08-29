@@ -86,7 +86,7 @@ actor RoutineStore {
   
   // MARK: - 수정 (Update)
   func updateRoutine(
-    id: UUID,
+    routine: Routine,
     type: Int,
     displayName: String,
     desc: String?,
@@ -100,11 +100,6 @@ actor RoutineStore {
     routineTimes: [RoutineTime],
     recommendedRoutineTimes: [RoutineTime]
   ) throws {
-    guard let routine = try modelContext.fetch(FetchDescriptor<Routine>())
-      .first(where: { $0.id == id }) else {
-      throw RoutineSaveError.notFound
-    }
-    
     routine.type = type
     routine.displayName = displayName
     routine.desc = desc
