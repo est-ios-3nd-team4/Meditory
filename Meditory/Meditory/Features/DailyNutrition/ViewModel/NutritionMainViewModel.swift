@@ -32,7 +32,7 @@ class NutritionMainViewModel: ObservableObject {
                                                       fat: 0) // 권장 Macro
   
   var foodList: [FoodInfo] { meals.flatMap { $0.foods } }
-  var macroPercent: MacroNutrients {
+  var macroRatio: MacroNutrients {
     let totalMacros = foodList.reduce(into: MacroNutrients(carbohydrate: 0,
                                                            protein: 0,
                                                            fat: 0)) { result, food in
@@ -41,9 +41,21 @@ class NutritionMainViewModel: ObservableObject {
       result.fat += food.macros.fat
     }
     
-    return MacroNutrients(carbohydrate: totalMacros.carbohydrate / recommendedCalories.carbohydrate,
-                          protein: totalMacros.protein / recommendedCalories.protein,
-                          fat: totalMacros.fat / recommendedCalories.fat)
+    return MacroNutrients(carbohydrate: recommendedCalories.carbohydrate > 0
+                          ? (totalMacros.carbohydrate / recommendedCalories.carbohydrate)
+                          : 0,
+                          protein: recommendedCalories.protein > 0
+                          ? (totalMacros.protein / recommendedCalories.protein)
+                          : 0,
+                          fat: recommendedCalories.fat > 0
+                          ? (totalMacros.fat / recommendedCalories.fat)
+                          : 0)
+  }
+  
+  var macroPercent: MacroNutrients {
+    MacroNutrients(carbohydrate: macroRatio.carbohydrate * 100,
+                   protein: macroRatio.protein * 100,
+                   fat: macroRatio.fat * 100)
   }
   
   init(modelContext: ModelContext) {
@@ -386,13 +398,21 @@ extension NutritionMainViewModel {
 
 // MARK: - Network
 extension NutritionMainViewModel {
-  func request(mealName: String) async throws {
+  func request(mealName: String) async throws -> FoodInfo {
+    print("✅ 요청", Date.now)
     let prompt = MealNutritionPrompt.makePrompt(mealName: mealName)
     
     let response = try await AlanAPIClient().request(content: prompt)
     
     let mealNutrition = try? JSONDecoder().decode(MealNutrition.self, from: Data(response.utf8))
     
+    let safeyMealNutrition = mealNutrition ?? MealNutrition(type: 1,
+                                                   name: "알 수 없음",
+                                                   carbohydrate: 0,
+                                                   protein: 0,
+                                                   fat: 0)
     dump(mealNutrition)
+    
+    return safeyMealNutrition.toFoodInfo()
   }
 }

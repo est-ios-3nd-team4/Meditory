@@ -22,7 +22,11 @@ struct FoodInputView: View {
     .fat: ""
   ]
   @State private var foodName = ""
-  @State private var showingDeleteAlert: Bool = false
+  @State private var showingDeleteAlert = false
+  @State private var isLoading = false
+  @State private var showInvalidFoodAlert = false
+  @State private var showLimitAlert = false
+  @FocusState private var isFoodNameFocused: Bool
   
   enum ViewMode {
     case create
@@ -30,8 +34,8 @@ struct FoodInputView: View {
   }
   
   var tipComment: String = Bool.random() == true
-  ? "Tip‼️ : 음식 이름을 입력하고, 탄수화물·단백질·지방(g)을 직접 기록해 보세요."
-  : "Tip‼️ : 정확한 g 단위를 모르면 대략적인 값으로 입력해도 괜찮아요."
+  ? ": 음식 이름을 입력하고, 탄수화물·단백질·지방(g)을 직접 기록해 보세요."
+  : ": 정확한 g 단위를 모르면 대략적인 값으로 입력해도 괜찮아요."
   
   var navigationTitle: String {
     switch mode {
@@ -91,27 +95,31 @@ struct FoodInputView: View {
             .opacity(0)
         }
       }
+      .padding(.horizontal, 16)
       
       // MARK: Food Name Input
-      Rectangle()
-        .fill(.white)
-        .frame(height: 50)
-        .cardStyle()
-        .overlay {
-          HStack {
-            TextField("스파게티", text: $foodName)
-            
+      UnifiedSectionCard {
+        HStack {
+          TextField("스파게티", text: $foodName)
+            .focused($isFoodNameFocused)
+            .onSubmit {
+              searchFood()
+            }
+            .submitLabel(mode == .create ? .search : .done)
+          
+          Button {
+            searchFood()
+            isFoodNameFocused = false
+          } label: {
             Image(systemName: "magnifyingglass")
               .foregroundStyle(.gray)
           }
-          .padding(.horizontal, 16)
         }
+      }
+      .padding(.horizontal, 16)
       
-      Rectangle()
-        .fill(.white)
-        .frame(height: 200)
-        .cardStyle()
-        .overlay {
+      VStack(spacing: 5) {
+        UnifiedSectionCard {
           VStack {
             HStack {
               Text("영양정보")
@@ -123,36 +131,47 @@ struct FoodInputView: View {
                   RecommendedMacroGuidePopover()
                 }
             }
+            .padding(.horizontal, 8)
             
             macroPercentage()
           }
-          .padding(.horizontal, 16)
         }
+        .padding(.horizontal, 16)
+        
+        Text("AI 생성 영양정보로 실제 값과 다를 수 있습니다. 건강 관련 중요한 결정은 의료 전문가와 상의하세요.")
+          .font(.notoSans(weight: .medium, size: 7))
+            .foregroundColor(.secondary)
+            .multilineTextAlignment(.center)
+      }
       
       Spacer()
       
-      Rectangle()
-        .fill(.white)
-        .frame(minHeight: 70)
-        .cardStyle()
-        .overlay {
+      UnifiedSectionCard {
+        HStack {
+          Text("Tip‼️")
+          
           Text(tipComment)
             .font(.notoSans(weight: .medium, size: 12))
-            .padding(.vertical, 8)
-            .padding(.horizontal,16)
             .multilineTextAlignment(.leading)
             .lineLimit(nil)
         }
-        .fixedSize(horizontal: false, vertical: true)
+        .padding(.vertical, 8)
+      }
+      .fixedSize(horizontal: false, vertical: true)
+      .padding(.horizontal, 16)
       
       PrimaryButton(title: primaryButtonTitle) {
         handlePrimaryAction()
       }
+      .padding(.horizontal, 16)
     }
     .navigationBarBackButtonHidden(true)
     .navigationBarTitleDisplayMode(.inline)
-    .padding(.horizontal, 16)
     .onAppear {
+      if mode == .create {
+        isFoodNameFocused = true
+      }
+      
       loadFoodData()
     }
     .alert("음식 삭제", isPresented: $showingDeleteAlert) {
@@ -163,12 +182,27 @@ struct FoodInputView: View {
     } message: {
       Text("이 음식을 삭제하시겠습니까? 삭제된 음식은 복구할 수 없습니다.")
     }
+    .alert("음식 정보를 찾을 수 없습니다.", isPresented: $showInvalidFoodAlert) {
+      Button("다시 검색") {
+        foodName = ""
+        isFoodNameFocused = true
+        showInvalidFoodAlert = false
+      }
+      Button("이대로 등록") { }
+    } message: {
+      Text("음식 이름을 확인하고 다시 검색하거나, 영양 정보를 직접 입력해주세요.")
+    }
+    .alert("2000g을 초과할 수 없습니다.", isPresented: $showLimitAlert) {
+      Button("확인") {}
+    } message: {
+      Text("2000 이하의 g수를 입력해주세요.")
+    }
   }
   
   // MARK: - Macro Input Section
    
   func macroPercentage() -> some View {
-    HStack(spacing: 40) {
+    HStack(alignment: .center, spacing: 40) {
       ForEach(MacroType.allCases, id: \.self) { type in
         VStack {
           Text(getImageForMacro(type))
@@ -179,24 +213,100 @@ struct FoodInputView: View {
             .foregroundStyle(.secondary)
           
           HStack(spacing: 5) {
-            RoundedRectangle(cornerRadius: 10)
+            Rectangle()
+              .fill(.clear)
+              .frame(width: 10, height: 1)
+              .opacity(0)
+            
+            RoundedRectangle(cornerRadius: 20)
               .fill(.backgroundGray)
-              .frame(width: 70, height: 40)
+              .frame(width: 49, height: 29)
               .overlay {
-                TextField("0", text: binding(for: type))
-                  .keyboardType(.decimalPad)
-                  .padding(.horizontal, 16)
+                macroInputField(for: type)
               }
             
             Text("g")
+              .frame(width: 10)
+              .foregroundStyle(Color.label)
           }
           .font(.notoSans(weight: .medium, size: 13))
         }
+        .frame(maxWidth: .infinity)
       }
     }
   }
   
+  @ViewBuilder
+  private func macroInputField(for type: MacroType) -> some View {
+    ZStack {
+      if binding(for: type).wrappedValue.isEmpty {
+        Text("0")
+          .foregroundStyle(Color.gray)
+          .padding(.horizontal, 16)
+
+      }
+      TextField("", text: binding(for: type))
+        .foregroundStyle(Color.black)
+        .keyboardType(.decimalPad)
+        .padding(.horizontal, 8)
+        .multilineTextAlignment(.center)
+        .onSubmit {
+          validateInput(for: type)
+        }
+      
+      if isLoading {
+        NutrientChipSkeleton(width: 50)
+      }
+    }
+  }
+  
+  private func validateInput(for type: MacroType) {
+    guard let text = macroValues[type],
+          let value = Double(text) else { return }
+    
+    if value > 2000 {
+      showLimitAlert = true
+      macroValues[type] = "2000"
+    }
+  }
+  
   // MARK: Helper Methods
+  
+  private func searchFood() {
+    if mode == .create {
+      guard !foodName.isEmpty else { return }
+      
+      Task {
+        isLoading = true
+        
+        do {
+          var nutritionData = try await viewModel.request(mealName: foodName)
+          
+          if nutritionData.name == "알 수 없음" {
+            nutritionData.name = foodName
+            showInvalidFoodAlert = true
+          }
+          
+          await MainActor.run {
+            if !nutritionData.name.isEmpty {
+              self.foodName = nutritionData.name
+            }
+            
+            self.macroValues = [
+              .carbohydrate: String(nutritionData.macros.carbohydrate),
+              .protein: String(nutritionData.macros.protein),
+              .fat: String(nutritionData.macros.fat)
+            ]
+            
+          }
+        } catch {
+          print("요청 실패: \(error)")
+        }
+        
+        isLoading = false
+      }
+    }
+  }
   
   private func loadFoodData() {
     guard let food = existingFood else { return }
@@ -219,6 +329,11 @@ struct FoodInputView: View {
   }
   
   private func registerNewFood() {
+    guard foodName != "알 수 없음" else {
+      showInvalidFoodAlert = true
+      return
+    }
+    
     let macroNutrients = MacroNutrients(carbohydrate: Double(macroValues[.carbohydrate] ?? "0") ?? 0.0,
                                         protein: Double(macroValues[.protein] ?? "0") ?? 0.0,
                                         fat: Double(macroValues[.fat] ?? "0") ?? 0.0)

@@ -10,7 +10,7 @@ import SwiftUI
 struct MealSummaryCard: View {
   
   @EnvironmentObject var viewModel: NutritionMainViewModel
-//  let food: FoodInfo  
+
   let foodId: UUID
   
   private var food: FoodInfo? {
@@ -44,14 +44,14 @@ struct MealSummaryCard: View {
               HStack(spacing: 5) {
                 Circle()
                   .fill(item.color)
-                  .frame(width: 10, height: 10)
+                  .frame(width: 12, height: 12)
                 
                 
                 Text(item.label)
-                  .font(.notoSans(weight: .regular, size: 11))
+                  .font(.notoSans(weight: .regular, size: 12))
                 
                 Text("\(Int(item.gram))g")
-                  .font(.notoSans(weight: .semiBold, size: 11))
+                  .font(.notoSans(weight: .semiBold, size: 12))
               }
               .frame(maxWidth: .infinity, alignment: .leading)
             }
