@@ -19,9 +19,10 @@ final class AddSupplementViewModel {
   var doseSchedules = [SupplementDoseSchedule]()
   var supplemtSummary: SupplementSummary?
   var supplement: SupplementDTO?
-  var routineId: UUID?
   var memo: String
   var selectedScheduleType: SupplementScheduleType
+  
+  let editingRoutine: Routine?
 
   var weekdaysString: String {
     let selected = weekdays.filter({ $0.value == true })
@@ -52,9 +53,10 @@ final class AddSupplementViewModel {
     doseSchedules = [SupplementDoseSchedule]()
     memo = ""
     selectedScheduleType = .weekday
+    
+    editingRoutine = routine
 
     if let routine {
-      routineId = routine.id
       weekdays = Weekday.allCases.reduce(into: [:]) { $0[$1] = false }
       initialize(with: routine)
     } else {
@@ -176,9 +178,9 @@ extension AddSupplementViewModel {
       recommendedRoutineTimes = supplement.schedule.routineTimes
     }
 
-    if let routineId {
+    if let editingRoutine {
       _ = try await RoutineStore.shared.updateRoutine(
-        id: routineId,
+        routine: editingRoutine,
         type: supplemtSummary.type,
         displayName: supplemtSummary.name,
         desc: supplemtSummary.description,
