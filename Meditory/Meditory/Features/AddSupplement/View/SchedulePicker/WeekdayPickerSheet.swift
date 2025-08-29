@@ -39,7 +39,7 @@ struct WeekdayPickerSheet: View {
         }
       }
       .padding(.horizontal, .smallSpacing)
-      .padding(.vertical, .defaultSpacing)
+      .padding(.vertical, .defaultSpacing * 2)
     }
   }
 }
