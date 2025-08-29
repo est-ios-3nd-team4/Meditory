@@ -18,7 +18,7 @@ struct TodayHealthView: View {
       VStack(alignment: .leading, spacing: .smallSpacing) {
         HStack {
           Text("오늘의 건강 상식")
-            .font(.notoSans(size: 18))
+            .font(.notoSans(size: .defaultFontSize))
             .padding(.bottom, .smallSpacing)
           
           Spacer()
@@ -38,7 +38,7 @@ struct TodayHealthView: View {
             .padding(.top, 2)
           } else {
             Text(vm.healthContent)
-              .font(.notoSans(size: 15))
+              .font(.notoSans(size: .defaultFontSize - 3))
               .foregroundStyle(.secondary)
               .transition(.opacity)
           }
