@@ -139,7 +139,7 @@ struct OnboardingCard: View {
   private var subTitleFontSize: CGFloat { isPadStyle ? 40 : 27 }
   private var topPadding: CGFloat { isPadStyle ? 120 : 100 }
   private var bottomPadding: CGFloat { isPadStyle ? 100: 10 }
-  private var verticalOffset: CGFloat { isPadStyle ? 120 : 70 }
+  private var verticalOffset: CGFloat { isPadStyle ? 120 : 80 }
   private var imageRatio: CGFloat { isPadStyle ? 0.8 : 0.9 }
 
   let page: OnboardingPage
