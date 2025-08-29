@@ -90,6 +90,7 @@ final class AddSupplementViewModel {
     doseSchedules = routine.routineTimes.map {
       SupplementDoseSchedule(time: $0.time, pillsPerDose: $0.pillsPerDose)
     }
+    doseSchedules.sort(by: { $0.time < $1.time })
 
     supplemtSummary = SupplementSummary(
       type: routine.type,
