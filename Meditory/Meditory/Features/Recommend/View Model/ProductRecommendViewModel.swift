@@ -80,7 +80,7 @@ final class ProductRecommendViewModel: ObservableObject {
   // MARK: - 기존 메서드들
   private func makePrompt(for category: String) -> String {
     """
-    다음과 같은 건강/영양제 카테고리에 적절한 제품(최소 3개 이상 최대 10개 이하)을 추천해줘.
+    다음과 같은 건강/영양제 카테고리에 적절한 제품(최소 6개 이상 최대 10개 이하)을 추천해줘.
     단, 추천하는 제품은 반드시 아래 사이트들에서 실제 판매 중인 브랜드와 제품명을 사용해야 해.
 
     허용된 사이트:

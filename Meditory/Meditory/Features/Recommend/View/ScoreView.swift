@@ -127,11 +127,11 @@ struct ScoreView: View {
       )
     }
 
-    .onChange(of: scoreVM.result) { newResult in
-      guard let newResult else { return }
-      onResultUpdate?(newResult)
+    .onChange(of: scoreVM.result, initial: false) { oldValue, newValue in
+      guard let newValue else { return }
+      onResultUpdate?(newValue)
       withAnimation(.easeOut(duration: 1.2)) {
-        animatedScore = Double(newResult.score)
+        animatedScore = Double(newValue.score)
       }
     }
   }

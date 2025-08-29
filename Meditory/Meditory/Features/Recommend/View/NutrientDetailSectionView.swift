@@ -16,6 +16,17 @@ struct NutrientDetailSectionView: View {
     allScraps.filter { $0.nutrientId == nutrient.id }
   }
 
+  private var shareText: String {
+    let tags = nutrient.hashtags.isEmpty ? "" : "\n" + nutrient.hashtags.map { "#\($0)" }.joined(separator: " ")
+    return """
+    \(nutrient.name)\(tags)
+
+    \(nutrient.title)
+
+    \(nutrient.content)
+    """
+  }
+
   private func toggleScrap() {
     if let existing = scraps.first {
       context.delete(existing)
@@ -38,6 +49,8 @@ struct NutrientDetailSectionView: View {
     let onBack: () -> Void
     @Environment(\.colorScheme) private var colorScheme
 
+    private let navHeight: CGFloat = 44
+
     @ViewBuilder
     func body(content: Content) -> some View {
       if enabled {
@@ -52,7 +65,7 @@ struct NutrientDetailSectionView: View {
       ZStack {
         // 배경을 좌우 끝까지
         Rectangle()
-          .fill(.customBackground)
+          .fill(.clear)
           .ignoresSafeArea(edges: .horizontal)
 
         HStack {
@@ -66,6 +79,7 @@ struct NutrientDetailSectionView: View {
         .padding(.leading, 0)
         .padding(.trailing, 0)
       }
+      .frame(height: navHeight)
     }
   }
 
@@ -82,6 +96,16 @@ struct NutrientDetailSectionView: View {
             toggleScrap()
           } label: {
             Image(systemName: isScrapped ? "star.fill" : "star")
+          }
+          .padding(.trailing, 8)
+
+          ShareLink(
+            item: shareText,
+            preview: SharePreview(nutrient.name, image: Image(systemName: "square.and.arrow.up"))
+          ) {
+            Image(systemName: "square.and.arrow.up")
+              .frame(width: 44, height: 44)        
+              .contentShape(Rectangle())
           }
         }
         .padding(.bottom, 16)
