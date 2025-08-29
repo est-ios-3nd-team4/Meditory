@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSHealthShareUsageDescription</key>
-	<string>걸음 수 데이터를 확인하여 건강 정보를 제공합니다.</string>
 	<key>AlanAPIKey</key>
 	<string>e7f36d90-86dd-4d3a-bd31-8e687d430a37</string>
 	<key>UIAppFonts</key>
