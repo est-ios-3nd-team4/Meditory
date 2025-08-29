@@ -30,6 +30,7 @@ struct FoodInputView: View {
     !(foodName == "")
   }
   @FocusState private var isFoodNameFocused: Bool
+  @FocusState private var focusedMacro: MacroType?
   
   enum ViewMode {
     case create
@@ -221,7 +222,11 @@ struct FoodInputView: View {
       .padding(.horizontal, 16)
       .zIndex(999)
     }
-    
+    .contentShape(Rectangle())
+    .onTapGesture {
+      isFoodNameFocused = false
+      focusedMacro = nil
+    }
   }
   
   // MARK: - Macro Input Section
@@ -270,13 +275,11 @@ struct FoodInputView: View {
 
       }
       TextField("", text: binding(for: type))
+        .focused($focusedMacro, equals: type)
         .foregroundStyle(Color.black)
         .keyboardType(.decimalPad)
         .padding(.horizontal, 8)
         .multilineTextAlignment(.center)
-//        .onSubmit {
-//          validateInput(for: type)
-//        }
         .onChange(of: binding(for: type).wrappedValue) { oldValue, newValue in
           validateInput(for: type)
         }
