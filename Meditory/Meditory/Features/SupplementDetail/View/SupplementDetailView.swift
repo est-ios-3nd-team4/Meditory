@@ -146,7 +146,7 @@ struct SupplementDetailView: View {
       showDeleteAlert = true
     } label: {
       Label("루틴 삭제", systemImage: "trash.fill")
-        .font(.notoSans(weight: .bold, size: 17))
+        .font(.notoSans(weight: .bold, size: .defaultFontSize - 1))
         .frame(maxWidth: .infinity)
         .padding(.vertical, .defaultSpacing)
     }
@@ -183,7 +183,7 @@ extension SupplementDetailView {
 
         VStack(spacing: .defaultSpacing * 2) {
           Text("정말 삭제하시겠어요?")
-            .font(.notoSans(size: 24))
+            .font(.notoSans(size: .defaultFontSize + 6))
             .fontWeight(.bold)
             .multilineTextAlignment(.center)
 
@@ -191,7 +191,7 @@ extension SupplementDetailView {
             Text("루틴을 삭제하면 복용 기록도 삭제됩니다.")
             Text("삭제하시려면 아래 버튼을 눌러주세요.")
           }
-          .font(.notoSans(weight: .regular, size: 18))
+          .font(.notoSans(weight: .regular, size: .defaultFontSize))
           .foregroundStyle(.secondary)
           .multilineTextAlignment(.center)
 
@@ -200,7 +200,7 @@ extension SupplementDetailView {
               isPresented = false
             } label: {
               Text("아니요")
-                .font(.notoSans(size: 18))
+                .font(.notoSans(size: .defaultFontSize))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, .smallSpacing)
             }
@@ -217,7 +217,7 @@ extension SupplementDetailView {
               isPresented = false
             } label: {
               Text("삭제")
-                .font(.notoSans(size: 18))
+                .font(.notoSans(size: .defaultFontSize))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, .smallSpacing)
             }

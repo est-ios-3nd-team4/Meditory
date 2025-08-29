@@ -53,9 +53,9 @@ struct SupplementInfoCard: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.horizontalSizeClass) private var hSize
   private var isPadStyle: Bool { hSize == .regular }
-  private var titleFontSize: CGFloat { isPadStyle ? 20 : 18 }
-  private var subtitleFontSize: CGFloat { isPadStyle ? 16 : 14 }
-  private var textFontSize: CGFloat { isPadStyle ? 17 : 15 }
+  private var titleFontSize: CGFloat { .defaultFontSize }
+  private var subtitleFontSize: CGFloat { .defaultFontSize - 4 }
+  private var textFontSize: CGFloat { .defaultFontSize - 3 }
 
   let mode: Mode
 

@@ -26,13 +26,13 @@ struct TimeRow: View {
 
       if !period.isEmpty {
         Text(period)
-          .font(.notoSans(size: 14))
+          .font(.notoSans(size: .defaultFontSize - 4))
           .fontWeight(.semibold)
           .foregroundStyle(.secondary)
       }
 
       Text(hm.isEmpty ? timeText : hm)
-        .font(.notoSans(size: 15))
+        .font(.notoSans(size: .defaultFontSize - 3))
         .fontWeight(.bold)
         .foregroundStyle(pointColor)
 
@@ -43,7 +43,7 @@ struct TimeRow: View {
           .imageScale(.small)
 
         Text(pills)
-          .font(.notoSans(size: 13))
+          .font(.notoSans(size: .defaultFontSize - 5))
       }
       .padding(.horizontal, .smallSpacing)
       .padding(.vertical, .smallSpacing)
