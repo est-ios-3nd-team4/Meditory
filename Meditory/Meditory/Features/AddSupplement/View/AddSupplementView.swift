@@ -88,6 +88,8 @@ struct AddSupplementView: View {
 
   var body: some View {
     GeometryReader { scrollView in
+      let isLandscape = scrollView.size.width > scrollView.size.height
+      
       ZStack {
         ScrollViewReader { proxy in
           ScrollView {
@@ -101,6 +103,7 @@ struct AddSupplementView: View {
           }
           .scrollDismissesKeyboard(.immediately)
           .scrollIndicators(.hidden)
+          .frame(maxWidth: isLandscape ? scrollView.size.width * 0.7 : .infinity)
           .navigationBar(
             type == .add ? .addSupplement : .editSupplement,
             isAtTop: isAtTop
