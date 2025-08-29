@@ -56,6 +56,7 @@ struct PrimaryNavigationBar: View {
     .padding(.horizontal, 16)
     .padding(.vertical, 12)
     .background(backgroundStyle.color)
+    .dismissKeyboardOnTap()
   }
   
   var body: some View {

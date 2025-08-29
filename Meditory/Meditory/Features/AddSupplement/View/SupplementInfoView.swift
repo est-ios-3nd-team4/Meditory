@@ -15,7 +15,7 @@ struct SupplementInfoView: View {
   @Binding var isSearchingSupplementSummary: Bool
   
   var body: some View {
-    if let summary = addSupplementVM.supplemtSummary {
+    if !isSearchingSupplementSummary, let summary = addSupplementVM.supplemtSummary {
       if summary.isUnidentifiable {
         // 서버에서 해당 이름으로 영양제/약을 특정할 수 없는 경우
         VStack {

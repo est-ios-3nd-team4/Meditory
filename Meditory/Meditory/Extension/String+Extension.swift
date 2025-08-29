@@ -8,6 +8,8 @@
 import Foundation
 
 extension String {
+  static let separatorCommaSpace = ", "
+  
   /// "HH:mm" -> 오늘 날짜의 Date (시/분만 반영)
   func toDateFromHHmm(calendar: Calendar = .current) -> Date? {
     let parts = split(separator: ":")

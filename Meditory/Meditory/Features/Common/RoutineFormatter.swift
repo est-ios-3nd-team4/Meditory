@@ -14,7 +14,7 @@ enum RoutineFormatter {
       // 일=0, 월=1, 화=2, 수=3, 목=4, 금=5, 토=6
       let map = ["일", "월", "화", "수", "목", "금", "토"]
       let days = cycleValue
-        .split(whereSeparator: { ",".contains($0) })
+        .split(whereSeparator: { String.separatorCommaSpace.contains($0) })
         .compactMap { Int($0) }
         .compactMap { (0...6).contains($0) ? map[$0] : nil }
 

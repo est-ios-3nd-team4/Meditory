@@ -75,6 +75,7 @@ struct AddSupplementView: View {
 
   // Edit 시 사용하는 루틴
   private let editingRoutine: Routine?
+  
   init(
     type: Mode = .add,
     routine: Routine? = nil,
@@ -100,8 +101,12 @@ struct AddSupplementView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
           }
+          .scrollDismissesKeyboard(.immediately)
           .scrollIndicators(.hidden)
-          .navigationBar(.addSupplement, isAtTop: isAtTop) {
+          .navigationBar(
+            type == .add ? .addSupplement : .editSupplement,
+            isAtTop: isAtTop
+          ) {
             dismissOrClearSelection()
           }
           .onChange(of: fieldType) { oldValue, newValue in
@@ -154,6 +159,7 @@ extension AddSupplementView {
       .padding(.bottom, .bottomInset)
     }
     .padding(.horizontal, .defaultSpacing)
+    .dismissKeyboardOnTap()
   }
   
   private func supplementNameInput() -> some View {
@@ -311,14 +317,14 @@ extension AddSupplementView {
       
       Spacer()
       
-      Button {
-        selectedPicker = .weekday
-      } label: {
-        Text(addSupplementVM.weekdaysString)
-          .font(.notoSans(size: defaultFontSize))
-          .padding(.bottom, 2)
-      }
-      .foregroundStyle(.textGray)
+      Text(addSupplementVM.weekdaysString)
+        .font(.notoSans(size: defaultFontSize))
+        .padding(.bottom, 2)
+        .foregroundStyle(.textGray)
+    }
+    .contentShape(Rectangle())
+    .onTapGesture {
+      selectedPicker = .weekday
     }
   }
   
@@ -370,21 +376,21 @@ extension AddSupplementView {
         
         Spacer()
         
-        Button {
-          selectedPicker = .duration
-        } label: {
-          RoundedRectangle(cornerRadius: 10)
-            .fill(.backgroundGray)
-            .frame(width: 48, height: 36)
-            .overlay {
-              Text("\(addSupplementVM.duration)")
-                .font(.notoSans(size: defaultFontSize))
-                .foregroundStyle(.textGray)
-            }
-        }
+        RoundedRectangle(cornerRadius: 10)
+          .fill(.backgroundGray)
+          .frame(width: 48, height: 36)
+          .overlay {
+            Text("\(addSupplementVM.duration)")
+              .font(.notoSans(size: defaultFontSize))
+              .foregroundStyle(.textGray)
+          }
         
         Text("일")
           .font(.notoSans(weight: .regular, size: defaultFontSize))
+      }
+      .contentShape(Rectangle())
+      .onTapGesture {
+        selectedPicker = .duration
       }
     }
   }
@@ -461,6 +467,7 @@ extension AddSupplementView {
             .foregroundStyle(.textGray)
             .padding(.bottom, 2)
         }
+        .contentShape(Rectangle())
         .onTapGesture {
           selectedTimeIndex = index
           selectedPicker = .time
@@ -515,8 +522,8 @@ extension AddSupplementView {
         dates: lifestyleTimeVM.times(for: category),
         mealSelections: lifestyleTimeVM.mealSelections(for: category)
       ) { result in
-        if let result {
-          lifestyleTimeVM.setTime(result)
+        if let result, lifestyleTimeVM.setTime(result) {
+          NotificationCenter.default.post(name: .didUpdateLifestyle, object: nil)
         }
         showTimePicker = false
       }
@@ -587,7 +594,8 @@ extension AddSupplementView {
         }
       case .time:
         TimePickerSheet (
-          doseSchedule: addSupplementVM.doseSchedules[selectedTimeIndex]
+          selectedIndex: selectedTimeIndex,
+          doseSchedules: addSupplementVM.doseSchedules
         ) { doseSchedule in
           self.selectedPicker = nil
           guard let doseSchedule else { return }
@@ -653,15 +661,19 @@ extension AddSupplementView {
 extension AddSupplementView {
   private func searchSupplementSummary(productNameInput: String, nameSource: SupplementNameSource) {
     guard !isSearchingSupplementSummary else { return }
+    
     Task {
       do {
-        try await Task.sleep(for: .seconds(2))
-        
         try await addSupplementVM.request(productNameInput: productNameInput, nameSource: nameSource)
+        
+        await MainActor.run {
+          isSearchingSupplementSummary = false
+        }
       } catch {
         print("❌ Error is \(error)")
       }
     }
+    
     isSearchingSupplementSummary = true
     supplementName = ""
   }
@@ -674,12 +686,10 @@ extension AddSupplementView {
     Task {
       do {
         try await lifestyleTimeVM.saveLifestyle()
-//        try await addSupplementVM.saveRoutine()
-
+        
         try await addSupplementVM.saveAndEditRoutine(
           modelContext: context,
-          editingRoutine: editingRoutine,
-          lifestyleVM: lifestyleTimeVM
+          editingRoutine: editingRoutine
         )
 
         await MainActor.run {

@@ -50,6 +50,7 @@ struct AIRecommendedScheduleView: View {
   @State private var aiPlanState: AIPlanState
   @State private var trigger = false
   @State private var isLifestyleUpdated = false
+  @State private var isInitiallyCreated: Bool
   
   init(
     defaultFontSize: CGFloat,
@@ -64,8 +65,10 @@ struct AIRecommendedScheduleView: View {
     
     if supplement.wrappedValue != nil {
       aiPlanState = .created
+      isInitiallyCreated = true
     } else {
       aiPlanState = .idle(reason: .initial)
+      isInitiallyCreated = false
     }
   }
   
@@ -135,24 +138,7 @@ struct AIRecommendedScheduleView: View {
           }
         }
       case .created:
-        if isLifestyleUpdated {
-          Button {
-            requestAISchedule()
-          } label: {
-            HStack(spacing: .zero) {
-              let fontSize: CGFloat = 13
-              Text("변경된 생활 패턴에 맞춰 ")
-                .font(.notoSans(weight: .regular, size: fontSize))
-                .foregroundStyle(.textGray)
-              
-              Text("스케줄 새로 추천받기")
-                .font(.notoSans(size: fontSize))
-                .foregroundStyle(.main)
-            }
-            .padding(.bottom, .smallSpacing)
-            .padding(.top, -4)
-          }
-        }
+        updateScheduleSection()
         
         if let supplement {
           ForEach(Array(supplement.schedule.times.enumerated()), id: \.offset) { index, doseTime in
@@ -185,14 +171,15 @@ struct AIRecommendedScheduleView: View {
         )
         .modifier(UnifiedShadow())
     )
-    .onChange(of: lifestyle) { oldValue, newValue in
-      guard oldValue != newValue, isLifestyleUpdated == false else { return }
+    .onReceive(NotificationCenter.default.publisher(for: .didUpdateLifestyle)) { _ in
+      guard !isLifestyleUpdated else { return }
       isLifestyleUpdated = true
     }
   }
 }
 
 
+// MARK: - Subviews
 extension AIRecommendedScheduleView {
   private func scheduleInfoRow(index: Int, doseTime: DoseTime) -> some View {
     HStack(spacing: .defaultSpacing) {
@@ -237,6 +224,31 @@ extension AIRecommendedScheduleView {
         .font(.notoSans(weight: .regular, size: defaultFontSize))
         .foregroundStyle(.textGray)
         .padding(.bottom, 2)
+    }
+  }
+  
+  @ViewBuilder
+  private func updateScheduleSection() -> some View {
+    if isLifestyleUpdated || isInitiallyCreated {
+      let prefixText = isLifestyleUpdated ? "변경된 생활 패턴에 맞춰  " : "AI 추천 스케줄  "
+      let actionText = isLifestyleUpdated ? "스케줄 새로 추천받기" : "다시 생성하기"
+      
+      Button {
+        requestAISchedule()
+      } label: {
+        HStack(spacing: .zero) {
+          let fontSize: CGFloat = 13
+          Text(prefixText)
+            .font(.notoSans(weight: .regular, size: fontSize))
+            .foregroundStyle(.textGray)
+          
+          Text(actionText)
+            .font(.notoSans(size: fontSize))
+            .foregroundStyle(.main)
+        }
+        .padding(.bottom, .smallSpacing)
+        .padding(.top, -4)
+      }
     }
   }
 }
