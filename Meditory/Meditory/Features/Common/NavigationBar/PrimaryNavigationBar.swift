@@ -23,6 +23,7 @@ struct PrimaryNavigationBar: View {
   
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.dismiss) private var dismiss
+  private let isPad = UIDevice.isPad
   
   var title: NavigationTitle = .none
   var backgroundStyle: BackgroundStyle = .custom
@@ -31,7 +32,6 @@ struct PrimaryNavigationBar: View {
   
   private var navigationBar: some View {
     ZStack{
-      let isPad = UIDevice.isPad
       let fontSize: CGFloat = isPad ? 20 : 18
       
       Text(title.text)
@@ -53,8 +53,8 @@ struct PrimaryNavigationBar: View {
         Spacer()
       }
     }
-    .padding(.horizontal, 16)
-    .padding(.vertical, 12)
+    .padding(.horizontal, isPad ? .defaultSpacing + 3 : .defaultSpacing)
+    .padding(.vertical, isPad ? 15 : 12)
     .background(backgroundStyle.color)
     .dismissKeyboardOnTap()
   }

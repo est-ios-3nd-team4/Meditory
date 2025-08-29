@@ -21,7 +21,7 @@ struct MonthPickerSheet: View {
       Picker("Month", selection: $selectedMonth) {
         ForEach(1...12, id: \.self) { month in
           Text("\(month)")
-            .font(.notoSans(size: 25))
+            .font(.notoSans(size: UIDevice.isPad ? 27 : 25))
         }
       }
       .pickerStyle(.wheel)

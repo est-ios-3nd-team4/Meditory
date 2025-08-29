@@ -22,13 +22,13 @@ struct WeekdayPickerSheet: View {
         ForEach(Weekday.allCases, id:\.self) { weekday in
           HStack {
             Text(weekday.title)
-              .font(.notoSans(size: 18))
+              .font(.notoSans(size: .defaultFontSize))
             
             Spacer()
             
             CircleCheck(
               isCompleted: weekdays[weekday] ?? false,
-              size: 25
+              size: UIDevice.isPad ? 30 : 25
             )
           }
           .padding(.horizontal, 2)

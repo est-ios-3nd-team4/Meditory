@@ -72,7 +72,12 @@ struct SchedulePickerSheet<Content: View>: View {
             
             if let title {
               Text(title)
-                .font(.notoSans(weight: .medium, size: 16))
+                .font(
+                  .notoSans(
+                    weight: .medium,
+                    size: .defaultFontSize - 2
+                  )
+                )
             }
             
             content

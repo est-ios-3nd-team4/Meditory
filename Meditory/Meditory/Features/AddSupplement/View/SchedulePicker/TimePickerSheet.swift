@@ -9,6 +9,8 @@ import SwiftUI
 
 struct TimePickerSheet: View {
   
+  private let isPad = UIDevice.isPad
+  
   @State var doseSchedule: SupplementDoseSchedule
   let selectedIndex: Int
   let doseSchedules: [SupplementDoseSchedule]
@@ -34,15 +36,19 @@ struct TimePickerSheet: View {
   
   private var doseSection: some View {
     HStack {
+      let imageWidth: CGFloat = isPad ? 33 : 23
+      let iconSize: CGFloat = .defaultFontSize - 2
+      let textSize: CGFloat = .defaultFontSize + 2
+      
       Button {
         doseSchedule.pillsPerDose = max(1, doseSchedule.pillsPerDose - 1)
       } label: {
         Circle()
-          .frame(width: 23, height: 23)
+          .frame(width: imageWidth, height: imageWidth)
           .foregroundStyle(.main)
           .overlay {
             Image(systemName: "minus")
-              .font(.system(size: 16, weight: .semibold))
+              .font(.system(size: iconSize, weight: .semibold))
               .foregroundStyle(.white)
           }
       }
@@ -50,7 +56,7 @@ struct TimePickerSheet: View {
       Spacer()
       
       Text("\(doseSchedule.pillsPerDose)")
-        .font(.notoSans(weight: .regular, size: 20))
+        .font(.notoSans(weight: .regular, size: textSize))
         .padding(.bottom, 3)
       
       Spacer()
@@ -59,11 +65,11 @@ struct TimePickerSheet: View {
         doseSchedule.pillsPerDose += 1
       } label: {
         Circle()
-          .frame(width: 23, height: 23)
+          .frame(width: imageWidth, height: imageWidth)
           .foregroundStyle(.main)
           .overlay {
             Image(systemName: "plus")
-              .font(.system(size: 14, weight: .semibold))
+              .font(.system(size: iconSize, weight: .semibold))
               .foregroundStyle(.white)
           }
       }
@@ -97,7 +103,7 @@ struct TimePickerSheet: View {
         .frame(height: 216)
         
         Text("섭취 량")
-          .font(.notoSans(weight: .medium, size: 16))
+          .font(.notoSans(size: isPad ? 20 : 16))
           .padding(.bottom, .smallSpacing)
         
         doseSection
