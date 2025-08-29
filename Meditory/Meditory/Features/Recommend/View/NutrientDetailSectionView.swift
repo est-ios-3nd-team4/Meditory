@@ -27,6 +27,10 @@ struct NutrientDetailSectionView: View {
     """
   }
 
+  private var style: (symbol: String, color: Color) {
+    RoutineIconResolver.style(category: nutrient.name, displayName: nutrient.name)
+  }
+
   private func toggleScrap() {
     if let existing = scraps.first {
       context.delete(existing)
@@ -87,7 +91,17 @@ struct NutrientDetailSectionView: View {
     ScrollView {
       VStack(alignment: .leading, spacing: .smallSpacing) {
         HStack {
-          Text("🧪 \(nutrient.name)")
+          Image(systemName: style.symbol)
+            .imageScale(.medium)
+            .padding(.smallSpacing)
+            .background(
+              Circle()
+                .fill(style.color.opacity(0.15))
+            )
+            .foregroundStyle(style.color)
+            .accessibilityHidden(true)
+
+          Text(nutrient.name)
             .font(.notoSans(weight: .bold, size: 30))
 
           Spacer()
