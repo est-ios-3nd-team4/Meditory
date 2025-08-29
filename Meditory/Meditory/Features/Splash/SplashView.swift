@@ -15,8 +15,9 @@ struct SplashView: View {
   /// 종료 콜백
   let onFinish: () -> Void
   @State private var scale: CGFloat = 0.98
+  let iconWidth: CGFloat = UIDevice.isPad ? 200 : 100
 
-  init(imageName: String = "img_LoadingScreen",
+  init(imageName: String = "icon_meditory",
        showDuration: Double = 1.2,
        onFinish: @escaping () -> Void) {
     self.imageName = imageName
@@ -25,12 +26,14 @@ struct SplashView: View {
   }
 
   var body: some View {
-    // 전체 화면을 이미지로 채움
-    Image(imageName)
-      .resizable()
-      .scaledToFill()
+    Color.main
       .ignoresSafeArea()
-      .opacity(scale)
+      .overlay {
+        Image(imageName)
+          .resizable()
+          .scaledToFit()
+          .frame(width: iconWidth)
+      }
       .onAppear {
         withAnimation(.easeInOut(duration: 0.25)) {
           scale = 1
