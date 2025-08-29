@@ -10,7 +10,7 @@ import UIKit
 extension CGFloat {
   // MARK: - Spacing
   static let smallSpacing: CGFloat = 8
-  static let defaultSpacing: CGFloat = 16
+  static let defaultSpacing: CGFloat = UIDevice.isPad ? 20 : 16
   static let bottomInset: CGFloat = 33
   
   // MARK: - CornerRadius
