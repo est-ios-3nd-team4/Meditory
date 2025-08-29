@@ -28,10 +28,10 @@ struct RowItemCell: View {
           .alignmentGuide(.top) { d in d[.top] - 4 }
         VStack(alignment: .leading, spacing: 2) {
           Text(model.title)
-            .adaptiveFont(isPad ? 22 : 14,weight: .medium)
+            .adaptiveFont(.defaultFontSize - 4,weight: .medium)
             .foregroundStyle(isSelected ? Color.label : .textGray)
           Text(model.subtitle)
-            .adaptiveFont(isPad ? 20 : 12,weight: .regular)
+            .adaptiveFont(.defaultFontSize - 6,weight: .regular)
             .foregroundStyle(.textGray)
         }
         Spacer()

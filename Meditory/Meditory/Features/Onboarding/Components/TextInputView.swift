@@ -49,20 +49,20 @@ struct TextInputView: View {
     VStack(alignment: .leading) {
       HStack {
         Text(title)
-          .adaptiveFont(isPad ? 24 : 14,weight: .medium)
+          .adaptiveFont(.defaultFontSize - 4,weight: .medium)
           .foregroundStyle(.gray)
         if let error = errorMessage {
           Spacer()
           Text(error)
             .foregroundStyle(.red)
-            .adaptiveFont(isPad ? 22 : 12,weight: .medium)
+            .adaptiveFont(.defaultFontSize - 6,weight: .medium)
         }
       }
       HStack {
         NoQuickTypeTextField(text: $inputText, placeholder: placeholder, keyboardType: keyboardType,onSubmit: {
           onAction?()
         })
-        .adaptiveFont(isPad ? 24 : 14,weight: .semiBold)
+        .adaptiveFont(.defaultFontSize - 4,weight: .semiBold)
           .padding(.horizontal)
           .frame(height: 60)
           .background(
@@ -73,7 +73,7 @@ struct TextInputView: View {
             if let unit = unit {
               Text(unit)
                 .padding(.trailing, isPad ? 12 : 8)
-                .adaptiveFont(isPad ? 20 : 12,weight: .bold)
+                .adaptiveFont(.defaultFontSize - 3, weight: .bold)
                 .foregroundStyle(Color.textGray)
                 .padding(.trailing, .smallSpacing)
             }

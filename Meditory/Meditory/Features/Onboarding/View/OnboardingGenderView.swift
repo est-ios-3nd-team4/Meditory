@@ -40,7 +40,7 @@ struct OnboardingGenderView: View {
     VStack(alignment: .leading, spacing: .defaultSpacing) {
       if let info = prompt.info {
         Text(info)
-          .adaptiveFont(isPad ? 26 : 16,small: -4,weight: .medium)
+          .adaptiveFont(.defaultFontSize - 2 ,weight: .medium)
           .foregroundStyle(.textGray)
           .padding(.bottom,.defaultSpacing)
       }

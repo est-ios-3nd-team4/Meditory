@@ -14,7 +14,7 @@ struct CapsuleShappedText: View {
 
   var body: some View {
     Text("\(title)")
-      .adaptiveFont(isPad ? 20 : 15,weight: .medium)
+      .adaptiveFont(.defaultFontSize - 3,weight: .medium)
       .foregroundStyle(isSelected ? Color.white: .sub)
       .padding(.horizontal, 12)
       .padding(.vertical, 6)
