@@ -16,7 +16,7 @@ struct CalendarWeekdayHeader: View {
 
   private var isPadStyle: Bool { hSize == .regular }
 
-  private var weekFontSize : CGFloat { isPadStyle ? 18 : 16 }
+  private var weekFontSize : CGFloat { isPadStyle ? .defaultFontSize : .defaultFontSize-2 }
   
   var body: some View {
     HStack {
