@@ -311,6 +311,9 @@ private func buildIntakeAnalysisPrompt(diet: DietInput,
   - optimal: 충분히 잘 섭취 중
   - adequate: 권장량 근처로 무난히 충족
   - 성분명만 사용(브랜드/질환/문장 금지), 한국어 표기, 중복 금지.
+  - 만약 mealContext.summaryLines가 비어 있다면,
+    한국인에게 일반적으로 부족하기 쉬운 대표 성분 3개(예: 비타민 D, 식이섬유, 오메가-3)를 deficient에 넣으세요.
+  - 나머지 배열은 빈 배열([])로 두어도 됩니다.
 
   [칩 규칙]
   - 각 배열은 상황에 따라 0~6개. 빈약하면 아래 allowlist로 최대 3개 보충(중복 없이).
