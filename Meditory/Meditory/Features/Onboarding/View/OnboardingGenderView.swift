@@ -39,7 +39,7 @@ struct OnboardingGenderView: View {
     .adaptivePadding(.bottom, 20,small: -10)
     VStack(alignment: .leading, spacing: .defaultSpacing) {
       if let info = prompt.info {
-        Text(info)
+        Text("아래에 해당하는 상태가 있다면 선택해주세요.")
           .adaptiveFont(.defaultFontSize - 2 ,weight: .medium)
           .foregroundStyle(.textGray)
           .padding(.bottom,.defaultSpacing)
