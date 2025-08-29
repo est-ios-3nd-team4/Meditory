@@ -103,8 +103,8 @@ struct SettingView: View {
     content()
       .frame(maxWidth: .infinity, alignment: .leading)
       .frame(height: 26) // 토글버튼때문에 각 항목의 높이가 달라지는 것 때문에 추가
-      .padding(.vertical, 16)   //  내부 상하여백
-      .padding(.horizontal, 16) //  내부 좌우여백
+      .padding(.vertical, .defaultSpacing)   //  내부 상하여백
+      .padding(.horizontal, .defaultSpacing) //  내부 좌우여백
       .background(
         RoundedRectangle(cornerRadius: 20)
           .fill(colorScheme == .dark ? Color.white.opacity(0.2) : Color.white)

@@ -19,7 +19,7 @@ struct AnalysisView: View {
             chips: result.deficient,
             paragraph: result.summaries.deficient
           )
-          .padding(.bottom, 16)
+          .padding(.bottom, .defaultSpacing)
 
           Divider()
           // 주의
@@ -28,7 +28,7 @@ struct AnalysisView: View {
             chips: result.caution,
             paragraph: result.summaries.caution
           )
-          .padding(.vertical, 16)
+          .padding(.vertical, .defaultSpacing)
 
           Divider()
           // 최적
@@ -37,7 +37,7 @@ struct AnalysisView: View {
             chips: result.optimal,
             paragraph: result.summaries.optimal
           )
-          .padding(.vertical, 16)
+          .padding(.vertical, .defaultSpacing)
 
           Divider()
 
@@ -47,12 +47,12 @@ struct AnalysisView: View {
             chips: result.adequate,
             paragraph: result.summaries.adequate
           )
-          .padding(.vertical, 16)
+          .padding(.vertical, .defaultSpacing)
 
           Divider()
 
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, .defaultSpacing)
       }
     }
     .background(

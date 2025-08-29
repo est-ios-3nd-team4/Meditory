@@ -38,7 +38,7 @@ struct RecommendNutrientsView: View {
             .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
             .foregroundColor(.gray)
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, .defaultSpacing)
 
         Divider()
 
@@ -54,13 +54,13 @@ struct RecommendNutrientsView: View {
               .fontWeight(.bold)
               .foregroundColor(.main)
           }
-          .padding(.horizontal, 16)
+          .padding(.horizontal, .defaultSpacing)
 
           VStack(alignment: .leading, spacing: .smallSpacing) {
             Text("Tip")
               .fontWeight(.bold)
               .foregroundColor(Color.white)
-              .padding(.horizontal, 8)
+              .padding(.horizontal, .smallSpacing)
               .padding(.vertical, 4)
               .background(Color.main)
               .cornerRadius(.smallRadius)
@@ -77,14 +77,14 @@ struct RecommendNutrientsView: View {
             RoundedRectangle(cornerRadius: .smallRadius)
               .fill(Color.sub.opacity(0.2))
           )
-          .padding(.horizontal, 16)
+          .padding(.horizontal, .defaultSpacing)
 
 
           Divider()
 
           ForEach(nutrients, id: \.id) { nut in
             NutrientDetailSectionView(nutrient: nut)
-              .padding(.horizontal, 16)
+              .padding(.horizontal, .defaultSpacing)
             Divider()
           }
         }

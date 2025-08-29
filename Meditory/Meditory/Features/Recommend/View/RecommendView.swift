@@ -157,7 +157,7 @@ struct RecommendView: View {
                     .foregroundColor(.gray)
 
                 }
-                .padding(.vertical, 8)
+                .padding(.vertical, .smallSpacing)
                 .padding(.horizontal, 16)
                 .background(Color.white)
                 .cornerRadius(.defaultRadius)
@@ -318,7 +318,7 @@ struct RecommendView: View {
       )
       .id(chipSignature(nutrientVM.chips))
       .padding(.horizontal, 16)
-      .padding(.top, 8)
+      .padding(.top, .smallSpacing)
       .modifier(UnifiedShadow())
 
       ScoreView(
@@ -331,7 +331,7 @@ struct RecommendView: View {
         }
       )
       .padding(.horizontal, 16)
-      .padding(.top, 8)
+      .padding(.top, .smallSpacing)
       .modifier(UnifiedShadow())
       .padding(.bottom, .defaultSpacing)
     }

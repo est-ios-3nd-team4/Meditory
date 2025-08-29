@@ -49,7 +49,7 @@ struct ScrapView: View {
     }
     .navigationDestination(for: Nutrient.self) { nutrient in
       NutrientDetailSectionView(nutrient: nutrient, showsCustomNavBar: true)
-        .padding(.horizontal, 16)
+        .padding(.horizontal, .defaultSpacing)
     }
   }
 }
@@ -72,7 +72,7 @@ struct NutrientCardCell: View {
             onUnscrap()
           } label: {
             Image(systemName: "star.fill")
-              .padding(.trailing, 8)
+              .padding(.trailing, .smallSpacing)
           }
         }
 
@@ -90,7 +90,7 @@ struct NutrientCardCell: View {
       Image(systemName: "chevron.right")
         .foregroundColor(.gray)
     }
-    .padding(16)
+    .padding(.defaultSpacing)
     .background(
       RoundedRectangle(cornerRadius: .defaultRadius)
         .fill(colorScheme == .dark ? Color.white.opacity(0.3)
