@@ -9,6 +9,7 @@ import SwiftUI
 import UIKit
 
 struct NoQuickTypeTextField: UIViewRepresentable {
+  var isPad = UIDevice.isPad
   @Binding var text: String
   var placeholder: String = ""
   var keyboardType: UIKeyboardType = .default
@@ -17,6 +18,7 @@ struct NoQuickTypeTextField: UIViewRepresentable {
   func makeUIView(context: Context) -> UITextField {
     let tf = UITextField()
     tf.placeholder = placeholder
+    tf.font = UIFont.notoSans(weight: .medium, size: isPad ? 20 : 16)
     tf.autocorrectionType = .no
     tf.spellCheckingType = .no
     tf.keyboardType = keyboardType

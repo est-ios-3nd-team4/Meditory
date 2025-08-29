@@ -8,12 +8,13 @@
 import SwiftUI
 
 struct CapsuleShappedText: View {
+  let isPad = UIDevice.isPad
   let title: String
   var isSelected: Bool
 
   var body: some View {
     Text("\(title)")
-      .adaptiveFont(15,weight: .medium)
+      .adaptiveFont(isPad ? 20 : 15,weight: .medium)
       .foregroundStyle(isSelected ? Color.white: .sub)
       .padding(.horizontal, 12)
       .padding(.vertical, 6)

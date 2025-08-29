@@ -8,6 +8,7 @@ struct OnboardingFlowLayoutLineLimit<Content: View>: View {
   let containerPadding: CGFloat  // 화면 여백 파라미터
   let itemPadding: CGFloat  // 칩 패딩 파라미터
   let content: (QuestionModel) -> Content
+  let isPad = UIDevice.isPad
 
   init(
     items: [QuestionModel],
@@ -30,7 +31,7 @@ struct OnboardingFlowLayoutLineLimit<Content: View>: View {
   var body: some View {
     GeometryReader { geometry in
       VStack(alignment: .leading, spacing: lineSpacing) {
-        ForEach(makeRows(containerWidth: geometry.size.width), id: \.self) { row in
+        ForEach(makeRows(containerWidth: isPad ? geometry.size.width * 0.8 : geometry.size.width), id: \.self) { row in
           HStack(spacing: spacing) {
             ForEach(row, id: \.self) { item in
               content(item)

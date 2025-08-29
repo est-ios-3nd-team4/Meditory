@@ -22,6 +22,7 @@ struct OnboardingView: View {
   @State private var isInitialLoadComplete = false // 데이터 로딩완료 여부
   private let isEditing: Bool // 편집모드여부(세팅에서 진입시 true)
 
+  private let isPad = UIDevice.isPad
   private let buttonHeight: CGFloat = 50
   private let buttonTopSpacing: CGFloat = 8
   private let onFinished: () -> Void
@@ -68,6 +69,7 @@ struct OnboardingView: View {
         }
       }
     }
+    .adaptivePadding(.horizontal, isPad ? .defaultSpacing+10 : 0)
     // MARK: - 내비게이션 바
     // isEditing 값에 따라 다른 내비게이션 바 스타일을 적용합니다.
     .applyIf(isEditing) {

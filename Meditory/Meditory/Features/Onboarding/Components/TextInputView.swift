@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TextInputView: View {
-  
+  let isPad = UIDevice.isPad
   let title: String
   let placeholder: String
   let unit: String?
@@ -49,19 +49,20 @@ struct TextInputView: View {
     VStack(alignment: .leading) {
       HStack {
         Text(title)
+          .adaptiveFont(isPad ? 24 : 14,weight: .medium)
           .foregroundStyle(.gray)
         if let error = errorMessage {
           Spacer()
           Text(error)
             .foregroundStyle(.red)
-            .adaptiveFont(12,weight: .medium)
+            .adaptiveFont(isPad ? 22 : 12,weight: .medium)
         }
       }
       HStack {
         NoQuickTypeTextField(text: $inputText, placeholder: placeholder, keyboardType: keyboardType,onSubmit: {
           onAction?()
         })
-        .adaptiveFont(14,weight: .semiBold)
+        .adaptiveFont(isPad ? 24 : 14,weight: .semiBold)
           .padding(.horizontal)
           .frame(height: 60)
           .background(
@@ -71,8 +72,8 @@ struct TextInputView: View {
           .overlay(alignment: .trailing) {
             if let unit = unit {
               Text(unit)
-                .padding(.trailing, 8)
-                .adaptiveFont(16,weight: .bold)
+                .padding(.trailing, isPad ? 12 : 8)
+                .adaptiveFont(isPad ? 20 : 12,weight: .bold)
                 .foregroundStyle(Color.textGray)
                 .padding(.trailing, .smallSpacing)
             }

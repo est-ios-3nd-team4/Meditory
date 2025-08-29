@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ImageWithTitle: View {
-
+  var isPad = UIDevice.isPad
   var gender: Gender
   var isSelected: Bool
   var onAction: (() -> Void)?
@@ -18,7 +18,7 @@ struct ImageWithTitle: View {
       Image(gender.image)
         .resizable()
         .aspectRatio(contentMode: .fit)
-        .adaptiveImage(110,small: -30)
+        .adaptiveImage(isPad ? 150 : 110,small: -30)
         .saturation(isSelected ? 1 : 0)
         .overlay(
           RoundedRectangle(cornerRadius: .defaultRadius)
@@ -29,9 +29,9 @@ struct ImageWithTitle: View {
           onAction?()
         }
       Text(gender.title)
-        .adaptiveFont(18,small: -6,weight: .medium)
+        .adaptiveFont(isPad ? 28 : 18,small: -6,weight: .medium)
         .foregroundStyle(isSelected ? Color.label : .textGray)
-        .adaptivePadding(.bottom, 4, small: -4)
+        .adaptivePadding(.bottom,isPad ? 0 : 4, small: isPad ? 0 : -4)
     }
   }
 }
