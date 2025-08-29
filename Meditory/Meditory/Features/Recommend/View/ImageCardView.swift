@@ -47,7 +47,7 @@ struct ImageCardView: View {
           showConcernEdit = true
         } label: {
           Text("수정하기")
-            .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
+            .font(.notoSans(weight: .medium, size: .defaultFontSize - 4))
         }
       }
 
@@ -101,11 +101,11 @@ struct ImageCardView: View {
                   ShimmerView(widthRatio: 1.0, cornerRadius: .fixed(10))
                     .frame(width: 110, height: 110)
                   ShimmerView(widthRatio: 0.55, cornerRadius: .fixed(6))
-                    .frame(width: 110, height: 12)
+                    .frame(width: 110, height: 10)
                   ShimmerView(widthRatio: 1.0, cornerRadius: .fixed(6))
-                    .frame(width: 110, height: 12)
+                    .frame(width: 110, height: 10)
                   ShimmerView(widthRatio: 0.8, cornerRadius: .fixed(6))
-                    .frame(width: 110, height: 12)
+                    .frame(width: 110, height: 10)
                 }
               }
             } else {
@@ -121,7 +121,9 @@ struct ImageCardView: View {
               }
             }
           }
+          .padding(.vertical, 4)
         }
+        .frame(height: 160)
         // 카테고리 바뀌면 맨 앞으로 스크롤
         .onChange(of: selectedCategory) { _, _ in
           withAnimation(.easeOut(duration: 0.25)) {

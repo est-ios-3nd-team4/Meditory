@@ -96,29 +96,13 @@ struct SearchView: View {
               .font(.title3).bold()
               .padding(.horizontal)
 
-            if ageNutrientVM.isLoading {
-              FlowLayoutLineLimit(
-                items: Array(0..<12),
-                itemFont: chipUIFont,
-                spacing: 8,
-                lineSpacing: 8,
-                lineLimit: 3,
-                containerPadding: 0,
-                itemPadding: chipItemPadding,
-                textProvider: { item in
-                  let lens = [2,3,4,6,3,5]
-                  let len = lens[item % lens.count]
-                  return String(repeating: "가", count: len)
-                },
-                content: { item in
-                  let lens = [2,3,4,6,3,5]
-                  let len = lens[item % lens.count]
-                  let placeholder = String(repeating: ".", count: len)
-                  NutrientChipSkeleton(width: chipWidth(for: placeholder))
-                }
-              )
-              .padding(.horizontal)
-            } else {
+             if ageNutrientVM.isLoading {
+               HStack {
+                 LoadingChip()
+                 Spacer()         
+               }
+               .padding(.horizontal)
+             } else {
               FlowLayoutLineLimit(
                 items: ageNutrientVM.chips,
                 itemFont: .systemFont(ofSize: 15, weight: .medium),

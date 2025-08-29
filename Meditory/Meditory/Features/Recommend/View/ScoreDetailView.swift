@@ -103,18 +103,6 @@ private struct HeaderBar: View {
           .foregroundColor(.white)
 
         Spacer()
-
-        ShareLink(
-          item: "내 점수는 \(score)점이에요! #Meditory",
-          preview: SharePreview("영양제 분석 리포트", image: Image("share"))
-        ) {
-          Image("share")
-            .renderingMode(.template)
-            .resizable()
-            .scaledToFit()
-            .frame(width: 25, height: 25)
-            .foregroundColor(.white)
-        }
       }
       .padding(16)
     }
