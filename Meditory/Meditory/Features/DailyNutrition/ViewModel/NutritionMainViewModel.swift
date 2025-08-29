@@ -32,7 +32,7 @@ class NutritionMainViewModel: ObservableObject {
                                                       fat: 0) // 권장 Macro
   
   var foodList: [FoodInfo] { meals.flatMap { $0.foods } }
-  var macroPercent: MacroNutrients {
+  var macroRatio: MacroNutrients {
     let totalMacros = foodList.reduce(into: MacroNutrients(carbohydrate: 0,
                                                            protein: 0,
                                                            fat: 0)) { result, food in
@@ -41,9 +41,21 @@ class NutritionMainViewModel: ObservableObject {
       result.fat += food.macros.fat
     }
     
-    return MacroNutrients(carbohydrate: totalMacros.carbohydrate / recommendedCalories.carbohydrate,
-                          protein: totalMacros.protein / recommendedCalories.protein,
-                          fat: totalMacros.fat / recommendedCalories.fat)
+    return MacroNutrients(carbohydrate: recommendedCalories.carbohydrate > 0
+                          ? (totalMacros.carbohydrate / recommendedCalories.carbohydrate)
+                          : 0,
+                          protein: recommendedCalories.protein > 0
+                          ? (totalMacros.protein / recommendedCalories.protein)
+                          : 0,
+                          fat: recommendedCalories.fat > 0
+                          ? (totalMacros.fat / recommendedCalories.fat)
+                          : 0)
+  }
+  
+  var macroPercent: MacroNutrients {
+    MacroNutrients(carbohydrate: macroRatio.carbohydrate * 100,
+                   protein: macroRatio.protein * 100,
+                   fat: macroRatio.fat * 100)
   }
   
   init(modelContext: ModelContext) {

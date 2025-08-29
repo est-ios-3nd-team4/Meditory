@@ -10,10 +10,7 @@ import SwiftUI
 struct DailyMealSummaryCard: View {
   
   @EnvironmentObject var viewModel: NutritionMainViewModel
-  var meal: MacroNutrients {
-    viewModel.todayTotalMacros
-  }
-  
+
   var body: some View {
     ZStack {
       Rectangle()
@@ -36,7 +33,7 @@ struct DailyMealSummaryCard: View {
               }
           }
           
-          MacroChartView(macros: viewModel.macroPercent)
+          MacroChartView(macros: viewModel.macroRatio)
             .frame(width: 130, height: 130)
           
           macroPercentageView()
@@ -49,6 +46,7 @@ struct DailyMealSummaryCard: View {
   func macroPercentageView() -> some View {
     HStack(spacing: 40) {
       ForEach(viewModel.macroPercent.macroItems) { item in
+        let gram = (item.gram.isFinite ? item.gram : 0)
         HStack(spacing: 5) {
           Circle()
             .fill(item.color)
@@ -57,7 +55,7 @@ struct DailyMealSummaryCard: View {
             Text(item.label.prefix(1))
               .font(.notoSans(weight: .regular, size: 13))
             
-            Text("\(Int(item.gram * 100))%")
+            Text("\(Int(gram))%")
               .font(.notoSans(weight: .semiBold, size: 13))
         }
         .foregroundStyle(Color.label)

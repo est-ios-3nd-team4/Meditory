@@ -22,9 +22,10 @@ struct FoodInputView: View {
     .fat: ""
   ]
   @State private var foodName = ""
-  @State private var showingDeleteAlert: Bool = false
+  @State private var showingDeleteAlert = false
   @State private var isLoading = false
   @State private var showInvalidFoodAlert = false
+  @State private var showLimitAlert = false
   @FocusState private var isFoodNameFocused: Bool
   
   enum ViewMode {
@@ -130,6 +131,7 @@ struct FoodInputView: View {
                   RecommendedMacroGuidePopover()
                 }
             }
+            .padding(.horizontal, 8)
             
             macroPercentage()
           }
@@ -165,7 +167,6 @@ struct FoodInputView: View {
     }
     .navigationBarBackButtonHidden(true)
     .navigationBarTitleDisplayMode(.inline)
-    .padding(.horizontal, 16)
     .onAppear {
       if mode == .create {
         isFoodNameFocused = true
@@ -191,12 +192,17 @@ struct FoodInputView: View {
     } message: {
       Text("음식 이름을 확인하고 다시 검색하거나, 영양 정보를 직접 입력해주세요.")
     }
+    .alert("2000g을 초과할 수 없습니다.", isPresented: $showLimitAlert) {
+      Button("확인") {}
+    } message: {
+      Text("2000 이하의 g수를 입력해주세요.")
+    }
   }
   
   // MARK: - Macro Input Section
    
   func macroPercentage() -> some View {
-    HStack(spacing: 40) {
+    HStack(alignment: .center, spacing: 40) {
       ForEach(MacroType.allCases, id: \.self) { type in
         VStack {
           Text(getImageForMacro(type))
@@ -207,9 +213,14 @@ struct FoodInputView: View {
             .foregroundStyle(.secondary)
           
           HStack(spacing: 5) {
-            RoundedRectangle(cornerRadius: 10)
+            Rectangle()
+              .fill(.clear)
+              .frame(width: 10, height: 1)
+              .opacity(0)
+            
+            RoundedRectangle(cornerRadius: 20)
               .fill(.backgroundGray)
-              .frame(width: 70, height: 40)
+              .frame(width: 49, height: 29)
               .overlay {
                 macroInputField(for: type)
               }
@@ -220,6 +231,7 @@ struct FoodInputView: View {
           }
           .font(.notoSans(weight: .medium, size: 13))
         }
+        .frame(maxWidth: .infinity)
       }
     }
   }
@@ -236,13 +248,25 @@ struct FoodInputView: View {
       TextField("", text: binding(for: type))
         .foregroundStyle(Color.black)
         .keyboardType(.decimalPad)
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 8)
         .multilineTextAlignment(.center)
-      
+        .onSubmit {
+          validateInput(for: type)
+        }
       
       if isLoading {
         NutrientChipSkeleton(width: 50)
       }
+    }
+  }
+  
+  private func validateInput(for type: MacroType) {
+    guard let text = macroValues[type],
+          let value = Double(text) else { return }
+    
+    if value > 2000 {
+      showLimitAlert = true
+      macroValues[type] = "2000"
     }
   }
   

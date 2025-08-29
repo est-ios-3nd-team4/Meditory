@@ -185,9 +185,9 @@ struct MacroChartView: View {
                                                         fat: 0)
     
     withAnimation(.easeInOut(duration: 1)) {
-      carbohydrateProgress = safeMacros.carbohydrate
-      proteinProgress = safeMacros.protein
-      fatProgress = safeMacros.fat
+      carbohydrateProgress = safeMacros.carbohydrate.isFinite ? safeMacros.carbohydrate : 0
+      proteinProgress = safeMacros.protein.isFinite ? safeMacros.protein : 0
+      fatProgress = safeMacros.fat.isFinite ? safeMacros.fat : 0
     }
   }
 }
