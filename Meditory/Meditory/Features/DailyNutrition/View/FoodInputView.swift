@@ -75,7 +75,7 @@ struct FoodInputView: View {
           VStack(spacing: 20) {
             Color.clear
               .frame(height: 30)
-
+            
             // MARK: Food Name Input
             UnifiedSectionCard {
               HStack {
@@ -154,29 +154,6 @@ struct FoodInputView: View {
             
             loadFoodData()
           }
-          .alert("음식 삭제", isPresented: $showingDeleteAlert) {
-            Button("취소", role: .cancel) { }
-            Button("삭제", role: .destructive) {
-              deleteFood()
-            }
-          } message: {
-            Text("이 음식을 삭제하시겠습니까? 삭제된 음식은 복구할 수 없습니다.")
-          }
-          .alert("음식 정보를 찾을 수 없습니다.", isPresented: $showInvalidFoodAlert) {
-            Button("다시 검색") {
-              foodName = ""
-              isFoodNameFocused = true
-              showInvalidFoodAlert = false
-            }
-            Button("이대로 등록") { }
-          } message: {
-            Text("음식 이름을 확인하고 다시 검색하거나, 영양 정보를 직접 입력해주세요.")
-          }
-          .alert("2000g을 초과할 수 없습니다.", isPresented: $showLimitAlert) {
-            Button("확인") {}
-          } message: {
-            Text("2000 이하의 g수를 입력해주세요.")
-          }
         }
       }
       
@@ -209,6 +186,39 @@ struct FoodInputView: View {
         }
       }
       .padding(.horizontal, 16)
+    }
+    .overlay {
+      if showingDeleteAlert {
+        AlertView(alertType: .delete,
+                  title: "음식 삭제",
+                  message: "음식을 삭제하시겠습니까? 삭제된 음식은 복구할 수 없습니다.",
+                  onCancel: {
+          showingDeleteAlert = false
+        },
+                  onDelete: {
+          deleteFood()
+          showingDeleteAlert = false
+        })
+      } else if showInvalidFoodAlert {
+        AlertView(alertType: .notFound,
+                  title: "음식 정보를 찾을 수 없습니다.",
+                  message: "음식 이름을 확인하고 다시 검색하거나, 영양 정보를 직접 입력해주세요.",
+                  onConfirm: {
+          showInvalidFoodAlert = false
+        },
+                  onResearch: {
+          foodName = ""
+          isFoodNameFocused = true
+          showInvalidFoodAlert = false
+        })
+      } else if showLimitAlert {
+        AlertView(alertType: .confirm,
+                  title: "2000g을 초과할 수 없습니다.",
+                  message: "2000 이하의 g수를 입력해주세요.",
+                  onConfirm: {
+          showLimitAlert = false
+        })
+      }
     }
   }
   
@@ -262,7 +272,10 @@ struct FoodInputView: View {
         .keyboardType(.decimalPad)
         .padding(.horizontal, 8)
         .multilineTextAlignment(.center)
-        .onSubmit {
+//        .onSubmit {
+//          validateInput(for: type)
+//        }
+        .onChange(of: binding(for: type).wrappedValue) { oldValue, newValue in
           validateInput(for: type)
         }
       
@@ -274,7 +287,9 @@ struct FoodInputView: View {
   
   private func validateInput(for type: MacroType) {
     guard let text = macroValues[type],
-          let value = Double(text) else { return }
+          let value = Double(text) else {
+      return
+    }
     
     if value > 2000 {
       showLimitAlert = true

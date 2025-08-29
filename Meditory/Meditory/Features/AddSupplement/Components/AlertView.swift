@@ -12,6 +12,7 @@ struct AlertView: View {
   enum AlertType {
     case confirm
     case delete
+    case notFound
   }
   
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -22,6 +23,7 @@ struct AlertView: View {
   var onConfirm: (() -> Void)?
   var onCancel: (() -> Void)?
   var onDelete: (() -> Void)?
+  var onResearch: (() -> Void)?
 
   private var isPadStyle: Bool { horizontalSizeClass == .regular }
   private var maxCardWidth: CGFloat { isPadStyle ? 520 : .infinity }
@@ -54,6 +56,12 @@ struct AlertView: View {
             confirmButton("아니오", onCancel)
             
             deleteButton("삭제", onDelete)
+          }
+        case .notFound:
+          HStack(spacing: .defaultSpacing) {
+            confirmButton("다시 검색", onResearch)
+            
+            confirmButton("이대로 등록", onConfirm)
           }
         }
       }

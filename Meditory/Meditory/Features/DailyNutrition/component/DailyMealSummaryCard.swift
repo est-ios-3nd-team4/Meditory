@@ -22,7 +22,7 @@ struct DailyMealSummaryCard: View {
         VStack(spacing: 16) {
           HStack {
             Text("오늘 하루 식단")
-              .font(.notoSans(size: .defaultFontSize + 2))
+              .font(.notoSans(weight: .semiBold, size: .defaultFontSize + 2))
               .foregroundStyle(Color.label)
             
             Spacer()
