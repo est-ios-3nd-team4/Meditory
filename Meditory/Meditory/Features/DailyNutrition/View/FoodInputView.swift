@@ -26,6 +26,9 @@ struct FoodInputView: View {
   @State private var isLoading = false
   @State private var showInvalidFoodAlert = false
   @State private var showLimitAlert = false
+  private var isSaveButtonEnabled: Bool {
+    !(foodName == "")
+  }
   @FocusState private var isFoodNameFocused: Bool
   
   enum ViewMode {
@@ -34,8 +37,8 @@ struct FoodInputView: View {
   }
   
   var tipComment: String = Bool.random() == true
-  ? ": 음식 이름을 입력하고, 탄수화물·단백질·지방(g)을 직접 기록해 보세요."
-  : ": 정확한 g 단위를 모르면 대략적인 값으로 입력해도 괜찮아요."
+  ? "Tip‼️: 음식 이름을 입력하고, 탄수화물·단백질·지방(g)을 직접 기록해 보세요."
+  : "Tip‼️: 정확한 g 단위를 모르면 대략적인 값으로 입력해도 괜찮아요."
   
   var navigationTitle: String {
     switch mode {
@@ -100,7 +103,7 @@ struct FoodInputView: View {
       // MARK: Food Name Input
       UnifiedSectionCard {
         HStack {
-          TextField("스파게티", text: $foodName)
+          TextField("음식 이름을 입력하세요.", text: $foodName)
             .focused($isFoodNameFocused)
             .onSubmit {
               searchFood()
@@ -139,28 +142,23 @@ struct FoodInputView: View {
         .padding(.horizontal, 16)
         
         Text("AI 생성 영양정보로 실제 값과 다를 수 있습니다. 건강 관련 중요한 결정은 의료 전문가와 상의하세요.")
-          .font(.notoSans(weight: .medium, size: 7))
+          .font(.notoSans(weight: .medium, size: 9))
             .foregroundColor(.secondary)
             .multilineTextAlignment(.center)
       }
       
       Spacer()
       
-      UnifiedSectionCard {
-        HStack {
-          Text("Tip‼️")
-          
-          Text(tipComment)
-            .font(.notoSans(weight: .medium, size: 12))
-            .multilineTextAlignment(.leading)
-            .lineLimit(nil)
-        }
-        .padding(.vertical, 8)
+      UnifiedSectionCard() {
+        Text(tipComment)
+          .font(.notoSans(weight: .medium, size: 12))
+          .multilineTextAlignment(.leading)
+          .lineLimit(nil)
       }
       .fixedSize(horizontal: false, vertical: true)
       .padding(.horizontal, 16)
       
-      PrimaryButton(title: primaryButtonTitle) {
+      PrimaryButton(title: primaryButtonTitle, isEnabled: isSaveButtonEnabled) {
         handlePrimaryAction()
       }
       .padding(.horizontal, 16)

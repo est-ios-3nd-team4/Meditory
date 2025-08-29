@@ -35,6 +35,7 @@ struct DailyMealSummaryCard: View {
           
           MacroChartView(macros: viewModel.macroRatio)
             .frame(width: 130, height: 130)
+            .padding(.bottom, 8)
           
           macroPercentageView()
         }
