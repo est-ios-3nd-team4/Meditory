@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct OnboardingGenderView: View {
-  // @ObservedObject를 제거하고 일반 var로 변경
+  let isPad = UIDevice.isPad
   var vm: OnboardingViewModel
   @Environment(\.colorScheme) var colorScheme
   @Binding var isSelected: Bool
@@ -25,6 +25,9 @@ struct OnboardingGenderView: View {
         ImageWithTitle(gender: Gender.male, isSelected: vm.gender == Gender.male.title) {
           vm.gender = Gender.male.title
         }
+        if isPad {
+          Spacer()
+        }
         ImageWithTitle(gender: Gender.female, isSelected: vm.gender == Gender.female.title) {
           vm.gender = Gender.female.title
         }
@@ -37,7 +40,7 @@ struct OnboardingGenderView: View {
     VStack(alignment: .leading, spacing: .defaultSpacing) {
       if let info = prompt.info {
         Text(info)
-          .adaptiveFont(16,small: -4,weight: .medium)
+          .adaptiveFont(isPad ? 26 : 16,small: -4,weight: .medium)
           .foregroundStyle(.textGray)
           .padding(.bottom,.defaultSpacing)
       }

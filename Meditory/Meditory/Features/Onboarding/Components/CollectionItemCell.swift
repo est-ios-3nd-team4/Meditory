@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct CollectionItemCell: View {
+  let isPad = UIDevice.isPad
   var model:QuestionModel
   var isSelected: Bool = false
   
@@ -17,7 +18,7 @@ struct CollectionItemCell: View {
         RoundedRectangle(cornerRadius: .defaultSpacing)
           .stroke(Color.gray.opacity(0.3), lineWidth: isSelected ? 0 : 1)
           .fill(isSelected ? Color.sub.opacity(0.14) : Color.clear)
-          .adaptiveImage(100)
+          .adaptiveImage(isPad ? 150 : 100)
           .foregroundStyle(.sub.opacity(0.14))
           .zIndex(0)
         Image(model.image)
@@ -30,10 +31,10 @@ struct CollectionItemCell: View {
       }
       .modifier(UnifiedShadow())
       Text(model.title)
-        .font(.notoSans(weight: .medium, size: 14))
+        .adaptiveFont(isPad ? 22 : 14,weight: .medium)
         .foregroundStyle(isSelected ? Color.label : .textGray)
     }
-    .frame(width: 140,height: 140)
+    .adaptiveImage(isPad ? 190 : 140)
   }
 }
 

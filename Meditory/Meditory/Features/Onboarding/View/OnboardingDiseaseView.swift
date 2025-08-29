@@ -8,11 +8,18 @@
 import SwiftUI
 
 struct OnboardingDiseaseView: View {
+  let isPad = UIDevice.isPad
   let items = QuestionModel.diseaseModel
   let columns = [
     GridItem(.flexible()),
     GridItem(.flexible()),
     GridItem(.flexible()),
+  ]
+  let padColumns = [
+    GridItem(.flexible()),
+    GridItem(.flexible()),
+    GridItem(.flexible()),
+    GridItem(.flexible())
   ]
   let prompt: Prompt
   let name: String

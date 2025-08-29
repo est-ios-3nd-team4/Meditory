@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TitleView: View {
+  var isPad = UIDevice.isPad
   var prompt:Prompt
   var name: String = ""
   var extra: String = ""
@@ -15,12 +16,12 @@ struct TitleView: View {
     HStack {
       VStack(alignment: .leading) {
         Text(prompt.title(name: name))
-          .adaptiveFont(26,small: -8,weight: .bold)
+          .adaptiveFont(isPad ?  40 : 26,small: -8,weight: .bold)
           .padding(.vertical, 10)
           .fixedSize()
         if let secondary = prompt.info(context: extra) ?? prompt.subtitle {
           Text(secondary)
-            .adaptiveFont(16,weight: .medium)
+            .adaptiveFont(isPad ? 26 : 16 ,weight: .medium)
             .foregroundStyle(.textGray)
         }
       }

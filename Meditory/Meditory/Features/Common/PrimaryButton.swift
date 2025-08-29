@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PrimaryButton: View {
+  let isPad = UIDevice.isPad
   let title: String
   var isEnabled: Bool = true
   var isSub: Bool = false
@@ -22,7 +23,7 @@ struct PrimaryButton: View {
         .frame(height: 50)
         .overlay {
           Text(title)
-            .font(.notoSans(weight: .semiBold, size: 18))
+            .font(.notoSans(weight: .semiBold, size: isPad ? 28 : 18))
             .foregroundStyle(isSub ? .main : .white)
         }
     }
