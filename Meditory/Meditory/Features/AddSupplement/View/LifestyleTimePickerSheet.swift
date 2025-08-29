@@ -9,6 +9,8 @@ import SwiftUI
 
 struct LifestyleTimePickerSheet: View {
   
+  @Environment(\.colorScheme) private var colorScheme
+  
   let type: LifestyleTimeType
   @State var option: any LifestyleTime
   @State var dates: [Date]
@@ -68,7 +70,9 @@ struct LifestyleTimePickerSheet: View {
           .background(
             GeometryReader { geometry in
               Rectangle()
-                .fill(.background)
+                .fill(
+                  colorScheme.isLightMode ? .white : Color.init(red: 36, green: 36, blue: 36)
+                )
                 .clipShape(
                   RoundedCorner(radius: 20, corners: [.topLeft, .topRight])
                 )
@@ -212,7 +216,7 @@ extension LifestyleTimePickerSheet {
           HStack(alignment: .firstTextBaseline) {
             Text("식사 안 함")
               .font(.notoSans(size: 16))
-              .foregroundStyle(isMealSkipped(index: index) ? .black : Color.textGray)
+              .foregroundStyle(isMealSkipped(index: index) ? .label : Color.textGray)
             
             Image(systemName: "checkmark")
               .font(.system(size: 14, weight: .bold))
