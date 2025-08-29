@@ -54,7 +54,6 @@ final class HomeRoutineManagerTests: XCTestCase {
       startDate: Date(),
       memo: nil,
       hasPush: true,
-      imageData: nil,
       usage: [],
       precautions: [],
       routineTimes: rTimes,

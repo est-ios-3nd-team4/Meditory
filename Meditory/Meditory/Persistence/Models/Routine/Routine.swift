@@ -46,9 +46,6 @@ final class Routine: Sendable {
   
   /// 알림 여부 (true면 푸시 알림 활성화)
   var hasPush: Bool
-  
-  /// 제품 이미지 데이터
-  var imageData: Data?
 
   // MARK: - [String]을 Data로 저장하기 위한 수정
   
@@ -123,7 +120,6 @@ final class Routine: Sendable {
     startDate: Date = .now,
     memo: String? = nil,
     hasPush: Bool = true,
-    imageData: Data? = nil,
     usage: [String] = [],
     precautions: [String] = [],
     routineTimes: [RoutineTime] = [],
@@ -139,7 +135,6 @@ final class Routine: Sendable {
     self.startDate = startDate
     self.memo = memo
     self.hasPush = hasPush
-    self.imageData = imageData
     self.routineTimes = routineTimes
     self.recommendedRoutineTimes = recommendedRoutineTimes
     
