@@ -27,6 +27,9 @@ struct LifestyleTimePickerSheet: View {
       ZStack {
         Rectangle()
           .fill(.black.opacity(0.3))
+          .onTapGesture {
+            dismissWithAnimation()
+          }
         
         VStack {
           Spacer()
