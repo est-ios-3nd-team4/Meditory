@@ -38,11 +38,11 @@ struct SearchCardView: View {
 
       VStack(alignment: .leading) {
         Text(brand)
-          .font(.notoSans(weight: .medium, size: 15))
+          .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
           .foregroundColor(.secondary)
 
         Text(productName)
-          .font(.notoSans(weight: .medium, size: 16))
+          .font(.notoSans(weight: .medium, size: .defaultFontSize - 2))
           .lineLimit(2)
       }
 

@@ -40,14 +40,14 @@ struct ImageCardView: View {
     VStack(alignment: .leading, spacing: 12) {
       HStack {
         Text(title)
-          .font(.notoSans(weight: .medium, size: 18))
+          .font(.notoSans(weight: .medium, size: .defaultFontSize))
         Spacer()
 
         Button {
           showConcernEdit = true
         } label: {
           Text("수정하기")
-            .font(.notoSans(weight: .medium, size: 14))
+            .font(.notoSans(weight: .medium, size: .defaultFontSize - 4))
         }
       }
 
@@ -85,7 +85,7 @@ struct ImageCardView: View {
       }
 
       Text(desc)
-        .font(.notoSans(weight: .medium, size: 12))
+        .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
         .foregroundColor(.gray)
 
       ScrollViewReader { proxy in

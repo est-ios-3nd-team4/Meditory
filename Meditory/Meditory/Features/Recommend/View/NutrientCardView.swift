@@ -5,7 +5,7 @@ struct NutrientChip: View {
 
   var body: some View {
     Text("💊 \(title)")
-      .font(.notoSans(weight: .medium, size: 15))
+      .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
       .padding(.horizontal, 12)
       .padding(.vertical, 6)
       .overlay {
@@ -31,7 +31,7 @@ struct NutrientCardView: View {
     VStack(alignment: .leading, spacing: .defaultSpacing) {
       HStack {
         Text("\(safeName) 님 맞춤 영양소 추천")
-          .font(.notoSans(weight: .medium, size: 18))
+          .font(.notoSans(weight: .medium, size: .defaultFontSize))
 
         Spacer()
 
@@ -45,7 +45,7 @@ struct NutrientCardView: View {
       }
 
       Text("식단을 분석해 \(safeName) 님께 부족한 영양소를 추천드려요.")
-        .font(.notoSans(weight: .medium, size: 12))
+        .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
         .foregroundColor(.gray)
 
       FlowLayout(spacing: .smallSpacing, lineSpacing: .smallSpacing) {

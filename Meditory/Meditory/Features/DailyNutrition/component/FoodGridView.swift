@@ -36,10 +36,10 @@ struct FoodGridView: View {
       
       HStack {
         Text(food.name)
-          .font(.notoSans(weight: .medium, size: 16))
+          .font(.notoSans(weight: .medium, size: .defaultFontSize - 2))
         
         Text("\(Int(food.weight))g")
-          .font(.notoSans(weight: .regular, size: 15))
+          .font(.notoSans(weight: .regular, size: .defaultFontSize - 3))
       }
       .padding(.horizontal, 8)
       .lineLimit(1)

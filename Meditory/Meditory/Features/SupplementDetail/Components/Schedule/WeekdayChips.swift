@@ -15,7 +15,7 @@ struct WeekdayChips: View {
       Spacer(minLength: 0)
       ForEach(weekdays, id: \.self) { text in
         Text(text)
-          .font(.notoSans(size: 13))
+          .font(.notoSans(size: .defaultFontSize - 5))
           .fontWeight(.semibold)
           .padding(.horizontal, .smallSpacing)
           .padding(.vertical, .smallSpacing / 2)

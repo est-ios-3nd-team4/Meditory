@@ -111,6 +111,7 @@ extension AddIntakeSelectorPadView {
         .foregroundStyle(.white)
         .frame(width: AddIntakeButton.size.width)
         .font(.notoSans(size: 17))
+        .multilineTextAlignment(.center)
     }
     .onTapGesture {
       selectedIntakeItem = item

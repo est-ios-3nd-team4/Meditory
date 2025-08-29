@@ -51,7 +51,7 @@ struct ScoreView: View {
     VStack(alignment: .leading, spacing: .defaultSpacing) {
       HStack {
         Text("내 영양 점수는?")
-          .font(.notoSans(weight: .medium, size: 18))
+          .font(.notoSans(weight: .medium, size: .defaultFontSize))
 
         Spacer()
 
@@ -84,7 +84,7 @@ struct ScoreView: View {
               .font(.notoSans(weight: .medium, size: 50))
 
             Text("점")
-              .font(.notoSans(weight: .medium, size: 20))
+              .font(.notoSans(weight: .medium, size: .defaultFontSize + 2))
           }
           .padding(.bottom, 24)
 
@@ -93,7 +93,7 @@ struct ScoreView: View {
 
 
             Text(statusMessage)
-              .font(.notoSans(weight: .medium, size: 14))
+              .font(.notoSans(weight: .medium, size: .defaultFontSize - 4))
               .foregroundColor(.gray)
           }        }
         .padding(.bottom, 36)

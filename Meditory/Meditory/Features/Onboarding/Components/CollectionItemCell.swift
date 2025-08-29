@@ -18,7 +18,7 @@ struct CollectionItemCell: View {
         RoundedRectangle(cornerRadius: .defaultSpacing)
           .stroke(Color.gray.opacity(0.3), lineWidth: isSelected ? 0 : 1)
           .fill(isSelected ? Color.sub.opacity(0.14) : Color.clear)
-          .adaptiveImage(isPad ? 150 : 100)
+          .adaptiveImage(isPad ? 130 : 100)
           .foregroundStyle(.sub.opacity(0.14))
           .zIndex(0)
         Image(model.image)
@@ -31,7 +31,7 @@ struct CollectionItemCell: View {
       }
       .modifier(UnifiedShadow())
       Text(model.title)
-        .adaptiveFont(isPad ? 22 : 14,weight: .medium)
+        .adaptiveFont(.defaultFontSize - 4,weight: .medium)
         .foregroundStyle(isSelected ? Color.label : .textGray)
     }
     .adaptiveImage(isPad ? 190 : 140)

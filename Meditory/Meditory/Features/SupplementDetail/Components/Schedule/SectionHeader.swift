@@ -27,7 +27,7 @@ struct SectionHeader: View {
       }
 
       Text(title)
-        .font(.notoSans(size: 13))
+        .font(.notoSans(size: .defaultFontSize - 5))
         .foregroundStyle(colorScheme == .dark ? .white : .main)
     }
     .padding(.horizontal, .smallSpacing)

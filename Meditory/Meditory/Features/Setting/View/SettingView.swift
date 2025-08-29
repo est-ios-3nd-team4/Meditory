@@ -10,8 +10,6 @@ struct SettingView: View {
   @Environment(\.scenePhase) private var scenePhase
   @State private var viewModel: SettingViewModel
   
-  private let defaultFontSize: CGFloat = 18
-  
   init() {
       // 앱의 실제 Store 싱글턴을 주입함
       _viewModel = State(initialValue: SettingViewModel(settingStore: SettingStore.shared))
@@ -39,7 +37,7 @@ struct SettingView: View {
         NavigationLink(destination: SettingSubView()) {
           settingItem {
             Text("내 정보 ∙ 건강 정보 관리")
-              .font(.notoSans(size: defaultFontSize))
+              .font(.notoSans(size: .defaultFontSize))
               .foregroundStyle(.primary)
           }
         }
@@ -51,13 +49,13 @@ struct SettingView: View {
           } label: {
             HStack {
               Text("알림")
-                .font(.notoSans(size: 18))
+                .font(.notoSans(size: .defaultFontSize))
                 .foregroundStyle(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading) // 레이아웃을 전체 너비로 확장함
                 .contentShape(Rectangle()) // 터치 영역을 사각형 프레임 전체로 확장함
               
               Text(viewModel.isSystemGranted ? "ON" : "OFF")
-                .font(.caption)
+                .font(.notoSans(size: .defaultFontSize - 4))
                 .foregroundColor(.secondary)
                 .padding(.trailing, 4)
             }
@@ -71,7 +69,7 @@ struct SettingView: View {
             Link(destination: url) {
               HStack {
                 Text("고객센터 문의하기")
-                  .font(.notoSans(size: defaultFontSize))
+                  .font(.notoSans(size: .defaultFontSize))
                   .foregroundStyle(.primary) // 링크의 기본 파란색 스타일을 덮어쓰기 위함
                   .frame(maxWidth: .infinity, alignment: .leading) // 레이아웃을 전체 너비로 확장함
                   .contentShape(Rectangle()) // 터치 영역을 사각형 프레임 전체로 확장함

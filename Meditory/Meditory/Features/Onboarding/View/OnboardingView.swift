@@ -147,14 +147,20 @@ struct OnboardingView: View {
 
   @ViewBuilder
   func progressIndicator() -> some View {
-    let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: Step.totalCount)
+    let columns: [GridItem] = Array(
+      repeating: GridItem(
+        .flexible(),
+        spacing: isPad ? 20 : .smallSpacing
+      ),
+      count: Step.totalCount
+    )
     HStack {
       LazyVGrid(columns: columns) {
         ForEach(Step.allCases, id: \.self) { index in
           Text(String(index.rawValue + 1))
-            .font(.notoSans(size: 13))
+            .font(.notoSans(size: .defaultFontSize - 5))
             .foregroundStyle(index == currentStep ? Color.white : Color.gray)
-            .frame(width: 25, height: 25)
+            .frame(width: isPad ? 30 : 25, height: isPad ? 30 : 25)
             .background {
               Circle()
                 .fill(index == currentStep ? Color.main : Color.gray.opacity(0.2))

@@ -9,7 +9,8 @@ import SwiftUI
 
 struct SchedulePickerSheet<Content: View>: View {
   
-  @Environment(\.dismiss) var dismiss
+  @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.dismiss) private var dismiss
   
   private let title: String?
   private let needsAlert: Bool
@@ -71,7 +72,12 @@ struct SchedulePickerSheet<Content: View>: View {
             
             if let title {
               Text(title)
-                .font(.notoSans(weight: .medium, size: 16))
+                .font(
+                  .notoSans(
+                    weight: .medium,
+                    size: .defaultFontSize - 2
+                  )
+                )
             }
             
             content
@@ -89,7 +95,9 @@ struct SchedulePickerSheet<Content: View>: View {
           .background(
             GeometryReader { geometry in
               Rectangle()
-                .fill(.background)
+                .fill(
+                  colorScheme.isLightMode ? .white : Color.init(red: 36, green: 36, blue: 36)
+                )
                 .clipShape(
                   RoundedCorner(radius: 20, corners: [.topLeft, .topRight])
                 )

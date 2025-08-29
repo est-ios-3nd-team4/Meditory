@@ -21,7 +21,7 @@ struct SchedulePanel: View {
           .foregroundStyle(.orange)
 
         Text("복용 스케줄")
-          .font(.notoSans(size: 18))
+          .font(.notoSans(size: .defaultFontSize))
           .fontWeight(.bold)
 
         Spacer()
@@ -57,10 +57,10 @@ struct SchedulePanel: View {
         HStack(spacing: .smallSpacing) {
           Image(systemName: "square.and.pencil")
           Text("내 일정 수정 하러 가기")
-            .font(.notoSans(weight: .bold, size: 15))
+            .font(.notoSans(weight: .bold, size: .defaultFontSize - 3))
           Spacer()
           Image(systemName: "chevron.right")
-            .font(.notoSans(weight: .semiBold, size: 15))
+            .font(.notoSans(weight: .semiBold, size: .defaultFontSize - 3))
         }
         .padding(.vertical, .defaultSpacing)
         .padding(.horizontal, .defaultSpacing)
