@@ -88,7 +88,7 @@ struct AddSupplementView: View {
 
   var body: some View {
     GeometryReader { scrollView in
-      let isLandscape = scrollView.size.width > scrollView.size.height
+      let isLandscape = scrollView.frame(in: .global).width > scrollView.frame(in: .global).height
       
       ZStack {
         ScrollViewReader { proxy in
