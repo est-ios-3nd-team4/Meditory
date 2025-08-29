@@ -5,6 +5,11 @@ struct ScoreView: View {
 
   @StateObject private var scoreVM = ScoreViewModel()
 
+  let user: User?
+  let meals: [Meal]
+  let diet: DietInput
+  var windowDays: Int = 30
+
   @State private var animatedScore: Double = 0
 
   var onResultUpdate: ((ScoreResult) -> Void)? = nil
@@ -35,10 +40,17 @@ struct ScoreView: View {
     }
   }
 
+  private var reloadKey: String {
+    let who = (user?.name ?? "@@").trimmingCharacters(in: .whitespacesAndNewlines)
+    let count = meals.count
+    let latestTS = meals.first?.date.timeIntervalSince1970 ?? 0
+    return "\(who)|\(count)|\(Int(latestTS))|\(diet.foods.count)|\(windowDays)"
+  }
+
   var body: some View {
     VStack(alignment: .leading, spacing: .defaultSpacing) {
       HStack {
-        Text("내 영양제 점수는?")
+        Text("내 영양 점수는?")
           .font(.notoSans(weight: .medium, size: 18))
 
         Spacer()
@@ -96,17 +108,25 @@ struct ScoreView: View {
                 : Color.white)
     .cornerRadius(.defaultRadius)
     .modifier(UnifiedShadow())
+
     .onAppear {
-      animatedScore = 0
-      if scoreVM.result == nil {
-        scoreVM.loadMockIntake()
-      } else if let current = scoreVM.result?.score {
-        DispatchQueue.main.async {
-          withAnimation(.easeOut(duration: 1.2)) { animatedScore = Double(current) }
-        }
+      let target = Double(max(0, min(100, scoreVM.result?.score ?? 0)))
+      withAnimation(.easeOut(duration: 0.8)) {
+        animatedScore = target
       }
     }
-    
+
+    .task(id: reloadKey) {
+      scoreVM.load(
+        diet: diet,
+        meals: meals,
+        user: user,
+        windowDays: windowDays,
+        weights: .default,
+        force: false
+      )
+    }
+
     .onChange(of: scoreVM.result) { newResult in
       guard let newResult else { return }
       onResultUpdate?(newResult)
@@ -116,7 +136,6 @@ struct ScoreView: View {
     }
   }
 }
-
-#Preview {
-  ScoreView()
-}
+//#Preview {
+//  ScoreView()
+//}

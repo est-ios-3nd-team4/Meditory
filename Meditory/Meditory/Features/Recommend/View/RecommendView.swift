@@ -8,8 +8,31 @@ struct RecommendView: View {
   @Environment(\.modelContext) private var context
   @Query private var users: [User]
 
+  @Query(sort: [SortDescriptor(\Meal.date, order: .reverse)])
+  private var meals: [Meal]
+
   @StateObject private var recommendVM = ProductRecommendViewModel()
   @StateObject private var nutrientVM = NutrientViewModel()
+
+  private let mealWindowDays: Int = 30
+  private var recentMeals: [Meal] {
+    guard let start = Calendar.current.date(byAdding: .day, value: -mealWindowDays, to: Date()) else { return meals }
+    return meals.filter { $0.date >= start }
+  }
+
+  private var nutrientReloadKey: String {
+    let who = userNameKey
+    let count = recentMeals.count
+    let latestTS = recentMeals.first?.date.timeIntervalSince1970 ?? 0
+    return "\(who)|\(count)|\(Int(latestTS))"
+  }
+
+  private var dietInputForScore: DietInput {
+    // Meal → Food 이름으로 단순 변환 (중복 제거/공백 제거)
+    let names = recentMeals.flatMap { $0.foods.map { $0.foodName.trimmingCharacters(in: .whitespacesAndNewlines) } }
+    let unique = Array(Set(names)).filter { !$0.isEmpty }
+    return DietInput(foods: unique, patterns: nil) // 패턴 수집 시 여기 채워넣기
+  }
 
   @State private var lastLoadedName: String = ""
   @State private var isOverlappingHeader = false
@@ -29,6 +52,7 @@ struct RecommendView: View {
   @State private var hasRealNutrientData = false
   @State private var categoryTask: Task<Void, Never>?
   @State private var hydrateTask: Task<Void, Never>?
+  @State private var isLoadingProducts = false
 
   private func chipSignature(_ chips: [String]) -> String {
     chips.sorted().joined(separator: "|")
@@ -204,12 +228,9 @@ struct RecommendView: View {
           .onChange(of: firstCardTopY, initial: false) { _, new in
             isOverlappingHeader = new < (headerBottomY - 2)
           }
-          .task(id: userNameKey) {
-            guard !userNameKey.isEmpty else { return }
-            let newName = name
-            guard newName != lastLoadedName else { return }
-            lastLoadedName = newName
-            nutrientVM.load(userName: newName)
+          .task(id: nutrientReloadKey) {
+            guard users.first != nil else { return }
+            nutrientVM.load(user: users.first, meals: recentMeals)
           }
           .scrollClipDisabled(true)
           .zIndex(1)
@@ -224,24 +245,25 @@ struct RecommendView: View {
       hydrateTask?.cancel()
     }
 
-    .onChange(of: nutrientVM.recommend) {
-      guard !nutrientVM.recommend.isEmpty else { return }
-      let currentSig = recommendSignature(nutrientVM.recommend)
+    .onChange(of: nutrientVM.recommendations) {
+      guard !nutrientVM.recommendations.isEmpty else { return }
+      let currentSig = recommendSignature(nutrientVM.recommendations)
       guard currentSig != dummyRecommendSignature else { return }
 
       hasRealNutrientData = true
       nutrientVM.saveRecommendations(to: context)
     }
 
-    .onChange(of: nutrientVM.chip) {
-      guard !nutrientVM.chip.isEmpty else { return }
-      let currentSig = chipSignature(nutrientVM.chip)
+
+    .onChange(of: nutrientVM.chips) {
+      guard !nutrientVM.chips.isEmpty else { return }
+      let currentSig = chipSignature(nutrientVM.chips)
       if currentSig != dummyChipSignature {
         hasRealNutrientData = true
       }
     }
     .navigationDestination(isPresented: $showNutrientDetail) {
-      RecommendNutrientsView(nutrients: nutrientVM.recommend, userName: name)
+      RecommendNutrientsView(nutrients: nutrientVM.recommendations, userName: name)
     }
   }
 
@@ -264,31 +286,22 @@ struct RecommendView: View {
         categories: userConcerns,
         desc: "* 본결과는 의사의 처방을 대신하지 않습니다.",
         products: items,
+        isLoading: isLoadingProducts,
         onCategoryTap: { category in
           categoryTask?.cancel()
-
           Task { @MainActor in
-            hasRealData = false
+            isLoadingProducts = true
             items = []
           }
           categoryTask = Task {
             defer { categoryTask = nil }
-
             await recommendVM.loadProducts(for: category)
             guard !Task.isCancelled else { return }
-
             let real = recommendVM.products
-
             await MainActor.run {
-              if real.isEmpty {
-                if !hasRealData {
-                  items = dummyProducts(for: category)
-                  hasRealData = false
-                }
-              } else {
-                items = real
-                hasRealData = true
-              }
+              items = real
+              hasRealData = !real.isEmpty
+              isLoadingProducts = false
             }
           }
         }
@@ -298,19 +311,25 @@ struct RecommendView: View {
       .padding(.horizontal, 16)
 
       NutrientCardView(
-        nutrients: nutrientVM.chip,
+        nutrients: nutrientVM.chips,
         onSeeDetail: { showNutrientDetail = true },
         isLoading: !hasRealNutrientData,
         userName: name
       )
-      .id(chipSignature(nutrientVM.chip))
+      .id(chipSignature(nutrientVM.chips))
       .padding(.horizontal, 16)
       .padding(.top, 8)
       .modifier(UnifiedShadow())
 
-      ScoreView(onResultUpdate: { result in
-        latestScore = result.score
-      })
+      ScoreView(
+        user: users.first,
+        meals: recentMeals,
+        diet: dietInputForScore,
+        windowDays: mealWindowDays,
+        onResultUpdate: { result in
+          latestScore = result.score
+        }
+      )
       .padding(.horizontal, 16)
       .padding(.top, 8)
       .modifier(UnifiedShadow())
@@ -330,7 +349,7 @@ struct RecommendView: View {
     GeometryReader { geo in
       let topH = geo.size.height * 0.5 + geo.safeAreaInsets.top
       VStack(spacing: 0) {
-        (colorScheme == .dark ? Color.black : Color.main)
+          Color.main
           .frame(height: topH)
           .ignoresSafeArea(edges: .top)
 
@@ -352,7 +371,7 @@ struct RecommendView: View {
 #endif
     hasRealNutrientData = false
 
-    nutrientVM.load(userName: name)
+    nutrientVM.load(user: users.first, meals: recentMeals)
 
     fetchRealDataOnLaunch()
   }
@@ -366,7 +385,7 @@ struct RecommendView: View {
         isLoadingReal = false
       }
 
-      nutrientVM.load(userName: name)
+      nutrientVM.load(user: users.first, meals: recentMeals)
 
       await recommendVM.loadProducts(for: "장 건강")
       let real = recommendVM.products
@@ -415,9 +434,9 @@ struct RecommendView: View {
     dummyRecommendSignature = recommendSignature(nutrients)
     dummyChipSignature = chipSignature(dummyChips)
 
-    nutrientVM.recommend = nutrients
-    if nutrientVM.chip.isEmpty {
-      nutrientVM.chip = dummyChips
+    nutrientVM.recommendations = nutrients
+    if nutrientVM.chips.isEmpty {
+      nutrientVM.chips = dummyChips
     }
     hasRealNutrientData = false
   }
@@ -429,9 +448,9 @@ struct RecommendView: View {
     dummyRecommendSignature = recommendSignature(nutrients)
     dummyChipSignature = chipSignature(dummyChips)
 
-    nutrientVM.recommend = nutrients
-    if nutrientVM.chip.isEmpty {
-      nutrientVM.chip = dummyChips
+    nutrientVM.recommendations = nutrients
+    if nutrientVM.chips.isEmpty {
+      nutrientVM.chips = dummyChips
     }
     hasRealNutrientData = false
   }
@@ -548,11 +567,6 @@ struct RecommendView: View {
         content: """
         프로바이오틱스는 우리 몸속에서 유익균과 유해균의 균형을 맞추어 장 건강을 돕는 살아있는 유산균이에요. 
         규칙적으로 섭취하면 변비, 설사 같은 소화 문제를 완화하는 데 도움을 줄 수 있고, 장내 환경을 개선하여 면역 기능 강화에도 긍정적인 영향을 줍니다.
-        
-        📌 복용 방법:
-        - 식사 직후 섭취 시 정착률이 더 높아져요.
-        - 항생제를 복용 중이라면 최소 2시간 간격을 두고 섭취하세요.
-        - 장 건강 개선뿐만 아니라 피부 트러블 완화, 알레르기 증상 완화에도 도움을 줄 수 있습니다.
         """,
         positiveKeywords: [],
         negativeKeywords: []
@@ -568,11 +582,6 @@ struct RecommendView: View {
         혈중 중성지방 수치를 낮추고 혈액순환을 개선하는 데 도움을 주어 뇌혈관 질환이나 심장질환 위험을 줄일 수 있습니다. 
         
         또한 뇌세포막을 구성하는 중요한 성분이라 기억력과 집중력 향상에도 긍정적인 역할을 합니다.
-        
-        📌 복용 방법:
-        - 위장 부담을 줄이려면 반드시 식후에 섭취하세요.
-        - 꾸준히 복용하면 관절 건강, 안구 건조 개선에도 도움을 줄 수 있습니다.
-        - 혈액응고 억제제와 함께 복용 시에는 의사 상담이 필요합니다.
         """,
         positiveKeywords: [],
         negativeKeywords: []
@@ -586,12 +595,6 @@ struct RecommendView: View {
         content: """
         마그네슘은 300가지 이상의 효소 반응에 관여하는 필수 미네랄로, 특히 근육과 신경 안정에 중요한 역할을 해요. 
         부족하면 눈떨림, 근육 경련, 피로감, 불면 같은 증상이 나타날 수 있습니다. 
-        
-        📌 복용 방법:
-        - 취침 1–2시간 전에 복용하면 숙면에 도움을 줄 수 있습니다.
-        - 위장이 예민하다면 글리시네이트, 말레이트 형태가 더 순합니다.
-        - 칼슘과 균형 있게 섭취해야 흡수율이 좋아요.
-        - 스트레스가 많거나 카페인 섭취가 잦은 사람은 특히 권장됩니다.
         """,
         positiveKeywords: [],
         negativeKeywords: []

@@ -89,7 +89,7 @@ struct QuestionModel: Hashable {
       code: "allergy_5",
       title: "육류",
       type: .allergy,
-      subtitle: "소고기, 돼지고기, 닭고기, 양고기, 오리고기",
+      subtitle: "소고기, 돼지고기, 닭고기, 양고기\n오리고기",
       symptom: "복통, 발진, 호흡곤란",
       treatment: "특정 육류 회피, 교차오염 주의",
       image: "icon_meat_filled"
@@ -98,7 +98,7 @@ struct QuestionModel: Hashable {
       code: "allergy_6",
       title: "곡물",
       type: .allergy,
-      subtitle: "밀(글루텐 포함), 보리, 호밀, 귀리, 옥수수, 메밀",
+      subtitle: "밀(글루텐 포함), 보리, 호밀, 귀리\n옥수수, 메밀",
       symptom: "소화불량, 피부 발진, 호흡기 증상",
       treatment: "글루텐 프리 식단, 대체 곡물 사용",
       image: "icon_grains_filled"
@@ -116,7 +116,7 @@ struct QuestionModel: Hashable {
       code: "allergy_8",
       title: "과일",
       type: .allergy,
-      subtitle: "키위, 바나나, 복숭아, 사과, 멜론, 체리, 딸기, 망고, 파인애플",
+      subtitle: "키위, 바나나, 복숭아, 사과, 멜론\n체리, 딸기, 망고, 파인애플",
       symptom: "입·목 가려움, 부종, 구강 알레르기 증후군",
       treatment: "껍질 제거·가열 시 완화 가능",
       image: "icon_fruits_filled"
@@ -125,7 +125,7 @@ struct QuestionModel: Hashable {
       code: "allergy_9",
       title: "채소·향신료",
       type: .allergy,
-      subtitle: "셀러리, 토마토, 당근, 고추, 파프리카, 마늘, 양파, 계피, 카레가루",
+      subtitle: "셀러리, 토마토, 당근, 고추, 파프리카\n마늘, 양파, 계피, 카레가루",
       symptom: "발진, 구강 알레르기 증후군",
       treatment: "조리하여 섭취, 원인 회피",
       image: "icon_vegetables_spices_filled"
@@ -134,7 +134,7 @@ struct QuestionModel: Hashable {
       code: "allergy_10",
       title: "기타",
       type: .allergy,
-      subtitle: "젤라틴, 꿀, 버섯, 초콜릿, 인공 색소·첨가물",
+      subtitle: "젤라틴, 꿀, 버섯, 초콜릿\n인공 색소·첨가물",
       symptom: "두드러기, 복통, 구토",
       treatment: "원인 회피, 항히스타민제 복용",
       image: "icon_etc_allergy_filled"

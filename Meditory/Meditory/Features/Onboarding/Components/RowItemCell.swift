@@ -10,14 +10,13 @@ import SwiftUI
 struct RowItemCell: View {
   var model: QuestionModel
   var isSelected: Bool
-  var subTitleSize:Double = 14
   
   var body: some View {
     ZStack {
       RoundedRectangle(cornerRadius: 8)
         .stroke(isSelected ? Color.main : Color.gray.opacity(0.3), lineWidth: 1)
         .fill(isSelected ? Color.sub.opacity(0.14) : Color.clear)
-        .frame(height: 100)
+        .frame(height: 80)
       HStack(alignment: .center) {
         Image(model.image)
           .resizable()
@@ -27,16 +26,17 @@ struct RowItemCell: View {
           .alignmentGuide(.top) { d in d[.top] - 4 }
         VStack(alignment: .leading, spacing: 2) {
           Text(model.title)
-            .font(.notoSans(weight: .medium, size: 14))
+            .adaptiveFont(14,weight: .medium)
+            .foregroundStyle(isSelected ? Color.label : .textGray)
           Text(model.subtitle)
-            .font(.notoSans(weight: .regular, size: subTitleSize))
+            .adaptiveFont(12,weight: .regular)
+            .foregroundStyle(.textGray)
         }
-        .foregroundStyle(.textGray)
         Spacer()
         CircleCheck(isCompleted: isSelected, size: 25)
-          .padding(.trailing, 20)
+          .padding(.trailing, .defaultSpacing)
       }
-      .padding(10)
+      .adaptivePadding(.horizontal, .defaultSpacing)
     }
   }
 }

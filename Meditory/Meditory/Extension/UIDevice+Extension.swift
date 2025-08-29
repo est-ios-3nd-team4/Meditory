@@ -12,3 +12,20 @@ extension UIDevice {
         UIDevice.current.userInterfaceIdiom == .pad
     }
 }
+
+enum widthSize {
+  case small
+  case regular
+  case plus
+}
+
+func deviceWidthSize() -> widthSize {
+  let width = UIScreen.main.bounds.width
+  if width <= 375 {
+    return .small
+  }
+  if width >= 428 {
+    return .plus
+  }
+  return .regular
+}
