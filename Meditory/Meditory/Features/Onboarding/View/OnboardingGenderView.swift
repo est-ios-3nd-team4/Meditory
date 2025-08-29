@@ -10,13 +10,11 @@ import SwiftUI
 struct OnboardingGenderView: View {
   let isPad = UIDevice.isPad
   var vm: OnboardingViewModel
-  @Environment(\.colorScheme) var colorScheme
-  @Binding var isSelected: Bool
   var prompt: Prompt
   var name: String
+  @Binding var isSelected: Bool
   var onAction: ((QuestionModel) -> Void)?
   var question = QuestionModel.feminineModel
-
   var body: some View {
     VStack {
       TitleView(prompt: prompt,name: name)
