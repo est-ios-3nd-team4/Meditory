@@ -28,42 +28,10 @@ extension RoutineStore {
     routine.cycleType = cycleType
     routine.cycleValue = cycleValue
 
-    Self.replaceRecommendedTimes(of: routine, with: dto.schedule.times, startDate: start)
-
     try? modelContext.save()
   }
 
   // MARK: - Private Static Helpers
-  
-  /// 추천 복용 시간 대체
-  private static func replaceRecommendedTimes(of routine: Routine, with doseTimes: [DoseTime], startDate: Date) {
-    /*
-    routine.recommendedRoutineTimes.removeAll()
-
-    let newTimes: [RoutineTime] = timeSpecs.compactMap { spec in
-      switch spec {
-      case let .absolute(h, m, pillsPerDose):
-        return RoutineTime(
-          time: Self.dateOn(startDate, hour: h, minute: m),
-          pillsPerDose: pillsPerDose,
-          routine: routine
-        )
-
-      case let .relative(ref, offset, pillsPerDose):
-        return RoutineTime(
-          time: Self.dateOn(startDate, hour: 0, minute: 0),
-          intakeTiming: Self.formattedOffset(for: ref, offset: offset),
-          intakeOffsetMinutes: offset,
-          pillsPerDose: pillsPerDose,
-          routine: routine
-        )
-      }
-    }
-
-    routine.recommendedRoutineTimes = newTimes
-     */
-  }
-
   /// cycletype 따라서 변환
   private static func makeCycleFields(from s: DoseSchedule) -> (cycleType: Int, cycleValue: String) {
     switch s.cycleType {
