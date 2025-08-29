@@ -7,6 +7,7 @@
 
 import Foundation
 
+///토글형식의 이미지를 선택여부에 따라 반환하기 위한 헬퍼
 struct ToggleImageName:Hashable {
   var normal:String
   var selected:String
