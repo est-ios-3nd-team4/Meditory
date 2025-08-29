@@ -59,18 +59,6 @@ extension View {
     } else { self }}
 
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   func adaptiveFont(
     _ baseSize: CGFloat,
     small: CGFloat = -2,
