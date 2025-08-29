@@ -1,4 +1,23 @@
 import Foundation
+import CryptoKit
+
+private struct ProfileInput: Codable {
+  let name: String
+  let ageGroup: String?
+  let gender: String?
+}
+
+private struct MacroTotalsInput: Codable {
+  let carbohydrate: Int
+  let protein: Int
+  let fat: Int
+}
+
+private struct MealContextInput: Codable {
+  let windowDays: Int
+  let summaryLines: [String]
+  let macroTotals: MacroTotalsInput
+}
 
 @MainActor
 final class ScoreViewModel: ObservableObject {
@@ -16,45 +35,48 @@ final class ScoreViewModel: ObservableObject {
   private static var inFlight: [String: Task<ScoreResult, Error>] = [:]
   private static let ttl: TimeInterval = 60 * 60 * 12
 
-  private func cacheKey(diet: DietInput, supplements: SupplementInput, weights: ScoreWeights) -> String {
-    struct KeyBody: Codable { let diet: DietInput; let supplements: SupplementInput; let weights: ScoreWeights }
-    let enc = JSONEncoder()
-    enc.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
-    let data = (try? enc.encode(KeyBody(diet: diet, supplements: supplements, weights: weights))) ?? Data()
+  // 식단/기간까지 포함한 캐시 키
+  private func cacheKey(diet: DietInput,
+                        weights: ScoreWeights,
+                        meals: [Meal],
+                        windowDays: Int) -> String {
+    struct KeyBody: Codable {
+      let diet: DietInput
+      let weights: ScoreWeights
+      let mealFingerprint: String
+      let windowDays: Int
+    }
+
+    let fingerprint = mealFingerprint(meals)
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
+    let data = (try? encoder.encode(
+      KeyBody(diet: diet,
+              weights: weights,
+              mealFingerprint: fingerprint,
+              windowDays: windowDays)
+    )) ?? Data()
     let json = String(data: data, encoding: .utf8) ?? ""
     return "score:\(json)"
   }
 
-  func loadMockIntake(weights: ScoreWeights = .default, force: Bool = false) {
-    guard !isLoading else { return }
-    isLoading = true
-    errorMessage = nil
-
-    let diet = DietInput(
-      foods: ["연어","닭가슴살","잡곡밥","시금치","김치","라면","탄산음료"],
-      patterns: ["가공식품 자주","외부 활동 적음"]
-    )
-    let supplements = SupplementInput(items: [
-      SupplementItem(name: "오메가-3", dose: "1000mg", frequencyPerWeek: 7),
-      SupplementItem(name: "비타민 C", dose: "500mg",  frequencyPerWeek: 5)
-    ])
-
-    load(diet: diet, supplements: supplements, weights: weights, force: force)
-  }
-
   func load(diet: DietInput,
-            supplements: SupplementInput,
+            meals: [Meal],
+            user: User?,
+            windowDays: Int = 30,
             weights: ScoreWeights = .default,
             force: Bool = false) {
-    let key = cacheKey(diet: diet, supplements: supplements, weights: weights)
 
-    // 강제 새로고침이면 진행 중 요청 취소
+    let key = cacheKey(diet: diet,
+                       weights: weights,
+                       meals: meals,
+                       windowDays: windowDays)
+
     if force {
       Self.inFlight[key]?.cancel()
       Self.inFlight[key] = nil
     }
 
-    // 1) 캐시 HIT
     if let entry = Self.cache[key],
        Date().timeIntervalSince(entry.cachedAt) < Self.ttl,
        !force {
@@ -64,17 +86,17 @@ final class ScoreViewModel: ObservableObject {
       return
     }
 
-    // 2) 이미 같은 키로 요청 중이면 그 결과에 합류
-    if let t = Self.inFlight[key], !force {
+    if let inFlightTask = Self.inFlight[key], !force {
       self.isLoading = true
       self.errorMessage = nil
-      Task {
+      Task { [weak self] in
+        guard let self else { return }
         defer { self.isLoading = false }
         do {
-          let r = try await t.value
-          self.result = r
+          let value = try await inFlightTask.value
+          self.result = value
         } catch is CancellationError {
-          // 강제 새로고침 등으로 취소된 경우
+          // 취소 무시
         } catch {
           self.errorMessage = "계산 실패"
         }
@@ -82,12 +104,14 @@ final class ScoreViewModel: ObservableObject {
       return
     }
 
-    // 3) 새 요청 수행
     self.isLoading = true
     self.errorMessage = nil
 
-    let task = Task<ScoreResult, Error> { [client] in
-      let prompt = buildIntakeAnalysisPrompt(diet: diet, supplements: supplements)
+    let newTask = Task<ScoreResult, Error> { [client] in
+      let prompt = buildIntakeAnalysisPrompt(diet: diet,
+                                             meals: meals,
+                                             user: user,
+                                             windowDays: windowDays)
       let raw = try await client.request(content: prompt)
       guard let json = extractJSON(raw), let data = json.data(using: .utf8) else {
         throw NSError(domain: "AI", code: -1, userInfo: [NSLocalizedDescriptionKey: "JSON 추출 실패"])
@@ -95,7 +119,6 @@ final class ScoreViewModel: ObservableObject {
 
       let analysis = try JSONDecoder().decode(IntakeAnalysis.self, from: data)
 
-      // 배열 길이로 카운트 산출
       let counts = ScoreCounts(
         deficient: analysis.deficient.count,
         caution:   analysis.caution.count,
@@ -103,7 +126,6 @@ final class ScoreViewModel: ObservableObject {
         adequate:  analysis.adequate.count
       )
 
-      // 점수 로컬 계산
       let score = computeLocal(counts: counts, weights: weights)
 
       return ScoreResult(
@@ -117,17 +139,17 @@ final class ScoreViewModel: ObservableObject {
       )
     }
 
-    Self.inFlight[key] = task
+    Self.inFlight[key] = newTask
 
-    Task {
+    Task { [weak self] in
+      guard let self else { return }
       defer { Self.inFlight[key] = nil; self.isLoading = false }
       do {
-        let res = try await task.value
-        self.result = res
-        // 캐시에 저장
-        Self.cache[key] = CacheEntry(result: res, cachedAt: Date())
+        let resultValue = try await newTask.value
+        self.result = resultValue
+        Self.cache[key] = CacheEntry(result: resultValue, cachedAt: Date())
       } catch is CancellationError {
-        // 무시
+        // 취소 무시
       } catch {
         self.errorMessage = "계산 실패"
         self.result = nil
@@ -157,19 +179,33 @@ final class ScoreViewModel: ObservableObject {
   }
 }
 
+// --- 식단 컨텍스트/지문 생성 ---
+private func makeMealContext(meals: [Meal], windowDays: Int) -> MealContextInput {
+  let sortedMeals = meals.sorted { $0.date < $1.date }
+  let lines = sortedMeals.map { $0.nutritionSummaryLine }
+  let totals = meals.macroTotals
+  let macroTotals = MacroTotalsInput(
+    carbohydrate: Int(totals.carb.rounded()),
+    protein: Int(totals.protein.rounded()),
+    fat: Int(totals.fat.rounded())
+  )
+  return MealContextInput(windowDays: windowDays, summaryLines: lines, macroTotals: macroTotals)
+}
+
+private func mealFingerprint(_ meals: [Meal]) -> String {
+  // 날짜/매크로/대표 음식명 기준
+  let sorted = meals.sorted { $0.date < $1.date }
+  let raw = sorted.map { m in
+    let foodsText = m.foods.prefix(3).map { $0.foodName }.joined(separator: ",")
+    return "\(m.date.timeIntervalSince1970.rounded())|\(Int(m.carbohydrateTotal))|\(Int(m.proteinTotal))|\(Int(m.fatTotal))|\(foodsText)"
+  }.joined(separator: "||")
+  let digest = SHA256.hash(data: Data(raw.utf8))
+  return digest.map { String(format: "%02x", $0) }.joined()
+}
+
 struct DietInput: Codable, Equatable {
   var foods: [String]
   var patterns: [String]?
-}
-
-struct SupplementItem: Codable, Equatable {
-  var name: String
-  var dose: String?
-  var frequencyPerWeek: Int?
-}
-
-struct SupplementInput: Codable, Equatable {
-  var items: [SupplementItem]
 }
 
 struct IntakeAnalysis: Codable, Equatable {
@@ -228,10 +264,31 @@ private func extractJSON(_ raw: String) -> String? {
   return nil
 }
 
-private func buildIntakeAnalysisPrompt(diet: DietInput, supplements: SupplementInput) -> String {
-  struct Body: Codable { let diet: DietInput; let supplements: SupplementInput }
-  let enc = JSONEncoder(); enc.outputFormatting = [.withoutEscapingSlashes]
-  let inputJSON = String(data: try! enc.encode(Body(diet: diet, supplements: supplements)), encoding: .utf8)!
+private func buildIntakeAnalysisPrompt(diet: DietInput,
+                                       meals: [Meal],
+                                       user: User?,
+                                       windowDays: Int) -> String {
+  let displayNameRaw = user?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+  let displayName = displayNameRaw.isEmpty ? "사용자" : displayNameRaw
+  let profile = ProfileInput(
+    name: displayName,
+    ageGroup: user?.ageGroup,                      // User.ageGroup 확장 사용
+    gender: user?.gender.isEmpty == false ? user!.gender : nil
+  )
+  let mealContext = makeMealContext(meals: meals, windowDays: windowDays)
+
+  struct InputBody: Codable {
+    let profile: ProfileInput
+    let diet: DietInput
+    let mealContext: MealContextInput
+  }
+
+  let encoder = JSONEncoder()
+  encoder.outputFormatting = [.withoutEscapingSlashes]
+  
+  let inputJSON = (try? encoder.encode(
+    InputBody(profile: profile, diet: diet, mealContext: mealContext)
+  )).flatMap { String(data: $0, encoding: .utf8) } ?? "{}"
 
   let allowList = [
     "비타민 D","식이섬유","엽산","철분","마그네슘","아연","칼슘",
@@ -241,30 +298,34 @@ private func buildIntakeAnalysisPrompt(diet: DietInput, supplements: SupplementI
 
   return """
   [역할]
-  - 당신은 '식단/영양제 복용 기반 분류기'입니다. 입력을 근거로
-    부족/주의/최적/충족 카테고리의 대표 '영양성분명' 칩과 한국어 요약 문단을 JSON으로만 반환합니다.
+  - 당신은 '식단/영양제 기반 분류기'입니다. **mealContext(실제 식단)**를 최우선 근거로,
+    diet.foods/patterns는 보조 단서로 활용합니다.
   - 의료적 진단/처방이 아닌 일반 정보 제공.
-  
-  [입력]
+
+  [입력(JSON)]
   \(inputJSON)
-  
+
   [분류 지침]
-  - deficient: 결핍 가능성 높은 성분
-  - caution: 과다/상호작용/특정 상황 유의 성분
+  - deficient: 결핍 가능성 높은 성분 (식단 부족, 패턴, 햇빛 노출 등 고려)
+  - caution: 과다/상호작용/특정 상황 유의 성분 (예: 혈액응고제 + 오메가-3)
   - optimal: 충분히 잘 섭취 중
   - adequate: 권장량 근처로 무난히 충족
   - 성분명만 사용(브랜드/질환/문장 금지), 한국어 표기, 중복 금지.
-  
+  - 만약 mealContext.summaryLines가 비어 있다면,
+    한국인에게 일반적으로 부족하기 쉬운 대표 성분 3개(예: 비타민 D, 식이섬유, 오메가-3)를 deficient에 넣으세요.
+  - 나머지 배열은 빈 배열([])로 두어도 됩니다.
+
   [칩 규칙]
-  - 각 배열은 상황에 따라 0~6개. 너무 빈약하면 아래 allowlist로 최대 3개까지 보충(중복 없이).
+  - 각 배열은 상황에 따라 0~6개. 빈약하면 아래 allowlist로 최대 3개 보충(중복 없이).
     allowlist = ["\(allowList)"]
-  
+
   [요약 규칙]
-  - summaries 각 문단은 한국어 1~2문장, 일반 조언(과장/진단/치료 금지).
-  
+  - summaries 각 문단은 한국어 3~4문장, 일반 조언(과장/진단/치료 금지).
+  - 식단 총섭취(탄/단/지)와 음식 리스트를 간단히 근거로 포함.
+
   [출력 제약]
   - **오직 JSON 객체 1개**만 출력(설명/코드블록/사과문 금지).
-  
+
   [출력 스키마]
   {
     "deficient": [<string>],

@@ -24,9 +24,16 @@ struct ProductTile: View {
                   .onAppear { imageLoaded = true }
 
               case .failure:
-                Color.gray.opacity(0.2)
-                  .frame(width: 110, height: 110)
-                  .clipShape(RoundedRectangle(cornerRadius: .smallRadius))
+                ZStack {
+                  ShimmerView(widthRatio: 1.0, cornerRadius: .fixed(10))
+                  Image(systemName: "exclamationmark.magnifyingglass")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(.orange)
+                }
+                .frame(width: 110, height: 110)
+                .clipShape(RoundedRectangle(cornerRadius: .smallRadius))
 
               @unknown default:
                   ShimmerView(widthRatio: 1.0, cornerRadius: .fixed(10))
