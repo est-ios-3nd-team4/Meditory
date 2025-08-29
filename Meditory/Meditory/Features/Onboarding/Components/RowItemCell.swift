@@ -18,6 +18,7 @@ struct RowItemCell: View {
         .stroke(isSelected ? Color.main : Color.gray.opacity(0.3), lineWidth: 1)
         .fill(isSelected ? Color.sub.opacity(0.14) : Color.clear)
         .frame(height: isPad ? 130 : 80)
+        .contentShape(RoundedRectangle(cornerRadius: 8))
       HStack(alignment: .center) {
         Image(model.image)
           .resizable()
