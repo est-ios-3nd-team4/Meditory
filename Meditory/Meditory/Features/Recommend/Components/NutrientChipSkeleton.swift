@@ -16,12 +16,12 @@ struct LoadingChip: View {
   @Environment(\.colorScheme) private var colorScheme
 
   var body: some View {
-    HStack(spacing: 8) {
+    HStack(spacing: .smallSpacing) {
       ProgressView().scaleEffect(0.8)
       Text("로딩 중")
         .font(.system(size: 15, weight: .medium))
     }
-    .padding(.horizontal, 16)
+    .padding(.horizontal, .defaultSpacing)
     .padding(.vertical, 10)
     .background(
       Capsule().fill(colorScheme == .dark

@@ -97,7 +97,7 @@ struct NutrientDetailSectionView: View {
           } label: {
             Image(systemName: isScrapped ? "star.fill" : "star")
           }
-          .padding(.trailing, 8)
+          .padding(.trailing, .smallSpacing)
 
           ShareLink(
             item: shareText,
@@ -108,7 +108,7 @@ struct NutrientDetailSectionView: View {
               .contentShape(Rectangle())
           }
         }
-        .padding(.bottom, 16)
+        .padding(.bottom, .defaultSpacing)
 
         HStack {
           ForEach(nutrient.hashtags, id: \.self) { tag in
@@ -120,7 +120,7 @@ struct NutrientDetailSectionView: View {
 
         Text(nutrient.title)
           .font(.notoSans(weight: .regular, size: .defaultFontSize - 3))
-          .padding(.vertical, 8)
+          .padding(.vertical, .smallSpacing)
 
         Text(nutrient.content)
           .font(.notoSans(weight: .regular, size: .defaultFontSize - 3))

@@ -231,7 +231,7 @@ struct OnboardingView: View {
         }
       }
       .disabled(!vm.isNextButtonOn)
-      .padding(.vertical, 8)
+      .padding(.vertical, .smallSpacing)
     }
     .padding(.horizontal, .defaultSpacing)
   }

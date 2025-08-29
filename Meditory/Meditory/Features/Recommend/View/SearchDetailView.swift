@@ -99,7 +99,7 @@ struct SearchDetailView: View {
                     isWebPresented = true
                   }
                 )
-                .padding(.horizontal, 16)
+                .padding(.horizontal, .defaultSpacing)
                 .modifier(UnifiedShadow())
 
                 .onAppear {

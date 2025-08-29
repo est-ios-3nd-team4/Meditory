@@ -92,7 +92,7 @@ extension CustomTabView {
     let secondaryColor: Color = .init(red: 223, green: 223, blue: 223)
     let tintColor: Color = selectedTab == tab ? .main : secondaryColor
     
-    return VStack(spacing: 8) {
+    return VStack(spacing: .smallSpacing) {
       (tab.isHome ? Image(tab.iconImage) : Image(systemName: tab.iconImage))
         .resizable()
         .scaledToFit()

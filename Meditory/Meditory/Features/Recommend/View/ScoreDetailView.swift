@@ -26,7 +26,7 @@ struct ScoreDetailView: View {
             Text("AI 분석결과")
               .font(.notoSans(weight: .bold, size: .defaultFontSize - 3))
               .foregroundColor(Color.accent)
-              .padding(.top, 16)
+              .padding(.top, .defaultSpacing)
 
             StatRow(
               left: .init(title: "부족", tint: .pink, count: counts.deficient, chipBG: .pink),
@@ -48,11 +48,11 @@ struct ScoreDetailView: View {
                 .background(colorScheme == .dark ? Color.white.opacity(0.3) : Color.white)
                 .cornerRadius(.smallRadius)
                 .modifier(UnifiedShadow())
-                .padding(.bottom, 16)
+                .padding(.bottom, .defaultSpacing)
             }
           }
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, .defaultSpacing)
         .padding(.top, 50)
         .scrollIndicators(.hidden)
       }
@@ -94,7 +94,7 @@ private struct HeaderBar: View {
         }
         Spacer()
       }
-      .padding(.horizontal, 16)
+      .padding(.horizontal, .defaultSpacing)
       .padding(.vertical, 12)
 
       HStack {
@@ -104,7 +104,7 @@ private struct HeaderBar: View {
 
         Spacer()
       }
-      .padding(16)
+      .padding(.defaultSpacing)
     }
   }
 }
@@ -139,7 +139,7 @@ private struct ScoreGauge: View {
           .font(.notoSans(weight: .medium, size: .defaultFontSize + 2))
       }
     }
-    .padding(.vertical, 16)
+    .padding(.vertical, .defaultSpacing)
     .frame(maxWidth: .infinity)
     .frame(height: 250)
   }
@@ -169,7 +169,7 @@ private struct StatRow: View {
         Text(item.title)
           .font(.notoSans(weight: .bold, size: .defaultFontSize - 6))
           .foregroundColor(item.tint)
-          .padding(.horizontal, 8)
+          .padding(.horizontal, .smallSpacing)
           .padding(.vertical, 4)
           .background(
             RoundedRectangle(cornerRadius: .defaultRadius)
@@ -183,7 +183,7 @@ private struct StatRow: View {
         Text("\(item.count) 개")
           .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
       }
-      .padding(16)
+      .padding(.defaultSpacing)
       .background(
         RoundedRectangle(cornerRadius: .smallRadius)
           .fill(colorScheme == .dark ? Color.white.opacity(0.3) : Color.white)
