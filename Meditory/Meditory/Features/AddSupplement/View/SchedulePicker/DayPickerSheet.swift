@@ -10,7 +10,7 @@ import SwiftUI
 struct DayPickerSheet: View {
   
   @State var selectedDay: Int
-  var days: [Int]
+  let days: [Int]
   var onDismiss: (Int?) -> Void
   
   var body: some View {
@@ -22,7 +22,7 @@ struct DayPickerSheet: View {
       Picker("Day", selection: $selectedDay) {
         ForEach(days, id: \.self) { day in
           Text("\(day)")
-            .font(.notoSans(size: 25))
+            .font(.notoSans(size: UIDevice.isPad ? 27 : 25))
         }
       }
       .pickerStyle(.wheel)

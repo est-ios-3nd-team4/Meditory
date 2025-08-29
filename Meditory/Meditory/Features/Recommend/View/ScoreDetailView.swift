@@ -24,7 +24,7 @@ struct ScoreDetailView: View {
 
           VStack(spacing: .defaultSpacing) {
             Text("AI 분석결과")
-              .font(.notoSans(weight: .bold, size: 15))
+              .font(.notoSans(weight: .bold, size: .defaultFontSize - 3))
               .foregroundColor(Color.accent)
               .padding(.top, 16)
 
@@ -40,7 +40,7 @@ struct ScoreDetailView: View {
 
             NavigationLink(destination: AnalysisView(result: result)) {
               Text("성분 분석 전체 보기")
-                .font(.notoSans(weight: .medium, size: 15))
+                .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
                 .foregroundColor(colorScheme == .dark ? Color.white : Color.black)
                 .padding(16)
                 .frame(maxWidth: .infinity)
@@ -99,7 +99,7 @@ private struct HeaderBar: View {
 
       HStack {
         Text("영양제 분석 리포트")
-          .font(.notoSans(weight: .bold, size: 25))
+          .font(.notoSans(weight: .bold, size: .defaultFontSize + 7))
           .foregroundColor(.white)
 
         Spacer()
@@ -148,7 +148,7 @@ private struct ScoreGauge: View {
         Text("\(score)")
           .font(.notoSans(weight: .medium, size: 50))
         Text("점")
-          .font(.notoSans(weight: .medium, size: 20))
+          .font(.notoSans(weight: .medium, size: .defaultFontSize + 2))
       }
     }
     .padding(.vertical, 16)
@@ -179,7 +179,7 @@ private struct StatRow: View {
     var body: some View {
       HStack {
         Text(item.title)
-          .font(.notoSans(weight: .bold, size: 12))
+          .font(.notoSans(weight: .bold, size: .defaultFontSize - 6))
           .foregroundColor(item.tint)
           .padding(.horizontal, 8)
           .padding(.vertical, 4)
@@ -193,7 +193,7 @@ private struct StatRow: View {
         Spacer()
 
         Text("\(item.count) 개")
-          .font(.notoSans(weight: .medium, size: 12))
+          .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
       }
       .padding(16)
       .background(

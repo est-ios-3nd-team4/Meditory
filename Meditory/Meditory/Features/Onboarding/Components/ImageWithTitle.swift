@@ -29,7 +29,7 @@ struct ImageWithTitle: View {
           onAction?()
         }
       Text(gender.title)
-        .adaptiveFont(isPad ? 28 : 18,small: -6,weight: .medium)
+        .adaptiveFont(.defaultFontSize,small: -6,weight: .medium)
         .foregroundStyle(isSelected ? Color.label : .textGray)
         .adaptivePadding(.bottom,isPad ? 0 : 4, small: isPad ? 0 : -4)
     }

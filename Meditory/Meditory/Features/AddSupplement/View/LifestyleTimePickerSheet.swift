@@ -9,6 +9,8 @@ import SwiftUI
 
 struct LifestyleTimePickerSheet: View {
   
+  @Environment(\.colorScheme) private var colorScheme
+  
   let type: LifestyleTimeType
   @State var option: any LifestyleTime
   @State var dates: [Date]
@@ -25,6 +27,9 @@ struct LifestyleTimePickerSheet: View {
       ZStack {
         Rectangle()
           .fill(.black.opacity(0.3))
+          .onTapGesture {
+            dismissWithAnimation()
+          }
         
         VStack {
           Spacer()
@@ -68,7 +73,9 @@ struct LifestyleTimePickerSheet: View {
           .background(
             GeometryReader { geometry in
               Rectangle()
-                .fill(.background)
+                .fill(
+                  colorScheme.isLightMode ? .white : Color.init(red: 36, green: 36, blue: 36)
+                )
                 .clipShape(
                   RoundedCorner(radius: 20, corners: [.topLeft, .topRight])
                 )
@@ -153,10 +160,10 @@ extension LifestyleTimePickerSheet {
   ) -> some View {
     VStack(spacing: .smallSpacing) {
       Text("\(type.title) 수정")
-        .font(.notoSans(weight: .semiBold, size: 20))
+        .font(.notoSans(weight: .semiBold, size: .defaultFontSize + 2))
       
       Text(type.subtitle)
-        .font(.notoSans(size: 14))
+        .font(.notoSans(size: .defaultFontSize - 4))
         .minimumScaleFactor(0.8)
         .foregroundStyle(.textGray)
     }
@@ -194,28 +201,28 @@ extension LifestyleTimePickerSheet {
           .frame(width: 25, height: 25)
         
         Text(title)
-          .font(.notoSans(size: 18))
+          .font(.notoSans(size: .defaultFontSize))
         
         Text(isMealSkipped(index: index) ? "안 함" : dates[index].timeFormatter)
-          .font(.notoSans(size: 18))
+          .font(.notoSans(size: .defaultFontSize))
           .foregroundStyle(.textGray)
         
         Spacer()
         
         Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
           .foregroundStyle(.textGray)
-          .font(.system(size: 18, weight: .medium))
+          .font(.system(size: .defaultFontSize, weight: .medium))
       }
       
       if isExpanded {
         if isMealType {
           HStack(alignment: .firstTextBaseline) {
             Text("식사 안 함")
-              .font(.notoSans(size: 16))
-              .foregroundStyle(isMealSkipped(index: index) ? .black : Color.textGray)
+              .font(.notoSans(size: .defaultFontSize - 2))
+              .foregroundStyle(isMealSkipped(index: index) ? .label : Color.textGray)
             
             Image(systemName: "checkmark")
-              .font(.system(size: 14, weight: .bold))
+              .font(.system(size: .defaultFontSize - 4, weight: .bold))
               .foregroundStyle(isMealSkipped(index: index) ? .main : Color.textGray)
             
             Spacer()

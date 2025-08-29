@@ -37,7 +37,7 @@ struct MealSummaryCard: View {
       HStack {
         VStack(alignment: .leading, spacing: 16) {
           Text(food.name)
-            .font(.notoSans(weight: .bold, size: 15))
+            .font(.notoSans(weight: .bold, size: .defaultFontSize - 3))
           
           HStack(spacing: 40) {
             ForEach(food.macros.macroItems) { item in
@@ -48,10 +48,10 @@ struct MealSummaryCard: View {
                 
                 
                 Text(item.label)
-                  .font(.notoSans(weight: .regular, size: 12))
+                  .font(.notoSans(weight: .regular, size: .defaultFontSize - 6))
                 
                 Text("\(Int(item.gram))g")
-                  .font(.notoSans(weight: .semiBold, size: 12))
+                  .font(.notoSans(weight: .semiBold, size: .defaultFontSize - 6))
               }
               .frame(maxWidth: .infinity, alignment: .leading)
             }

@@ -32,6 +32,7 @@ struct AddSupplementView: View {
   @Environment(\.modelContext) private var context
   @Environment(\.dismiss) private var dismiss
   @Environment(\.colorScheme) private var colorScheme
+  private let isPad = UIDevice.isPad
   
   // Query
   @Query private var users: [User]
@@ -70,9 +71,6 @@ struct AddSupplementView: View {
   @State private var showAlert = false
   @State private var isSaving = false
   
-  // Constants
-  private let defaultFontSize: CGFloat = 18
-
   // Edit 시 사용하는 루틴
   private let editingRoutine: Routine?
   
@@ -90,6 +88,8 @@ struct AddSupplementView: View {
 
   var body: some View {
     GeometryReader { scrollView in
+      let isLandscape = scrollView.size.width > scrollView.size.height
+      
       ZStack {
         ScrollViewReader { proxy in
           ScrollView {
@@ -103,6 +103,7 @@ struct AddSupplementView: View {
           }
           .scrollDismissesKeyboard(.immediately)
           .scrollIndicators(.hidden)
+          .frame(maxWidth: isLandscape ? scrollView.size.width * 0.7 : .infinity)
           .navigationBar(
             type == .add ? .addSupplement : .editSupplement,
             isAtTop: isAtTop
@@ -135,7 +136,7 @@ struct AddSupplementView: View {
 // MARK: - Main Content and Subviews
 extension AddSupplementView {
   private func mainContentView(for user: User) -> some View {
-    VStack(spacing: 20) {
+    VStack(spacing: isPad ? 30 : 20) {
       supplementNameInput()
       
       supplementInfoSection()
@@ -217,7 +218,6 @@ extension AddSupplementView {
   private func supplementInfoSection() -> some View {
     if shouldShowSupplementInfo {
       SupplementInfoView(
-        defaultFontSize: defaultFontSize,
         addSupplementVM: addSupplementVM,
         isSearchingSupplementSummary: $isSearchingSupplementSummary
       )
@@ -228,7 +228,6 @@ extension AddSupplementView {
     Group {
       LifestyleTimeView(
         type: .dailyCycle,
-        defaultFontSize: defaultFontSize,
         lifestyleTimeItems: lifestyleTimeVM.lifestyleTimeItems(for: .dailyCycle),
         onTapGesture: { option in
           selectedLifestyleCategory = .dailyCycle
@@ -239,7 +238,6 @@ extension AddSupplementView {
       
       LifestyleTimeView(
         type: .meal,
-        defaultFontSize: defaultFontSize,
         lifestyleTimeItems: lifestyleTimeVM.lifestyleTimeItems(for: .meal),
         onTapGesture: { option in
           selectedLifestyleCategory = .meal
@@ -275,7 +273,7 @@ extension AddSupplementView {
         HStack {
           ForEach(SupplementScheduleType.allCases, id: \.self) { type in
             Text(type.title)
-              .font(.notoSans(size: 15))
+              .font(.notoSans(size: .defaultFontSize - 3))
               .foregroundStyle(textColor(for: type))
               .frame(width: buttonSize.width, height: buttonSize.height)
               .contentShape(Rectangle())
@@ -293,7 +291,7 @@ extension AddSupplementView {
       }
       .cardStyle(cornerRadius: 10)
     }
-    .frame(height: 40)
+    .frame(height: isPad ? 50 : 40)
   }
   
   private func scheduleDetailsSection() -> some View {
@@ -313,12 +311,12 @@ extension AddSupplementView {
   private func weekdayScheduleView() -> some View {
     HStack {
       Text("복용 요일")
-        .font(.notoSans(size: defaultFontSize))
+        .font(.notoSans(size: .defaultFontSize))
       
       Spacer()
       
       Text(addSupplementVM.weekdaysString)
-        .font(.notoSans(size: defaultFontSize))
+        .font(.notoSans(size: .defaultFontSize))
         .padding(.bottom, 2)
         .foregroundStyle(.textGray)
     }
@@ -330,9 +328,14 @@ extension AddSupplementView {
   
   private func intervalScheduleView() -> some View {
     VStack {
+      let rectangleSize = CGSize(
+        width: .defaultFontSize + 30,
+        height: .defaultFontSize + 18
+      )
+      
       HStack(spacing: 8) {
         Text("시작 날짜")
-          .font(.notoSans(size: defaultFontSize))
+          .font(.notoSans(size: .defaultFontSize))
         
         Spacer()
         
@@ -341,16 +344,16 @@ extension AddSupplementView {
         } label: {
           RoundedRectangle(cornerRadius: 10)
             .fill(.backgroundGray)
-            .frame(width: 48, height: 36)
+            .frame(width: rectangleSize.width, height: rectangleSize.height)
             .overlay {
               Text("\(addSupplementVM.startMonth)")
-                .font(.notoSans(size: defaultFontSize))
+                .font(.notoSans(size: .defaultFontSize))
                 .foregroundStyle(.textGray)
             }
         }
         
         Text("월")
-          .font(.notoSans(weight: .regular, size: defaultFontSize))
+          .font(.notoSans(weight: .regular, size: .defaultFontSize))
           .padding(.trailing, 8)
         
         Button {
@@ -358,35 +361,35 @@ extension AddSupplementView {
         } label: {
           RoundedRectangle(cornerRadius: 10)
             .fill(.backgroundGray)
-            .frame(width: 48, height: 36)
+            .frame(width: rectangleSize.width, height: rectangleSize.height)
             .overlay {
               Text("\(addSupplementVM.startDay)")
-                .font(.notoSans(size: defaultFontSize))
+                .font(.notoSans(size: .defaultFontSize))
                 .foregroundStyle(.textGray)
             }
         }
         
         Text("일")
-          .font(.notoSans(weight: .regular, size: defaultFontSize))
+          .font(.notoSans(weight: .regular, size: .defaultFontSize))
       }
       
-      HStack(spacing: 8) {
+      HStack(spacing: .smallSpacing) {
         Text("복용 주기")
-          .font(.notoSans(size: defaultFontSize))
+          .font(.notoSans(size: .defaultFontSize))
         
         Spacer()
         
         RoundedRectangle(cornerRadius: 10)
           .fill(.backgroundGray)
-          .frame(width: 48, height: 36)
+          .frame(width: rectangleSize.width, height: rectangleSize.height)
           .overlay {
             Text("\(addSupplementVM.duration)")
-              .font(.notoSans(size: defaultFontSize))
+              .font(.notoSans(size: .defaultFontSize))
               .foregroundStyle(.textGray)
           }
         
         Text("일")
-          .font(.notoSans(weight: .regular, size: defaultFontSize))
+          .font(.notoSans(weight: .regular, size: .defaultFontSize))
       }
       .contentShape(Rectangle())
       .onTapGesture {
@@ -397,8 +400,12 @@ extension AddSupplementView {
   
   private func supplementCountSelector() -> some View {
     HStack {
+      let imageWidth: CGFloat = isPad ? 33 : 23
+      let iconSize: CGFloat = .defaultFontSize - 2
+      let textSize: CGFloat = .defaultFontSize + 2
+      
       Text("섭취 횟수")
-        .font(.notoSans(size: defaultFontSize))
+        .font(.notoSans(size: .defaultFontSize))
       
       Spacer()
       
@@ -407,28 +414,28 @@ extension AddSupplementView {
           addSupplementVM.removeRoutineTime()
         } label: {
           Circle()
-            .frame(width: 23, height: 23)
+            .frame(width: imageWidth, height: imageWidth)
             .foregroundStyle(.main)
             .overlay {
               Image(systemName: "minus")
-                .font(.system(size: 16, weight: .semibold))
+                .font(.system(size: iconSize, weight: .semibold))
                 .foregroundStyle(.white)
             }
         }
         
         Text("\(addSupplementVM.doseSchedules.count)")
-          .font(.notoSans(size: defaultFontSize))
+          .font(.notoSans(size: textSize))
           .padding(.bottom, 3)
         
         Button {
           addSupplementVM.addRoutineTime()
         } label: {
           Circle()
-            .frame(width: 23, height: 23)
+            .frame(width: imageWidth, height: imageWidth)
             .foregroundStyle(.main)
             .overlay {
               Image(systemName: "plus")
-                .font(.system(size: 14, weight: .semibold))
+                .font(.system(size: iconSize, weight: .semibold))
                 .foregroundStyle(.white)
             }
         }
@@ -438,8 +445,10 @@ extension AddSupplementView {
   
   private func timeSelectionSection() -> some View {
     VStack(alignment: .leading){
+      let circleWidth: CGFloat = isPad ? 25 : 18
+      
       Text("복용 시간")
-        .font(.notoSans(size: defaultFontSize))
+        .font(.notoSans(size: .defaultFontSize))
       
       ForEach(addSupplementVM.doseSchedules.indices, id: \.self) { index in
         let routine = addSupplementVM.doseSchedules[index]
@@ -448,22 +457,22 @@ extension AddSupplementView {
           ZStack {
             Circle()
               .fill(.main)
-              .frame(width: 18, height: 18)
+              .frame(width: circleWidth, height: circleWidth)
             
             Text("\(index + 1)")
-              .font(.notoSans(weight: .bold, size: 10))
+              .font(.notoSans(weight: .bold, size: .defaultFontSize - 8))
               .foregroundStyle(.white)
               .padding(.bottom, 1)
           }
           
           Text(routine.time.timeFormatter)
-            .font(.notoSans(weight: .regular, size: defaultFontSize))
+            .font(.notoSans(weight: .regular, size: .defaultFontSize))
             .padding(.bottom, 2)
           
           Spacer()
           
           Text(routine.doseString)
-            .font(.notoSans(weight: .regular, size: defaultFontSize))
+            .font(.notoSans(weight: .regular, size: .defaultFontSize))
             .foregroundStyle(.textGray)
             .padding(.bottom, 2)
         }
@@ -479,7 +488,6 @@ extension AddSupplementView {
   
   private func aiRecommendationSection() -> some View {
     AIRecommendedScheduleView(
-      defaultFontSize: defaultFontSize,
       supplementSummary: addSupplementVM.supplemtSummary,
       lifestyle: lifestyleTimeVM.userLifestyle,
       supplement: $addSupplementVM.supplement
@@ -489,7 +497,7 @@ extension AddSupplementView {
   private func memoSection() -> some View {
     VStack(alignment: .leading) {
       Text("메모")
-        .font(.notoSans(size: defaultFontSize))
+        .font(.notoSans(size: .defaultFontSize))
       
       InputTextField(
         text: $addSupplementVM.memo,
@@ -504,7 +512,7 @@ extension AddSupplementView {
       .padding(.horizontal, 4)
     }
     .cardStyle(padding: .defaultSpacing)
-    .frame(height: 95)
+    .frame(height: isPad ? 115 : 95)
   }
 }
 

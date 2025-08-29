@@ -10,7 +10,6 @@ import SwiftUI
 struct LifestyleTimeView: View {
   
   let type: LifestyleTimeType
-  let defaultFontSize: CGFloat
   let lifestyleTimeItems: [LifestyleTimeItem]
   let onTapGesture: ((any LifestyleTime) -> Void)?
   
@@ -20,13 +19,13 @@ struct LifestyleTimeView: View {
     VStack(alignment: .leading) {
       HStack {
         Text(type.title)
-          .font(.notoSans(size: defaultFontSize))
+          .font(.notoSans(size: .defaultFontSize))
         
         Spacer()
         
         Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
           .foregroundStyle(.textGray)
-          .font(.system(size: defaultFontSize, weight: .medium))
+          .font(.system(size: .defaultFontSize, weight: .medium))
       }
       .contentShape(Rectangle())
       .onTapGesture {
@@ -65,13 +64,13 @@ extension LifestyleTimeView {
         .frame(width: 25, height: 25)
       
       Text(title)
-        .font(.notoSans(weight: .regular, size: defaultFontSize))
+        .font(.notoSans(weight: .regular, size: .defaultFontSize))
         .foregroundStyle(.textGray)
       
       Spacer()
       
       Text(time)
-        .font(.notoSans(weight: .regular, size: defaultFontSize))
+        .font(.notoSans(weight: .regular, size: .defaultFontSize))
     }
   }
 }

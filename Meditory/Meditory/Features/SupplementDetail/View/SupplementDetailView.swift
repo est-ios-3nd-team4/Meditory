@@ -70,8 +70,13 @@ struct SupplementDetailView: View {
     .navigationBar(.supplementDetail, isAtTop: isAtTop)
     .overlay {
       if showDeleteAlert {
-        DeleteAlertView(
-          isPresented: $showDeleteAlert,
+        AlertView(
+          alertType: .delete,
+          title: "정말 삭제하시겠어요?",
+          message: "루틴을 삭제하면 복용 기록도 삭제됩니다.\n삭제하시려면 아래 버튼을 눌러주세요.",
+          onCancel: {
+            showDeleteAlert = false
+          },
           onDelete: {
             let pid  = routine.persistentModelID
             let uuid = routine.id
@@ -146,7 +151,7 @@ struct SupplementDetailView: View {
       showDeleteAlert = true
     } label: {
       Label("루틴 삭제", systemImage: "trash.fill")
-        .font(.notoSans(weight: .bold, size: 17))
+        .font(.notoSans(weight: .bold, size: .defaultFontSize - 1))
         .frame(maxWidth: .infinity)
         .padding(.vertical, .defaultSpacing)
     }
@@ -161,84 +166,6 @@ struct SupplementDetailView: View {
       RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
         .stroke(Color.red.opacity(0.2), lineWidth: 1.5)
     )
-  }
-}
-
-extension SupplementDetailView {
-  private struct DeleteAlertView: View {
-    @Binding var isPresented: Bool
-    var onDelete: () -> Void
-
-    @Environment(\.horizontalSizeClass) private var hSize
-
-    private var isPadStyle: Bool { hSize == .regular }
-    private var maxCardWidth: CGFloat { isPadStyle ? 520 : .infinity }
-
-    var body: some View {
-      ZStack {
-        Color.black.opacity(0.35)
-          .ignoresSafeArea()
-          .contentShape(Rectangle())
-          .onTapGesture { isPresented = false }
-
-        VStack(spacing: .defaultSpacing * 2) {
-          Text("정말 삭제하시겠어요?")
-            .font(.notoSans(size: 24))
-            .fontWeight(.bold)
-            .multilineTextAlignment(.center)
-
-          VStack(spacing: .smallSpacing) {
-            Text("루틴을 삭제하면 복용 기록도 삭제됩니다.")
-            Text("삭제하시려면 아래 버튼을 눌러주세요.")
-          }
-          .font(.notoSans(weight: .regular, size: 18))
-          .foregroundStyle(.secondary)
-          .multilineTextAlignment(.center)
-
-          HStack(spacing: .defaultSpacing) {
-            Button {
-              isPresented = false
-            } label: {
-              Text("아니요")
-                .font(.notoSans(size: 18))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, .smallSpacing)
-            }
-            .buttonStyle(.plain)
-            .background(Color.secondary.opacity(0.16))
-            .overlay(
-              RoundedRectangle(cornerRadius: .smallRadius, style: .continuous)
-                .stroke(Color(.systemGray4), lineWidth: 1)
-            )
-            .cornerRadius(.smallRadius)
-
-            Button {
-              onDelete()
-              isPresented = false
-            } label: {
-              Text("삭제")
-                .font(.notoSans(size: 18))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, .smallSpacing)
-            }
-            .foregroundStyle(.white)
-            .background(Color.red)
-            .cornerRadius(.smallRadius)
-          }
-        }
-        .padding(.defaultSpacing + 8)
-        .frame(maxWidth: maxCardWidth, alignment: .center)
-        .background(
-          RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
-            .fill(.regularMaterial)
-        )
-        .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
-        .padding(.horizontal, .defaultSpacing)
-        .zIndex(1000)
-      }
-      .transition(.opacity)
-      .zIndex(1000)
-    }
   }
 }
 

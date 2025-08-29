@@ -20,10 +20,10 @@ struct PrimaryButton: View {
     } label: {
       RoundedRectangle(cornerRadius: 10)
         .fill(isSub ? Color.init(red: 229, green: 242, blue: 255) : (isEnabled ? .main : .gray.opacity(0.4)))
-        .frame(height: 50)
+        .frame(height: isPad ? 60 : 50)
         .overlay {
           Text(title)
-            .font(.notoSans(weight: .semiBold, size: isPad ? 28 : 18))
+            .font(.notoSans(weight: .semiBold, size: .defaultFontSize))
             .foregroundStyle(isSub ? .main : .white)
         }
     }

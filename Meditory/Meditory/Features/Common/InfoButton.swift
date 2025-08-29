@@ -40,7 +40,7 @@ struct InfoButton: View {
         VStack {
           Text(message)
             .multilineTextAlignment(.center)
-            .font(.notoSans(size: 12))
+            .font(.notoSans(size: .defaultFontSize - 6))
             .foregroundStyle(.textGray)
             .lineLimit(nil)
             .fixedSize(horizontal: false, vertical: true)

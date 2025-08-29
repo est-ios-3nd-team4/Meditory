@@ -52,14 +52,14 @@ struct MealDetailMainView: View {
       ForEach(macro.macroItems) { item in
         VStack {
           Text(item.label.prefix(1))
-            .font(.notoSans(weight: .bold, size: 18))
+            .font(.notoSans(weight: .bold, size: .defaultFontSize))
           
           Circle()
             .fill(item.color)
             .frame(width: 20, height: 20)
           
           Text("\(Int(item.gram))%")
-            .font(.notoSans(weight: .medium, size: 17))
+            .font(.notoSans(weight: .medium, size: .defaultFontSize - 1))
         }
       }
     }
