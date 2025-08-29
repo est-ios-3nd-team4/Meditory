@@ -55,7 +55,7 @@ struct ImageCardView: View {
         HStack {
           ForEach(categories, id: \.self) { category in
             Button {
-              //onCategoryTap?(category)
+              onCategoryTap?(category)
               selectedCategory = category
             } label: {
               Text(category)
