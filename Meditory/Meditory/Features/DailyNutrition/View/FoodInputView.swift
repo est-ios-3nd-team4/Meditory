@@ -78,7 +78,7 @@ struct FoodInputView: View {
         Spacer()
         
         Text(navigationTitle)
-          .font(.notoSans(weight: .semiBold, size: 18))
+          .font(.notoSans(weight: .semiBold, size: .defaultFontSize))
         
         Spacer()
         
@@ -87,7 +87,7 @@ struct FoodInputView: View {
             showingDeleteAlert = true
           } label: {
             Text("삭제")
-              .font(.notoSans(weight: .semiBold, size: 17))
+              .font(.notoSans(weight: .semiBold, size: .defaultFontSize - 1))
               .foregroundStyle(.red)
           }
         } else {
@@ -139,7 +139,7 @@ struct FoodInputView: View {
         .padding(.horizontal, 16)
         
         Text("AI 생성 영양정보로 실제 값과 다를 수 있습니다. 건강 관련 중요한 결정은 의료 전문가와 상의하세요.")
-          .font(.notoSans(weight: .medium, size: 7))
+          .font(.notoSans(weight: .medium, size: .defaultFontSize - 8))
             .foregroundColor(.secondary)
             .multilineTextAlignment(.center)
       }
@@ -151,7 +151,7 @@ struct FoodInputView: View {
           Text("Tip‼️")
           
           Text(tipComment)
-            .font(.notoSans(weight: .medium, size: 12))
+            .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
             .multilineTextAlignment(.leading)
             .lineLimit(nil)
         }
@@ -209,7 +209,7 @@ struct FoodInputView: View {
             .font(.notoSans(size: 50))
           
           Text(type.displayName)
-            .font(.notoSans(weight: .medium, size: 13))
+            .font(.notoSans(weight: .medium, size: .defaultFontSize - 5))
             .foregroundStyle(.secondary)
           
           HStack(spacing: 5) {
@@ -229,7 +229,7 @@ struct FoodInputView: View {
               .frame(width: 10)
               .foregroundStyle(Color.label)
           }
-          .font(.notoSans(weight: .medium, size: 13))
+          .font(.notoSans(weight: .medium, size: .defaultFontSize - 5))
         }
         .frame(maxWidth: .infinity)
       }

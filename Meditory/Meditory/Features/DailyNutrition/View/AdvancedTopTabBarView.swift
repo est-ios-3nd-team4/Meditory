@@ -31,7 +31,7 @@ struct AdvancedTopTabBarView: View {
             } label: {
               Text(tabs[index])
                 .font(.notoSans(weight: selectedTab == index ? .semiBold : .regular,
-                                size: 16))
+                                size: .defaultFontSize - 2))
                 .foregroundStyle(selectedTab == index ? .primary : .secondary)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
@@ -73,14 +73,14 @@ struct AdvancedTopTabBarView: View {
       
       HStack {
         Text("찾는 음식이 없나요?")
-          .font(.notoSans(weight: .semiBold, size: 18))
+          .font(.notoSans(weight: .semiBold, size: .defaultFontSize))
         
         Button {
           navigationManager.navigateTo(.addFood)
           
         } label: {
           Text("음식 직접 추가하기")
-            .font(.notoSans(weight: .bold, size: 19))
+            .font(.notoSans(weight: .bold, size: .defaultFontSize + 1))
             .foregroundStyle(.accent)
         }
       }
