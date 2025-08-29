@@ -52,13 +52,13 @@ struct ProductTile: View {
           if imageLoaded {
             Text(product.brand)
               .padding(.leading, 2)
-              .font(.notoSans(weight: .medium, size: 13))
+              .font(.notoSans(weight: .medium, size: .defaultFontSize - 5))
               .foregroundStyle(.gray)
               .frame(width: 110, height: 16, alignment: .topLeading)
 
             Text(product.name)
               .padding(.leading, 2)
-              .font(.notoSans(weight: .medium, size: 12))
+              .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
               .lineLimit(2)
               .multilineTextAlignment(.leading)
               .frame(width: 110, height: 40, alignment: .topLeading)

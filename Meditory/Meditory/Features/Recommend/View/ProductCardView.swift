@@ -12,17 +12,17 @@ struct ProductCardView: View {
         .cornerRadius(.smallRadius)
 
       Text(product.brand)
-        .font(.notoSans(weight: .medium, size: 15))
+        .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
         .foregroundColor(.gray)
 
       Text(product.name)
-        .font(.notoSans(weight: .medium, size: 15))
+        .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
         .lineLimit(2)
 
       HStack(spacing: .smallSpacing) {
         Image(systemName: "star.fill")
           .foregroundColor(.yellow)
-          .font(.notoSans(weight: .medium, size: 15))
+          .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
       }
     }
     .frame(width: 120)

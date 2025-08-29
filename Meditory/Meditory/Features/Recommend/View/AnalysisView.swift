@@ -92,7 +92,7 @@ private struct SectionChipsParagraphView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: .defaultSpacing) {
       Text(title)
-        .font(.notoSans(weight: .bold, size: 18))
+        .font(.notoSans(weight: .bold, size: .defaultFontSize))
         .foregroundColor(titleColor)
 
       // 칩을 가로 스크롤로 나열
@@ -106,7 +106,7 @@ private struct SectionChipsParagraphView: View {
 
       // 설명 문단
       Text(paragraph)
-        .font(.notoSans(weight: .medium, size: 15))
+        .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
         .lineSpacing(4)
     }
   }
