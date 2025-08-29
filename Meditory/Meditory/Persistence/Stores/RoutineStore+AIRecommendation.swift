@@ -37,7 +37,7 @@ extension RoutineStore {
     switch s.cycleType {
     case .weekday:
       let list = (s.weekdays ?? [])
-      return (SupplementScheduleType.weekday.rawValue, list.map(String.init).joined(separator: ","))
+      return (SupplementScheduleType.weekday.rawValue, list.map(String.init).joined(separator: .separatorCommaSpace))
 
     case .interval:
       if let d = s.intervalDays {

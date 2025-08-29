@@ -34,7 +34,7 @@ final class AddSupplementViewModel {
       .map { $0.key }
       .sorted { $0.rawValue < $1.rawValue }
       .map { $0.subTitle }
-      .joined(separator: ", ")
+      .joined(separator: .separatorCommaSpace)
   }
 
   var formattedWeekdays: String {
@@ -42,11 +42,10 @@ final class AddSupplementViewModel {
       .map { $0.key }
       .sorted { $0.rawValue < $1.rawValue }
       .map { "\($0.rawValue)" }
-      .joined(separator: ", ")
+      .joined(separator: .separatorCommaSpace)
   }
 
   init(routine: Routine? = nil) {
-    weekdays = Weekday.allCases.reduce(into: [:]) { $0[$1] = true }
     startMonth = Date.now.month
     startDay = Date.now.day
     duration = 1
@@ -56,8 +55,10 @@ final class AddSupplementViewModel {
 
     if let routine {
       routineId = routine.id
+      weekdays = Weekday.allCases.reduce(into: [:]) { $0[$1] = false }
       initialize(with: routine)
     } else {
+      weekdays = Weekday.allCases.reduce(into: [:]) { $0[$1] = true }
       doseSchedules = [
         SupplementDoseSchedule(time: Date.makeTime(hour: 8), pillsPerDose: 1)
       ]
@@ -72,7 +73,8 @@ final class AddSupplementViewModel {
 
     switch scheduleType {
     case .weekday:
-      routine.cycleValue.split(separator: ",").forEach {
+      print(routine.cycleValue)
+      routine.cycleValue.split(separator: String.separatorCommaSpace).forEach {
         if let rawValue = Int($0),
            let weekday = Weekday(rawValue: rawValue) {
           weekdays[weekday] = true
