@@ -54,14 +54,14 @@ struct TextInputView: View {
           Spacer()
           Text(error)
             .foregroundStyle(.red)
-            .font(.notoSans(weight: .medium, size: 12))
+            .adaptiveFont(12,weight: .medium)
         }
       }
       HStack {
         NoQuickTypeTextField(text: $inputText, placeholder: placeholder, keyboardType: keyboardType,onSubmit: {
           onAction?()
         })
-          .font(.notoSans(weight: .semiBold, size: 16))
+        .adaptiveFont(14,weight: .semiBold)
           .padding(.horizontal)
           .frame(height: 60)
           .background(
@@ -72,7 +72,7 @@ struct TextInputView: View {
             if let unit = unit {
               Text(unit)
                 .padding(.trailing, 8)
-                .font(.notoSans(weight: .bold, size: 16))
+                .adaptiveFont(16,weight: .bold)
                 .foregroundStyle(Color.textGray)
                 .padding(.trailing, .smallSpacing)
             }
