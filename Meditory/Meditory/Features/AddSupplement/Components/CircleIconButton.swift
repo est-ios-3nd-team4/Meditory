@@ -32,10 +32,6 @@ class CircleIconButton: UIButton {
     config.baseForegroundColor = .white
     config.cornerStyle = .capsule
     config.contentInsets = .zero
-    let symbolConfig = UIImage.SymbolConfiguration(
-        pointSize: 14,
-        weight: .bold
-    )
     config.image = UIImage(
       systemName: type.rawValue,
       withConfiguration: UIImage.SymbolConfiguration(
