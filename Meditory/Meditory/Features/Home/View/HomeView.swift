@@ -195,8 +195,6 @@ struct HomeView_Previews: PreviewProvider {
       cycleValue: "0", // 월=0
       startDate: Date(),
       memo: "아침 식사 후 복용",
-      hasPush: true,
-      imageData: nil,
       usage: ["물과 함께 삼키세요."],
       precautions: ["공복에 복용 시 위장 장애가 발생할 수 있습니다."]
     )
@@ -224,7 +222,6 @@ struct HomeView_Previews: PreviewProvider {
       startDate: Date().addingTimeInterval(-86400 * 7),
       memo: "심장 건강",
       hasPush: false,
-      imageData: nil,
       usage: ["하루 1회, 식후에 복용하세요."],
       precautions: ["출혈성 질환이 있는 경우 의사와 상담하세요."]
     )
@@ -252,7 +249,6 @@ struct HomeView_Previews: PreviewProvider {
       startDate: Date().addingTimeInterval(-86400 * 14),
       memo: "햇빛이 부족할 때",
       hasPush: true,
-      imageData: nil,
       usage: ["매일 같은 시간에 복용하는 것이 좋습니다."],
       precautions: ["고칼슘혈증 환자는 복용에 주의하세요."]
     )
@@ -280,7 +276,6 @@ struct HomeView_Previews: PreviewProvider {
       startDate: Date().addingTimeInterval(-86400 * 3),
       memo: "장 건강",
       hasPush: false,
-      imageData: nil,
       usage: ["아침 식사 30분 전, 공복에 복용하세요."],
       precautions: ["항생제와 함께 복용하지 마세요."]
     )
