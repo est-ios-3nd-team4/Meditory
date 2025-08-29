@@ -96,7 +96,7 @@ struct SupplementDetailView: View {
         refreshInfoSnapshot()
       }
     }
-    .onChange(of: routine.id) { _ in
+    .onChange(of: routine.id) {
       Task { @MainActor in
         refreshInfoSnapshot()
       }

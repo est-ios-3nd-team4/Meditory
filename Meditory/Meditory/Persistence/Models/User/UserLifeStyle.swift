@@ -10,7 +10,7 @@ import SwiftData
 import Foundation
 
 @Model
-final class UserLifeStyle: Sendable {
+final class UserLifeStyle {
   @Attribute(.unique) var id: UUID
   @Relationship(inverse: \User.userLifeStyle) var user: User?
   

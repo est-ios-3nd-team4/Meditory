@@ -173,7 +173,7 @@ struct SearchView: View {
           .submitLabel(.search)
           .focused($isQueryFocused)
           .onSubmit { performSearch() }
-          .onChange(of: query) { newValue in
+          .onChange(of: query) { oldValue, newValue in
             if newValue.count > 20 {
               query = String(newValue.prefix(20))
             }

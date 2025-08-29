@@ -112,7 +112,7 @@ class OnboardingViewModel {
     
     self.selectionSet = selections
     
-    validateAllField()
+    _ = validateAllField()
     
     printLoadedUserData()
   }

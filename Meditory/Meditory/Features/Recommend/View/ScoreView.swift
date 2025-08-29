@@ -127,7 +127,7 @@ struct ScoreView: View {
       )
     }
 
-    .onChange(of: scoreVM.result) { newResult in
+    .onChange(of: scoreVM.result) { oldValue,newResult in
       guard let newResult else { return }
       onResultUpdate?(newResult)
       withAnimation(.easeOut(duration: 1.2)) {
