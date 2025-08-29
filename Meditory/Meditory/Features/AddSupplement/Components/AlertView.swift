@@ -10,54 +10,21 @@ import SwiftUI
 struct AlertView: View {
   
   enum AlertType {
-    case cancel
     case confirm
-    case confirmCancel
+    case delete
   }
   
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
   var alertType: AlertType = .confirm
   var title: String
   var message: String
   var onConfirm: (() -> Void)?
   var onCancel: (() -> Void)?
-  
-  @State private var isPresented = false
-  
-  private var confirmButton: some View {
-    Button {
-      onConfirm?()
-      isPresented = false
-    } label: {
-      Text("확인")
-        .font(.notoSans(size: 18))
-        .frame(maxWidth: .infinity)
-        .foregroundStyle(.gray)
-        .padding(.vertical, .smallSpacing)
-        .contentShape(Rectangle())
-    }
-    .buttonStyle(.plain)
-    .background(Color.secondary.opacity(0.2))
-    .overlay(
-      RoundedRectangle(cornerRadius: .smallRadius, style: .continuous)
-        .stroke(Color(.systemGray4), lineWidth: 1)
-    )
-    .cornerRadius(.smallRadius)
-  }
-  
-  private var cancelButton: some View {
-    Button {
-      onCancel?()
-      isPresented = false
-    } label: {
-      Text("취소")
-        .font(.notoSans(size: 18))
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, .smallSpacing)
-    }
-    .foregroundStyle(.white)
-    .background(Color.main)
-    .cornerRadius(.smallRadius)
-  }
+  var onDelete: (() -> Void)?
+
+  private var isPadStyle: Bool { horizontalSizeClass == .regular }
+  private var maxCardWidth: CGFloat { isPadStyle ? 520 : .infinity }
   
   var body: some View {
     ZStack {
@@ -80,30 +47,65 @@ struct AlertView: View {
         }
         
         switch alertType {
-        case .cancel:
-          cancelButton
         case .confirm:
-          confirmButton
-        case .confirmCancel:
+          confirmButton("확인", onConfirm)
+        case .delete:
           HStack(spacing: .defaultSpacing) {
-            confirmButton
+            confirmButton("아니오", onCancel)
             
-            cancelButton
+            deleteButton("삭제", onDelete)
           }
         }
       }
       .padding(.defaultSpacing + 8)
-      .background(.regularMaterial)
-      .cornerRadius(.defaultRadius)
-      .modifier(UnifiedShadow())
-      .padding(.horizontal, .defaultSpacing * 2)
-      .accessibilityElement(children: .contain)
-      .accessibilityAddTraits(.isModal)
+      .frame(maxWidth: maxCardWidth, alignment: .center)
+      .background(
+        RoundedRectangle(cornerRadius: .defaultRadius, style: .continuous)
+          .fill(.regularMaterial)
+      )
+      .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
+      .padding(.horizontal, .defaultSpacing)
+      .zIndex(1000)
     }
-    .transition(.scale.combined(with: .opacity))
-    .animation(.spring(response: 0.35, dampingFraction: 0.9), value: isPresented)
-    .onAppear {
-      isPresented = true
+    .transition(.opacity)
+    .zIndex(1000)
+  }
+}
+
+
+// MARK: - Subviews
+extension AlertView {
+  private func text(_ title: String) -> some View {
+    Text(title)
+      .font(.notoSans(size: .defaultFontSize))
+      .frame(maxWidth: .infinity)
+      .padding(.vertical, .smallSpacing)
+      .contentShape(Rectangle())
+  }
+  
+  private func confirmButton(_ title: String, _ action: (() -> Void)?) -> some View {
+    Button {
+      action?()
+    } label: {
+      text(title)
     }
+    .buttonStyle(.plain)
+    .background(Color.secondary.opacity(0.16))
+    .overlay(
+      RoundedRectangle(cornerRadius: .smallRadius, style: .continuous)
+        .stroke(Color(.systemGray4), lineWidth: 1)
+    )
+    .cornerRadius(.smallRadius)
+  }
+  
+  private func deleteButton(_ title: String, _ action: (() -> Void)?) -> some View {
+    Button {
+      action?()
+    } label: {
+      text(title)
+    }
+    .foregroundStyle(.white)
+    .background(Color.red)
+    .cornerRadius(.smallRadius)
   }
 }
