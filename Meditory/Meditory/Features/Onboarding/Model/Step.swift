@@ -6,12 +6,12 @@
 //
 
 enum Step: Int, CaseIterable {
+  case privacyAgree
   case base
   case gender
   case allergy
   case disease
   case concern
-  case privacyAgree
   
   static var totalCount: Int {
     return Self.allCases.count
