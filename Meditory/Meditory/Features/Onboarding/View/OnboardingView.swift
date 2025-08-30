@@ -21,8 +21,6 @@ struct OnboardingView: View {
   
   @State private var isInitialLoadComplete = false // 데이터 로딩완료 여부
   private let isEditing: Bool // 편집모드여부(세팅에서 진입시 true)
-  
-  @State private var privacyAgreeCount: Int = .zero
 
   private let isPad = UIDevice.isPad
   private let buttonHeight: CGFloat = 50
@@ -146,9 +144,9 @@ struct OnboardingView: View {
           isSelected: $isSelected
         ) { selectItem(item: $0, vm: vm) }
       case .privacyAgree:
-        OnboardingPrivacyAgreeView(prompt: prompt) { privacyAgreeCount in
-          self.privacyAgreeCount = privacyAgreeCount
-        }
+        OnboardingPrivacyAgreeView(
+          prompt: prompt
+          ,selections: $vm.selectionSet)
       }
     }
   }
@@ -213,7 +211,7 @@ struct OnboardingView: View {
     VStack(spacing: .smallSpacing) {
       PrimaryButton(
         title: currentStep != .privacyAgree ? "다음" : "완료",
-        isEnabled: vm.isNextButtonOn(step: currentStep, privacyAgreeCount: privacyAgreeCount)
+        isEnabled: vm.isNextButtonOn(step: currentStep)
       ) {
         guard let next = currentStep.next() else {
           onFinished()
@@ -226,7 +224,7 @@ struct OnboardingView: View {
         }
         currentStep = next
       }
-      .disabled(!vm.isNextButtonOn(step: currentStep, privacyAgreeCount: privacyAgreeCount))
+      .disabled(!vm.isNextButtonOn(step: currentStep))
       .padding(.vertical, buttonTopSpacing)
     }
     .padding(.trailing, .defaultSpacing)
