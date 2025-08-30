@@ -55,7 +55,7 @@ class SettingViewModel {
     // 앱 토글과 시스템 권한이 모두 true일 때만 스케줄 생성
     if isSystemGranted && isNotificationOn {
       let ctx = DataController.shared.container.mainContext
-      await RoutineNotificationScheduler().scheduleAll(modelContext: ctx)
+      await RoutineNotificationScheduler().scheduleAll()
     } else {
       NotificationManager.shared.cancelAllIncludingDelivered()
     }
@@ -74,7 +74,7 @@ class SettingViewModel {
 
     if value, result == .enabled {
       let context = DataController.shared.container.mainContext
-      await RoutineNotificationScheduler().scheduleAll(modelContext: context)
+      await RoutineNotificationScheduler().scheduleAll()
     } else if value, result == .denied {
       // 권한 거부 → 앱 토글 롤백
       self.isNotificationOn = false

@@ -63,8 +63,6 @@ struct MeditoryApp: App {
               .environment(\.userStore, UserStore.shared)
               .environmentObject(nutritionViewModel)
               .task {
-                let context = DataController.shared.container.mainContext
-
                 // 최초 실행이면 권한 1회 요청
                 if await SettingStore.shared.fetchSetting() == nil {
                   let granted = await NotificationManager.shared.requestAuthorization()
@@ -81,7 +79,7 @@ struct MeditoryApp: App {
                 if isOn && systemGranted {
                   // 스케줄 가능 → 전체 루틴 스케줄
                   let scheduler = RoutineNotificationScheduler()
-                  await scheduler.scheduleAll(modelContext: context)
+                  await scheduler.scheduleAll()
                 } else {
                   // 예약 정리 및 저장값 보정(토글은 ON인데 권한 거부 상태였다면 OFF로)
                   NotificationManager.shared.cancelAllIncludingDelivered()

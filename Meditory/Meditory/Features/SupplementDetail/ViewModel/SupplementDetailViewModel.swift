@@ -84,7 +84,7 @@ final class SupplementDetailViewModel {
 
     // 알림 정리 및 재스케줄은 뷰 컨텍스트에서 수행
     NotificationManager.shared.cancelForRoutineID(uuid)
-    await RoutineNotificationScheduler().scheduleAll(modelContext: viewContext)
+    await RoutineNotificationScheduler().scheduleAll()
     NotificationCenter.default.post(name: .didUpdateSupplement, object: nil)
   }
 
