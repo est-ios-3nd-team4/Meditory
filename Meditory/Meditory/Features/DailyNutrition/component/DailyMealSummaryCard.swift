@@ -16,10 +16,10 @@ struct DailyMealSummaryCard: View {
       Rectangle()
         .fill(Color.customContainer)
         .frame(height: 250)
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .clipShape(RoundedRectangle(cornerRadius: .defaultRadius))
         .modifier(UnifiedShadow())
       
-        VStack(spacing: 16) {
+      VStack(spacing: .defaultSpacing) {
           HStack {
             Text("오늘 하루 식단")
               .font(.notoSans(weight: .semiBold, size: .defaultFontSize + 2))
@@ -35,11 +35,11 @@ struct DailyMealSummaryCard: View {
           
           MacroChartView(macros: viewModel.macroRatio)
             .frame(width: 130, height: 130)
-            .padding(.bottom, 8)
+            .padding(.bottom, .smallSpacing)
           
           macroPercentageView()
         }
-        .padding(.horizontal, 16)
+      .padding(.horizontal, .defaultSpacing)
     }
   }
   
@@ -48,7 +48,7 @@ struct DailyMealSummaryCard: View {
     HStack(spacing: 40) {
       ForEach(viewModel.macroPercent.macroItems) { item in
         let gram = (item.gram.isFinite ? item.gram : 0)
-        HStack(spacing: 5) {
+        HStack(spacing: .smallSpacing - 3) {
           Circle()
             .fill(item.color)
             .frame(width: 14, height: 14)

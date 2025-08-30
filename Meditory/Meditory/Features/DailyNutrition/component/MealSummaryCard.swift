@@ -31,17 +31,17 @@ struct MealSummaryCard: View {
       Rectangle()
         .fill(.customContainer)
         .frame(height: 100)
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .clipShape(RoundedRectangle(cornerRadius: .defaultRadius))
         .modifier(UnifiedShadow())
       
       HStack {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: .defaultSpacing) {
           Text(food.name)
             .font(.notoSans(weight: .semiBold, size: .defaultFontSize - 3))
           
           HStack(spacing: 40) {
             ForEach(food.macros.macroItems) { item in
-              HStack(spacing: 5) {
+              HStack(spacing: .smallSpacing - 3) {
                 Circle()
                   .fill(item.color)
                   .frame(width: 12, height: 12)
@@ -61,7 +61,7 @@ struct MealSummaryCard: View {
         Spacer()
       }
       .foregroundStyle(Color.label)
-      .padding(.leading, 16)
+      .padding(.leading, .defaultSpacing)
     }
   }
 }

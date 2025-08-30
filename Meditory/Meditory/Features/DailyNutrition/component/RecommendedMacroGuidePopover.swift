@@ -25,7 +25,7 @@ struct RecommendedMacroGuidePopover: View {
         )
         .frame(width: 150, height: 100)
       
-      VStack(alignment: .leading, spacing: 5) {
+      VStack(alignment: .leading, spacing: .smallSpacing - 3) {
         Text("오늘 섭취 권장량")
           .font(.notoSans(weight: .semiBold, size: .defaultFontSize - 3))
         
