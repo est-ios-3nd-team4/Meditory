@@ -250,14 +250,14 @@ struct FoodInputView: View {
             .font(.notoSans(weight: .medium, size: .defaultFontSize - 5))
             .foregroundStyle(.secondary)
           
-          HStack(spacing: 0) {
+          HStack(spacing: 5) {
             Rectangle()
               .fill(.clear)
               .frame(width: 5, height: 1)
             
             RoundedRectangle(cornerRadius: 20)
               .fill(.backgroundGray)
-              .frame(width: 69, height: 29)
+              .frame(width: 61, height: 29)
               .overlay {
                 macroInputField(for: type)
                   .frame(maxWidth: .infinity)
@@ -294,7 +294,7 @@ struct FoodInputView: View {
         }
       
       if isLoading {
-        NutrientChipSkeleton(width: 70)
+        NutrientChipSkeleton(width: 62)
       }
     }
   }
