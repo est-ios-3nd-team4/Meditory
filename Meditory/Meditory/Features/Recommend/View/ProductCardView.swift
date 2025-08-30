@@ -26,7 +26,7 @@ struct ProductCardView: View {
       }
     }
     .frame(width: 120)
-    .padding(8)
+    .padding(.smallSpacing)
     .background(Color(.systemGray6))
     .cornerRadius(.smallRadius)
   }

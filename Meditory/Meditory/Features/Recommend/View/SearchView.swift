@@ -79,7 +79,7 @@ struct SearchView: View {
               .padding(.horizontal)
 
             ScrollView(.horizontal, showsIndicators: false) {
-              HStack(spacing: 8) {
+              HStack(spacing: .smallSpacing) {
                 ForEach(recentWords, id: \.self) { word in
                   chip(title: word) {
                     query = word
@@ -190,7 +190,7 @@ struct SearchView: View {
     Button(action: action) {
       Text(title)
         .font(.body)
-        .padding(.horizontal, 16)
+        .padding(.horizontal, .defaultSpacing)
         .padding(.vertical, 10)
         .background(
           Capsule()

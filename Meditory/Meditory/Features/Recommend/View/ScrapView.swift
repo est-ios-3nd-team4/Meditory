@@ -49,7 +49,7 @@ struct ScrapView: View {
     }
     .navigationDestination(for: Nutrient.self) { nutrient in
       NutrientDetailSectionView(nutrient: nutrient, showsCustomNavBar: true)
-        .padding(.horizontal, 16)
+        .padding(.horizontal, .defaultSpacing)
     }
   }
 }
