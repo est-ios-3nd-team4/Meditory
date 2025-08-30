@@ -72,89 +72,90 @@ struct FoodInputView: View {
   var body: some View {
     ZStack(alignment: .top) {
       GeometryReader { geometry in
-        ScrollView {
-          VStack(spacing: 20) {
-            Color.clear
-              .frame(height: 44)
-            
-            // MARK: Food Name Input
-            UnifiedSectionCard {
-              HStack {
-                TextField("음식 이름을 입력하세요.", text: $foodName)
-                  .focused($isFoodNameFocused)
-                  .onSubmit {
-                    searchFood()
-                  }
-                  .submitLabel(mode == .create ? .search : .done)
-                
-                Button {
+        VStack(spacing: 20) {
+          Color.clear
+            .frame(height: 44)
+          
+          // MARK: Food Name Input
+          UnifiedSectionCard {
+            HStack {
+              TextField("음식 이름을 입력하세요.", text: $foodName)
+                .focused($isFoodNameFocused)
+                .onSubmit {
                   searchFood()
-                  isFoodNameFocused = false
-                } label: {
-                  Image(systemName: "magnifyingglass")
-                    .foregroundStyle(.gray)
                 }
-              }
-            }
-            .padding(.horizontal, 16)
-            
-            VStack(spacing: 5) {
-              UnifiedSectionCard {
-                VStack {
-                  HStack {
-                    Text("영양정보")
-                    
-                    Spacer()
-                    
-                    Image(systemName: "info.circle")
-                      .longPressPopover {
-                        RecommendedMacroGuidePopover()
-                      }
-                  }
-                  .padding(.horizontal, 8)
-                  
-                  macroPercentage()
-                }
-              }
-              .padding(.horizontal, 16)
+                .submitLabel(mode == .create ? .search : .done)
               
-              Text("AI 생성 영양정보로 실제 값과 다를 수 있습니다. 건강 관련 중요한 결정은 의료 전문가와 상의하세요.")
-                .frame(minHeight: 50)
-                .font(.notoSans(weight: .medium, size: .defaultFontSize - 8))
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
+              Button {
+                searchFood()
+                isFoodNameFocused = false
+              } label: {
+                Image(systemName: "magnifyingglass")
+                  .foregroundStyle(.gray)
+              }
             }
+          }
+          .padding(.horizontal, 16)
+          
+          VStack(spacing: 5) {
+            UnifiedSectionCard {
+              VStack {
+                HStack {
+                  Text("영양정보")
+                  
+                  Spacer()
+                  
+                  Image(systemName: "info.circle")
+                    .longPressPopover {
+                      RecommendedMacroGuidePopover()
+                    }
+                }
+                .padding(.horizontal, 8)
+                
+                macroPercentage()
+              }
+            }
+            .padding(.horizontal, 16)
             
+            Text("AI 생성 영양정보로 실제 값과 다를 수 있습니다. 건강 관련 중요한 결정은 의료 전문가와 상의하세요.")
+              .frame(minHeight: 50)
+              .font(.notoSans(weight: .medium, size: .defaultFontSize - 8))
+              .foregroundColor(.secondary)
+              .multilineTextAlignment(.center)
+          }
+          
+          if !isFoodNameFocused {
             Spacer()
-            
-            UnifiedSectionCard() {
-              Text(tipComment)
-                .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
-                .multilineTextAlignment(.leading)
-                .lineLimit(nil)
-            }
-            .fixedSize(horizontal: false, vertical: true)
-            .padding(.horizontal, 16)
-            
-            PrimaryButton(title: primaryButtonTitle, isEnabled: isSaveButtonEnabled) {
-              handlePrimaryAction()
-            }
-            .padding(.horizontal, 16)
-            
-            
-            
           }
-          .frame(minHeight: geometry.size.height)
-          .ignoresSafeArea(.keyboard, edges: .bottom)
-          .navigationBarBackButtonHidden(true)
-          .navigationBarTitleDisplayMode(.inline)
-          .onAppear {
-            if mode == .create {
-              isFoodNameFocused = true
-            }
-            
-            loadFoodData()
+          
+          UnifiedSectionCard() {
+            Text(tipComment)
+              .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
+              .multilineTextAlignment(.leading)
+              .lineLimit(nil)
           }
+          .fixedSize(horizontal: false, vertical: true)
+          .padding(.horizontal, 16)
+          .padding(.top, isFoodNameFocused ? -20 : .zero)
+          
+          PrimaryButton(title: primaryButtonTitle, isEnabled: isSaveButtonEnabled) {
+            handlePrimaryAction()
+          }
+          .padding(.horizontal, 16)
+          .padding(.bottom, isFoodNameFocused ? .defaultSpacing : .zero)
+          
+          
+          
+        }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+          if mode == .create {
+            isFoodNameFocused = true
+          }
+          
+          loadFoodData()
         }
       }
       .overlay {
