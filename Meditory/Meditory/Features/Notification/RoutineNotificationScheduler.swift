@@ -36,9 +36,9 @@ struct RoutineNotificationScheduler {
   }
 
   // 전체 루틴 일괄 스케줄
-  func scheduleAll(modelContext: ModelContext) async {
+  func scheduleAll() async {
     let fetch = FetchDescriptor<Routine>()
-    guard let routines = try? modelContext.fetch(fetch) else { return }
+    let routines = await RoutineStore.shared.fetchAllRoutines()
 
     for routine in routines {
       NotificationManager.shared.cancelForRoutineID(routine.id)
