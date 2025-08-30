@@ -10,7 +10,7 @@ import Foundation
 struct MealInfo: Identifiable, Codable {
   var id: UUID
   var name: String // 식단 이름 (ex: 아침, 점심, 저녁)
-  var date: Date = Date() // 날짜
+  var date: Date // 날짜
   
   var foods: [FoodInfo] // 식단에 포함된 음식
   
