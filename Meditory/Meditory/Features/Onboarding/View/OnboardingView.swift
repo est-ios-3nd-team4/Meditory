@@ -21,6 +21,8 @@ struct OnboardingView: View {
   
   @State private var isInitialLoadComplete = false // 데이터 로딩완료 여부
   private let isEditing: Bool // 편집모드여부(세팅에서 진입시 true)
+  
+  @State private var privacyAgreeCount: Int = .zero
 
   private let isPad = UIDevice.isPad
   private let buttonHeight: CGFloat = 50
@@ -43,6 +45,7 @@ struct OnboardingView: View {
     case .allergy: return "알레르기 정보 수정"
     case .disease: return "질병 정보 수정"
     case .concern: return "건강 관심사 수정"
+    case .privacyAgree: return ""
     }
   }
 
@@ -142,6 +145,10 @@ struct OnboardingView: View {
           selections: $vm.selectionSet,
           isSelected: $isSelected
         ) { selectItem(item: $0, vm: vm) }
+      case .privacyAgree:
+        OnboardingPrivacyAgreeView(prompt: prompt) { privacyAgreeCount in
+          self.privacyAgreeCount = privacyAgreeCount
+        }
       }
     }
   }
@@ -149,31 +156,39 @@ struct OnboardingView: View {
   ///상단 단계 인디케이터
   @ViewBuilder
   func progressIndicator() -> some View {
+    let spacing: CGFloat = isPad ? 20 : .smallSpacing
+    let stepCount = CGFloat(Step.allCases.count)
     let columns: [GridItem] = Array(
       repeating: GridItem(
         .flexible(),
-        spacing: isPad ? 20 : .smallSpacing
+        spacing: spacing
       ),
       count: Step.totalCount
     )
+    let circleSize = CGSize(
+      width: isPad ? 30 : 25,
+      height: isPad ? 30 : 25
+    )
+    
     HStack {
       LazyVGrid(columns: columns) {
         ForEach(Step.allCases, id: \.self) { index in
           Text(String(index.rawValue + 1))
             .font(.notoSans(size: .defaultFontSize - 5))
             .foregroundStyle(index == currentStep ? Color.white : Color.gray)
-            .frame(width: isPad ? 30 : 25, height: isPad ? 30 : 25)
+            .frame(width: circleSize.width, height: circleSize.height)
             .background {
               Circle()
                 .fill(index == currentStep ? Color.main : Color.gray.opacity(0.2))
             }
+            .offset(y: -1)
         }
       }
-      .frame(width: 160)
+      .frame(width: circleSize.width * stepCount + spacing * (stepCount - 1))
       .padding(.horizontal, .defaultSpacing + 4)
       Spacer()
     }
-    .padding(.top, 50)
+    .padding(.top, isPad ? 70 : 50)
   }
   
   ///하단 버튼
@@ -197,8 +212,8 @@ struct OnboardingView: View {
   func nextButton() -> some View {
     VStack(spacing: .smallSpacing) {
       PrimaryButton(
-        title: currentStep != .concern ? "다음" : "완료",
-        isEnabled: vm.isNextButtonOn(step: currentStep)
+        title: currentStep != .privacyAgree ? "다음" : "완료",
+        isEnabled: vm.isNextButtonOn(step: currentStep, privacyAgreeCount: privacyAgreeCount)
       ) {
         guard let next = currentStep.next() else {
           onFinished()
@@ -211,7 +226,7 @@ struct OnboardingView: View {
         }
         currentStep = next
       }
-      .disabled(!vm.isNextButtonOn(step: currentStep))
+      .disabled(!vm.isNextButtonOn(step: currentStep, privacyAgreeCount: privacyAgreeCount))
       .padding(.vertical, buttonTopSpacing)
     }
     .padding(.trailing, .defaultSpacing)
