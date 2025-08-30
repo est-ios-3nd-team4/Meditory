@@ -170,7 +170,6 @@ class OnboardingViewModel {
   
   ///각 단계의 흐름을 컨트롤하는 버튼을 위한 메소드
   func isNextButtonOn(step:Step) -> Bool {
-    print(privacyAgreementsCount)
     switch step {
     case .gender:
       return isNextButtonOn && isGenderSelected
