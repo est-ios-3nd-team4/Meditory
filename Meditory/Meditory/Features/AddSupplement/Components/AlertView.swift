@@ -43,7 +43,7 @@ struct AlertView: View {
         
         if !message.isEmpty {
           Text(message)
-            .font(.notoSans(weight: .regular, size: 18))
+            .font(.notoSans(weight: .regular, size: .defaultFontSize))
             .foregroundStyle(.secondary)
             .multilineTextAlignment(.center)
         }

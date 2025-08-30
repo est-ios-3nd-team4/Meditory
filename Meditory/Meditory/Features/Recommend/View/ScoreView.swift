@@ -63,7 +63,7 @@ struct ScoreView: View {
         }
       }
 
-      .padding(.top, 16)
+      .padding(.top, .defaultSpacing)
 
       ZStack(alignment: .bottom) {
         Circle()
@@ -98,12 +98,12 @@ struct ScoreView: View {
           }        }
         .padding(.bottom, 36)
       }
-      .padding(.top, 16)
+      .padding(.top, .defaultSpacing)
       .frame(maxWidth: .infinity)
       .frame(height: 200)
       .clipped()
     }
-    .padding(.horizontal, 16)
+    .padding(.horizontal, .defaultSpacing)
     .background(colorScheme == .dark ? Color.white.opacity(0.3)
                 : Color.white)
     .cornerRadius(.defaultRadius)
@@ -126,12 +126,11 @@ struct ScoreView: View {
         force: false
       )
     }
-
-    .onChange(of: scoreVM.result) { newResult in
-      guard let newResult else { return }
-      onResultUpdate?(newResult)
+    .onChange(of: scoreVM.result) { oldValue,newValue in
+      guard let newValue else { return }
+      onResultUpdate?(newValue)
       withAnimation(.easeOut(duration: 1.2)) {
-        animatedScore = Double(newResult.score)
+        animatedScore = Double(newValue.score)
       }
     }
   }

@@ -53,7 +53,7 @@ private struct AchievementSection: View {
   private var isPadStyle: Bool { hSize == .regular }
 
   private var progressSize: CGFloat { isPadStyle ? 300 : 200 }
-  private var emptyFontSize: CGFloat { isPadStyle ? 18 : 16 }
+  private var emptyFontSize: CGFloat { isPadStyle ? .defaultFontSize : .defaultFontSize-2 }
 
   var body: some View {
     UnifiedSectionCard(showsStroke: false) {

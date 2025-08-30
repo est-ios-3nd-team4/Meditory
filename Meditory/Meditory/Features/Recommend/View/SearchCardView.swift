@@ -54,6 +54,8 @@ struct SearchCardView: View {
         } label: {
           Image(systemName: "chevron.right")
             .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
+            .padding(.defaultSpacing)
+            .contentShape(Rectangle())
         }
       }
     }

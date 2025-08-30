@@ -88,7 +88,7 @@ struct AddSupplementView: View {
 
   var body: some View {
     GeometryReader { scrollView in
-      let isLandscape = scrollView.size.width > scrollView.size.height
+      let isLandscape = scrollView.frame(in: .global).width > scrollView.frame(in: .global).height
       
       ZStack {
         ScrollViewReader { proxy in
@@ -164,7 +164,7 @@ extension AddSupplementView {
   }
   
   private func supplementNameInput() -> some View {
-    HStack(spacing: 8) {
+    HStack(spacing: .smallSpacing) {
       if supplementName.isEmpty {
         Button {
           showScanner = true
@@ -333,7 +333,7 @@ extension AddSupplementView {
         height: .defaultFontSize + 18
       )
       
-      HStack(spacing: 8) {
+      HStack(spacing: .smallSpacing) {
         Text("시작 날짜")
           .font(.notoSans(size: .defaultFontSize))
         
@@ -354,7 +354,7 @@ extension AddSupplementView {
         
         Text("월")
           .font(.notoSans(weight: .regular, size: .defaultFontSize))
-          .padding(.trailing, 8)
+          .padding(.trailing, .smallSpacing)
         
         Button {
           selectedPicker = .day

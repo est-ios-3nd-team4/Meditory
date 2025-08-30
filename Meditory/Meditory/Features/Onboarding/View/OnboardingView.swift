@@ -21,6 +21,8 @@ struct OnboardingView: View {
   
   @State private var isInitialLoadComplete = false // 데이터 로딩완료 여부
   private let isEditing: Bool // 편집모드여부(세팅에서 진입시 true)
+  
+  @State private var privacyAgreeCount: Int = .zero
 
   private let isPad = UIDevice.isPad
   private let buttonHeight: CGFloat = 50
@@ -30,15 +32,12 @@ struct OnboardingView: View {
   init(userStore: UserStore, startAt: Step = .base, isEditing: Bool = false, onFinished: @escaping () -> Void = {}) {
     self.onFinished = onFinished
     self.isEditing = isEditing
-    
     // startAt 파라미터로 시작 단계를 설정합니다.
     self._currentStep = State(initialValue: startAt)
-    
     // ViewModel에게도 isEditing 모드임을 알려줍니다.
     self._vm = State(wrappedValue: OnboardingViewModel(userStore: userStore))
   }
   
-  // MARK: - 수정 화면의 제목을 동적으로 생성
   private var editingTitle: String {
     switch currentStep {
     case .base: return "기본 정보 수정"
@@ -46,20 +45,23 @@ struct OnboardingView: View {
     case .allergy: return "알레르기 정보 수정"
     case .disease: return "질병 정보 수정"
     case .concern: return "건강 관심사 수정"
+    case .privacyAgree: return ""
     }
   }
 
+  
+  // MARK: - 뷰 기본 구조
   var body: some View {
     VStack {
-      // MARK: - (4) isEditing 값에 따라 UI를 다르게 표시
-      // 수정 모드가 아닐 때만(즉, 최초 온보딩 시에만) 진행 바를 보여줍니다.
+      /// isEditing 값에 따라 UI를 다르게 표시
+      /// 수정 모드가 아닐 때만(즉, 최초 온보딩 시에만) 진행 바를 보여줍니다.
       if !isEditing {
         progressIndicator()
       }
       setContent(for: currentStep)
       Spacer(minLength: 0)
       
-      // 수정 모드일 때는 '다음' 버튼 대신 '저장' 버튼을 보여줍니다.
+      /// 수정 모드일 때는 '다음' 버튼 대신 '저장' 버튼을 보여줍니다.
       HStack(spacing:.defaultSpacing) {
         if isEditing {
           saveButton()
@@ -70,19 +72,19 @@ struct OnboardingView: View {
       }
     }
     .adaptivePadding(.horizontal, isPad ? .defaultSpacing+10 : 0)
-    // MARK: - 내비게이션 바
-    // isEditing 값에 따라 다른 내비게이션 바 스타일을 적용합니다.
+    /// 내비게이션 바
+    /// isEditing 값에 따라 다른 내비게이션 바 스타일을 적용합니다.
     .applyIf(isEditing) {
       $0.navigationBar(.custom(editingTitle), backgroundStyle: .system) {
         dismiss()
       }
     }
     .applyIf(!isEditing) {
-      // 최초 온보딩 시에는 시스템 내비게이션 바를 숨깁니다.
+      /// 최초 온보딩 시에는 시스템 내비게이션 바를 숨깁니다.
       $0.navigationBarHidden(true)
     }
     .onAppear {
-      // 수정 모드일 경우에만 데이터를 불러옵니다.
+      /// 수정 모드일 경우에만 데이터를 불러옵니다.
       if isEditing {
         Task {
           await vm.fetchCurrentUser()
@@ -92,6 +94,8 @@ struct OnboardingView: View {
     }
   }
 
+  // MARK: - 뷰 컴포넌트
+  ///기본 중앙 컨텐츠 뷰
   @ViewBuilder
   func setContent(for step: Step) -> some View {
     if let prompt = Prompt.promptMessage[step] {
@@ -108,9 +112,9 @@ struct OnboardingView: View {
       case .gender:
         OnboardingGenderView(
           vm: vm,
-          isSelected: $isSelected,
           prompt: prompt,
           name: name,
+          isSelected: $isSelected,
           onAction: {
             selectItem(item: $0, vm: vm)
           }
@@ -141,39 +145,53 @@ struct OnboardingView: View {
           selections: $vm.selectionSet,
           isSelected: $isSelected
         ) { selectItem(item: $0, vm: vm) }
+      case .privacyAgree:
+        OnboardingPrivacyAgreeView(prompt: prompt) { privacyAgreeCount in
+          self.privacyAgreeCount = privacyAgreeCount
+        }
       }
     }
   }
 
+  ///상단 단계 인디케이터
   @ViewBuilder
   func progressIndicator() -> some View {
+    let spacing: CGFloat = isPad ? 20 : .smallSpacing
+    let stepCount = CGFloat(Step.allCases.count)
     let columns: [GridItem] = Array(
       repeating: GridItem(
         .flexible(),
-        spacing: isPad ? 20 : .smallSpacing
+        spacing: spacing
       ),
       count: Step.totalCount
     )
+    let circleSize = CGSize(
+      width: isPad ? 30 : 25,
+      height: isPad ? 30 : 25
+    )
+    
     HStack {
       LazyVGrid(columns: columns) {
         ForEach(Step.allCases, id: \.self) { index in
           Text(String(index.rawValue + 1))
             .font(.notoSans(size: .defaultFontSize - 5))
             .foregroundStyle(index == currentStep ? Color.white : Color.gray)
-            .frame(width: isPad ? 30 : 25, height: isPad ? 30 : 25)
+            .frame(width: circleSize.width, height: circleSize.height)
             .background {
               Circle()
                 .fill(index == currentStep ? Color.main : Color.gray.opacity(0.2))
             }
+            .offset(y: -1)
         }
       }
-      .frame(width: 160)
+      .frame(width: circleSize.width * stepCount + spacing * (stepCount - 1))
       .padding(.horizontal, .defaultSpacing + 4)
       Spacer()
     }
-    .padding(.top, 50)
+    .padding(.top, isPad ? 70 : 50)
   }
   
+  ///하단 버튼
   @ViewBuilder
   func prevButton() -> some View {
     VStack(spacing: .smallSpacing) {
@@ -194,8 +212,8 @@ struct OnboardingView: View {
   func nextButton() -> some View {
     VStack(spacing: .smallSpacing) {
       PrimaryButton(
-        title: currentStep != .concern ? "다음" : "완료",
-        isEnabled: vm.isNextButtonOn(step: currentStep)
+        title: currentStep != .privacyAgree ? "다음" : "완료",
+        isEnabled: vm.isNextButtonOn(step: currentStep, privacyAgreeCount: privacyAgreeCount)
       ) {
         guard let next = currentStep.next() else {
           onFinished()
@@ -208,13 +226,12 @@ struct OnboardingView: View {
         }
         currentStep = next
       }
-      .disabled(!vm.isNextButtonOn(step: currentStep))
+      .disabled(!vm.isNextButtonOn(step: currentStep, privacyAgreeCount: privacyAgreeCount))
       .padding(.vertical, buttonTopSpacing)
     }
     .padding(.trailing, .defaultSpacing)
   }
   
-  // MARK: - '저장' 버튼 (수정 모드용)
   @ViewBuilder
   func saveButton() -> some View {
     VStack(spacing: .smallSpacing) {
@@ -229,11 +246,13 @@ struct OnboardingView: View {
         }
       }
       .disabled(!vm.isNextButtonOn)
-      .padding(.vertical, 8)
+      .padding(.vertical, .smallSpacing)
     }
     .padding(.horizontal, .defaultSpacing)
   }
 
+  ///아이템을 선택하는 로직
+  ///각 아이템이 고유하기 때문에 셋을 이용하여 추가
   func selectItem(item: QuestionModel, vm: OnboardingViewModel) {
     if vm.selectionSet.contains(item) {
       vm.selectionSet.remove(item)
@@ -242,6 +261,7 @@ struct OnboardingView: View {
     }
   }
   
+  ///모든 정보 기입후 가입완료
   func signUp() {
     Task {
       try await vm.signUp()

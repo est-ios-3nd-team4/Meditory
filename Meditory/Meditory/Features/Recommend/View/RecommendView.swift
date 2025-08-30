@@ -157,8 +157,8 @@ struct RecommendView: View {
                     .foregroundColor(.gray)
 
                 }
-                .padding(.vertical, 8)
-                .padding(.horizontal, 16)
+                .padding(.vertical, .smallSpacing)
+                .padding(.horizontal, .defaultSpacing)
                 .background(Color.white)
                 .cornerRadius(.defaultRadius)
                 .padding(16)
@@ -178,7 +178,7 @@ struct RecommendView: View {
                     .font(.notoSans(weight: .bold, size: .defaultFontSize - 2))
                 }
               }
-              .padding(.trailing, 16)
+              .padding(.trailing, .defaultSpacing)
 
               Button {
                 selectedScene = .scrap
@@ -318,7 +318,7 @@ struct RecommendView: View {
       )
       .id(chipSignature(nutrientVM.chips))
       .padding(.horizontal, 16)
-      .padding(.top, 8)
+      .padding(.top, .smallSpacing)
       .modifier(UnifiedShadow())
 
       ScoreView(
@@ -331,7 +331,7 @@ struct RecommendView: View {
         }
       )
       .padding(.horizontal, 16)
-      .padding(.top, 8)
+      .padding(.top, .smallSpacing)
       .modifier(UnifiedShadow())
       .padding(.bottom, .defaultSpacing)
     }

@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct OnboardingDiseaseView: View {
-  let isPad = UIDevice.isPad
   let items = QuestionModel.diseaseModel
   let columns = [
     GridItem(.flexible()),

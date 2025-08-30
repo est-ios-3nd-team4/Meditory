@@ -8,6 +8,7 @@
 import SwiftUI
 import UIKit
 
+///키보드 딜레이와  자동완성제안을 없는 키보드를 사용하기 위해 구현
 struct NoQuickTypeTextField: UIViewRepresentable {
   var isPad = UIDevice.isPad
   @Binding var text: String

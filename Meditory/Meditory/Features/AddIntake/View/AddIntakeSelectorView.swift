@@ -110,7 +110,7 @@ extension AddIntakeSelectorView {
       
       Text(item.title)
         .foregroundStyle(.white)
-        .font(.notoSans(size: 18))
+        .font(.notoSans(size: .defaultFontSize))
     }
     .onTapGesture {
       selectedIntakeItem = item

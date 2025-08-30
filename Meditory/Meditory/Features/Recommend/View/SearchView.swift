@@ -79,7 +79,7 @@ struct SearchView: View {
               .padding(.horizontal)
 
             ScrollView(.horizontal, showsIndicators: false) {
-              HStack(spacing: 8) {
+              HStack(spacing: .smallSpacing) {
                 ForEach(recentWords, id: \.self) { word in
                   chip(title: word) {
                     query = word
@@ -96,29 +96,13 @@ struct SearchView: View {
               .font(.title3).bold()
               .padding(.horizontal)
 
-            if ageNutrientVM.isLoading {
-              FlowLayoutLineLimit(
-                items: Array(0..<12),
-                itemFont: chipUIFont,
-                spacing: 8,
-                lineSpacing: 8,
-                lineLimit: 3,
-                containerPadding: 0,
-                itemPadding: chipItemPadding,
-                textProvider: { item in
-                  let lens = [2,3,4,6,3,5]
-                  let len = lens[item % lens.count]
-                  return String(repeating: "가", count: len)
-                },
-                content: { item in
-                  let lens = [2,3,4,6,3,5]
-                  let len = lens[item % lens.count]
-                  let placeholder = String(repeating: ".", count: len)
-                  NutrientChipSkeleton(width: chipWidth(for: placeholder))
-                }
-              )
-              .padding(.horizontal)
-            } else {
+             if ageNutrientVM.isLoading {
+               HStack {
+                 LoadingChip()
+                 Spacer()         
+               }
+               .padding(.horizontal)
+             } else {
               FlowLayoutLineLimit(
                 items: ageNutrientVM.chips,
                 itemFont: .systemFont(ofSize: 15, weight: .medium),
@@ -173,7 +157,7 @@ struct SearchView: View {
           .submitLabel(.search)
           .focused($isQueryFocused)
           .onSubmit { performSearch() }
-          .onChange(of: query) { newValue in
+          .onChange(of: query) { oldValue, newValue in
             if newValue.count > 20 {
               query = String(newValue.prefix(20))
             }
@@ -206,7 +190,7 @@ struct SearchView: View {
     Button(action: action) {
       Text(title)
         .font(.body)
-        .padding(.horizontal, 16)
+        .padding(.horizontal, .defaultSpacing)
         .padding(.vertical, 10)
         .background(
           Capsule()

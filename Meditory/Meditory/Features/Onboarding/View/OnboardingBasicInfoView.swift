@@ -8,15 +8,15 @@ import SwiftUI
 
 struct OnboardingBasicInfoView: View {
   var vm: OnboardingViewModel
-  let focusedField: FocusState<FormField?>.Binding
-  let bottomSpacing: CGFloat
-  
-  let isInitialLoadComplete: Bool
-  let isEditing: Bool
   
   @State private var preScroll: FormField? = nil
   @State private var scrollTask: Task<Void,Never>? = nil
-
+  
+  let focusedField: FocusState<FormField?>.Binding
+  let bottomSpacing: CGFloat
+  let isInitialLoadComplete: Bool
+  let isEditing: Bool
+  
   var body: some View {
     ScrollViewReader { proxy in
       ScrollView(.vertical) {

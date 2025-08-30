@@ -36,9 +36,9 @@ struct RoutineNotificationScheduler {
   }
 
   // 전체 루틴 일괄 스케줄
-  func scheduleAll(modelContext: ModelContext) async {
-    let fetch = FetchDescriptor<Routine>()
-    guard let routines = try? modelContext.fetch(fetch) else { return }
+  func scheduleAll() async {
+    _ = FetchDescriptor<Routine>()
+    let routines = await RoutineStore.shared.fetchAllRoutines()
 
     for routine in routines {
       NotificationManager.shared.cancelForRoutineID(routine.id)
@@ -78,10 +78,10 @@ private extension RoutineNotificationScheduler {
           hhmm: hhmm
         )
 
-        let info: [AnyHashable: Any] = [
-          "routineUUID": routine.id.uuidString,
-          "displayName": routine.displayName,
-          "routineTimeUUID": t.id.uuidString
+        let info: [String:String] = [
+          "routineUUID" : routine.id.uuidString,
+          "displayName" : routine.displayName,
+          "routineTimeUUID" : t.id.uuidString
         ]
 
         await NotificationManager.shared.scheduleRoutineNotification(
@@ -117,10 +117,10 @@ private extension RoutineNotificationScheduler {
         let comps = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
         let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
 
-        let info: [AnyHashable: Any] = [
-          "routineUUID": routine.id.uuidString,
-          "displayName": routine.displayName,
-          "routineTimeUUID": t.id.uuidString
+        let info: [String:String] = [
+                    "routineUUID": routine.id.uuidString,
+                    "displayName": routine.displayName,
+                    "routineTimeUUID": t.id.uuidString
         ]
 
         await NotificationManager.shared.scheduleRoutineNotification(

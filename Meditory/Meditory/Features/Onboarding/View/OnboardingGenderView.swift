@@ -10,13 +10,11 @@ import SwiftUI
 struct OnboardingGenderView: View {
   let isPad = UIDevice.isPad
   var vm: OnboardingViewModel
-  @Environment(\.colorScheme) var colorScheme
-  @Binding var isSelected: Bool
   var prompt: Prompt
   var name: String
+  @Binding var isSelected: Bool
   var onAction: ((QuestionModel) -> Void)?
   var question = QuestionModel.feminineModel
-
   var body: some View {
     VStack {
       TitleView(prompt: prompt,name: name)
@@ -38,12 +36,10 @@ struct OnboardingGenderView: View {
     .frame(maxWidth: .infinity)
     .adaptivePadding(.bottom, 20,small: -10)
     VStack(alignment: .leading, spacing: .defaultSpacing) {
-      if let info = prompt.info {
         Text("아래에 해당하는 상태가 있다면 선택해주세요.")
           .adaptiveFont(.defaultFontSize - 2 ,weight: .medium)
           .foregroundStyle(.textGray)
           .padding(.bottom,.defaultSpacing)
-      }
         ForEach(question, id: \.self) { item in
           RowItemCell(model: item, isSelected: vm.selectionSet.contains(item))
             .onTapGesture {

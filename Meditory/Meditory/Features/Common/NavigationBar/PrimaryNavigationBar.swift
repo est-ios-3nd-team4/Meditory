@@ -32,7 +32,8 @@ struct PrimaryNavigationBar: View {
   
   private var navigationBar: some View {
     ZStack{
-      let fontSize: CGFloat = isPad ? 20 : 18
+      let fontSize: CGFloat = isPad ? 21 : .defaultFontSize
+      let iconSize: CGFloat = .defaultFontSize
       
       Text(title.text)
         .font(.notoSans(size: fontSize))
@@ -47,7 +48,7 @@ struct PrimaryNavigationBar: View {
         } label: {
           Image(systemName: "chevron.left")
             .foregroundStyle(Color.label)
-            .font(.system(size: fontSize))
+            .font(.system(size: iconSize))
         }
         
         Spacer()

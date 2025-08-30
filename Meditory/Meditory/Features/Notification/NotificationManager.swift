@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import UserNotifications
+@preconcurrency import UserNotifications
 import UIKit
 
 enum NotificationToggleResult {
@@ -110,7 +110,7 @@ final class NotificationManager {
   }
 
   /// 동일 identifier가 pending에 있으면 먼저 제거한 뒤 요청을 등록합니다.
-  func scheduleRoutineNotification(id: String, title: String, body: String,userInfo: [AnyHashable: Any], trigger: UNNotificationTrigger) async {
+  func scheduleRoutineNotification(id: String, title: String, body: String,userInfo: [String:String], trigger: UNNotificationTrigger) async {
     let center = UNUserNotificationCenter.current()
 
     await withCheckedContinuation { cont in
@@ -125,7 +125,7 @@ final class NotificationManager {
         content.body = body
         content.userInfo = userInfo
         content.interruptionLevel = .timeSensitive
-        if let rid = userInfo["routineUUID"] as? String {
+        if let rid = userInfo["routineUUID"] {
           content.threadIdentifier = "routine-\(rid)"
         }
 

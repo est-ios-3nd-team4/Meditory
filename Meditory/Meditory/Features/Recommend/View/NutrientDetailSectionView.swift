@@ -16,6 +16,21 @@ struct NutrientDetailSectionView: View {
     allScraps.filter { $0.nutrientId == nutrient.id }
   }
 
+  private var shareText: String {
+    let tags = nutrient.hashtags.isEmpty ? "" : "\n" + nutrient.hashtags.map { "#\($0)" }.joined(separator: " ")
+    return """
+    \(nutrient.name)\(tags)
+
+    \(nutrient.title)
+
+    \(nutrient.content)
+    """
+  }
+
+  private var style: (symbol: String, color: Color) {
+    RoutineIconResolver.style(category: nutrient.name, displayName: nutrient.name)
+  }
+
   private func toggleScrap() {
     if let existing = scraps.first {
       context.delete(existing)
@@ -38,6 +53,8 @@ struct NutrientDetailSectionView: View {
     let onBack: () -> Void
     @Environment(\.colorScheme) private var colorScheme
 
+    private let navHeight: CGFloat = 44
+
     @ViewBuilder
     func body(content: Content) -> some View {
       if enabled {
@@ -52,7 +69,7 @@ struct NutrientDetailSectionView: View {
       ZStack {
         // 배경을 좌우 끝까지
         Rectangle()
-          .fill(.customBackground)
+          .fill(.clear)
           .ignoresSafeArea(edges: .horizontal)
 
         HStack {
@@ -66,6 +83,7 @@ struct NutrientDetailSectionView: View {
         .padding(.leading, 0)
         .padding(.trailing, 0)
       }
+      .frame(height: navHeight)
     }
   }
 
@@ -73,7 +91,17 @@ struct NutrientDetailSectionView: View {
     ScrollView {
       VStack(alignment: .leading, spacing: .smallSpacing) {
         HStack {
-          Text("🧪 \(nutrient.name)")
+          Image(systemName: style.symbol)
+            .imageScale(.medium)
+            .padding(.smallSpacing)
+            .background(
+              Circle()
+                .fill(style.color.opacity(0.15))
+            )
+            .foregroundStyle(style.color)
+            .accessibilityHidden(true)
+
+          Text(nutrient.name)
             .font(.notoSans(weight: .bold, size: 30))
 
           Spacer()
@@ -83,8 +111,18 @@ struct NutrientDetailSectionView: View {
           } label: {
             Image(systemName: isScrapped ? "star.fill" : "star")
           }
+          .padding(.trailing, .smallSpacing)
+
+          ShareLink(
+            item: shareText,
+            preview: SharePreview(nutrient.name, image: Image(systemName: "square.and.arrow.up"))
+          ) {
+            Image(systemName: "square.and.arrow.up")
+              .frame(width: 44, height: 44)        
+              .contentShape(Rectangle())
+          }
         }
-        .padding(.bottom, 16)
+        .padding(.bottom, .defaultSpacing)
 
         HStack {
           ForEach(nutrient.hashtags, id: \.self) { tag in
@@ -96,7 +134,7 @@ struct NutrientDetailSectionView: View {
 
         Text(nutrient.title)
           .font(.notoSans(weight: .regular, size: .defaultFontSize - 3))
-          .padding(.vertical, 8)
+          .padding(.vertical, .smallSpacing)
 
         Text(nutrient.content)
           .font(.notoSans(weight: .regular, size: .defaultFontSize - 3))

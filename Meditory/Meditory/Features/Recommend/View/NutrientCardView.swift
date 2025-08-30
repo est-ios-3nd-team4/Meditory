@@ -67,7 +67,7 @@ struct NutrientCardView: View {
       .animation(.easeInOut(duration: 0.2), value: isLoading || nutrients.isEmpty)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
-    .padding(16)
+    .padding(.defaultSpacing)
     .background(colorScheme == .dark ? Color.white.opacity(0.3)
                 : Color.white)
     .cornerRadius(.defaultRadius)

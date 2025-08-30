@@ -220,7 +220,7 @@ extension AddSupplementViewModel {
   ) async throws {
     try await saveRoutine()
 
-    await RoutineNotificationScheduler().scheduleAll(modelContext: context)
+    await RoutineNotificationScheduler().scheduleAll()
 
     NotificationCenter.default.post(name: .didUpdateSupplement, object: nil)
   }

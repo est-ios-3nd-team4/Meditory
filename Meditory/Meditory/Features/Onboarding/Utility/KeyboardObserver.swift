@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+///키보드 이벤트 처리를 위한 옵져버 추가
 final class KeyboardObserver: ObservableObject {
   @Published var bottomInset: CGFloat = 0
   @Published var shift: CGFloat = 0
