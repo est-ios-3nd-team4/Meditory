@@ -58,43 +58,34 @@ struct NutrientCardCell: View {
   let nutrient: Nutrient
   let colorScheme: ColorScheme
   let onUnscrap: () -> Void
+  private var style: (symbol: String, color: Color) {
+    RoutineIconResolver.style(category: nutrient.name, displayName: nutrient.name)
+  }
 
   var body: some View {
-    HStack {
-      VStack(alignment: .leading, spacing: .smallSpacing) {
-        HStack {
-          Text(nutrient.name)
-            .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
+    HStack(spacing: .defaultSpacing) {
+      Image(systemName: style.symbol)
+        .imageScale(.medium)
+        .padding(.smallSpacing)
+        .background(
+          Circle()
+            .fill(style.color.opacity(0.15))
+        )
+        .foregroundStyle(style.color)
+        .accessibilityHidden(true)
 
-          Spacer()
+      Text(nutrient.name)
+        .font(.notoSans(size: .defaultFontSize))
+        .fontWeight(.bold)
+        .lineLimit(1)
+        .minimumScaleFactor(0.85)
 
-          Button {
-            onUnscrap()
-          } label: {
-            Image(systemName: "star.fill")
-              .padding(.trailing, .smallSpacing)
-          }
-        }
-
-        // 해시태그 중 최대 2개 정도 보여주기
-        HStack {
-          ForEach(nutrient.hashtags.prefix(2), id: \.self) { tag in
-            Text("#\(tag)")
-              .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
-              .lineLimit(1)
-          }
-        }
-      }
       Spacer()
-
-      Image(systemName: "chevron.right")
-        .foregroundColor(.gray)
     }
     .padding(.defaultSpacing)
     .background(
       RoundedRectangle(cornerRadius: .defaultRadius)
-        .fill(colorScheme == .dark ? Color.white.opacity(0.3)
-              : Color.white)
+        .fill(colorScheme == .dark ? Color.white.opacity(0.28) : Color.white)
     )
     .modifier(UnifiedShadow())
   }

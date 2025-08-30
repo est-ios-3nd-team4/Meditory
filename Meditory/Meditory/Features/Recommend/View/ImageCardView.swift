@@ -135,15 +135,9 @@ struct ImageCardView: View {
     .padding()
     .background(colorScheme == .dark ? Color.white.opacity(0.3) : Color.white)
     .cornerRadius(.defaultRadius)
-    .background(
-      NavigationLink(
-        destination: OnboardingView(userStore: userStore, startAt: .concern, isEditing: true),
-        isActive: $showConcernEdit
-      ) {
-        EmptyView()
-      }
-      .hidden()
-    )
+    .navigationDestination(isPresented: $showConcernEdit, destination: {
+      OnboardingView(userStore: userStore, startAt: .concern, isEditing: true)
+    })
     .onAppear {
       guard !didTriggerInitialLoad else { return }
       didTriggerInitialLoad = true
