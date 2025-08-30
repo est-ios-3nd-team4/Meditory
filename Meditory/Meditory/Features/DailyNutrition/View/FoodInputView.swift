@@ -75,7 +75,7 @@ struct FoodInputView: View {
         ScrollView {
           VStack(spacing: 20) {
             Color.clear
-              .frame(height: 30)
+              .frame(height: 44)
             
             // MARK: Food Name Input
             UnifiedSectionCard {
@@ -191,36 +191,44 @@ struct FoodInputView: View {
         }
       }
       
-      HStack {
-        Button {
-          dismiss()
-        } label: {
-          Image(systemName: "chevron.left")
-            .foregroundStyle(Color.label)
-        }
-        
-        Spacer()
-        
-        Text(navigationTitle)
-          .font(.notoSans(weight: .semiBold, size: .defaultFontSize))
-        
-        Spacer()
-        
-        if mode == .edit {
+      VStack {
+        HStack {
           Button {
-            showingDeleteAlert = true
+            dismiss()
           } label: {
-            Text("삭제")
-              .font(.notoSans(weight: .semiBold, size: .defaultFontSize - 1))
-              .foregroundStyle(.red)
+            Image(systemName: "chevron.left")
+              .foregroundStyle(Color.label)
           }
-        } else {
-          Button("") { }
-            .opacity(0)
+          .frame(width: 44, height: 44)
+          
+          Spacer()
+          
+          Text(navigationTitle)
+            .font(.notoSans(weight: .semiBold, size: .defaultFontSize))
+          
+          Spacer()
+          
+          if mode == .edit {
+            Button {
+              showingDeleteAlert = true
+            } label: {
+              Text("삭제")
+                .font(.notoSans(weight: .semiBold, size: .defaultFontSize - 1))
+                .foregroundStyle(.red)
+            }
+            .frame(width: 44, height: 44)
+          } else {
+            Color.clear
+              .frame(width: 44, height: 44)
+          }
         }
+        .frame(height: 44)
+        .padding(.horizontal, 16)
+        
+        Spacer()
       }
-      .padding(.horizontal, 16)
       .zIndex(999)
+      
     }
     .contentShape(Rectangle())
     .onTapGesture {
@@ -242,16 +250,17 @@ struct FoodInputView: View {
             .font(.notoSans(weight: .medium, size: .defaultFontSize - 5))
             .foregroundStyle(.secondary)
           
-          HStack(spacing: 5) {
+          HStack(spacing: 0) {
             Rectangle()
               .fill(.clear)
-              .frame(width: 10, height: 1)
+              .frame(width: 5, height: 1)
             
             RoundedRectangle(cornerRadius: 20)
               .fill(.backgroundGray)
-              .frame(width: 49, height: 29)
+              .frame(width: 69, height: 29)
               .overlay {
                 macroInputField(for: type)
+                  .frame(maxWidth: .infinity)
               }
             
             Text("g")
@@ -285,7 +294,7 @@ struct FoodInputView: View {
         }
       
       if isLoading {
-        NutrientChipSkeleton(width: 50)
+        NutrientChipSkeleton(width: 70)
       }
     }
   }
