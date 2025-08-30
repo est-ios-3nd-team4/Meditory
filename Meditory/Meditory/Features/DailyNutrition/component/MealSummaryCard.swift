@@ -37,7 +37,7 @@ struct MealSummaryCard: View {
       HStack {
         VStack(alignment: .leading, spacing: 16) {
           Text(food.name)
-            .font(.notoSans(weight: .bold, size: .defaultFontSize - 3))
+            .font(.notoSans(weight: .semiBold, size: .defaultFontSize - 3))
           
           HStack(spacing: 40) {
             ForEach(food.macros.macroItems) { item in

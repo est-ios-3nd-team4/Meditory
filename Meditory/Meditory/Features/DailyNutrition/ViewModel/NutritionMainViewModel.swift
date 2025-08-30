@@ -15,7 +15,17 @@ class NutritionMainViewModel: ObservableObject {
   /// meals: swiftDat에서 meal 데이터를 불러 올 때 selectredDate를 기반으로 filter해서 불러옴
   @Published var meals: [MealInfo] = []
   @Published var selectedDate = Date()
-  @Published var selectedMeal: MealInfo? = nil
+//  {
+//    didSet {
+//      selectedMeal(MealInfo(id: <#T##UUID#>, name: <#T##String#>, date: <#T##Date#>, foods: <#T##[FoodInfo]#>))
+//    }
+//  }
+//  @Published var selectedMeal: MealInfo? = nil
+  var selectedMeal: MealInfo? {
+    meals.first {
+      Calendar.current.isDate($0.date, inSameDayAs: selectedDate)
+    }
+  }
   @Published var healthKitManager = HealthKitManager()
   
   // SwiftData
@@ -127,12 +137,16 @@ class NutritionMainViewModel: ObservableObject {
   }
   
   func selectedMeal(_ meal: MealInfo) {
-    self.selectedMeal = meal
+//    if selectedMeal == nil {
+//      MealInfo(id: <#T##UUID#>, name: <#T##String#>, date: <#T##Date#>, foods: <#T##[FoodInfo]#>)
+//    }
+    
+//    self.selectedMeal = meal
   }
   
-  func deSelectedMeal() {
-    self.selectedMeal = nil
-  }
+//  func deSelectedMeal() {
+//    self.selectedMeal = nil
+//  }
   
   func findMeal(for foodId: UUID) -> MealInfo? {
     return meals.first { meal in
@@ -241,33 +255,41 @@ extension NutritionMainViewModel {
     }
   }
 
+  /// selectDate는 잘못없음 다만 food를 입력할 때 Meal에다가 욱여 넣어서 결국 오늘 날짜 Meal에 저장되고있는 것
+  ///  결론적으로 Food 데이터를 입력할 때 Meal이 아닌 Date로 DB에 접근해야 됨
   private func createNewMealWithFood(food: Food) {
-    do {
-      let newMeal = Meal(id: UUID(),
-                         mealName: "",
-                         date: selectedDate,
-                         foods: [food])
+    if let existingMeal = selectedMeal {
+      updateMealWithFood(mealId: existingMeal.id, food: food)
+    } else {
       
-      modelContext.insert(newMeal)
-      modelContext.insert(food)
-      try modelContext.save()
-      
-      let mealInfo = MealInfo(id: newMeal.id,
-                              name: newMeal.mealName,
-                              date: newMeal.date,
-                              foods: [FoodInfo(id: food.id,
-                                               name: food.foodName,
-                                               weight: food.totalGram,
-                                               macros: MacroNutrients(carbohydrate: food.carbohydrate,
-                                                                      protein: food.protein,
-                                                                      fat: food.fat))])
-      
-      meals.append(mealInfo)
-      selectedMeal = mealInfo
-
-      print("✅ 새 식단이 생성되었습니다")
-    } catch {
-      print("❌ Meal 생성 실패: \(error)")
+      do {
+        let newMeal = Meal(id: UUID(),
+                           mealName: "",
+                           date: selectedDate,
+                           foods: [food])
+        
+        modelContext.insert(newMeal)
+        modelContext.insert(food)
+        try modelContext.save()
+        
+        let mealInfo = MealInfo(id: newMeal.id,
+                                name: newMeal.mealName,
+                                date: newMeal.date,
+                                foods: [FoodInfo(id: food.id,
+                                                 name: food.foodName,
+                                                 weight: food.totalGram,
+                                                 macros: MacroNutrients(carbohydrate: food.carbohydrate,
+                                                                        protein: food.protein,
+                                                                        fat: food.fat))])
+        // 잠시라도 card에 떴던 이유가 이 foodList 때문이었음
+        meals.append(mealInfo)
+//        selectedMeal = mealInfo
+        
+        print("✅ 새 식단이 생성되었습니다")
+        print("name: \(newMeal.foods), date : \(newMeal.date)")
+      } catch {
+        print("❌ Meal 생성 실패: \(error)")
+      }
     }
   }
   
@@ -382,9 +404,9 @@ extension NutritionMainViewModel {
           
           meals.removeAll() { $0.id == mealId }
           
-          if selectedMeal?.id == mealId {
-            selectedMeal = nil
-          }
+//          if selectedMeal?.id == mealId {
+//            selectedMeal = nil
+//          }
         }
       }
       
