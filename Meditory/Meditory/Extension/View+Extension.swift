@@ -65,6 +65,7 @@ extension View {
     plus: CGFloat = +2,
     weight: Font.NotoSansWeight = .regular
   ) -> some View {
+    /*
     let size: CGFloat
     switch deviceWidthSize() {
     case .small:
@@ -76,6 +77,8 @@ extension View {
     }
     let finalSize = baseSize + size
     return self.font(.notoSans(weight: weight, size: finalSize))
+     */
+    return self.font(.notoSans(weight: weight, size: baseSize))
   }
   
   func adaptiveImage(
