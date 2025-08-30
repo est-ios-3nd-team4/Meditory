@@ -2,7 +2,7 @@ import SwiftData
 import Foundation
 
 @Model
-final class Setting {
+final class Setting: Sendable {
   @Attribute(.unique) var id: UUID
   var isNotificationOn: Bool // 알림 허용 여부
   

@@ -37,7 +37,7 @@ struct RoutineNotificationScheduler {
 
   // 전체 루틴 일괄 스케줄
   func scheduleAll() async {
-    let fetch = FetchDescriptor<Routine>()
+    _ = FetchDescriptor<Routine>()
     let routines = await RoutineStore.shared.fetchAllRoutines()
 
     for routine in routines {

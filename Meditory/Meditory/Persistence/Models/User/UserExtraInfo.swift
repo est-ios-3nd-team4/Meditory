@@ -2,7 +2,7 @@ import SwiftData
 import Foundation
 
 @Model
-final class UserExtraInfo {
+final class UserExtraInfo: Sendable {
   @Attribute(.unique) var id: UUID
   
   @Relationship(deleteRule: .cascade) var disease: [ExtraInfo]

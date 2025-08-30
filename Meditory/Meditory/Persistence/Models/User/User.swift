@@ -2,7 +2,7 @@ import SwiftData
 import Foundation
 
 @Model
-final class User {
+final class User: Sendable {
   @Attribute(.unique) var id: UUID
   var name: String
   var birthDate: Date
