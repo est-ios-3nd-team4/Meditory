@@ -78,10 +78,10 @@ private extension RoutineNotificationScheduler {
           hhmm: hhmm
         )
 
-        let info: [AnyHashable: Any] = [
-          "routineUUID": routine.id.uuidString,
-          "displayName": routine.displayName,
-          "routineTimeUUID": t.id.uuidString
+        let info: [String:String] = [
+          "routineUUID" : routine.id.uuidString,
+          "displayName" : routine.displayName,
+          "routineTimeUUID" : t.id.uuidString
         ]
 
         await NotificationManager.shared.scheduleRoutineNotification(
@@ -117,10 +117,10 @@ private extension RoutineNotificationScheduler {
         let comps = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
         let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
 
-        let info: [AnyHashable: Any] = [
-          "routineUUID": routine.id.uuidString,
-          "displayName": routine.displayName,
-          "routineTimeUUID": t.id.uuidString
+        let info: [String:String] = [
+                    "routineUUID": routine.id.uuidString,
+                    "displayName": routine.displayName,
+                    "routineTimeUUID": t.id.uuidString
         ]
 
         await NotificationManager.shared.scheduleRoutineNotification(
