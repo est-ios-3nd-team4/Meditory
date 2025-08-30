@@ -48,7 +48,7 @@ struct MealSummaryCard: View {
                 
                 
                 Text(item.label)
-                  .font(.notoSans(weight: .regular, size: .defaultFontSize - 6))
+                  .font(.notoSans(weight: .regular, size: .defaultFontSize - 7))
                 
                 Text("\(Int(item.gram))g")
                   .font(.notoSans(weight: .semiBold, size: .defaultFontSize - 6))

@@ -131,7 +131,7 @@ struct FoodInputView: View {
           UnifiedSectionCard() {
             Text(tipComment)
               .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
-              .multilineTextAlignment(.leading)
+              .multilineTextAlignment(.center)
               .lineLimit(nil)
           }
           .fixedSize(horizontal: false, vertical: true)
