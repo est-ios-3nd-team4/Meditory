@@ -10,7 +10,6 @@ import SwiftUI
 /// 맨 처음 개인정보 동의 수집 뷰
 struct OnboardingPrivacyAgreeView: View {
 
-
   // MARK: - 뷰 속성
   let agreements = QuestionModel.agreements
   let prompt: Prompt
@@ -27,14 +26,7 @@ struct OnboardingPrivacyAgreeView: View {
       ForEach(agreements, id: \.code) { item in
         VStack(alignment: .leading, spacing: .smallSpacing) {
           HStack(spacing: .defaultSpacing) {
-            CircleCheck(
-              isCompleted: selections.contains(item),
-              size: UIDevice.isPad ? 30 : 25
-            )
-            .onTapGesture {
-              toggleSelection(item)
-            }
-            
+
             Text(item.title)
               .font(.notoSans(size: .defaultFontSize - 2))
               .foregroundColor(.primary)
@@ -42,23 +34,30 @@ struct OnboardingPrivacyAgreeView: View {
                 toggleSelection(item)
               }
               .offset(y: -2)
-          Spacer()
-        }
+            Spacer()
+            CircleCheck(
+              isCompleted: selections.contains(item),
+              size: UIDevice.isPad ? 30 : 25
+            )
+            .padding(.trailing, .smallSpacing)
+          }
 
-        /// 하단의 디테일 설명 뷰
-        VStack(alignment: .leading, spacing: 4) {
-            ForEach(detailTexts(for: item.code), id: \.title) { detail in
-              HStack(alignment: .top) {
-                Text("•")
-                  .foregroundColor(.secondary)
-                
-                Text("\(detail.title): \(detail.desc)")
-                  .font(.notoSans(size: .defaultFontSize - 5))
-                  .foregroundColor(.secondary)
-              }
+          /// 하단의 디테일 설명 뷰
+          ForEach(detailTexts(for: item.code), id: \.title) { detail in
+            HStack(alignment: .top) {
+              Text("•")
+                .foregroundColor(.secondary)
+              Text("\(detail.title): \(detail.desc)")
+                .font(.notoSans(size: .defaultFontSize - 5))
+                .foregroundColor(.secondary)
+              Spacer()
             }
           }
           .padding(.leading, .defaultSpacing * 2)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+          toggleSelection(item)
         }
         .padding(.horizontal, .defaultSpacing + 4)
       }

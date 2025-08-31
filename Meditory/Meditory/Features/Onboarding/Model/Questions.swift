@@ -152,14 +152,14 @@ struct QuestionModel: Hashable {
   static let feminineModel: [QuestionModel] = [
     .init(
       code: "female_extra_1",
-      title: "임신 중",
+      title: "임신중",
       type: .etc,
       subtitle: "임신중에 주의해야하거나\n추천하는 영양성분을 확인할 수 있어요",
       image: "icon_pregnancy_filled"
     ),
     .init(
       code: "femal_extra_2",
-      title: "수유 중",
+      title: "수유중",
       type: .etc,
       subtitle: "수유중에 주의해야하거나\n추천하는 영양성분을 확인할 수 있어요",
       image: "icon_breastfeeding_filled"
