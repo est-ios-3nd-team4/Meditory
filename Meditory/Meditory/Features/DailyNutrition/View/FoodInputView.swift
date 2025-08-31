@@ -123,7 +123,6 @@ struct FoodInputView: View {
               .multilineTextAlignment(.center)
           }
         }
-        
       }
       
       doneButtonView()
@@ -209,6 +208,9 @@ struct FoodInputView: View {
           .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
           .multilineTextAlignment(.center)
           .lineLimit(nil)
+      }
+      .background {
+        Color.black
       }
       .fixedSize(horizontal: false, vertical: true)
       .padding(.horizontal, .defaultSpacing)
