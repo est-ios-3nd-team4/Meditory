@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 요일 선택하는 Picker Sheet.
 struct WeekdayPickerSheet: View {
   
   @State var weekdays: [Weekday: Bool]

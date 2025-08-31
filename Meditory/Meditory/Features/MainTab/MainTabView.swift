@@ -7,8 +7,11 @@
 
 import SwiftUI
 
+/// 앱의 메인 탭 컨테이너 뷰
+/// - iPad: `DefaultTabView` 사용
+/// - iPhone: `CustomTabView` 사용
 struct MainTabView: View {
-
+  
   @Environment(\.modelContext) private var context
   @EnvironmentObject var nutritionViewModel: NutritionMainViewModel
   
@@ -28,8 +31,6 @@ struct MainTabView: View {
           mainTabPhoneView()
         }
       }
-
-      // 추후 적용 예정
       .fullScreenCover(
         isPresented: Binding(
           get: { selectedIntakeItem != nil && !showIntakeSelector },

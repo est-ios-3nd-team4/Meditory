@@ -7,12 +7,16 @@
 
 import SwiftUI
 
+/// 공통 스케줄 선택용 시트 뷰.
+///
+/// 이 뷰는 바텀 시트 형태로 표시되며, 다양한 `Picker` 콘텐츠를 감쌀 수 있도록 제네릭 구조로 설계되었습니다.
 struct SchedulePickerSheet<Content: View>: View {
   
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.dismiss) private var dismiss
   
   private let title: String?
+  /// Alert 필요 여부
   private let needsAlert: Bool
   @Binding var showAlert: Bool
   private let alert: AlertView?

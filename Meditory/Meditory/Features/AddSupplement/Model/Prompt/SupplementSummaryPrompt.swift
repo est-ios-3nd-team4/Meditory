@@ -7,8 +7,10 @@
 
 import Foundation
 
+/// 영양제/의약품 정보를 추출하고 요약하기 위한 프롬프트 생성 유틸리티.
 struct SupplementSummaryPrompt {
   
+  /// AI 모델이 따라야 할 기본 규칙 (JSON 출력 형식, 제약사항 등).
   private static let baseRules = """
     1. 출력은 순수 JSON만 반환하며, JSON 마크다운(```json)으로 감싸지 않습니다.
     2. `type`: 제품이 영양제면 1, 약이면 2로 설정합니다. 만약, 어떤 영양제 혹은 약인지 추론할 수 없다면 3을 설정합니다.
@@ -35,7 +37,7 @@ struct SupplementSummaryPrompt {
     6. 반드시 네개의 키(`type`, `name`, `description`, `category`)를 모두 포함하며, 불필요한 필드나 주석을 넣지 않습니다.
     """
   
-  /// 출력 스키마
+  /// JSON 출력 스키마 (예시 형식).
   private static let outputSchema = """
     [출력 JSON 형식]
     {
@@ -48,6 +50,7 @@ struct SupplementSummaryPrompt {
     }
     """
   
+  /// 사용자가 직접 입력한 제품명을 기반으로 한 지시문 생성.
   private static func buildBaseInstruction(productName: String) -> String {
          """
          당신은 의약품 정보 제공 전문가이자 복용 스케줄 추천 도우미입니다.
@@ -55,31 +58,38 @@ struct SupplementSummaryPrompt {
          """
   }
   
+  /// OCR로 추출된 텍스트를 기반으로 한 지시문 생성.
   private static func buildBaseInstruction(extractedText: String) -> String {
       """
       당신은 의약품 정보 제공 전문가이자 복용 스케줄 추천 도우미입니다.
       아래 제공된 사용자 건강 정보를 기반으로, 카메라로 추출한 텍스트를 분석하여
       해당 의약품 또는 건강기능식품의 정확한 제품명을 식별하세요.
       제품명이 불명확한 경우 가능한 후보를 제시하세요.
-
+      
       추출된 텍스트:
-      \"\(extractedText)\"
+      \"\(PIIRedactor.redactPII(in: extractedText))\"
       """
   }
-
+  
+  /// 최종 AI 프롬프트 생성
+  ///
+  /// - Parameters:
+  ///   - productNameInput: 사용자 입력값 (직접 입력한 이름 or OCR 텍스트)
+  ///   - nameSource: 입력값의 출처 (`.manual` or `.cameraOCR`)
+  /// - Returns: AI 모델에 전달할 최종 지시문(String)
   static func makePrompt(
     productNameInput: String,
     nameSource: SupplementNameSource
   ) -> String {
     var sections: [String] = []
-
+    
     switch nameSource {
     case .manual:
       sections.append(buildBaseInstruction(productName: productNameInput))
     case .cameraOCR:
       sections.append(buildBaseInstruction(extractedText: productNameInput))
     }
-
+    
     sections.append(baseRules)
     sections.append(outputSchema)
     

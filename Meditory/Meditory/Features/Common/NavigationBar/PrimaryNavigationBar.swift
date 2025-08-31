@@ -16,10 +16,14 @@ import SwiftUI
 
 import SwiftUI
 
+/// 앱 전역에서 사용하는 커스텀 내비게이션 바
 struct PrimaryNavigationBar<Content: View>: View {
   
+  /// 내비게이션 바 배경 스타일
   enum BackgroundStyle {
+    /// .systemBackground 색상
     case system
+    /// .customBackground 색상
     case custom
     
     var color: Color {
@@ -36,6 +40,7 @@ struct PrimaryNavigationBar<Content: View>: View {
   
   var title: NavigationTitle = .none
   var backgroundStyle: BackgroundStyle = .custom
+  /// 스크롤 최상단 여부 (true: 상단, false: 스크롤된 상태)
   var isAtTop: Bool? = nil
   let onBackTap: (() -> Void)?
   let trailingButtonContent: Content
@@ -99,6 +104,7 @@ struct PrimaryNavigationBar<Content: View>: View {
     let isNotAtTop = !(isAtTop ?? true)
     
     navigationBar
+    // 스크롤이 내려간 상태 & 라이트 모드일 때만 그림자 표시
       .applyIf(isNotAtTop && colorScheme.isLightMode, modifier: UnifiedShadow())
   }
 }

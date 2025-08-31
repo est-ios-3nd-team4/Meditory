@@ -8,6 +8,7 @@
 import Foundation
 import SwiftData
 
+/// 사용자의 생활 패턴(기상, 취침, 식사 시간)을 관리하는 ViewModel
 @Observable
 final class LifestyleTimeViewModel {
   var wakeTime: Date?
@@ -97,6 +98,7 @@ final class LifestyleTimeViewModel {
     }
   }
   
+  /// 사용자가 선택한 시간을 반영 (변경이 있을 경우 true 반환)
   func setTime(_ result: LifestyleTimeResult) -> Bool {
     var didChange = false
     
