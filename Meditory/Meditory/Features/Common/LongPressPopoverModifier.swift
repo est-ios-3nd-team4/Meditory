@@ -7,6 +7,21 @@
 
 import SwiftUI
 
+/// LongPressPopoverModifier
+/// `ViewModifier`로 적용하여 **버튼이나 아이콘을 길게 누를 때** 팝오버(Popover)를 표시할 수 있습니다.
+/// UI에 정보를 항상 노출하지 않고, **길게 눌렀을 때만 상세 정보를 표시**하여 UI/UX를 개선합니다.
+///
+/// - 사용 방식:
+///   - `.longPressPopover { ... }` 구문으로 팝오버 콘텐츠(View)를 정의합니다.
+///   - 길게 누르고 있는 동안만 팝오버가 표시됩니다.
+///
+/// - 주요 특징:
+///   - 길게 누르면 **살짝 줄어드는 스케일 애니메이션** 적용
+///   - 햅틱 피드백 제공 (`UIImpactFeedbackGenerator`)
+///   - Popover 배경은 기본 **화이트(.white)**
+///   - 자동 그림자가 적용되므로, `popoverContent`에 추가 그림자를 넣으면
+///     **화살표에도 그림자가 겹쳐 어색할 수 있음**에 유의
+///   - `DailyMealSummaryCard.swift` 및 `MealDetailView.swift`에서 실제 사용 예시 확인 가능
 /// 상세 정보를 ui에 숨겨 ui, ux 개선을 위해 PopoverView를 도입했습니다.
 /// info 버튼을 길게 누르는 동안 popoverContent에 정의된 View들이 PopoverView에 나타납니다.
 /// LongPressPopoverModifier 사용예시:
