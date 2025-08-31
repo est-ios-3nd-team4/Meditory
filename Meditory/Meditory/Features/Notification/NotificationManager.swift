@@ -84,10 +84,12 @@ final class NotificationManager {
   /// iOS 시스템 설정 앱의 본 앱 상세 설정 화면을 엽니다.
   /// - Note: 메인 스레드에서 URL 오픈을 수행합니다.
   func openSystemSettings() {
-    DispatchQueue.main.async {
-      guard let url = URL(string: UIApplication.openSettingsURLString), UIApplication.shared.canOpenURL(url) else { return }
-      UIApplication.shared.open(url)
-    }
+      guard let url = URL(string: UIApplication.openSettingsURLString),
+            UIApplication.shared.canOpenURL(url) else { return }
+
+      Task { @MainActor in
+          await UIApplication.shared.open(url)
+      }
   }
   
   /// 주어진 파라미터로 **로컬 알림을 예약**합니다.
