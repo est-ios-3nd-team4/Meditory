@@ -24,7 +24,7 @@ extension View {
     self
       .modifier(CardStyle(padding: padding, cornerRadius: cornerRadius))
   }
-
+  
   /// 롱프레스 시 팝오버를 표시하는 뷰 수정자
   ///
   /// - Parameter content: 팝오버에 표시할 콘텐츠 뷰
@@ -34,7 +34,7 @@ extension View {
   ) -> some View {
     modifier(LongPressPopoverModifier(popoverContent: content))
   }
-
+  
   /// 커스텀 네비게이션 바를 삽입하는 뷰 수정자
   ///
   /// - Parameters:
@@ -63,7 +63,7 @@ extension View {
         )
       }
   }
-
+  
   /// 조건이 참일 때만 `ViewModifier`를 적용
   ///
   /// - Parameters:
@@ -76,7 +76,7 @@ extension View {
     modifier: M
   ) -> some View {
     if condition { self.modifier(modifier) } else { self }}
-
+  
   /// 조건이 참일 때만 뷰 변환 함수를 적용
   ///
   /// - Parameters:
@@ -91,7 +91,7 @@ extension View {
     if condition {
       transform(self)
     } else { self }}
-
+  
   /// 기기 폭에 따라 글꼴 크기를 조정
   ///
   /// - Parameters:
@@ -121,7 +121,7 @@ extension View {
      */
     return self.font(.notoSans(weight: weight, size: baseSize))
   }
-
+  
   /// 기기 폭에 따라 이미지 크기를 조정
   ///
   /// - Parameters:
@@ -146,7 +146,7 @@ extension View {
     let side = max(16, baseSize + size)
     return self.frame(width: side, height: side)
   }
-
+  
   /// 기기 폭에 따라 패딩 크기를 조정
   ///
   /// - Parameters:
@@ -173,7 +173,7 @@ extension View {
     let value = max(0, base + size)
     return self.padding(edge, value)
   }
-
+  
   /// 뷰 탭 시 키보드를 숨기는 수정자
   ///
   /// - Returns: 키보드가 자동으로 닫히는 뷰

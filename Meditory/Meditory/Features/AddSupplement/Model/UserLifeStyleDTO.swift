@@ -7,6 +7,10 @@
 
 import Foundation
 
+/// 사용자의 생활 패턴(수면 및 식사 시간)을 표현하는 DTO.
+///
+/// 이 타입은 **네트워크 전송**이나 **ViewModel 데이터 가공** 등
+/// 도메인 모델(`UserLifeStyle`)과 분리된 순수 데이터 전달 목적으로 사용됩니다.
 struct UserLifeStyleDTO {
   let wakeTime: String
   let sleepTime: String

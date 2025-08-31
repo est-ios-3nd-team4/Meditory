@@ -121,10 +121,11 @@ struct IntroduceOnboardingView: View {
             withAnimation(.easeInOut(duration: fadeDuration)) {
               isFadingOut = true
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + fadeDuration) {
+            Task { @MainActor in
+              try? await Task.sleep(for: .seconds(fadeDuration))
               var transaction = Transaction()
-              transaction.disablesAnimations = true
               
+              transaction.disablesAnimations = true
               withTransaction(transaction) {
                 hasSeenOnboarding = true
               }

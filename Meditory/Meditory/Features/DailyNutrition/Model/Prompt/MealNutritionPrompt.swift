@@ -7,8 +7,13 @@
 
 import Foundation
 
+/// AI 모델에게 "식사명 → 영양소 정보" JSON 변환을 요청하기 위한 프롬프트 빌더
+/// - 입력: 사용자가 입력한 식사명 (`mealName`)
+/// - 출력: `{ type, name, carbohydrate, protein, fat }` 형식의 순수 JSON
+/// - 목적: 추론된 음식명과 평균적인 탄수화물/단백질/지방(g 단위) 값을 제공
 struct MealNutritionPrompt {
   
+  /// AI가 반드시 따라야 할 기본 규칙
   private static let baseRules = """
   1. 출력은 순수 JSON만 반환하며, JSON 마크다운(```json)으로 감싸지 않습니다.
   2. 입력으로 주어진 `mealName`(음식명 또는 식단명)을 바탕으로, 가능한 한 정확하고 표준적인 음식명을 `"name"` 필드에 작성합니다.
@@ -23,6 +28,7 @@ struct MealNutritionPrompt {
      - `"carbohydrate"`, `"protein"`, `"fat"` 값은 모두 `0`으로 설정합니다.
   """
   
+  /// AI가 반환해야 하는 JSON 출력 스키마
   private static let outputSchema = """
   [출력 JSON 형식]
   {
@@ -34,6 +40,9 @@ struct MealNutritionPrompt {
   }
   """
   
+  /// 최종 프롬프트 문자열 생성
+  /// - Parameter mealName: 사용자 입력 음식명
+  /// - Returns: AI 모델에 전달할 최종 프롬프트 문자열
   static func makePrompt(mealName: String) -> String {
     var sections: [String] = []
     

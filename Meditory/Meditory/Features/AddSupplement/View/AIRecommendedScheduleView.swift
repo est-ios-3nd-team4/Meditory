@@ -8,13 +8,17 @@
 import SwiftUI
 import SwiftData
 
+/// 사용자의 생활 패턴과 영양제 정보를 기반으로
+/// AI가 복용 스케줄을 추천해주는 뷰
 struct AIRecommendedScheduleView: View {
   
+  /// AI 추천 스케줄 생성 상태
   enum AIPlanState {
     case idle(reason: IdleReason)
     case creating
     case created
     
+    /// 대기 상태의 세부 이유
     enum IdleReason {
       case initial
       case missingSupplementInput
@@ -51,6 +55,7 @@ struct AIRecommendedScheduleView: View {
   @State private var trigger = false
   @State private var isLifestyleUpdated = false
   @State private var isInitiallyCreated: Bool
+  @State private var aiRequestTask: Task<Void, Never>? = nil
   
   init(
     supplementSummary: SupplementSummary?,
@@ -174,6 +179,10 @@ struct AIRecommendedScheduleView: View {
       guard !isLifestyleUpdated else { return }
       isLifestyleUpdated = true
     }
+    .onDisappear {
+      aiRequestTask?.cancel()
+      aiRequestTask = nil
+    }
   }
 }
 
@@ -265,7 +274,9 @@ extension AIRecommendedScheduleView {
       isLifestyleUpdated = false
     }
     
-    Task {
+    aiRequestTask?.cancel()
+    
+    aiRequestTask = Task {
       do {
         let result = try await routineAIVM.requestAISchedule(
           supplementName: supplementSummary.name,
@@ -285,6 +296,7 @@ extension AIRecommendedScheduleView {
 
 
 // MARK: - ShakeEffect
+/// 뷰를 좌우로 흔드는 애니메이션 효과
 fileprivate struct ShakeEffect: GeometryEffect {
   /// 흔드는 강도
   var amplitude: CGFloat

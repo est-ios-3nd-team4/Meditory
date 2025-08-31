@@ -6,6 +6,7 @@
 
 import SwiftUI
 
+/// iPad에서 표시되는 "복용 항목(영양제 / 식단) 추가" 선택 뷰
 struct AddIntakeSelectorPadView: View {
   
   @Environment(\.colorScheme) private var colorScheme

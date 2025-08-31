@@ -7,8 +7,11 @@
 
 import UIKit
 
+/// 복용 항목(영양제/식단) 추가 타입
 enum AddIntakeItem: String, CaseIterable {
+  /// 복용 약 추가
   case supplement
+  /// 식단 추가
   case meal
   
   var imageName: String {

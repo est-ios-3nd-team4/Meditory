@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 생활 패턴(기상/취침, 식사 시간)을 선택/수정할 수 있는 Picker Sheet
 struct LifestyleTimePickerSheet: View {
   
   @Environment(\.colorScheme) private var colorScheme

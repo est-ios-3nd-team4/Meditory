@@ -10,6 +10,7 @@ import SwiftUI
 /// 맨 처음 개인정보 동의 수집 뷰
 struct OnboardingPrivacyAgreeView: View {
 
+
   // MARK: - 뷰 속성
   let agreements = QuestionModel.agreements
   let prompt: Prompt
@@ -33,7 +34,7 @@ struct OnboardingPrivacyAgreeView: View {
             .onTapGesture {
               toggleSelection(item)
             }
-
+            
             Text(item.title)
               .font(.notoSans(size: .defaultFontSize - 2))
               .foregroundColor(.primary)
@@ -50,7 +51,7 @@ struct OnboardingPrivacyAgreeView: View {
               HStack(alignment: .top) {
                 Text("•")
                   .foregroundColor(.secondary)
-
+                
                 Text("\(detail.title): \(detail.desc)")
                   .font(.notoSans(size: .defaultFontSize - 5))
                   .foregroundColor(.secondary)
