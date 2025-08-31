@@ -13,10 +13,10 @@ import SwiftUI
 @MainActor
 class OnboardingViewModel {
 
-  ///DB연동을 위한 스토어
+  /// DB연동을 위한 스토어
   let userStore: UserStore
   
-  ///기본속성
+  /// 기본속성
   var name: String = ""
   var age: String = ""
   var height: Double = 0.0
@@ -58,13 +58,18 @@ class OnboardingViewModel {
   
   
   // MARK: - 뷰 필드 유효성 검사로직 및 바인딩
-  ///유효성 검증을 위한 메소드들
+  /// 유효성 검증을 위한 메소드들
+  
+  /// 하나의 필드의 유효성을 검증결과를 반환하는 메소드 입니다
   func isValid(for field: ValidationField) -> Bool {
     fieldStates[field]?.isValid == true
   }
   
+  /// 각 필드의 유효성을 검증하는 메소드 입니다
   func validate(_ field: ValidationField) {
+    /// 검증이 필요한 속성을 딕셔너리에서 꺼내옵니다
     guard var target = fieldStates[field] else { return }
+    // 가져온 속성의 공백을 제거하고 비어있는어있는지 확인합니다
     let content = target.content.trimmingCharacters(in: .whitespaces)
     let isEmpty: Bool = {
         switch field {
@@ -80,7 +85,10 @@ class OnboardingViewModel {
         fieldStates[field] = target
         return
       }
+    /// 속성의 타입에 따라 각 기 다른 검증로직을 적용합니다
     switch field {
+
+      /// 이름은 2자 이상 20자 이상의을 기준으로 검증합니다
     case .name:
       if (2...20).contains(content.count) {
         errorMessage[field] = nil
@@ -90,6 +98,11 @@ class OnboardingViewModel {
         errorMessage[field] = "이름을 입력해주세요."
         target.isValid = false
       }
+
+    /// 생년월일은 출생년도의 유효성을 검증합니다
+    /// 형태는 숫자로 입력된 4자리까지만 가져옵니다
+    /// 1900년부터 현재년도까지를 기준으로 유효성을 기준으로 합니다
+    /// 모델에 자료형을 맞추기위해 포맷된 형식과 날짜형으로 변환합니다
     case .birthDate:
       let currentYear = Calendar.current.component(.year, from: .now)
       guard let year = Int(String(content.filter(\.isNumber).prefix(4))),
@@ -103,7 +116,9 @@ class OnboardingViewModel {
       errorMessage[field] = nil
       self.birthDate = birthYear
       target.isValid = true
-      
+    
+    /// 키의 유효성을 검증합니다
+    /// 제한은 60에서 250까지로 검증합니다
     case .height:
       if let height = Double(target.content), (60...250).contains(height) {
         errorMessage[field] = nil
@@ -113,6 +128,9 @@ class OnboardingViewModel {
         errorMessage[field] = "키는 60cm에서 250cm사이여야 합니다."
         target.isValid = false
       }
+      
+    /// 몸무게의 유효성을 검증합니다
+    /// 제한은 20에서 300까지로 검증합니다
     case .weight:
       if let weight = Double(target.content), (20...300).contains(weight) {
         errorMessage[field] = nil
@@ -126,6 +144,7 @@ class OnboardingViewModel {
     fieldStates[field] = target
   }
 
+  /// 모든 필드가 유효성 검증에 통과했는지 테스트 후 유효하지 않는 필드들만 반환하는 메소드입니다
   func validateAllField() -> [ValidationField] {
     var invalidFields:[ValidationField] = []
     ValidationField.allCases.forEach {
@@ -137,13 +156,15 @@ class OnboardingViewModel {
     return invalidFields
   }
   
-  ///뷰에 바인딩을 위한 메소드들
+  /// 속성의 유효성검증 결과를 토대로 다시 업데이트 하는 메소드입니다
   func updateContent(_ field: ValidationField, context: String) {
       var state = fieldStates[field] ?? ValidationState()
       state.content = context
       fieldStates[field] = state
 
       validateTasks[field]?.cancel()
+    
+      /// 즉각적인 상태의 업데이트를 방지하기 위한 디바운스입니다
       validateTasks[field] = Task { [weak self] in
         try? await Task.sleep(nanoseconds: 500_000_000)
         guard !Task.isCancelled else { return }
@@ -153,6 +174,7 @@ class OnboardingViewModel {
       }
     }
   
+  /// 필드의 상태를 뷰에 바인딩 할 수 있게 바인딩 형태로 반환하는 메소드 입니다
   func binding(for field: ValidationField) -> Binding<String> {
     Binding {
       self.fieldStates[field]?.content ?? ""
@@ -182,15 +204,22 @@ class OnboardingViewModel {
 
   ///최종 가입 메소드
   func signUp() async throws {
+    
+    /// 기본 정보를 가지고 유저를 생성합니다
     let _ = await userStore.addUser(User(name: name, birthDate: birthDate, gender: gender, displayName: ""))
+    
+    /// 생성된 유저를 데이터에 저장합니다
     await userStore.loadUser()
 
+    /// 저장된 현재 유저의 정보를 받아옵니다
     guard let currentUser = try? await userStore.currentUser() else {
       return
     }
 
+    /// 키, 몸무게를 추가 정보로 데이터를 생성하여 저장합니다
     await userStore.addUserProfile(UserProfile(height: height, weight: weight, user: currentUser))
 
+    /// 온보딩에서 선택한 옵션들을 토대로 추가 정보를 저장합니다
     for item in selectionSet {
       if item.type == .etc {
         await userStore.addUserStatus(UserStatus(statusType: item.title, user: currentUser))

@@ -6,7 +6,10 @@
 //
 import SwiftUI
 
+/// 기본 설문 정보를 입력받는 뷰
 struct OnboardingBasicInfoView: View {
+  
+  // MARK: - 뷰 속성
   var vm: OnboardingViewModel
   
   @State private var preScroll: FormField? = nil
@@ -17,14 +20,18 @@ struct OnboardingBasicInfoView: View {
   let isInitialLoadComplete: Bool
   let isEditing: Bool
   
+  // MARK: - 뷰 바디
   var body: some View {
+    /// 스크롤 뷰의 위치를 읽어오기 위한 리더
     ScrollViewReader { proxy in
       ScrollView(.vertical) {
         VStack {
+          /// 상단 텍스트 뷰
           if let prompt = Prompt.promptMessage[.base] {
             TitleView(prompt: prompt)
           }
           VStack(spacing: .defaultSpacing) {
+            /// 이름 입력 텍스트뷰
             TextInputView(
               title: "이름",
               placeholder: "홍길동",
@@ -38,7 +45,7 @@ struct OnboardingBasicInfoView: View {
             )
             .id(FormField.name)
             .focused(focusedField, equals: .name)
-            
+            /// 출생년도 입력 텍스트뷰
             TextInputView(
               title: "출생년도",
               placeholder: "2000",
@@ -56,7 +63,7 @@ struct OnboardingBasicInfoView: View {
             })
             .id(FormField.birthDate)
             .focused(focusedField, equals: .birthDate)
-            
+            /// 키 입력 텍스트뷰
             TextInputView(
               title: "키",
               placeholder: "170",
@@ -74,7 +81,7 @@ struct OnboardingBasicInfoView: View {
                 focusedField.wrappedValue = .weight
               }
             }
-            
+            /// 체중 입력 텍스트뷰
             TextInputView(
               title: "체중",
               placeholder: "80",
@@ -103,6 +110,8 @@ struct OnboardingBasicInfoView: View {
       .scrollIndicators(.never)
     }
   }
+  
+  /// 포커스 변화에 따라 스크롤 하는 메소드
   private func scroll(_ proxy: ScrollViewProxy) {
     guard let id = focusedField.wrappedValue else { return }
     if preScroll != id {

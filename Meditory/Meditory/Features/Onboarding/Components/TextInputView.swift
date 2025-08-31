@@ -7,7 +7,10 @@
 
 import SwiftUI
 
+/// 사용자의 정보를 입력받는  텍스트 뷰 컴포넌트
 struct TextInputView: View {
+  
+  // MARK: - 뷰의 속성
   let isPad = UIDevice.isPad
   let title: String
   let placeholder: String
@@ -45,12 +48,19 @@ struct TextInputView: View {
     self.onAction = onAction
   }
 
+  
+  // MARK: - 뷰의 바디
   var body: some View {
     VStack(alignment: .leading) {
+      
+      /// 상단의 타이틀
       HStack {
+        /// 메인 타이틀
         Text(title)
           .adaptiveFont(.defaultFontSize - 4,weight: .medium)
           .foregroundStyle(.gray)
+        
+        /// 유효성의 검증에 실패했을 경우 표시할 에러 메시지
         if let error = errorMessage {
           Spacer()
           Text(error)
@@ -58,7 +68,10 @@ struct TextInputView: View {
             .adaptiveFont(.defaultFontSize - 6,weight: .medium)
         }
       }
+      
+      /// 하단의 텍스트 필드
       HStack {
+        /// 자동 완성 제안을 없애기 위해 UIKit 에서 래핑한 커스텀 텍스트필드
         NoQuickTypeTextField(text: $inputText, placeholder: placeholder, keyboardType: keyboardType,onSubmit: {
           onAction?()
         })
@@ -70,6 +83,7 @@ struct TextInputView: View {
             in: RoundedRectangle(cornerRadius: 16)
           )
           .overlay(alignment: .trailing) {
+            /// 각 필드에 적합한 단위 표시 텍스트
             if let unit = unit {
               Text(unit)
                 .padding(.trailing, isPad ? 12 : 8)
@@ -79,6 +93,7 @@ struct TextInputView: View {
             }
           }
       }
+      /// 사용자 인풋의 입력에 따라 유효성을 검증
       .onChange(of: inputText) {
         guard needValidation else { return }
         _ = validator?()

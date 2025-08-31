@@ -6,6 +6,7 @@
 //
 import SwiftUI
 
+/// 각 단계의 화면에서 뷰에 바인하여 쓸 보기 옵션들입니다
 struct QuestionModel: Hashable {
   var code: String
   var title: String
@@ -15,6 +16,8 @@ struct QuestionModel: Hashable {
   var treatment: String = ""
   var image: String = ""
   var toggleImage: ToggleImageName?
+  
+  /// 건강모델뷰에서 쓰이는 모델
   static let concernModel: [QuestionModel] = [
     .init(code: "concern_1", title: "고혈압", type: .concern),
     .init(code: "concern_2", title: "당뇨병", type: .concern),
@@ -34,6 +37,8 @@ struct QuestionModel: Hashable {
     .init(code: "concern_16", title: "비만", type: .concern),
     .init(code: "concern_17", title: "대사증후군", type: .concern),
   ]
+  
+  /// 질환뷰에서 쓰이는 모델
   static let diseaseModel: [QuestionModel] = [
     .init(code: "disease_1", title: "간 질환", type: .disease, image: "icon_liver"),
     .init(code: "disease_2", title: "노화 질환", type: .disease, image: "icon_aging"),
@@ -48,6 +53,8 @@ struct QuestionModel: Hashable {
     .init(code: "disease_11", title: "비만 질환", type: .disease, image: "icon_weight"),
     .init(code: "disease_12", title: "여성 질환", type: .disease, image: "icon_feminine"),
   ]
+  
+  /// 알러지 뷰에서 쓰이는 모델
   static let allergyModel: [QuestionModel] = [
     .init(
       code: "allergy_1",
@@ -140,6 +147,8 @@ struct QuestionModel: Hashable {
       image: "icon_etc_allergy_filled"
     ),
   ]
+  
+  /// 여성 관련 질환의 모델
   static let feminineModel: [QuestionModel] = [
     .init(
       code: "female_extra_1",
@@ -156,6 +165,8 @@ struct QuestionModel: Hashable {
       image: "icon_breastfeeding_filled"
     ),
   ]
+  
+  /// 개인정보 동의 모델
   static let agreements: [QuestionModel] = [
     .init(code: "agree1", title: "[필수] 개인정보 수집 및 이용 동의", type: .etc),
     .init(code: "agree2", title: "[필수] 건강(민감) 정보 수집 및 이용동의", type: .etc)
