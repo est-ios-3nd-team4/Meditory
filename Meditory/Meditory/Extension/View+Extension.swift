@@ -42,12 +42,16 @@ extension View {
   ///   - backgroundStyle: 배경 스타일 (기본값 `.custom`)
   ///   - isAtTop: 스크롤이 상단에 위치하는지 여부 (옵셔널)
   ///   - onBackTap: 뒤로가기 버튼 액션 (옵셔널)
+  ///   - trailingButtonContent: 네비게이션 바 오른쪽에 표시할 버튼의 뷰 (기본값은 `EmptyView`, 즉 버튼 없음)
+  ///   - trailingButtonAction: 트레일링 버튼이 눌렸을 때 실행할 액션 (옵셔널)
   /// - Returns: 상단 네비게이션 바가 적용된 뷰
-  func navigationBar(
+  func navigationBar<Content: View>(
     _ title: NavigationTitle,
-    backgroundStyle: PrimaryNavigationBar.BackgroundStyle = .custom,
+    backgroundStyle: PrimaryNavigationBar<Content>.BackgroundStyle = .custom,
     isAtTop: Bool? = nil,
-    _ onBackTap: (() -> Void)? = nil
+    _ onBackTap: (() -> Void)? = nil,
+    @ViewBuilder trailingButtonContent: () -> Content = { EmptyView() },
+    trailingButtonAction: (() -> Void)? = nil,
   ) -> some View {
     self
       .navigationBarHidden(true)
@@ -59,7 +63,9 @@ extension View {
           title: title,
           backgroundStyle: backgroundStyle,
           isAtTop: isAtTop,
-          onBackTap: onBackTap
+          onBackTap: onBackTap,
+          trailingButtonContent: trailingButtonContent,
+          trailingButtonAction: trailingButtonAction
         )
       }
   }

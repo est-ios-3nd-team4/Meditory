@@ -7,7 +7,16 @@
 
 import SwiftUI
 
-struct PrimaryNavigationBar: View {
+//
+//  PrimaryNavigationBar.swift
+//  Meditory
+//
+//  Created by 홍승아 on 8/23/25.
+//
+
+import SwiftUI
+
+struct PrimaryNavigationBar<Content: View>: View {
   
   enum BackgroundStyle {
     case system
@@ -29,9 +38,27 @@ struct PrimaryNavigationBar: View {
   var backgroundStyle: BackgroundStyle = .custom
   var isAtTop: Bool? = nil
   let onBackTap: (() -> Void)?
+  let trailingButtonContent: Content
+  let trailingButtonAction: (() -> Void)?
+  
+  init(
+    title: NavigationTitle = .none,
+    backgroundStyle: BackgroundStyle = .custom,
+    isAtTop: Bool? = nil,
+    onBackTap: (() -> Void)? = nil,
+    @ViewBuilder trailingButtonContent: () -> Content = { EmptyView() },
+    trailingButtonAction: (() -> Void)? = nil
+  ) {
+    self.title = title
+    self.backgroundStyle = backgroundStyle
+    self.isAtTop = isAtTop
+    self.onBackTap = onBackTap
+    self.trailingButtonContent = trailingButtonContent()
+    self.trailingButtonAction = trailingButtonAction
+  }
   
   private var navigationBar: some View {
-    ZStack{
+    ZStack {
       let fontSize: CGFloat = isPad ? 21 : .defaultFontSize
       let iconSize: CGFloat = .defaultFontSize
       
@@ -52,6 +79,14 @@ struct PrimaryNavigationBar: View {
         }
         
         Spacer()
+        
+        if !(trailingButtonContent is EmptyView) {
+          Button {
+            trailingButtonAction?()
+          } label: {
+            trailingButtonContent
+          }
+        }
       }
     }
     .padding(.horizontal, isPad ? .defaultSpacing + 3 : .defaultSpacing)
