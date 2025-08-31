@@ -54,6 +54,9 @@ struct AddIntakeSelectorPadView: View {
     .onAppear {
       transitionAnimation()
     }
+    .onTapGesture {
+      showIntakeSelector = false
+    }
   }
 }
 
