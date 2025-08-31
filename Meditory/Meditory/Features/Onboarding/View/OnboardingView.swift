@@ -16,7 +16,7 @@ struct OnboardingView: View {
   @StateObject private var keyboardObserver = KeyboardObserver()
   @FocusState private var focusedField: FormField?
 
-  @State private var currentStep: Step = .base
+  @State private var currentStep: Step
   @State private var isSelected: Bool = false
   
   @State private var isInitialLoadComplete = false // 데이터 로딩완료 여부
@@ -27,7 +27,7 @@ struct OnboardingView: View {
   private let buttonTopSpacing: CGFloat = 8
   private let onFinished: () -> Void
 
-  init(userStore: UserStore, startAt: Step = .base, isEditing: Bool = false, onFinished: @escaping () -> Void = {}) {
+  init(userStore: UserStore, startAt: Step = .privacyAgree, isEditing: Bool = false, onFinished: @escaping () -> Void = {}) {
     self.onFinished = onFinished
     self.isEditing = isEditing
     // startAt 파라미터로 시작 단계를 설정합니다.
@@ -99,6 +99,10 @@ struct OnboardingView: View {
     if let prompt = Prompt.promptMessage[step] {
       let name = vm.name
       switch step {
+      case .privacyAgree:
+        OnboardingPrivacyAgreeView(
+          prompt: prompt
+          ,selections: $vm.selectionSet)
       case .base:
         OnboardingBasicInfoView(
           vm: vm,
@@ -143,10 +147,6 @@ struct OnboardingView: View {
           selections: $vm.selectionSet,
           isSelected: $isSelected
         ) { selectItem(item: $0, vm: vm) }
-      case .privacyAgree:
-        OnboardingPrivacyAgreeView(
-          prompt: prompt
-          ,selections: $vm.selectionSet)
       }
     }
   }
@@ -200,7 +200,7 @@ struct OnboardingView: View {
         guard let prev = currentStep.previous() else { return }
         currentStep = prev
       }
-      .opacity(currentStep == .base ? 0 : 1)
+      .opacity(currentStep == .privacyAgree ? 0 : 1)
       .padding(.vertical, buttonTopSpacing)
     }
     .padding(.leading, .defaultSpacing)
@@ -210,7 +210,7 @@ struct OnboardingView: View {
   func nextButton() -> some View {
     VStack(spacing: .smallSpacing) {
       PrimaryButton(
-        title: currentStep != .privacyAgree ? "다음" : "완료",
+        title: currentStep != .concern ? "다음" : "완료",
         isEnabled: vm.isNextButtonOn(step: currentStep)
       ) {
         guard let next = currentStep.next() else {
