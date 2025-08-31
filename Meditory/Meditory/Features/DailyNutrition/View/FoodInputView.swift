@@ -70,11 +70,9 @@ struct FoodInputView: View {
   }
   
   var body: some View {
-    ZStack(alignment: .top) {
-      GeometryReader { geometry in
+    VStack {
+      ScrollView {
         VStack(spacing: .defaultSpacing) {
-          Color.clear
-            .frame(height: 44)
           
           // MARK: Food Name Input
           UnifiedSectionCard {
@@ -124,122 +122,105 @@ struct FoodInputView: View {
               .foregroundColor(.secondary)
               .multilineTextAlignment(.center)
           }
-          
-          if !isFoodNameFocused {
-            Spacer()
-          }
-          
-          UnifiedSectionCard() {
-            Text(tipComment)
-              .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
-              .multilineTextAlignment(.center)
-              .lineLimit(nil)
-          }
-          .fixedSize(horizontal: false, vertical: true)
-          .padding(.horizontal, .defaultSpacing)
-          .padding(.top, isFoodNameFocused ? -20 : .zero)
-          
-          PrimaryButton(title: primaryButtonTitle, isEnabled: isSaveButtonEnabled) {
-            handlePrimaryAction()
-          }
-          .padding(.horizontal, .defaultSpacing)
-          .padding(.bottom, isFoodNameFocused ? .defaultSpacing : .zero)
-          
-          
-          
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
-        .navigationBarBackButtonHidden(true)
-        .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-          if mode == .create {
-            isFoodNameFocused = true
-          }
-          
-          loadFoodData()
-        }
-      }
-      .overlay {
-        if showingDeleteAlert {
-          AlertView(alertType: .delete,
-                    title: "음식 삭제",
-                    message: "음식을 삭제하시겠습니까? 삭제된 음식은 복구할 수 없습니다.",
-                    onCancel: {
-            showingDeleteAlert = false
-          },
-                    onDelete: {
-            deleteFood()
-            showingDeleteAlert = false
-          })
-        } else if showInvalidFoodAlert {
-          AlertView(alertType: .notFound,
-                    title: "음식 정보를 찾을 수 없습니다.",
-                    message: "음식 이름을 확인하고 다시 검색하거나, 영양 정보를 직접 입력해주세요.",
-                    onConfirm: {
-            showInvalidFoodAlert = false
-          },
-                    onResearch: {
-            foodName = ""
-            isFoodNameFocused = true
-            showInvalidFoodAlert = false
-          })
-        } else if showLimitAlert {
-          AlertView(alertType: .confirm,
-                    title: "2000g을 초과할 수 없습니다.",
-                    message: "2000 이하의 g수를 입력해주세요.",
-                    onConfirm: {
-            showLimitAlert = false
-          })
-        }
-      }
-      
-      VStack {
-        HStack {
-          Button {
-            dismiss()
-          } label: {
-            Image(systemName: "chevron.left")
-              .foregroundStyle(Color.label)
-          }
-          .frame(width: 44, height: 44)
-          
-          Spacer()
-          
-          Text(navigationTitle)
-            .font(.notoSans(weight: .semiBold, size: .defaultFontSize))
-          
-          Spacer()
-          
-          if mode == .edit {
-            Button {
-              showingDeleteAlert = true
-            } label: {
-              Text("삭제")
-                .font(.notoSans(weight: .semiBold, size: .defaultFontSize - 1))
-                .foregroundStyle(.red)
-            }
-            .frame(width: 44, height: 44)
-          } else {
-            Color.clear
-              .frame(width: 44, height: 44)
-          }
-        }
-        .frame(height: 44)
-        .padding(.horizontal, .defaultSpacing)
         
-        Spacer()
       }
-      .zIndex(999)
       
+      doneButtonView()
+    }
+    .frame(maxHeight: .infinity)
+    .onAppear {
+      if mode == .create {
+        isFoodNameFocused = true
+      }
+      
+      loadFoodData()
+    }
+    .overlay {
+      if showingDeleteAlert {
+        AlertView(alertType: .delete,
+                  title: "음식 삭제",
+                  message: "음식을 삭제하시겠습니까? 삭제된 음식은 복구할 수 없습니다.",
+                  onCancel: {
+          showingDeleteAlert = false
+        },
+                  onDelete: {
+          deleteFood()
+          showingDeleteAlert = false
+        })
+      } else if showInvalidFoodAlert {
+        AlertView(alertType: .notFound,
+                  title: "음식 정보를 찾을 수 없습니다.",
+                  message: "음식 이름을 확인하고 다시 검색하거나, 영양 정보를 직접 입력해주세요.",
+                  onConfirm: {
+          showInvalidFoodAlert = false
+        },
+                  onResearch: {
+          foodName = ""
+          isFoodNameFocused = true
+          showInvalidFoodAlert = false
+        })
+      } else if showLimitAlert {
+        AlertView(alertType: .confirm,
+                  title: "2000g을 초과할 수 없습니다.",
+                  message: "2000 이하의 g수를 입력해주세요.",
+                  onConfirm: {
+          showLimitAlert = false
+        })
+      }
+    }
+    .navigationTitle(navigationTitle)
+    .toolbar {
+      ToolbarItem(placement: .topBarLeading) {
+        Button {
+          dismiss()
+        } label: {
+          Image(systemName: "chevron.left")
+            .foregroundStyle(Color.label)
+        }
+      }
+      
+      if mode == .edit {
+        ToolbarItem(placement: .topBarTrailing) {
+          Button {
+            showingDeleteAlert = true
+          } label: {
+            Text("삭제")
+              .font(.notoSans(weight: .semiBold, size: .defaultFontSize - 1))
+              .foregroundStyle(.red)
+          }
+        }
+      }
     }
     .contentShape(Rectangle())
     .onTapGesture {
       isFoodNameFocused = false
       focusedMacro = nil
     }
+    .navigationBarTitleDisplayMode(.inline)
   }
   
   // MARK: - Macro Input Section
+  
+  func doneButtonView() -> some View {
+    VStack(spacing: .smallSpacing) {
+      UnifiedSectionCard() {
+        Text(tipComment)
+          .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
+          .multilineTextAlignment(.center)
+          .lineLimit(nil)
+      }
+      .fixedSize(horizontal: false, vertical: true)
+      .padding(.horizontal, .defaultSpacing)
+      .padding(.top, isFoodNameFocused ? -20 : .zero)
+      
+      PrimaryButton(title: primaryButtonTitle, isEnabled: isSaveButtonEnabled) {
+        handlePrimaryAction()
+      }
+      .padding(.horizontal, .defaultSpacing)
+      .padding(.bottom, isFoodNameFocused ? .defaultSpacing : .zero)
+    }
+  }
    
   func macroPercentage() -> some View {
     HStack(alignment: .center, spacing: 40) {
