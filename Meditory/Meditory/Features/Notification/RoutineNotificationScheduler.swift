@@ -53,9 +53,8 @@ struct RoutineNotificationScheduler {
   /// 모든 루틴을 조회하여 일괄 스케줄합니다.
   /// - Note: 기존 동일 루틴 관련 예약 알림은 먼저 모두 취소합니다.
   func scheduleAll() async {
-    _ = FetchDescriptor<Routine>()
     let routines = await RoutineStore.shared.fetchAllRoutines()
-    
+
     for routine in routines {
       NotificationManager.shared.cancelForRoutineID(routine.id)
       await schedule(for: routine)

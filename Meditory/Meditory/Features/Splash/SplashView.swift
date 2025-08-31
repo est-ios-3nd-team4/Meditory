@@ -39,7 +39,8 @@ struct SplashView: View {
           scale = 1
         }
         // 일정 시간 뒤 종료
-        DispatchQueue.main.asyncAfter(deadline: .now() + showDuration) {
+        Task { @MainActor in
+          try? await Task.sleep(for: .seconds(showDuration))
           onFinish()
         }
       }
