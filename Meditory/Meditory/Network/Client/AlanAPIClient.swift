@@ -25,12 +25,24 @@ final class AlanAPIClient {
     
     print("✅ 요청", Date.now)
     
-    let data: AlanResponse = try await NetworkService.shared.request(with: request, session: session)
-    let response = data.content
-    
-    print("✅ 응답", Date.now)
-    dump(response)
-    
-    return response
+    do {
+      let data: AlanResponse = try await NetworkService.shared.request(with: request, session: session)
+      let response = data.content
+      
+      print("✅ 응답", Date.now)
+      dump(response)
+      
+      return response
+    } catch let error as URLError where error.code == .cancelled {
+      print("✅ URLSession 취소")
+      throw AlanAPIError.cancelld
+    } catch is CancellationError {
+      print("✅ Swift Task 취소")
+      throw AlanAPIError.cancelld
+    } catch let error as DecodingError {
+      throw AlanAPIError.decoding(error)
+    } catch {
+      throw AlanAPIError.network(error)
+    }
   }
 }

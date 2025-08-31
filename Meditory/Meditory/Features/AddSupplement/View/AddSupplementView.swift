@@ -71,6 +71,7 @@ struct AddSupplementView: View {
   @State private var selectedLifestyleOption: (any LifestyleTime)?
   
   // Supplement
+  @State private var alanAPIError: AlanAPIError?
   @State private var routineSaveError: RoutineSaveError?
   private var shouldShowSupplementInfo: Bool {
     addSupplementVM.supplemtSummary != nil || isSearchingSupplementSummary
@@ -88,6 +89,9 @@ struct AddSupplementView: View {
   
   // Edit 시 사용하는 루틴
   private let editingRoutine: Routine?
+  
+  // Task
+  @State private var searchTask: Task<Void, Never>? = nil
   
   init(
     type: Mode = .add,
@@ -139,6 +143,12 @@ struct AddSupplementView: View {
       }
       .overlay {
         saveErrorAlert()
+        requestSupplemntAlert()
+        defaultAlert()
+      }
+      .onDisappear {
+        searchTask?.cancel()
+        searchTask = nil
       }
       .task {
         guard let user = users.first else { return }
@@ -573,6 +583,37 @@ extension AddSupplementView {
         message: routineSaveError.message,
         onConfirm: {
           showAlert = false
+          self.routineSaveError = nil
+        }
+      )
+    }
+  }
+  
+  @ViewBuilder
+  private func requestSupplemntAlert() -> some View {
+    if showAlert, let alanAPIError {
+      AlertView(
+        alertType: .confirm,
+        title: alanAPIError.title,
+        message: alanAPIError.message,
+        onConfirm: {
+          showAlert = false
+          self.alanAPIError = nil
+        }
+      )
+    }
+  }
+  
+  @ViewBuilder
+  private func defaultAlert() -> some View {
+    if showAlert, alanAPIError == nil, alanAPIError == nil {
+      AlertView(
+        alertType: .confirm,
+        title: "알 수 없는 오류",
+        message: "예상치 못한 문제가 발생했습니다. 다시 시도해주세요.",
+        onConfirm: {
+          showAlert = false
+          self.alanAPIError = nil
         }
       )
     }
@@ -685,20 +726,33 @@ extension AddSupplementView {
   private func searchSupplementSummary(productNameInput: String, nameSource: SupplementNameSource) {
     guard !isSearchingSupplementSummary else { return }
     
-    Task {
-      do {
-        try await addSupplementVM.request(productNameInput: productNameInput, nameSource: nameSource)
-        
-        await MainActor.run {
-          isSearchingSupplementSummary = false
-        }
-      } catch {
-        print("❌ Error is \(error)")
-      }
-    }
+    // 이전 검색 Task 취소
+    searchTask?.cancel()
     
     isSearchingSupplementSummary = true
     supplementName = ""
+    
+    searchTask = Task {
+      defer {
+        Task { @MainActor in
+          isSearchingSupplementSummary = false
+        }
+      }
+      
+      do {
+        try await addSupplementVM.request(productNameInput: productNameInput, nameSource: nameSource)
+      } catch let error as AlanAPIError {
+        switch error {
+        case .cancelld: break
+        default:
+          showAlert(error)
+        }
+        print("❌ Error is \(error)")
+      } catch {
+        showDefaultAlert()
+        print("❌ Error is \(error)")
+      }
+    }
   }
   
   @MainActor
@@ -728,6 +782,15 @@ extension AddSupplementView {
     }
   }
   
+  private func showDefaultAlert() {
+    showAlert = true
+  }
+  
+  private func showAlert(_ error: AlanAPIError) {
+    alanAPIError = error
+    showAlert = true
+  }
+
   private func showAlert(_ error: RoutineSaveError) {
     routineSaveError = error
     showAlert = true

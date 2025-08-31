@@ -55,6 +55,7 @@ struct AIRecommendedScheduleView: View {
   @State private var trigger = false
   @State private var isLifestyleUpdated = false
   @State private var isInitiallyCreated: Bool
+  @State private var aiRequestTask: Task<Void, Never>? = nil
   
   init(
     supplementSummary: SupplementSummary?,
@@ -178,6 +179,10 @@ struct AIRecommendedScheduleView: View {
       guard !isLifestyleUpdated else { return }
       isLifestyleUpdated = true
     }
+    .onDisappear {
+      aiRequestTask?.cancel()
+      aiRequestTask = nil
+    }
   }
 }
 
@@ -269,7 +274,9 @@ extension AIRecommendedScheduleView {
       isLifestyleUpdated = false
     }
     
-    Task {
+    aiRequestTask?.cancel()
+    
+    aiRequestTask = Task {
       do {
         let result = try await routineAIVM.requestAISchedule(
           supplementName: supplementSummary.name,
