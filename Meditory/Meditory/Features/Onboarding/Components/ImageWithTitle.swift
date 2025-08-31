@@ -14,7 +14,7 @@ struct ImageWithTitle: View {
   var onAction: (() -> Void)?
   var body: some View {
 
-    VStack(spacing: .defaultSpacing + 8) {
+    VStack(spacing: .defaultSpacing + 4) {
       Image(gender.image)
         .resizable()
         .aspectRatio(contentMode: .fit)
@@ -31,7 +31,7 @@ struct ImageWithTitle: View {
       Text(gender.title)
         .adaptiveFont(.defaultFontSize,small: -6,weight: .medium)
         .foregroundStyle(isSelected ? Color.label : .textGray)
-        .adaptivePadding(.bottom,isPad ? 0 : 4, small: isPad ? 0 : -4)
+        .adaptivePadding(.vertical,isPad ? 0 : 6, small: isPad ? 0 : -14)
     }
   }
 }

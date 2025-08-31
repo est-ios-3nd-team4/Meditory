@@ -17,8 +17,9 @@ struct TitleView: View {
       VStack(alignment: .leading) {
         Text(prompt.title(name: name))
           .adaptiveFont(isPad ? 40 : 26,small: -8,weight: .bold)
-          .padding(.vertical, 10)
-          .fixedSize()
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .adaptivePadding(.vertical, 10,small: -18)
+          .fixedSize(horizontal: false, vertical: true)
         if let secondary = prompt.info(context: extra) ?? prompt.subtitle {
           Text(secondary)
             .adaptiveFont(.defaultFontSize - 2 ,weight: .medium)
@@ -27,6 +28,6 @@ struct TitleView: View {
       }
       Spacer()
     }
-    .padding(.bottom, .defaultSpacing + 4)
+    .adaptivePadding(.bottom, .defaultSpacing+4,small: -26)
   }
 }
