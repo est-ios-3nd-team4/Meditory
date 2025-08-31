@@ -65,12 +65,3 @@ struct SearchCardView: View {
     .cornerRadius(.defaultRadius)
   }
 }
-
-//#Preview {
-//  SearchCardView(
-//    imageURL: "https://pillyze.com/images/sample.jpg",
-//    brand: "세라엑스",
-//    productName: "혈당콜레스테롤 프로케어",
-//    link: "https://pillyze.com/product/123", onOpen: <#(URL) -> Void#>
-//  )
-//}

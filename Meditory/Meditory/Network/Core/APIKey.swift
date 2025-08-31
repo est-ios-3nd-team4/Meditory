@@ -19,7 +19,7 @@ enum GoogleKey {
   static var apiKey: String { value("googleCSEKey") }
 
   static var cx: String { value("googleCSE_CX") }
-
+  
   private static func value(_ key: String) -> String {
     let raw = (Bundle.main.object(forInfoDictionaryKey: key) as? String ?? "")
       .trimmingCharacters(in: .whitespacesAndNewlines)
