@@ -36,8 +36,8 @@ final class PrivacyRedactorTests: XCTestCase {
   
   func testRedactPII_withResidentRegistrationNumber_removesRRN() throws {
     // arrange
-    let input = "주민등록번호: 900101-1234567"
-    let expected = "주민등록번호: "
+    let input = "주민등록번호: 900101-1234567, 900101-1"
+    let expected = "주민등록번호: , "
     
     // act
     let result = PIIRedactor.redactPII(in: input)
