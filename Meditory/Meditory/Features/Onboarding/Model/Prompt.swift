@@ -6,6 +6,7 @@
 //
 import Foundation
 
+/// 각 화면에서 표시할 프롬프트를 담고 있는 구조체 입니다
 struct Prompt {
   let title: String
   let subtitle: String?
@@ -21,15 +22,18 @@ struct Prompt {
     self.unit = unit
   }
 
+  /// 유저의 호칭에 프롬프트를 추가하여 반환
   func title(name: String) -> String {
     name + title
   }
   
+  /// 세부 정보가 필요할 경우 해당 정보를 반환
   func info(context: String) -> String? {
     guard let info else { return ""}
     return "\(context)" + info
   }
 
+  /// 각 단계의 화면에 프롬프트를 노출하기 위한 딕셔너리
   static let promptMessage: [Step: Prompt] = [
     .base: Prompt(title: "나만의 맞춤 영양 설정\n1분이면 끝나요"),
     .gender: Prompt(title: "님의\n성별을 알려주세요", subtitle: "성별", info: ""),

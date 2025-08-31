@@ -16,6 +16,7 @@ struct NoQuickTypeTextField: UIViewRepresentable {
   var keyboardType: UIKeyboardType = .default
   var onSubmit: (()->Void)
 
+  /// 기본 UIKit의 텍스트 필드 정의
   func makeUIView(context: Context) -> UITextField {
     let tf = UITextField()
     tf.placeholder = placeholder
@@ -28,16 +29,19 @@ struct NoQuickTypeTextField: UIViewRepresentable {
     return tf
   }
 
+  /// 텍스트 필드의 내용 변환
   func updateUIView(_ uiView: UITextField, context: Context) {
     if uiView.text != text {
       uiView.text = text
     }
   }
 
+  /// SwiftUI에서 쓰기 위한 브리징
   func makeCoordinator() -> Coordinator {
     Coordinator(self)
   }
 
+  /// 텍스트필드의 델리게이트 구현
   class Coordinator: NSObject, UITextFieldDelegate {
     var parent: NoQuickTypeTextField
     init(_ parent: NoQuickTypeTextField) { self.parent = parent }

@@ -1,6 +1,9 @@
 import SwiftUI
 
+/// FlowLayout스타일 구현 공동 컴포넌트 뷰
 struct OnboardingFlowLayoutLineLimit<Content: View>: View {
+  
+  // MARK: - 뷰 속성
   let items: [QuestionModel]
   let spacing: CGFloat
   let lineSpacing: CGFloat
@@ -28,6 +31,7 @@ struct OnboardingFlowLayoutLineLimit<Content: View>: View {
     self.content = content
   }
 
+  // MARK: - 뷰 바디
   var body: some View {
     GeometryReader { geometry in
       VStack(alignment: .leading, spacing: lineSpacing) {
@@ -45,6 +49,7 @@ struct OnboardingFlowLayoutLineLimit<Content: View>: View {
     }
   }
 
+  /// 각 열을 구해서 반환하는 메소드
   private func makeRows(containerWidth: CGFloat) -> [[QuestionModel]] {
     var result: [[QuestionModel]] = []
     var currentRow: [QuestionModel] = []
@@ -77,6 +82,7 @@ struct OnboardingFlowLayoutLineLimit<Content: View>: View {
     return result
   }
 
+  /// 컨텐츠 텍스트의 너비를 구하는 메소드
   private func textWidth(for text: String) -> CGFloat {
     let font = UIFont.systemFont(ofSize: 17)
     let attributes = [NSAttributedString.Key.font: font]

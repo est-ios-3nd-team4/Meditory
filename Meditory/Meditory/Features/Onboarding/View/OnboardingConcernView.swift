@@ -7,7 +7,10 @@
 
 import SwiftUI
 
+///기저질환 설문 뷰
 struct OnboardingConcernView: View {
+  
+  //MARK: - 뷰 속성
   let items = QuestionModel.concernModel
   let columns = [
     GridItem(.flexible()),
@@ -20,11 +23,17 @@ struct OnboardingConcernView: View {
   @Binding var selections: Set<QuestionModel>
   @Binding var isSelected: Bool
   var onAction: ((QuestionModel) -> Void)?
+  
+  // MARK: - 뷰 바디
   var body: some View {
+    /// 전체를 감싸는 스크롤 뷰
     ScrollView {
+      /// 상단 타이틀 뷰
       TitleView(prompt: prompt,extra: itemCount)
         .padding(.horizontal, .defaultSpacing + 4)
+      /// 캡슐 형태의 텍스트를 표현하는 플로우
       OnboardingFlowLayoutLineLimit(items: items, content: { item in
+        /// 캡슐형태로 텍스트를 감싼 아이템 뷰
         CapsuleShappedText(title: item.title,isSelected: selections.contains(item))
           .onTapGesture {
             onAction?(item)
@@ -36,12 +45,3 @@ struct OnboardingConcernView: View {
   }
 }
 
-#Preview {
-//  OnboardingConcernView(
-//    prompt: Prompt(title: "고민되시거나 개선하고 싶은 건강 고민을 선택해주세요"),
-//    name: "Jason",
-//    itemCount: .constant("10"),
-//    selections: .constant(.init()),
-//    isSelected: .constant(false)
-//  )
-}

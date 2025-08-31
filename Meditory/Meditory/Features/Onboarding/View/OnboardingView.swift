@@ -9,32 +9,24 @@ import SwiftData
 import SwiftUI
 
 struct OnboardingView: View {
+  
+  // MARK: - 뷰 속성
   @Environment(\.modelContext) var context: ModelContext
   @Environment(\.dismiss) private var dismiss
-
+  
   @State var vm: OnboardingViewModel
   @StateObject private var keyboardObserver = KeyboardObserver()
   @FocusState private var focusedField: FormField?
-
+  
   @State private var currentStep: Step
   @State private var isSelected: Bool = false
+  @State private var isInitialLoadComplete = false
   
-  @State private var isInitialLoadComplete = false // 데이터 로딩완료 여부
-  private let isEditing: Bool // 편집모드여부(세팅에서 진입시 true)
-
+  private let isEditing: Bool
   private let isPad = UIDevice.isPad
   private let buttonHeight: CGFloat = 50
   private let buttonTopSpacing: CGFloat = 8
   private let onFinished: () -> Void
-
-  init(userStore: UserStore, startAt: Step = .privacyAgree, isEditing: Bool = false, onFinished: @escaping () -> Void = {}) {
-    self.onFinished = onFinished
-    self.isEditing = isEditing
-    // startAt 파라미터로 시작 단계를 설정합니다.
-    self._currentStep = State(initialValue: startAt)
-    // ViewModel에게도 isEditing 모드임을 알려줍니다.
-    self._vm = State(wrappedValue: OnboardingViewModel(userStore: userStore))
-  }
   
   private var editingTitle: String {
     switch currentStep {
@@ -47,6 +39,15 @@ struct OnboardingView: View {
     }
   }
 
+  init(userStore: UserStore, startAt: Step = .privacyAgree, isEditing: Bool = false, onFinished: @escaping () -> Void = {}) {
+    self.onFinished = onFinished
+    self.isEditing = isEditing
+    // startAt 파라미터로 시작 단계를 설정합니다.
+    self._currentStep = State(initialValue: startAt)
+    // ViewModel에게도 isEditing 모드임을 알려줍니다.
+    self._vm = State(wrappedValue: OnboardingViewModel(userStore: userStore))
+  }
+  
   
   // MARK: - 뷰 기본 구조
   var body: some View {
@@ -56,6 +57,7 @@ struct OnboardingView: View {
       if !isEditing {
         progressIndicator()
       }
+      /// 각 스텝에 맞춰서 가운데에 내용을 표시하는 뷰
       setContent(for: currentStep)
       Spacer(minLength: 0)
       
@@ -189,7 +191,7 @@ struct OnboardingView: View {
     .padding(.top, isPad ? 70 : 50)
   }
   
-  ///하단 버튼
+  /// 이전 단계로 돌아가는 버튼
   @ViewBuilder
   func prevButton() -> some View {
     VStack(spacing: .smallSpacing) {
@@ -206,6 +208,7 @@ struct OnboardingView: View {
     .padding(.leading, .defaultSpacing)
   }
 
+  /// 다음 단계로 진행하는 버튼
   @ViewBuilder
   func nextButton() -> some View {
     VStack(spacing: .smallSpacing) {
@@ -218,6 +221,7 @@ struct OnboardingView: View {
           signUp()
           return
         }
+        /// 현재 단계가 기본정보 입력이라면 모든 필드가 유효해야 합니다
         if case .base = currentStep {
           let invalidFields = vm.validateAllField()
           guard invalidFields.isEmpty else { return }
@@ -230,17 +234,17 @@ struct OnboardingView: View {
     .padding(.trailing, .defaultSpacing)
   }
   
+  /// 설정에서 뷰에 진입했을 경우 노출되는 저장 버튼
   @ViewBuilder
   func saveButton() -> some View {
     VStack(spacing: .smallSpacing) {
       PrimaryButton(
         title: "저장",
-        isEnabled: vm.isNextButtonOn // 동일한 유효성 검사 로직 재사용
+        isEnabled: vm.isNextButtonOn
       ) {
-        // ViewModel의 updateUser 함수를 호출합니다.
         Task {
           await vm.updateUser()
-          dismiss() // 저장이 끝나면 현재 화면을 닫습니다.
+          dismiss()
         }
       }
       .disabled(!vm.isNextButtonOn)
@@ -265,8 +269,4 @@ struct OnboardingView: View {
       try await vm.signUp()
     }
   }
-}
-
-#Preview {
-  //  OnboardingView()
 }

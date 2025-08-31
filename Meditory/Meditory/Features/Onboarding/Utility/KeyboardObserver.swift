@@ -29,6 +29,7 @@ final class KeyboardObserver: ObservableObject {
     )
   }
 
+  /// 스크린의 높이를 반영하여 키보드를 호출하기 위한 메소드
   @objc private func handleKeyboard(_ note: Notification) {
     guard
       let userInfo = note.userInfo,
@@ -51,5 +52,6 @@ final class KeyboardObserver: ObservableObject {
     }
   }
 
+  /// 키보드 이벤트 관련 노티피케이션 옵져버 해제
   deinit { NotificationCenter.default.removeObserver(self) }
 }
