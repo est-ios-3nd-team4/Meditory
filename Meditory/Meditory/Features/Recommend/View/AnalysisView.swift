@@ -5,7 +5,7 @@ struct AnalysisView: View {
   @Environment(\.colorScheme) private var colorScheme
 
   let result: ScoreResult
-  
+
   @State private var isAtTop = true
 
   var body: some View {
@@ -69,7 +69,7 @@ struct AnalysisView: View {
 
 
 private struct SectionChipsParagraphView: View {
-  
+
   let title: String
   let chips: [String]
   let paragraph: String
@@ -109,26 +109,5 @@ private struct SectionChipsParagraphView: View {
         .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
         .lineSpacing(4)
     }
-  }
-}
-//#Preview {
-struct AnalysisView_Previews: PreviewProvider {
-  static var previews: some View {
-    let dummyResult = ScoreResult(
-      score: 75,
-      counts: ScoreCounts(deficient: 2, caution: 1, optimal: 3, adequate: 4),
-      deficient: ["비타민 D", "식이섬유"],
-      caution: ["오메가3"],
-      optimal: ["비타민 C", "칼슘", "아연"],
-      adequate: ["마그네슘", "엽산", "철분", "비타민 B군"],
-      summaries: AnalysisSummaries(
-        deficient: "최근 식단에서 비타민 D와 식이섬유 섭취가 부족해 보입니다. 햇빛 노출과 채소, 과일, 통곡물 섭취를 늘리는 것이 권장됩니다.",
-        caution: "오메가3 섭취는 충분하나 과잉 섭취 시 출혈 위험이 있을 수 있으므로 주의가 필요합니다.",
-        optimal: "비타민 C, 칼슘, 아연 섭취는 양호합니다. 현재 패턴을 유지해 주세요.",
-        adequate: "마그네슘, 엽산, 철분, 비타민 B군은 권장량에 근접한 수준으로 무난합니다."
-      )
-    )
-
-    AnalysisView(result: dummyResult)
   }
 }

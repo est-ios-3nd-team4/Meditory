@@ -3,41 +3,41 @@ import SwiftUI
 struct ScoreDetailView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.colorScheme) private var colorScheme
-
+  
   let result: ScoreResult
-
+  
   private var score: Double { Double(result.score) }
   private var counts: ScoreCounts { result.counts }
-
+  
   @State private var animatedProgress: Double = 0
-
+  
   var body: some View {
     VStack {
       HeaderBar(score: Int(score), dismiss: dismiss)
-
+      
       ZStack {
         RoundedRectangle(cornerRadius: .defaultRadius)
           .fill(colorScheme == .dark ? Color.black : Color.customBackground)
-
+        
         VStack(spacing: .defaultSpacing) {
           ScoreGauge(progress: animatedProgress, score: Int(score)) // 게이지
-
+          
           VStack(spacing: .defaultSpacing) {
             Text("AI 분석결과")
               .font(.notoSans(weight: .bold, size: .defaultFontSize - 3))
               .foregroundColor(Color.accent)
               .padding(.top, .defaultSpacing)
-
+            
             StatRow(
               left: .init(title: "부족", tint: .pink, count: counts.deficient, chipBG: .pink),
               right: .init(title: "주의", tint: .yellow, count: counts.caution, chipBG: .yellow)
             )
-
+            
             StatRow(
               left: .init(title: "최적", tint: Color.accent, count: counts.optimal, chipBG: .blue),
               right: .init(title: "충족", tint: .green, count: counts.adequate, chipBG: .green)
             )
-
+            
             NavigationLink(destination: AnalysisView(result: result)) {
               Text("성분 분석 전체 보기")
                 .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
@@ -96,12 +96,12 @@ private struct HeaderBar: View {
       }
       .padding(.horizontal, .defaultSpacing)
       .padding(.vertical, 12)
-
+      
       HStack {
         Text("영양제 분석 리포트")
           .font(.notoSans(weight: .bold, size: .defaultFontSize + 7))
           .foregroundColor(.white)
-
+        
         Spacer()
       }
       .padding(.defaultSpacing)
@@ -123,7 +123,7 @@ private struct ScoreGauge: View {
         )
         .rotationEffect(.degrees(-90))
         .padding(5)
-
+      
       Circle()
         .trim(from: 0, to: progress)
         .stroke(
@@ -131,7 +131,7 @@ private struct ScoreGauge: View {
           style: StrokeStyle(lineWidth: 40, lineCap: .butt)
         )
         .rotationEffect(.degrees(-90))
-
+      
       HStack(alignment: .firstTextBaseline, spacing: 0) {
         Text("\(score)")
           .font(.notoSans(weight: .medium, size: 50))
@@ -160,7 +160,7 @@ private struct StatRow: View {
       StatCard(item: right)
     }
   }
-
+  
   private struct StatCard: View {
     @Environment(\.colorScheme) private var colorScheme
     let item: Item
@@ -177,9 +177,9 @@ private struct StatRow: View {
                     ? item.chipBG.opacity(0.1)
                     : item.chipBG.opacity(0.2))
           )
-
+        
         Spacer()
-
+        
         Text("\(item.count) 개")
           .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
       }

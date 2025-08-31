@@ -96,13 +96,13 @@ struct SearchView: View {
               .font(.title3).bold()
               .padding(.horizontal)
 
-             if ageNutrientVM.isLoading {
-               HStack {
-                 LoadingChip()
-                 Spacer()         
-               }
-               .padding(.horizontal)
-             } else {
+            if ageNutrientVM.isLoading {
+              HStack {
+                LoadingChip()
+                Spacer()
+              }
+              .padding(.horizontal)
+            } else {
               FlowLayoutLineLimit(
                 items: ageNutrientVM.chips,
                 itemFont: .systemFont(ofSize: 15, weight: .medium),
@@ -211,11 +211,5 @@ struct SearchView: View {
     selectedQuery = query
     pushToDetail = true
     print("검색 실행: \(query)")
-  }
-}
-
-#Preview {
-  NavigationView {
-    SearchView()
   }
 }

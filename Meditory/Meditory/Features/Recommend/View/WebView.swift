@@ -12,5 +12,3 @@ struct WebView: UIViewRepresentable {
     uiView.load(URLRequest(url: url))
   }
 }
-
-
