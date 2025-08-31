@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 특정 달의 일(day)을 선택하는 Picker Sheet.
 struct DayPickerSheet: View {
   
   @State var selectedDay: Int

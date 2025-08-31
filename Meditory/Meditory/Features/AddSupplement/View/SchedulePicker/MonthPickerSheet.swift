@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 특정 달의 월(month)을 선택하는 Picker Sheet.
 struct MonthPickerSheet: View {
   
   @State var selectedMonth: Int

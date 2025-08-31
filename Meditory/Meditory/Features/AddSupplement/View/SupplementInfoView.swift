@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+/// 영양제 검색 결과(요약 정보)를 보여주는 뷰
+/// - 검색 중일 때: Shimmer 로딩 UI 표시
+/// - 검색 결과가 없는 경우: 안내 문구 출력
+/// - 검색 성공 시: 제품명과 설명 표시
 struct SupplementInfoView: View {
   
   private let isPad = UIDevice.isPad

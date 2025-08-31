@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 복용 시간과 1회 섭취량을 선택하는 Picker Sheet.
 struct TimePickerSheet: View {
   
   private let isPad = UIDevice.isPad
@@ -22,7 +23,7 @@ struct TimePickerSheet: View {
       item.time == doseSchedule.time && index != selectedIndex
     }
   }
-    
+  
   init(
     selectedIndex: Int,
     doseSchedules: [SupplementDoseSchedule],

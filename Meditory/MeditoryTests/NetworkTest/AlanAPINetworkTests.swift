@@ -23,7 +23,6 @@ final class AlanAPINetworkTests: XCTestCase {
     client = AlanAPIClient(session: session)
   }
   
-  // 각 테스트 후에 실행 (메모리 정리 및 핸들러 초기화)
   override func tearDown() {
     MockURLProtocol.requestHandler = nil
     client = nil
@@ -31,6 +30,8 @@ final class AlanAPINetworkTests: XCTestCase {
     super.tearDown()
   }
   
+  /// `AlanAPIEndpoint.question` 요청 시,
+  /// 서버가 올바른 JSON을 반환하면 정상적으로 디코딩되어 응답 문자열을 받는지 확인합니다.
   func testQuestionEndpoint_ReturnsValidDecodedResponse() async {
     // arrange
     let content = "피로회복에 도움되는 비타민 추천해줘"
@@ -71,6 +72,8 @@ final class AlanAPINetworkTests: XCTestCase {
     }
   }
   
+  /// 서버가 잘못된 JSON 응답을 반환할 경우,
+  /// `AlanAPIClient`가 디코딩 에러를 발생시키는지 확인합니다.
   func testQuestionEndpoint_ReturnsDecodingErrorOnInvalidJSON() async {
     // arrange
     let content = "피로회복에 도움되는 비타민 추천해줘"

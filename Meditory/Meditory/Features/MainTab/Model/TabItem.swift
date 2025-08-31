@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 앱 하단 탭바의 각 항목을 정의하는 열거형
 enum TabItem: CaseIterable {
   case home
   case recommend

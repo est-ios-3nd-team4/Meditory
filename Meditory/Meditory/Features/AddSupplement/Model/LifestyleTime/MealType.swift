@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// 식사 시간 유형을 나타내는 열거형
 enum MealType: String, LifestyleTime {
   case breakfast
   case lunch

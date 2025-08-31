@@ -8,18 +8,33 @@
 import SwiftUI
 import SwiftData
 
+/// 영양제 추가/수정 화면 뷰.
+///
+/// 사용자가 영양제 이름을 입력하거나 스캔한 뒤,
+/// 생활 패턴(기상·취침/식사 시간)을 기반으로 복용 스케줄을 선택·저장할 수 있다.
+///
+/// 주요 기능:
+/// - 영양제 이름 입력 및 OCR 스캔
+/// - 영양제 정보 조회
+/// - 생활 패턴(Lifestyle) 입력
+/// - 요일/주기/시간 기반 스케줄 선택
+/// - AI 추천 스케줄 생성
+/// - 루틴 저장 및 수정
 struct AddSupplementView: View {
   
+  /// AddSupplementView 동작 모드
   enum Mode {
     case add
     case edit
   }
   
+  /// 입력 필드 타입
   enum FieldType {
     case name
     case memo
   }
   
+  /// ScrollView에서 특정 뷰를 찾기 위한 ID
   enum ViewID: String {
     case confirmButton
   }
@@ -85,7 +100,7 @@ struct AddSupplementView: View {
     self._lifestyleTimeVM = State(initialValue: LifestyleTimeViewModel(lifestyleStore: UserLifeStyleStore.shared))
     self.editingRoutine = routine
   }
-
+  
   var body: some View {
     GeometryReader { scrollView in
       let isLandscape = scrollView.frame(in: .global).width > scrollView.frame(in: .global).height
@@ -213,7 +228,7 @@ extension AddSupplementView {
     .cardStyle(padding: .defaultSpacing)
     .frame(height: 55)
   }
-
+  
   @ViewBuilder
   private func supplementInfoSection() -> some View {
     if shouldShowSupplementInfo {
@@ -571,19 +586,19 @@ extension AddSupplementView {
         MonthPickerSheet (
           selectedMonth: addSupplementVM.startMonth
         ) { month in
-            self.selectedPicker = nil
-            guard let month else { return }
-            addSupplementVM.setValue(.month(month))
-          }
+          self.selectedPicker = nil
+          guard let month else { return }
+          addSupplementVM.setValue(.month(month))
+        }
       case .day:
         DayPickerSheet(
           selectedDay: addSupplementVM.startDay,
           days: Date.daysInMonth(month: addSupplementVM.startMonth)
         ) { day in
-            self.selectedPicker = nil
-            guard let day else { return }
-            addSupplementVM.setValue(.day(day))
-          }
+          self.selectedPicker = nil
+          guard let day else { return }
+          addSupplementVM.setValue(.day(day))
+        }
       case .duration:
         DurationPickerSheet(
           selectedDuration: addSupplementVM.duration
@@ -685,12 +700,12 @@ extension AddSupplementView {
     isSearchingSupplementSummary = true
     supplementName = ""
   }
-
+  
   @MainActor
   private func saveRoutine() {
     guard !isSaving else { return }
     isSaving = true
-
+    
     Task {
       do {
         try await lifestyleTimeVM.saveLifestyle()
@@ -699,7 +714,7 @@ extension AddSupplementView {
           modelContext: context,
           editingRoutine: editingRoutine
         )
-
+        
         await MainActor.run {
           dismissOrClearSelection()
         }
@@ -712,7 +727,7 @@ extension AddSupplementView {
       }
     }
   }
-
+  
   private func showAlert(_ error: RoutineSaveError) {
     routineSaveError = error
     showAlert = true

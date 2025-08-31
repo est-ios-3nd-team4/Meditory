@@ -16,14 +16,12 @@ final class ScheduleAIPromptTests: XCTestCase {
   var userStore: UserStore!
   var routineStore: RoutineStore!
   
-  // 테스트 설정도 비동기 작업을 포함하므로 async로 변경합니다.
   override func setUp() async throws {
     let schema = Schema([User.self, UserProfile.self, Routine.self, RoutineTime.self, RoutineRecord.self, UserExtraInfo.self, UserStatus.self, ExtraInfo.self])
     let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
     container = try ModelContainer(for: schema, configurations: [config])
     context = ModelContext(container)
     userStore = UserStore(modelContainer: container)
-    // RoutineStore도 ModelContainer를 사용해 초기화합니다.
     routineStore = RoutineStore(modelContainer: container)
   }
   
@@ -34,6 +32,8 @@ final class ScheduleAIPromptTests: XCTestCase {
     routineStore = nil
   }
   
+  /// 사용자가 정상적으로 입력한 데이터가 있을 때,
+  /// 프롬프트에 질환/알러지/상태/루틴 정보가 올바르게 포함되는지 검증합니다.
   func testMakePrompt_withValidUserInput_generatesExpectedPrompt() async throws {
     // arrange
     // 1. User 정보 저장
@@ -65,7 +65,7 @@ final class ScheduleAIPromptTests: XCTestCase {
     _ = await userStore.addUser(user)
     await userStore.loadUser()
     
-    // 2. Routine 정보 저장 
+    // 2. Routine 정보 저장
     for mockRoutine in DummyData.mockRoutines_AllCases {
       _ = try await routineStore.createRoutine(
         type: mockRoutine.type,
@@ -279,7 +279,7 @@ fileprivate struct DummyData {
         ),
         RoutineTime(
           time: Date.makeTime(hour: 19, minute: 0),  // 저녁
-
+          
           pillsPerDose: 1
         )
       ]

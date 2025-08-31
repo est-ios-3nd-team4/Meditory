@@ -8,6 +8,9 @@
 import UIKit
 import SwiftUI
 
+/// SwiftUI에서 UIKit의 `UITextField`를 사용하기 위한 커스텀 뷰
+/// - placeholder 색상, tintColor, clearButtonMode 등 기본 스타일이 설정되어 있음
+/// - 편집 시작/리턴 키 입력 이벤트를 클로저로 전달 가능
 struct InputTextField: UIViewRepresentable {
   
   @Binding var text: String
@@ -17,7 +20,9 @@ struct InputTextField: UIViewRepresentable {
   let placHolderTextColor: UIColor = .textGray
   let tintColor: UIColor = .textGray
   
+  /// 편집 시작 시 호출되는 콜백
   var didBeginEditing: (() -> Void)? = nil
+  /// 리턴 키 입력 시 호출되는 콜백
   var shouldReturn: (() -> Void)? = nil
   
   func makeUIView(context: Context) -> some UIView {

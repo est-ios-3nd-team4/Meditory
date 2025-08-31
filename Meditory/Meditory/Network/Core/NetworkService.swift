@@ -7,11 +7,13 @@
 
 import Foundation
 
+/// 네트워크 요청을 처리하고 응답 데이터를 디코딩하는 서비스 클래스
 final class NetworkService {
   static let shared = NetworkService()
   
   private init() { }
   
+  /// 네트워크 요청을 수행하고 응답 데이터를 제네릭 타입으로 디코딩합니다.
   func request<T: Decodable>(
     with request: URLRequest?,
     session: URLSession = .shared
