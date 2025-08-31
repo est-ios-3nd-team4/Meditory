@@ -72,7 +72,6 @@ class SettingViewModel {
     
     // 권한 및 설정이 모두 ON일 때만 알림을 스케줄링함
     if isSystemGranted && isNotificationOn {
-      let ctx = DataController.shared.container.mainContext
       await RoutineNotificationScheduler().scheduleAll()
     } else {
       NotificationManager.shared.cancelAllIncludingDelivered()
@@ -102,7 +101,6 @@ class SettingViewModel {
     
     if value, result == .enabled {
       // 권한 허용 시, 알림을 스케줄링함
-      let context = DataController.shared.container.mainContext
       await RoutineNotificationScheduler().scheduleAll()
     } else if value, result == .denied {
       // 권한 거부 시, UI 상태를 롤백하고 알림을 취소함
