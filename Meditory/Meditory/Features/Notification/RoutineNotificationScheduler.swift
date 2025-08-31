@@ -94,7 +94,8 @@ private extension RoutineNotificationScheduler {
         dc.weekday = w
         dc.hour = hour
         dc.minute = minute
-        
+        dc.second = 0
+
         let trigger = UNCalendarNotificationTrigger(dateMatching: dc, repeats: true)
         let id = RoutineFormatter.weeklyNotificationID(
           routineID: routine.id,
