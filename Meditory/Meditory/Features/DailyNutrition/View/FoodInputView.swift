@@ -212,7 +212,7 @@ struct FoodInputView: View {
           .lineLimit(nil)
       }
       .background {
-        colorScheme == .dark ? Color.white.opacity(0.3) : Color.white
+        colorScheme == .dark ? .black : Color.white
       }
       .fixedSize(horizontal: false, vertical: true)
       .padding(.horizontal, .defaultSpacing)
