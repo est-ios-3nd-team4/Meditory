@@ -26,7 +26,11 @@ struct FoodInputView: View {
   @State private var isLoading = false
   @State private var showInvalidFoodAlert = false
   @State private var showLimitAlert = false
+  private var isSaveButtonEnabled: Bool {
+    !(foodName == "")
+  }
   @FocusState private var isFoodNameFocused: Bool
+  @FocusState private var focusedMacro: MacroType?
   
   enum ViewMode {
     case create
@@ -34,8 +38,8 @@ struct FoodInputView: View {
   }
   
   var tipComment: String = Bool.random() == true
-  ? ": 음식 이름을 입력하고, 탄수화물·단백질·지방(g)을 직접 기록해 보세요."
-  : ": 정확한 g 단위를 모르면 대략적인 값으로 입력해도 괜찮아요."
+  ? "Tip‼️: 음식 이름을 입력하고, 탄수화물·단백질·지방(g)을 직접 기록해 보세요."
+  : "Tip‼️: 정확한 g 단위를 모르면 대략적인 값으로 입력해도 괜찮아요."
   
   var navigationTitle: String {
     switch mode {
@@ -66,136 +70,171 @@ struct FoodInputView: View {
   }
   
   var body: some View {
-    VStack(spacing: 20) {
-      HStack {
-        Button {
-          dismiss()
-        } label: {
-          Image(systemName: "chevron.left")
-            .foregroundStyle(Color.label)
-        }
-        
-        Spacer()
-        
-        Text(navigationTitle)
-          .font(.notoSans(weight: .semiBold, size: .defaultFontSize))
-        
-        Spacer()
-        
-        if mode == .edit {
-          Button {
-            showingDeleteAlert = true
-          } label: {
-            Text("삭제")
-              .font(.notoSans(weight: .semiBold, size: .defaultFontSize - 1))
-              .foregroundStyle(.red)
-          }
-        } else {
-          Button("") { }
-            .opacity(0)
-        }
-      }
-      .padding(.horizontal, 16)
-      
-      // MARK: Food Name Input
-      UnifiedSectionCard {
-        HStack {
-          TextField("스파게티", text: $foodName)
-            .focused($isFoodNameFocused)
-            .onSubmit {
-              searchFood()
-            }
-            .submitLabel(mode == .create ? .search : .done)
+    ZStack(alignment: .top) {
+      GeometryReader { geometry in
+        VStack(spacing: 20) {
+          Color.clear
+            .frame(height: 44)
           
-          Button {
-            searchFood()
-            isFoodNameFocused = false
-          } label: {
-            Image(systemName: "magnifyingglass")
-              .foregroundStyle(.gray)
+          // MARK: Food Name Input
+          UnifiedSectionCard {
+            HStack {
+              TextField("음식 이름을 입력하세요.", text: $foodName)
+                .focused($isFoodNameFocused)
+                .onSubmit {
+                  searchFood()
+                }
+                .submitLabel(mode == .create ? .search : .done)
+              
+              Button {
+                searchFood()
+                isFoodNameFocused = false
+              } label: {
+                Image(systemName: "magnifyingglass")
+                  .foregroundStyle(.gray)
+              }
+            }
           }
+          .padding(.horizontal, 16)
+          
+          VStack(spacing: 5) {
+            UnifiedSectionCard {
+              VStack {
+                HStack {
+                  Text("영양정보")
+                  
+                  Spacer()
+                  
+                  Image(systemName: "info.circle")
+                    .longPressPopover {
+                      RecommendedMacroGuidePopover()
+                    }
+                }
+                .padding(.horizontal, 8)
+                
+                macroPercentage()
+              }
+            }
+            .padding(.horizontal, 16)
+            
+            Text("AI 생성 영양정보로 실제 값과 다를 수 있습니다. 건강 관련 중요한 결정은 의료 전문가와 상의하세요.")
+              .frame(minHeight: 50)
+              .font(.notoSans(weight: .medium, size: .defaultFontSize - 8))
+              .foregroundColor(.secondary)
+              .multilineTextAlignment(.center)
+          }
+          
+          if !isFoodNameFocused {
+            Spacer()
+          }
+          
+          UnifiedSectionCard() {
+            Text(tipComment)
+              .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
+              .multilineTextAlignment(.leading)
+              .lineLimit(nil)
+          }
+          .fixedSize(horizontal: false, vertical: true)
+          .padding(.horizontal, 16)
+          .padding(.top, isFoodNameFocused ? -20 : .zero)
+          
+          PrimaryButton(title: primaryButtonTitle, isEnabled: isSaveButtonEnabled) {
+            handlePrimaryAction()
+          }
+          .padding(.horizontal, 16)
+          .padding(.bottom, isFoodNameFocused ? .defaultSpacing : .zero)
+          
+          
+          
+        }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+          if mode == .create {
+            isFoodNameFocused = true
+          }
+          
+          loadFoodData()
         }
       }
-      .padding(.horizontal, 16)
+      .overlay {
+        if showingDeleteAlert {
+          AlertView(alertType: .delete,
+                    title: "음식 삭제",
+                    message: "음식을 삭제하시겠습니까? 삭제된 음식은 복구할 수 없습니다.",
+                    onCancel: {
+            showingDeleteAlert = false
+          },
+                    onDelete: {
+            deleteFood()
+            showingDeleteAlert = false
+          })
+        } else if showInvalidFoodAlert {
+          AlertView(alertType: .notFound,
+                    title: "음식 정보를 찾을 수 없습니다.",
+                    message: "음식 이름을 확인하고 다시 검색하거나, 영양 정보를 직접 입력해주세요.",
+                    onConfirm: {
+            showInvalidFoodAlert = false
+          },
+                    onResearch: {
+            foodName = ""
+            isFoodNameFocused = true
+            showInvalidFoodAlert = false
+          })
+        } else if showLimitAlert {
+          AlertView(alertType: .confirm,
+                    title: "2000g을 초과할 수 없습니다.",
+                    message: "2000 이하의 g수를 입력해주세요.",
+                    onConfirm: {
+            showLimitAlert = false
+          })
+        }
+      }
       
-      VStack(spacing: 5) {
-        UnifiedSectionCard {
-          VStack {
-            HStack {
-              Text("영양정보")
-              
-              Spacer()
-              
-              Image(systemName: "info.circle")
-                .longPressPopover {
-                  RecommendedMacroGuidePopover()
-                }
+      VStack {
+        HStack {
+          Button {
+            dismiss()
+          } label: {
+            Image(systemName: "chevron.left")
+              .foregroundStyle(Color.label)
+          }
+          .frame(width: 44, height: 44)
+          
+          Spacer()
+          
+          Text(navigationTitle)
+            .font(.notoSans(weight: .semiBold, size: .defaultFontSize))
+          
+          Spacer()
+          
+          if mode == .edit {
+            Button {
+              showingDeleteAlert = true
+            } label: {
+              Text("삭제")
+                .font(.notoSans(weight: .semiBold, size: .defaultFontSize - 1))
+                .foregroundStyle(.red)
             }
-            .padding(.horizontal, 8)
-            
-            macroPercentage()
+            .frame(width: 44, height: 44)
+          } else {
+            Color.clear
+              .frame(width: 44, height: 44)
           }
         }
+        .frame(height: 44)
         .padding(.horizontal, 16)
         
-        Text("AI 생성 영양정보로 실제 값과 다를 수 있습니다. 건강 관련 중요한 결정은 의료 전문가와 상의하세요.")
-          .font(.notoSans(weight: .medium, size: .defaultFontSize - 8))
-            .foregroundColor(.secondary)
-            .multilineTextAlignment(.center)
+        Spacer()
       }
+      .zIndex(999)
       
-      Spacer()
-      
-      UnifiedSectionCard {
-        HStack {
-          Text("Tip‼️")
-          
-          Text(tipComment)
-            .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
-            .multilineTextAlignment(.leading)
-            .lineLimit(nil)
-        }
-        .padding(.vertical, 8)
-      }
-      .fixedSize(horizontal: false, vertical: true)
-      .padding(.horizontal, 16)
-      
-      PrimaryButton(title: primaryButtonTitle) {
-        handlePrimaryAction()
-      }
-      .padding(.horizontal, 16)
     }
-    .navigationBarBackButtonHidden(true)
-    .navigationBarTitleDisplayMode(.inline)
-    .onAppear {
-      if mode == .create {
-        isFoodNameFocused = true
-      }
-      
-      loadFoodData()
-    }
-    .alert("음식 삭제", isPresented: $showingDeleteAlert) {
-      Button("취소", role: .cancel) { }
-      Button("삭제", role: .destructive) {
-        deleteFood()
-      }
-    } message: {
-      Text("이 음식을 삭제하시겠습니까? 삭제된 음식은 복구할 수 없습니다.")
-    }
-    .alert("음식 정보를 찾을 수 없습니다.", isPresented: $showInvalidFoodAlert) {
-      Button("다시 검색") {
-        foodName = ""
-        isFoodNameFocused = true
-        showInvalidFoodAlert = false
-      }
-      Button("이대로 등록") { }
-    } message: {
-      Text("음식 이름을 확인하고 다시 검색하거나, 영양 정보를 직접 입력해주세요.")
-    }
-    .alert("2000g을 초과할 수 없습니다.", isPresented: $showLimitAlert) {
-      Button("확인") {}
-    } message: {
-      Text("2000 이하의 g수를 입력해주세요.")
+    .contentShape(Rectangle())
+    .onTapGesture {
+      isFoodNameFocused = false
+      focusedMacro = nil
     }
   }
   
@@ -215,14 +254,14 @@ struct FoodInputView: View {
           HStack(spacing: 5) {
             Rectangle()
               .fill(.clear)
-              .frame(width: 10, height: 1)
-              .opacity(0)
+              .frame(width: 5, height: 1)
             
             RoundedRectangle(cornerRadius: 20)
               .fill(.backgroundGray)
-              .frame(width: 49, height: 29)
+              .frame(width: 61, height: 29)
               .overlay {
                 macroInputField(for: type)
+                  .frame(maxWidth: .infinity)
               }
             
             Text("g")
@@ -246,23 +285,26 @@ struct FoodInputView: View {
 
       }
       TextField("", text: binding(for: type))
+        .focused($focusedMacro, equals: type)
         .foregroundStyle(Color.black)
         .keyboardType(.decimalPad)
         .padding(.horizontal, 8)
         .multilineTextAlignment(.center)
-        .onSubmit {
+        .onChange(of: binding(for: type).wrappedValue) { oldValue, newValue in
           validateInput(for: type)
         }
       
       if isLoading {
-        NutrientChipSkeleton(width: 50)
+        NutrientChipSkeleton(width: 62)
       }
     }
   }
   
   private func validateInput(for type: MacroType) {
     guard let text = macroValues[type],
-          let value = Double(text) else { return }
+          let value = Double(text) else {
+      return
+    }
     
     if value > 2000 {
       showLimitAlert = true

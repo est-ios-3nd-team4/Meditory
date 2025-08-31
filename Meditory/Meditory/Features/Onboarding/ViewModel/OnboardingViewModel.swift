@@ -46,6 +46,9 @@ class OnboardingViewModel {
     ValidationField.allCases.allSatisfy { fieldStates[$0]?.isValid == true }
   }
   var isGenderSelected: Bool { !gender.isEmpty }
+  var privacyAgreementsCount: Int {
+    selectionSet.filter { $0.title.contains("[필수]") }.count
+  }
 
   private var validateTasks: [ValidationField: Task<Void, Never>] = [:]
 
@@ -166,12 +169,12 @@ class OnboardingViewModel {
   
   
   ///각 단계의 흐름을 컨트롤하는 버튼을 위한 메소드
-  func isNextButtonOn(step:Step, privacyAgreeCount: Int = 0) -> Bool {
+  func isNextButtonOn(step:Step) -> Bool {
     switch step {
     case .gender:
       return isNextButtonOn && isGenderSelected
     case .privacyAgree:
-      return privacyAgreeCount == 2
+      return privacyAgreementsCount == 2
     default:
       return isNextButtonOn
     }

@@ -20,6 +20,7 @@ struct NutritionHomeView: View {
       ScrollView {
         VStack {
           DailyMealSummaryCard()
+            .padding(.bottom, 16)
           
           ForEach(viewModel.foodList, id: \.id) { food in
             if let parentMeal = viewModel.findMeal(for: food.id) {

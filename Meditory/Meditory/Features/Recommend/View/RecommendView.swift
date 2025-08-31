@@ -262,9 +262,6 @@ struct RecommendView: View {
         hasRealNutrientData = true
       }
     }
-    .navigationDestination(isPresented: $showNutrientDetail) {
-      RecommendNutrientsView(nutrients: nutrientVM.recommendations, userName: name)
-    }
   }
 
   private var recommendContent: some View {
@@ -320,6 +317,9 @@ struct RecommendView: View {
       .padding(.horizontal, 16)
       .padding(.top, .smallSpacing)
       .modifier(UnifiedShadow())
+      .navigationDestination(isPresented: $showNutrientDetail) {
+        RecommendNutrientsView(nutrients: nutrientVM.recommendations, userName: name)
+      }
 
       ScoreView(
         user: users.first,
