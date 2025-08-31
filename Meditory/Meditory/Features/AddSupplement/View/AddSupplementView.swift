@@ -732,7 +732,7 @@ extension AddSupplementView {
     isSearchingSupplementSummary = true
     supplementName = ""
     
-    Task {
+    searchTask = Task {
       defer {
         Task { @MainActor in
           isSearchingSupplementSummary = false
@@ -742,7 +742,11 @@ extension AddSupplementView {
       do {
         try await addSupplementVM.request(productNameInput: productNameInput, nameSource: nameSource)
       } catch let error as AlanAPIError {
-        showAlert(error)
+        switch error {
+        case .cancelld: break
+        default:
+          showAlert(error)
+        }
         print("❌ Error is \(error)")
       } catch {
         showDefaultAlert()
