@@ -72,7 +72,7 @@ struct FoodInputView: View {
   var body: some View {
     ZStack(alignment: .top) {
       GeometryReader { geometry in
-        VStack(spacing: 20) {
+        VStack(spacing: .defaultSpacing) {
           Color.clear
             .frame(height: 44)
           
@@ -95,13 +95,14 @@ struct FoodInputView: View {
               }
             }
           }
-          .padding(.horizontal, 16)
+          .padding(.horizontal, .defaultSpacing)
           
-          VStack(spacing: 5) {
+          VStack(spacing: .smallSpacing - 3) {
             UnifiedSectionCard {
               VStack {
                 HStack {
                   Text("영양정보")
+                    .font(.notoSans(weight: .semiBold, size: .defaultFontSize))
                   
                   Spacer()
                   
@@ -110,12 +111,12 @@ struct FoodInputView: View {
                       RecommendedMacroGuidePopover()
                     }
                 }
-                .padding(.horizontal, 8)
+                .padding(.horizontal, .smallSpacing)
                 
                 macroPercentage()
               }
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, .defaultSpacing)
             
             Text("AI 생성 영양정보로 실제 값과 다를 수 있습니다. 건강 관련 중요한 결정은 의료 전문가와 상의하세요.")
               .frame(minHeight: 50)
@@ -131,17 +132,17 @@ struct FoodInputView: View {
           UnifiedSectionCard() {
             Text(tipComment)
               .font(.notoSans(weight: .medium, size: .defaultFontSize - 6))
-              .multilineTextAlignment(.leading)
+              .multilineTextAlignment(.center)
               .lineLimit(nil)
           }
           .fixedSize(horizontal: false, vertical: true)
-          .padding(.horizontal, 16)
+          .padding(.horizontal, .defaultSpacing)
           .padding(.top, isFoodNameFocused ? -20 : .zero)
           
           PrimaryButton(title: primaryButtonTitle, isEnabled: isSaveButtonEnabled) {
             handlePrimaryAction()
           }
-          .padding(.horizontal, 16)
+          .padding(.horizontal, .defaultSpacing)
           .padding(.bottom, isFoodNameFocused ? .defaultSpacing : .zero)
           
           
@@ -224,7 +225,7 @@ struct FoodInputView: View {
           }
         }
         .frame(height: 44)
-        .padding(.horizontal, 16)
+        .padding(.horizontal, .defaultSpacing)
         
         Spacer()
       }
@@ -245,18 +246,18 @@ struct FoodInputView: View {
       ForEach(MacroType.allCases, id: \.self) { type in
         VStack {
           Text(getImageForMacro(type))
-            .font(.notoSans(size: 50))
+            .font(.notoSans(size: .defaultFontSize + 32))
           
           Text(type.displayName)
             .font(.notoSans(weight: .medium, size: .defaultFontSize - 5))
             .foregroundStyle(.secondary)
           
-          HStack(spacing: 5) {
+          HStack(spacing: .smallSpacing - 3) {
             Rectangle()
               .fill(.clear)
               .frame(width: 5, height: 1)
             
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: .defaultRadius)
               .fill(.backgroundGray)
               .frame(width: 61, height: 29)
               .overlay {
@@ -281,14 +282,14 @@ struct FoodInputView: View {
       if binding(for: type).wrappedValue.isEmpty {
         Text("0")
           .foregroundStyle(Color.gray)
-          .padding(.horizontal, 16)
+          .padding(.horizontal, .defaultSpacing)
 
       }
       TextField("", text: binding(for: type))
         .focused($focusedMacro, equals: type)
         .foregroundStyle(Color.black)
         .keyboardType(.decimalPad)
-        .padding(.horizontal, 8)
+        .padding(.horizontal, .smallSpacing)
         .multilineTextAlignment(.center)
         .onChange(of: binding(for: type).wrappedValue) { oldValue, newValue in
           validateInput(for: type)

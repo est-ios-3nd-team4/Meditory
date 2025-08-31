@@ -30,7 +30,7 @@ struct UnifiedShadow: ViewModifier {
       content
         .shadow(
           color: .customShadow,
-          radius: 10,
+          radius: .smallRadius,
           x: 0,
           y: 4
         )
