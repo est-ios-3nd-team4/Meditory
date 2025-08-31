@@ -94,7 +94,6 @@ struct FoodInputView: View {
               }
             }
           }
-          .padding(.horizontal, .defaultSpacing)
           
           VStack(spacing: .smallSpacing - 3) {
             UnifiedSectionCard {
@@ -115,7 +114,6 @@ struct FoodInputView: View {
                 macroPercentage()
               }
             }
-            .padding(.horizontal, .defaultSpacing)
             
             Text("AI 생성 영양정보로 실제 값과 다를 수 있습니다. 건강 관련 중요한 결정은 의료 전문가와 상의하세요.")
               .frame(minHeight: 50)
@@ -124,6 +122,7 @@ struct FoodInputView: View {
               .multilineTextAlignment(.center)
           }
         }
+        .padding(.horizontal, .defaultSpacing)
       }
       
       doneButtonView()
@@ -212,18 +211,16 @@ struct FoodInputView: View {
           .lineLimit(nil)
       }
       .background {
-        colorScheme == .dark ? .black : Color.white
+        colorScheme == .dark ? Color.black : Color.white
       }
       .fixedSize(horizontal: false, vertical: true)
-      .padding(.horizontal, .defaultSpacing)
-      .padding(.top, isFoodNameFocused ? -20 : .zero)
       
       PrimaryButton(title: primaryButtonTitle, isEnabled: isSaveButtonEnabled) {
         handlePrimaryAction()
       }
-      .padding(.horizontal, .defaultSpacing)
-      .padding(.bottom, isFoodNameFocused ? .defaultSpacing : .zero)
+      .padding(.bottom, .defaultSpacing)
     }
+    .padding(.horizontal, .defaultSpacing)
   }
    
   func macroPercentage() -> some View {
