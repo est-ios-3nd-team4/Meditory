@@ -105,6 +105,8 @@ final class AlanAPINetworkTests: XCTestCase {
     }
   }
   
+  /// `AlanAPIClient.request`가 네트워크 실패 상황에서
+  /// `.network` 에러를 던지는지 검증하는 테스트
   func testQuestionEndpoint_ReturnsNetworkErrorOnFailure() async {
     // arrange
     let content = "비타민 추천"
