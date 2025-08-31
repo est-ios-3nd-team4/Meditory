@@ -7,6 +7,29 @@
 
 import SwiftUI
 
+/// ShimmerView
+/// 데이터 로딩 상태를 사용자에게 알려주기 위한 **스켈레톤 UI(Shimmer 효과)** 컴포넌트입니다.
+/// 뷰가 로드되기 전 placeholder 역할을 하며, 좌→우 방향으로 흐르는 그라데이션 애니메이션을 통해
+/// 로딩 중임을 시각적으로 표시합니다.
+///
+/// - 주요 기능:
+///   - `widthRatio`: 부모 뷰 너비 대비 차지할 비율을 설정 (0.0 ~ 1.0).
+///   - `cornerRadius`: 모서리 스타일 지정 (`.capsule` 또는 `.fixed`).
+///   - **밝은 모드/다크 모드 대응**: 환경(`colorScheme`)에 따라 배경/하이라이트 색상과 투명도 자동 조정.
+///   - 무한 반복 애니메이션으로 부드러운 로딩 효과 제공.
+///
+/// - 속성:
+///   - `widthRatio`: placeholder 가로 크기 비율 (기본값 1.0).
+///   - `cornerRadius`: 모서리 스타일(`CornerStyle`, 기본값 `.capsule`).
+///
+/// - 내부 동작:
+///   - GeometryReader로 가용 공간 측정.
+///   - RoundedRectangle 마스크를 적용해 지정된 크기만큼 Shimmer 효과 표시.
+///   - `onAppear` 시 `startAnimation` 실행 → 좌측 바깥에서 우측으로 반복 이동.
+///
+/// - 활용처:
+///   - 로딩 중인 텍스트, 카드, 버튼 등 콘텐츠 대신 임시 자리 표시.
+///   - 리스트, 상세 뷰 등 데이터 fetch 지연 시 사용자 경험(UX) 개선.
 struct ShimmerView: View {
   
   @Environment(\.colorScheme) private var colorScheme

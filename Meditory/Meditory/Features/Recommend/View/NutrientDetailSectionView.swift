@@ -20,9 +20,9 @@ struct NutrientDetailSectionView: View {
     let tags = nutrient.hashtags.isEmpty ? "" : "\n" + nutrient.hashtags.map { "#\($0)" }.joined(separator: " ")
     return """
     \(nutrient.name)\(tags)
-
+    
     \(nutrient.title)
-
+    
     \(nutrient.content)
     """
   }
@@ -118,7 +118,7 @@ struct NutrientDetailSectionView: View {
             preview: SharePreview(nutrient.name, image: Image(systemName: "square.and.arrow.up"))
           ) {
             Image(systemName: "square.and.arrow.up")
-              .frame(width: 44, height: 44)        
+              .frame(width: 44, height: 44)
               .contentShape(Rectangle())
           }
         }
@@ -150,6 +150,3 @@ struct NutrientDetailSectionView: View {
     ))
   }
 }
-
-
-

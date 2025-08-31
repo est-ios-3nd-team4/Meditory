@@ -135,6 +135,4 @@ struct ScoreView: View {
     }
   }
 }
-//#Preview {
-//  ScoreView()
-//}
+

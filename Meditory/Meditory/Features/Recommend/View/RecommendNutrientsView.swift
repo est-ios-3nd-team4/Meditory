@@ -96,6 +96,3 @@ struct RecommendNutrientsView: View {
   }
 }
 
-//#Preview {
-//  RecommendNutrientsView()
-//}

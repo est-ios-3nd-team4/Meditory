@@ -9,6 +9,7 @@ import SwiftUI
 import UIKit
 import Vision
 
+/// 카메라 촬영 후 텍스트를 인식하여 반환하는 뷰 (Camera + OCR)
 struct CameraPickerSheet: UIViewControllerRepresentable {
   @Binding var isPresented: Bool
   var onTextRecognized: (String) -> Void

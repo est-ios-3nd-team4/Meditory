@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// iPhone 전용 커스텀 탭바 뷰
 struct CustomTabView: View {
   @Environment(\.colorScheme) private var colorScheme
   
@@ -50,7 +51,7 @@ struct CustomTabView: View {
         }
         .padding(.top, 4)
         .frame(maxWidth: .infinity, alignment: .trailing)
-      
+        
         addTabItem(for: .add)
         
         HStack(spacing: spacing) {

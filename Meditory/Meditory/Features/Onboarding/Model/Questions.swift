@@ -156,4 +156,8 @@ struct QuestionModel: Hashable {
       image: "icon_breastfeeding_filled"
     ),
   ]
+  static let agreements: [QuestionModel] = [
+    .init(code: "agree1", title: "[필수] 개인정보 수집 및 이용 동의", type: .etc),
+    .init(code: "agree2", title: "[필수] 건강(민감) 정보 수집 및 이용동의", type: .etc)
+  ]
 }

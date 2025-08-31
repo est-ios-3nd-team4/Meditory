@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// 요일을 나타내는 열거형.
 enum Weekday: Int, CaseIterable {
   case sun
   case mon
@@ -35,6 +36,7 @@ enum Weekday: Int, CaseIterable {
     }
   }
   
+  /// 요일의 축약 이름 (예: `"월"`)
   var subTitle: String {
     title.first.map(String.init) ?? ""
   }

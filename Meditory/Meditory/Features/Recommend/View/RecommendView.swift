@@ -262,9 +262,6 @@ struct RecommendView: View {
         hasRealNutrientData = true
       }
     }
-    .navigationDestination(isPresented: $showNutrientDetail) {
-      RecommendNutrientsView(nutrients: nutrientVM.recommendations, userName: name)
-    }
   }
 
   private var recommendContent: some View {
@@ -320,6 +317,9 @@ struct RecommendView: View {
       .padding(.horizontal, 16)
       .padding(.top, .smallSpacing)
       .modifier(UnifiedShadow())
+      .navigationDestination(isPresented: $showNutrientDetail) {
+        RecommendNutrientsView(nutrients: nutrientVM.recommendations, userName: name)
+      }
 
       ScoreView(
         user: users.first,
@@ -349,7 +349,7 @@ struct RecommendView: View {
     GeometryReader { geo in
       let topH = geo.size.height * 0.5 + geo.safeAreaInsets.top
       VStack(spacing: 0) {
-          Color.main
+        Color.main
           .frame(height: topH)
           .ignoresSafeArea(edges: .top)
 
@@ -601,10 +601,4 @@ struct RecommendView: View {
       )
     ]
   }
-
-}
-
-
-#Preview {
-  RecommendView()
 }

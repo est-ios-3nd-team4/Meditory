@@ -73,7 +73,3 @@ struct NutrientCardView: View {
     .cornerRadius(.defaultRadius)
   }
 }
-
-//#Preview {
-//  NutrientCardView(nutrients: ["아연", "밀크씨슬", "히알루론산"])
-//}

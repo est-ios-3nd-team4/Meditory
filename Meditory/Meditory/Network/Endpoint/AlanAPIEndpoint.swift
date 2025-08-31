@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Alan API 요청을 정의하는 엔드포인트 집합.
 enum AlanAPIEndpoint {
   case question(content: String)
   case questionWithSSE(content: String)
@@ -34,6 +35,10 @@ extension AlanAPIEndpoint: Endpoint {
     }
   }
   
+  /// 요청에 필요한 쿼리 파라미터
+  ///
+  /// - `content`: 사용자 입력 내용
+  /// - `client_id`: Alan API Key (Info.plist에서 로드됨)
   var queryItems: [URLQueryItem]? {
     switch self {
     case .question(let content), .questionWithSSE(let content):

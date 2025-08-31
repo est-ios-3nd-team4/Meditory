@@ -7,6 +7,10 @@
 
 import Foundation
 
+/// 복용 스케줄 선택 시 표시되는 Picker Sheet 종류.
+///
+/// 이 타입은 영양제 복용 일정을 설정할 때
+/// 사용자가 선택할 수 있는 항목(월, 일, 주기, 요일, 시간)을 나타냅니다.
 enum SchedulePickerType: Identifiable, CaseIterable {
   case month
   case day

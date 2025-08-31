@@ -90,7 +90,3 @@ struct NutrientCardCell: View {
     .modifier(UnifiedShadow())
   }
 }
-
-//#Preview {
-//    ScrapView()
-//}

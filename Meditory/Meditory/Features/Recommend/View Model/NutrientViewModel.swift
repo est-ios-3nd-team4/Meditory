@@ -82,32 +82,32 @@ final class NutrientViewModel: ObservableObject {
     }()
 
     let mealLines = meals.isEmpty
-      ? "• 최근 식단 기록 없음"
-      : meals.map { $0.nutritionSummaryLine }.joined(separator: "\n")
+    ? "• 최근 식단 기록 없음"
+    : meals.map { $0.nutritionSummaryLine }.joined(separator: "\n")
 
     let totals = meals.macroTotals
     let totalLine = meals.isEmpty
-      ? ""
-      : "\n[총섭취합계] 탄수 \(Int(totals.carb))g / 단백질 \(Int(totals.protein))g / 지방 \(Int(totals.fat))g"
+    ? ""
+    : "\n[총섭취합계] 탄수 \(Int(totals.carb))g / 단백질 \(Int(totals.protein))g / 지방 \(Int(totals.fat))g"
 
     return """
     [역할]
     - 당신은 한국 사용자에게 실제 식단을 바탕으로 부족/보완이 필요한 영양 성분을 추천하는 영양 코치입니다.
     - 의학적 진단/처방을 대체하지 않으며, 필요 시 전문의 상담을 권장합니다.
-
+    
     [사용자]
     - 이름: \(display)
     \(ageGender)
     [식단 요약]
     \(mealLines)
     \(totalLine)
-
+    
     [목표]
     - 위 식단을 분석하여 "중복되지 않는" 영양 성분을 **정확히 3개** 추천하세요.
     - 각 성분: 해시태그(최대 2), 한 문장 요약(title), 6~10문장 설명(content: 이유/권장량 범위/식품 급원/주의·금기/상호작용/단위 포함).
     - 제품/브랜드 추천 금지.
     - 만약 최근 식단 기록이 없다면, 한국인에게 가장 부족하기 쉬운 대표 영양소 3개(비타민 D, 식이섬유, 오메가3 등)를 추천하세요.
-
+    
     [출력 형식(중요)]
     - **유효한 JSON 배열만** 출력하세요. 다른 텍스트/코드블록/주석 금지.
     - 배열 길이는 반드시 3입니다.
@@ -117,14 +117,14 @@ final class NutrientViewModel: ObservableObject {
       - hashtags: string[] (0~2개, 짧은 근거 키워드, 예: "면역 기능", "간 건강")
       - title: string (한 문장 요약, "~에 도움을 줄 수 있음" 톤)
       - content: string (6~10문장, 단위 표기 포함)
-
+    
     [품질 규칙]
     - 과대광고/확정적 표현 금지(“~에 도움을 줄 수 있음”).
     - 금기(알레르기/질환/복용약) 고려.
     - 유사 원료 동시 추천 금지(예: 오메가3 vs 크릴오일).
     - 식품 급원 1~2가지 예시 포함.
     - 위험 신호 시 “전문의 상담 권고” 문구 포함.
-
+    
     [검증]
     - 배열 길이는 3이어야 합니다.
     - JSON 앞뒤로 어떤 설명도 붙이지 마세요.

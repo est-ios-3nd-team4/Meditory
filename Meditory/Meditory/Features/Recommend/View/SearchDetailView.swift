@@ -36,36 +36,36 @@ struct SearchDetailView: View {
               }
 
               HStack {
-              TextField("영양성분 또는 영양제를 검색해보세요!", text: $searchText)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled(true)
-                .submitLabel(.search)
-                .onSubmit { triggerSearch() }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .overlay(
-                  HStack {
-                    Spacer()
+                TextField("영양성분 또는 영양제를 검색해보세요!", text: $searchText)
+                  .textInputAutocapitalization(.never)
+                  .autocorrectionDisabled(true)
+                  .submitLabel(.search)
+                  .onSubmit { triggerSearch() }
+                  .frame(maxWidth: .infinity, alignment: .leading)
+                  .overlay(
+                    HStack {
+                      Spacer()
 
-                    if !searchText.isEmpty {
-                      Button {
-                        searchText = ""
-                      } label: {
-                        Image(systemName: "xmark.circle.fill")
-                          .foregroundColor(Color(.systemGray4))
-                          .padding(.trailing, .smallSpacing)
+                      if !searchText.isEmpty {
+                        Button {
+                          searchText = ""
+                        } label: {
+                          Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(Color(.systemGray4))
+                            .padding(.trailing, .smallSpacing)
+                        }
                       }
                     }
-                  }
-                )
+                  )
 
-              Button {
-                triggerSearch()
-              } label: {
-                Image(systemName: "magnifyingglass")
-                  .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
+                Button {
+                  triggerSearch()
+                } label: {
+                  Image(systemName: "magnifyingglass")
+                    .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
 
+                }
               }
-             }
               .padding(.horizontal, 12)
               .padding(.vertical, 10)
             }
@@ -137,9 +137,4 @@ struct SearchDetailView: View {
       }
     }
   }
-}
-
-
-#Preview {
-  SearchDetailView(query: "콜라겐")
 }

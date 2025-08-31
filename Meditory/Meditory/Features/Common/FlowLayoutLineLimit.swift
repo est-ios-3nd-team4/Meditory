@@ -1,5 +1,24 @@
 import SwiftUI
 
+/// 텍스트 기반 아이템들을 자동 줄바꿈하여 배치하는 커스텀 뷰.
+///
+/// `FlowLayout`과 유사하지만, 특정 `lineLimit`까지 줄 개수를 제한할 수 있고
+/// 문자열 길이를 기반으로 아이템의 실제 너비를 계산하여 레이아웃을 구성합니다.
+///
+/// - 주요 특징:
+///   - `items`: 어떤 타입이든(`Hashable`) 사용 가능
+///   - `textProvider`: 아이템에서 문자열을 추출하는 클로저 (너비 계산에 사용)
+///   - `content`: 각 아이템을 실제로 어떻게 렌더링할지 정의
+///   - `lineLimit`: 최대 표시할 줄 수 (없으면 전체 표시)
+///   - `itemFont`: 문자열 너비 계산에 사용될 폰트 (기본값: 시스템 17pt)
+///   - `itemPadding`: 문자열 외부 여백 반영 (실제 뷰 너비 조정)
+///
+/// - 동작 방식:
+///   1. `GeometryReader`를 이용해 컨테이너의 실제 가로 너비를 가져옵니다.
+///   2. 각 아이템 문자열의 너비(`textWidth`) + `itemPadding`을 합산하여
+///      현재 줄에 배치 가능한지 여부를 판단합니다.
+///   3. 줄 너비를 초과하면 자동으로 **줄바꿈**하여 다음 줄에 배치합니다.
+///   4. `lineLimit`가 지정되어 있다면 그 개수까지만 줄을 출력합니다.
 struct FlowLayoutLineLimit<Item: Hashable, ItemView: View>: View {
   // 1. 어떤 타입의 배열이든 받을 수 있도록 Item을 제네릭으로 변경
   let items: [Item]
@@ -50,6 +69,7 @@ struct FlowLayoutLineLimit<Item: Hashable, ItemView: View>: View {
     }
   }
 
+  /// 컨테이너 너비에 맞춰 줄 단위로 아이템 분리
   private func makeRows(containerWidth: CGFloat) -> [[Item]] {
     var result: [[Item]] = []
     var currentRow: [Item] = []
@@ -87,6 +107,7 @@ struct FlowLayoutLineLimit<Item: Hashable, ItemView: View>: View {
     return result
   }
 
+  /// 문자열 너비 계산
   private func textWidth(for item: Item) -> CGFloat {
     // 4. 주입받은 클로저와 폰트를 사용해 너비 계산
     let text = textProvider(item)

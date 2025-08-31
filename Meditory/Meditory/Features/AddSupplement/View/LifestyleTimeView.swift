@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 라이프스타일 시간(기상/취침, 식사 시간 등)을 표시하는 카드 뷰
 struct LifestyleTimeView: View {
   
   let type: LifestyleTimeType

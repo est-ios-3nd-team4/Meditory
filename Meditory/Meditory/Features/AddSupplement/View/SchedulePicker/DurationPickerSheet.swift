@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 복용 주기를 선택하는 Picker Sheet.
 struct DurationPickerSheet: View {
   
   @State var selectedDuration: Int

@@ -7,8 +7,11 @@
 
 import Foundation
 
+/// 생활 패턴 시간의 대분류 타입
 enum LifestyleTimeType {
+  /// 하루 주기 (기상/취침)
   case dailyCycle
+  /// 식사 시간 (아침/점심/저녁)
   case meal
   
   var title: String {

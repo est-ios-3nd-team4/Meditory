@@ -32,6 +32,3 @@ struct ProductCardView: View {
   }
 }
 
-//#Preview {
-//    ProductCardView(product: Product)
-//}

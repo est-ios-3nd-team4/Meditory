@@ -114,11 +114,18 @@ struct SettingSubView: View {
     return "\(height) / \(weight)"
   }
   
-  /// 사용자 건강 상태 정보를 포맷하는 함수
+  /// 사용자 건강 상태 정보를 포맷하는 함수 ("동의" 항목 필터링)
   private func formatUserStatus(_ statuses: [UserStatus]?) -> String {
     guard let statuses = statuses, !statuses.isEmpty else { return "해당 없음" }
-    // .rawValue 대신 String Interpolation을 사용하여 Enum 등을 문자열로 안전하게 변환함
-    return statuses.map { "\($0.statusType)" }.joined(separator: ", ")
+    
+    // "동의" 텍스트가 포함되지 않은 상태만 필터링함
+    let filteredStatuses = statuses.filter { !$0.statusType.contains("동의") }
+    
+    // 필터링 후 상태가 없으면 "해당 없음"을 반환함
+    guard !filteredStatuses.isEmpty else { return "해당 없음" }
+    
+    // 필터링된 상태 목록을 문자열로 조합함
+    return filteredStatuses.map { "\($0.statusType)" }.joined(separator: ", ")
   }
   
   // MARK: - View Builder
