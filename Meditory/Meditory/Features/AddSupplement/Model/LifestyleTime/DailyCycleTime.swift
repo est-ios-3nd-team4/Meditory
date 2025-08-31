@@ -7,7 +7,10 @@
 
 import Foundation
 
+/// 사용자의 하루 주기 시간(기상, 취침)을 표현하는 모델
 struct DailyCycleTime {
-    let type: DailyCycleType
-    let time: Date
+  /// 하루 주기 타입 (예: 기상, 취침)
+  let type: DailyCycleType
+  /// 해당 주기 시간
+  let time: Date
 }

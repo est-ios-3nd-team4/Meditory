@@ -24,7 +24,7 @@ extension UIFont {
     /// 가장 굵은 스타일 (Bold)
     case bold
   }
-
+  
   /// 지정한 두께와 크기로 `NotoSansKR` 폰트를 반환합니다.
   ///
   /// - Parameters:

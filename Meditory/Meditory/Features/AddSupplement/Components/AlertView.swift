@@ -7,24 +7,37 @@
 
 import SwiftUI
 
+/// 커스텀 Alert UI 컴포넌트
+/// - 종류: 확인 / 삭제 / 검색결과 없음
 struct AlertView: View {
   
+  /// Alert의 유형
   enum AlertType {
+    /// 단순 확인 버튼만 있는 경우
     case confirm
+    /// 삭제 여부를 묻는 경우 (아니오/삭제)
     case delete
+    /// 검색결과 없음 → "다시 검색" / "이대로 등록"
     case notFound
   }
   
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
+  
+  /// Alert 유형 (기본: .confirm)
   var alertType: AlertType = .confirm
+  /// Alert 제목
   var title: String
+  /// Alert 메시지
   var message: String
+  /// "확인" 버튼 액션
   var onConfirm: (() -> Void)?
+  /// "취소" 버튼 액션
   var onCancel: (() -> Void)?
+  /// "삭제" 버튼 액션
   var onDelete: (() -> Void)?
+  /// "다시 검색" 버튼 액션
   var onResearch: (() -> Void)?
-
+  
   private var isPadStyle: Bool { horizontalSizeClass == .regular }
   private var maxCardWidth: CGFloat { isPadStyle ? 520 : .infinity }
   

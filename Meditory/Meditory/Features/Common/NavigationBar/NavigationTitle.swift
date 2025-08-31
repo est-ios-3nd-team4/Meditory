@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// 앱 내 주요 화면에서 사용되는 내비게이션 타이틀을 관리하는 열거형
 enum NavigationTitle {
   case addSupplement
   case editSupplement

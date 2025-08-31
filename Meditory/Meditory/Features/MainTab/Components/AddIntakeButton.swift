@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 메인 화면에서 영양제/식단 추가 플로우를 시작할 때 사용하는 플로팅 버튼
 struct AddIntakeButton: View {
   static var size: CGSize {
     if UIDevice.isPad {

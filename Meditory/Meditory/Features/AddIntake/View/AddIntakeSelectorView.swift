@@ -7,8 +7,9 @@
 
 import SwiftUI
 
+/// iPhone에서 표시되는 "복용 항목(영양제 / 식단) 추가" 선택 뷰
 struct AddIntakeSelectorView: View {
-    
+  
   let tabHeight: CGFloat
   @Binding var showIntakeSelector: Bool
   @Binding var selectedIntakeItem: AddIntakeItem?

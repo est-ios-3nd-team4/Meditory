@@ -7,8 +7,13 @@
 
 import SwiftUI
 
+/// SwiftUI에서 UIKit의 `UIDatePicker`(휠 스타일)를
+/// 전체 너비로 사용하기 위한 커스텀 뷰
 struct FullWidthDatePicker: UIViewRepresentable {
+  
+  /// 선택된 날짜/시간
   @Binding var selection: Date
+  /// 비활성화 여부 (true일 경우 선택 불가)
   var isDisabled: Bool = false
   
   func makeUIView(context: Context) -> UIView {

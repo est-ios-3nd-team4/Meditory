@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// iPad 전용 탭바 뷰
 struct DefaultTabView: View {
   
   @Binding var selectedTabItem: TabItem

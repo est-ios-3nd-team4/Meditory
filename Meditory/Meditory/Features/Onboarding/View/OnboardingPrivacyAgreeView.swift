@@ -8,16 +8,16 @@
 import SwiftUI
 
 struct OnboardingPrivacyAgreeView: View {
-
+  
   let agreements = QuestionModel.agreements
   let prompt: Prompt
   @Binding var selections: Set<QuestionModel>
-
+  
   var body: some View {
     VStack(alignment: .leading, spacing: 20) {
       TitleView(prompt: prompt, extra: "")
         .padding(.horizontal, .defaultSpacing + 4)
-
+      
       ForEach(agreements, id: \.code) { item in
         VStack(alignment: .leading, spacing: .smallSpacing) {
           HStack(spacing: .defaultSpacing) {
@@ -28,7 +28,7 @@ struct OnboardingPrivacyAgreeView: View {
             .onTapGesture {
               toggleSelection(item)
             }
-
+            
             Text(item.title)
               .font(.notoSans(size: .defaultFontSize - 2))
               .foregroundColor(.primary)
@@ -36,15 +36,15 @@ struct OnboardingPrivacyAgreeView: View {
                 toggleSelection(item)
               }
               .offset(y: -2)
-          Spacer()
-        }
-
-        VStack(alignment: .leading, spacing: 4) {
+            Spacer()
+          }
+          
+          VStack(alignment: .leading, spacing: 4) {
             ForEach(detailTexts(for: item.code), id: \.title) { detail in
               HStack(alignment: .top) {
                 Text("•")
                   .foregroundColor(.secondary)
-
+                
                 Text("\(detail.title): \(detail.desc)")
                   .font(.notoSans(size: .defaultFontSize - 5))
                   .foregroundColor(.secondary)
@@ -58,7 +58,7 @@ struct OnboardingPrivacyAgreeView: View {
       Spacer()
     }
   }
-
+  
   private func toggleSelection(_ item: QuestionModel) {
     if selections.contains(item) {
       selections.remove(item)
@@ -66,7 +66,7 @@ struct OnboardingPrivacyAgreeView: View {
       selections.insert(item)
     }
   }
-
+  
   private func detailTexts(for id: String) -> [(title: String, desc: String)] {
     switch id {
     case "agree1":

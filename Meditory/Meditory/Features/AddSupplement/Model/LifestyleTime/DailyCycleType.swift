@@ -7,8 +7,11 @@
 
 import Foundation
 
+/// 사용자의 하루 주기 시간 타입 정의 (기상 / 취침)
 enum DailyCycleType: String, LifestyleTime {
+  /// 기상 시간
   case wakeTime
+  /// 취침 시간
   case sleepTime
   
   var title: String {
