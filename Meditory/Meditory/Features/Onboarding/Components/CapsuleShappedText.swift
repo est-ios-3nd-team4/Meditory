@@ -29,9 +29,3 @@ struct CapsuleShappedText: View {
       .animation(.easeInOut(duration: 0.3), value: isSelected)
   }
 }
-
-
-#Preview {
-  CapsuleShappedText(title: "Test", isSelected: false)
-  CapsuleShappedText(title: "Test", isSelected: true)
-}

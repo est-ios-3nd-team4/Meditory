@@ -36,12 +36,3 @@ struct OnboardingConcernView: View {
   }
 }
 
-#Preview {
-//  OnboardingConcernView(
-//    prompt: Prompt(title: "고민되시거나 개선하고 싶은 건강 고민을 선택해주세요"),
-//    name: "Jason",
-//    itemCount: .constant("10"),
-//    selections: .constant(.init()),
-//    isSelected: .constant(false)
-//  )
-}

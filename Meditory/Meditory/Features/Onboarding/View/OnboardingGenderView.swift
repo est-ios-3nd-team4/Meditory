@@ -53,20 +53,3 @@ struct OnboardingGenderView: View {
   }
 
 }
-
-#Preview {
-  //  OnboardingGenderView(
-  //    vm: OnboardingViewModel(), prompt: promptMessage(title: "성별"), name: "Jason",
-  //    isSelected: .constant(true),
-  //    isGenderSelected: false,
-  //    isValid: .constant(true),
-  //    selections: .constant(.init()),
-  //    image: "male_icon",
-  //    title: "남성",
-  //    action: nil,
-  //    secondImage: "female_icon",
-  //    secondTitle: "여성",
-  //    secondAction: nil,
-  //
-  //  )
-}

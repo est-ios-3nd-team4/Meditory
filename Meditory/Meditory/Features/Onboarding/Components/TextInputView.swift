@@ -86,11 +86,3 @@ struct TextInputView: View {
     }
   }
 }
-
-#Preview("Light") {
-  TextInputView(title: "이름",placeholder:"홍길동", unit: nil, inputText: .constant("Json"))
-}
-#Preview("Dark") {
-  TextInputView(title: "이름",placeholder:"홍길동", unit: nil, inputText: .constant("Json"))
-    .preferredColorScheme(.dark)
-}

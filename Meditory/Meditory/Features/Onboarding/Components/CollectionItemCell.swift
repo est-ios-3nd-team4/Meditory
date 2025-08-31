@@ -37,8 +37,3 @@ struct CollectionItemCell: View {
     .adaptiveImage(isPad ? 190 : 140)
   }
 }
-
-#Preview {
-//  CollectionItemCell(model: .init(title: "간", image: "icon_clear_lung"), isSelected: true)
-//  CollectionItemCell(model: .init(title: "간", image: "icon_clear_lung"), isSelected: false)
-}
