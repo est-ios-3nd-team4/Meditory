@@ -11,6 +11,7 @@ import SwiftData
 struct FoodInputView: View {
   @EnvironmentObject var viewModel: NutritionMainViewModel
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.colorScheme) private var colorScheme
   
   let mode: ViewMode
   let existingFood: FoodInfo?
@@ -169,6 +170,7 @@ struct FoodInputView: View {
       }
     }
     .navigationTitle(navigationTitle)
+    .navigationBarBackButtonHidden(true)
     .toolbar {
       ToolbarItem(placement: .topBarLeading) {
         Button {
@@ -210,7 +212,7 @@ struct FoodInputView: View {
           .lineLimit(nil)
       }
       .background {
-        Color.black
+        colorScheme == .dark ? Color.white.opacity(0.3) : Color.white
       }
       .fixedSize(horizontal: false, vertical: true)
       .padding(.horizontal, .defaultSpacing)
