@@ -12,40 +12,33 @@ struct DailyMealSummaryCard: View {
   @EnvironmentObject var viewModel: NutritionMainViewModel
 
   var body: some View {
-    ZStack {
-      Rectangle()
-        .fill(Color.customContainer)
-        .frame(height: 250)
-        .clipShape(RoundedRectangle(cornerRadius: .defaultRadius))
-        .modifier(UnifiedShadow())
-      
+    UnifiedSectionCard {
       VStack(spacing: .defaultSpacing) {
-          HStack {
-            Text("오늘 하루 식단")
-              .font(.notoSans(weight: .semiBold, size: .defaultFontSize + 2))
-              .foregroundStyle(Color.label)
-            
-            Spacer()
-            
-            Image(systemName: "info.circle")
-              .longPressPopover {
-                RecommendedMacroGuidePopover()
-              }
-          }
+        HStack {
+          Text("오늘 하루 식단")
+            .font(.notoSans(weight: .semiBold, size: .defaultFontSize + 2))
+            .foregroundStyle(Color.label)
           
-          MacroChartView(macros: viewModel.macroRatio)
-            .frame(width: 130, height: 130)
-            .padding(.bottom, .smallSpacing)
+          Spacer()
           
-          macroPercentageView()
+          Image(systemName: "info.circle")
+            .longPressPopover {
+              RecommendedMacroGuidePopover()
+            }
         }
-      .padding(.horizontal, .defaultSpacing)
+        
+        MacroChartView(macros: viewModel.macroRatio)
+          .frame(width: 130, height: 130)
+          .padding(.bottom, .smallSpacing)
+        
+        macroPercentageView()
+      }
     }
   }
   
   /// 탄, 단, 지 오늘 하루 목표치 대비 퍼센트값을 나타냄
   func macroPercentageView() -> some View {
-    HStack(spacing: 40) {
+    HStack {
       ForEach(viewModel.macroPercent.macroItems) { item in
         let gram = (item.gram.isFinite ? item.gram : 0)
         HStack(spacing: .smallSpacing - 3) {
@@ -58,7 +51,9 @@ struct DailyMealSummaryCard: View {
             
             Text("\(Int(gram))%")
               .font(.notoSans(weight: .semiBold, size: .defaultFontSize - 5))
+              .frame(minWidth: 50, alignment: .leading)
         }
+        .frame(maxWidth: .infinity)
         .foregroundStyle(Color.label)
       }
     }

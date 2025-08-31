@@ -41,7 +41,9 @@ struct MainTabView: View {
         case .supplement?:
           AddSupplementView(selectedIntakeItem: $selectedIntakeItem)
         case .meal?:
-          FoodInputView()
+          NavigationStack {
+            FoodInputView()
+          }
         case nil:
           EmptyView()
         }
