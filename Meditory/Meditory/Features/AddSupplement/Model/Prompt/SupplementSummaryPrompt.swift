@@ -67,7 +67,7 @@ struct SupplementSummaryPrompt {
       제품명이 불명확한 경우 가능한 후보를 제시하세요.
       
       추출된 텍스트:
-      \"\(extractedText)\"
+      \"\(PIIRedactor.redactPII(in: extractedText))\"
       """
   }
   
