@@ -79,7 +79,7 @@ Alan AI 기반 큐레이션 기술을 활용하여, 영양제 추천부터 복�
 
 | 항목 | 내용 |
 |------|------|
-| 💻 Framework | <img src="https://img.shields.io/badge/iOS-000000?style=flat&logo=ios&logoColor=white"/> <img src="https://img.shields.io/badge/swift-F05138?style=flat&logo=swift&logoColor=white"/> <img src="https://img.shields.io/badge/SwiftUI-2379F4?style=flat&logo=swift&logoColor=white"/> <img src="https://img.shields.io/badge/UIKit-F05138?style=flat&logo=swift&logoColor=white"/> <img src="https://img.shields.io/badge/Alan AI-000000?style=flat&logo=&logoColor=white"/> <img src="https://img.shields.io/badge/UserNotification-258AAF?style=flat&logo=swift&logoColor=white"/> <img src="https://img.shields.io/badge/HealthKit-EE0000?style=flat&logo=swift&logoColor=white"/> <img src="https://img.shields.io/badge/MVVM-4B32C3?style=flat&logo=&logoColor=white"/> <img src="https://img.shields.io/badge/RestFul API-002873?style=flat&logo=&logoColor=white"/> |
+| 💻 Framework | <img src="https://img.shields.io/badge/iOS-000000?style=flat&logo=ios&logoColor=white"/> <img src="https://img.shields.io/badge/swift-F05138?style=flat&logo=swift&logoColor=white"/> <img src="https://img.shields.io/badge/SwiftUI-2379F4?style=flat&logo=swift&logoColor=white"/> <img src="https://img.shields.io/badge/UIKit-F05138?style=flat&logo=swift&logoColor=white"/> <img src="https://img.shields.io/badge/Alan AI-000000?style=flat&logo=&logoColor=white"/> <img src="https://img.shields.io/badge/UserNotification-258AAF?style=flat&logo=swift&logoColor=white"/> <img src="https://img.shields.io/badge/HealthKit-EE0000?style=flat&logo=swift&logoColor=white"/> <img src="https://img.shields.io/badge/MVVM-4B32C3?style=flat&logo=&logoColor=white"/> <img src="https://img.shields.io/badge/RestFul API-002873?style=flat&logo=&logoColor=white"/> <img src="https://img.shields.io/badge/Vision-002873?style=flat&logo=swift&logoColor=white"/> |
 | 🗃 Database | <img src="https://img.shields.io/badge/SwiftData-007AFF?style=flat&logo=swift&logoColor=white"/> |
 | 🛠️ Tooling | <img src="https://img.shields.io/badge/xcode-147EFB?style=flat&logo=xcode&logoColor=white"/> <img src="https://img.shields.io/badge/figma-F24E1E?style=flat&logo=figma&logoColor=white"/> <img src="https://img.shields.io/badge/postman-FF6C37?style=flat&logo=postman&logoColor=white"/> <img src="https://img.shields.io/badge/discord-5865F2?style=flat&logo=discord&logoColor=white"/> <img src="https://img.shields.io/badge/github-181717?style=flat&logo=github&logoColor=white"/> <img src="https://img.shields.io/badge/DataScout-5865F2?style=flat&logo=&logoColor=white"/> <img src="https://img.shields.io/badge/SPM-F05138?style=flat&logo=swift&logoColor=white"/> <img src="https://img.shields.io/badge/notion-000000?style=flat&logo=notion&logoColor=white"/> <img src="https://img.shields.io/badge/jira-0052CC?style=flat&logo=jira&logoColor=white"/> |
 
@@ -88,7 +88,7 @@ Alan AI 기반 큐레이션 기술을 활용하여, 영양제 추천부터 복�
 ## 🔗 API 출처
 
 - 📌 **EST Alen AI API**
-- 
+  
   → EST에서 자체적으로 제공하는 API
 
 - 📍 **Google  Search API**
