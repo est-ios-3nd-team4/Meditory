@@ -17,19 +17,17 @@
 </p>
 
 
-
 <br/>
 
-
-## 📷 스크린샷
-
-| 메인 화면 | 영양제 추가 화면 | 영양제 추천 화면 | 식단 관리 화면 | 영양 분석 화면 |
-|-----------|------------|------------|------------|------------|
-|<img width="190" height="671" alt="Flat iPhone" src="https://github.com/user-attachments/assets/f19116bd-3df2-4904-9ea1-fe6508e7dc5e" /> | <img width="190" height="671" alt="Flat iPhone" src="https://github.com/user-attachments/assets/8dc6de62-8a9f-4278-a47d-3b296c24f59b" /> | <img width="190" height="671" alt="Flat iPhone" src="https://github.com/user-attachments/assets/369f1731-971a-4ade-b2c8-5cd72677df2c" /> | <img width="190" height="633" alt="Flat iPhone" src="https://github.com/user-attachments/assets/15f10b91-d005-48e2-9372-576a51c41f4d" /> | <img width="190" height="633" alt="Flat iPhone" src="https://github.com/user-attachments/assets/742ab32d-c556-40d5-bc11-ec5547f0880f" />
-
-
----
+## 🍎 Developers
+<img width="160px" src="https://github.com/user-attachments/assets/2f43dc2b-1ea5-4d65-836d-21e5e8d1ccbd"/> | <img width="160px" src="https://github.com/user-attachments/assets/0716dc75-5e8f-4bfa-bb24-fc6ecb0e03a8"/> | <img width="160px" src="https://github.com/user-attachments/assets/18ee3722-c693-44c1-ac3e-99ed08b6dbdf"/> | <img width="160px" src="https://github.com/user-attachments/assets/945633cb-46b0-4cd8-9aef-54e8f76380c6"/> | <img width="160px" src="https://github.com/user-attachments/assets/731bbd32-bdae-4c64-89a7-502c69b9c038"/> | <img width="160px" src="https://github.com/user-attachments/assets/6ae908ee-be32-48c4-b2ef-68c2e5c825fb"/> |
+|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
+|[윤혜주](https://github.com/unaexoo) | [김현식](https://github.com/whitespace-kr) | [김재훈](https://github.com/jaehun6165) | [이동욱](https://github.com/drfranken99) | [이치훈](https://github.com/logichoon-redo) | [홍승아](https://github.com/8zipcore)|
+|팀장 👑|팀원 👨🏻‍💻|팀원 👨🏻‍💻|팀원 👨🏻‍💻|팀원 👨🏻‍💻|팀원 👨🏻‍💻|
+|`🏠  홈 화면`</br>`💊 영양제 상세 화면`</br>`⏰ 알람 구현`</br>`🗓️ 달력 구현` | `🚀 초기 JIRA 설정` </br> `🚪 온보딩 화면` </br> `✏️ PR리뷰 및 관리` | `💊 영양제 화면` </br> `🔍 검색 화면`| `⚙️ 설정 화면` </br> `🗂️  DBA` | `🍔 식단 화면` </br> `🍱 식단 추가 화면` | `📱 공통 컨포넌트` </br> `💊 영양제 추가 화면` |
+</div>
 <br/>
+
 <br/>
 
 
@@ -42,6 +40,8 @@ Alan AI 기반 큐레이션 기술을 활용하여, 영양제 추천부터 복�
 > “더 나은 건강한 생활”
 
 <br/>
+
+
 
 ## 🚀 주요 기능
 
@@ -65,18 +65,41 @@ Alan AI 기반 큐레이션 기술을 활용하여, 영양제 추천부터 복�
 - **복용법, 주의사항, 메모**까지 기록/확인 가능
 
 
----
 <br/>
+
+## 📷 스크린샷
+
+| 메인 화면 | 영양제 추가 화면 | 영양제 추천 화면 | 식단 관리 화면 | 영양 분석 화면 |
+|-----------|------------|------------|------------|------------|
+|<img width="190" height="671" alt="Flat iPhone" src="https://github.com/user-attachments/assets/f19116bd-3df2-4904-9ea1-fe6508e7dc5e" /> | <img width="190" height="671" alt="Flat iPhone" src="https://github.com/user-attachments/assets/8dc6de62-8a9f-4278-a47d-3b296c24f59b" /> | <img width="190" height="671" alt="Flat iPhone" src="https://github.com/user-attachments/assets/369f1731-971a-4ade-b2c8-5cd72677df2c" /> | <img width="190" height="633" alt="Flat iPhone" src="https://github.com/user-attachments/assets/15f10b91-d005-48e2-9372-576a51c41f4d" /> | <img width="190" height="633" alt="Flat iPhone" src="https://github.com/user-attachments/assets/742ab32d-c556-40d5-bc11-ec5547f0880f" />
+
+<br/>
+
+## 🛠️ 기술 스택
+
+| 항목 | 내용 |
+|------|------|
+| 💻 Framework | ![SwiftUI](https://img.shields.io/badge/UIKit-Framework-blue) ![CoreLocation](https://img.shields.io/badge/CoreLocation-Framework-lightgrey) |
+| 🗃 Database | ![SwiftData](https://img.shields.io/badge/CoreData-Database-blueviolet) |
+| 🛠️ Tooling | ![Xcode](https://img.shields.io/badge/Xcode-IDE-147EFB?logo=xcode&logoColor=white) ![Figma](https://img.shields.io/badge/Figma-Design-red?logo=figma&logoColor=white) ![Postman](https://img.shields.io/badge/Postman-API-orange?logo=postman) ![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?logo=discord&logoColor=white) ![GitHub](https://img.shields.io/badge/GitHub-Repo-black?logo=github) |
+
 <br/>
 
 ## 🔗 API 출처
 
 - 📌 **EST Alen AI API**
+- 
   → EST에서 자체적으로 제공하는 API
 
-- 📍 **Google API**  
+- 📍 **Google  Search API**
+    
   → 영양제 검색을 위해 사용
----
+    
+- 🔥 **Firebase**
+    
+  → 크래시 및 버그 추적을 위해 활용
+  
+
 <br/>
 <br/>
 
@@ -103,16 +126,151 @@ Alan AI 기반 큐레이션 기술을 활용하여, 영양제 추천부터 복�
 <br/>
 <br/>
 
+## 🚨 **Issue Convention**
 
-## 🛠️ 기술 스택
+```swift
+## 어떤 버그인가요?
 
-| 항목 | 내용 |
-|------|------|
-| 💻 Framework | ![SwiftUI](https://img.shields.io/badge/UIKit-Framework-blue) ![CoreLocation](https://img.shields.io/badge/CoreLocation-Framework-lightgrey) |
-| 🗃 Database | ![SwiftData](https://img.shields.io/badge/CoreData-Database-blueviolet) |
-| 🛠️ Tooling | ![Xcode](https://img.shields.io/badge/Xcode-IDE-147EFB?logo=xcode&logoColor=white) ![Figma](https://img.shields.io/badge/Figma-Design-red?logo=figma&logoColor=white) ![Postman](https://img.shields.io/badge/Postman-API-orange?logo=postman) ![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?logo=discord&logoColor=white) ![GitHub](https://img.shields.io/badge/GitHub-Repo-black?logo=github) |
+> 어떤 버그인지 간결하게 설명해주세요
 
----
+## 어떤 상황에서 발생한 버그인가요?
+
+> (가능하면) Given-When-Then 형식으로 서술해주세요
+
+## 예상 결과
+
+> 예상했던 정상적인 결과가 어떤 것이었는지 설명해주세요
+
+## 참고할만한 자료(선택)
+```
+
+## 🛰️ **PR Convention**
+
+```swift
+## 개요
+<!---- 변경 사항 및 관련 이슈에 대해 간단하게 작성해주세요. 어떻게보다 무엇을 왜 수정했는지 설명해주세요. -->
+
+<!---- Resolves: #(Isuue Number) -->
+
+## PR 유형
+어떤 변경 사항이 있나요?
+
+- [ ] 새로운 기능 추가
+- [ ] 버그 수정
+- [ ] CSS 등 사용자 UI 디자인 변경
+- [ ] 코드에 영향을 주지 않는 변경사항(오타 수정, 탭 사이즈 변경, 변수명 변경)
+- [ ] 코드 리팩토링
+- [ ] 주석 추가 및 수정
+- [ ] 문서 수정
+- [ ] 테스트 추가, 테스트 리팩토링
+- [ ] 빌드 부분 혹은 패키지 매니저 수정
+- [ ] 파일 혹은 폴더명 수정
+- [ ] 파일 혹은 폴더 삭제
+
+## PR Checklist
+PR이 다음 요구 사항을 충족하는지 확인하세요.
+
+- [ ] 커밋 메시지 컨벤션에 맞게 작성했습니다. Notion 팀 페이지 내 Commit Message Convention 참고
+- [ ] 변경 사항에 대한 테스트를 했습니다.(버그 수정/기능에 대한 테스트).
+```
+
+
+## 📁 **프로젝트 구조**
+
+
+```swift
+Meditory/
+├── Meditory/
+│   ├── Extension/                # 공통 Extension 모음
+│   ├── Features/                 # 주요 기능별 모듈
+│   │   ├── AddIntake/            # 섭취 기록 추가
+│   │   │   ├── Model/
+│   │   │   ├── View/
+│   │   │   └── ViewModel/
+│   │   ├── AddSupplement/        # 영양제 추가
+│   │   │   ├── Components/
+│   │   │   ├── Error/
+│   │   │   ├── Model/
+│   │   │   ├── View/
+│   │   │   └── ViewModel/
+│   │   ├── CalendarBackground/   # 캘린더 뷰
+│   │   │   ├── Components/
+│   │   │   ├── Model/
+│   │   │   ├── View/
+│   │   │   └── ViewModel/
+│   │   ├── Common/               # 공용 컴포넌트 및 유틸
+│   │   │   ├── NavigationBar/
+│   │   │   ├── CardStyle.swift
+│   │   │   ├── PrimaryButton.swift
+│   │   │   └── ...
+│   │   ├── DailyNutrition/       # 일일 영양 관리
+│   │   │   ├── Component/
+│   │   │   ├── Model/
+│   │   │   ├── View/
+│   │   │   └── ViewModel/
+│   │   ├── Home/                 # 홈 화면
+│   │   │   ├── Components/
+│   │   │   ├── Model/
+│   │   │   ├── View/
+│   │   │   └── ViewModel/
+│   │   ├── IntroduceOnboarding/  # 앱 소개 온보딩
+│   │   ├── MainTab/              # 메인 탭바
+│   │   │   ├── Components/
+│   │   │   ├── Model/
+│   │   │   ├── CustomTabView.swift
+│   │   │   └── MainTabView.swift
+│   │   ├── Notification/         # 알림 관련
+│   │   │   ├── NotificationManager.swift
+│   │   │   └── RoutineNotificationScheduler.swift
+│   │   ├── Onboarding/           # 온보딩 화면
+│   │   │   ├── Components/
+│   │   │   ├── Model/
+│   │   │   ├── Utility/
+│   │   │   ├── View/
+│   │   │   └── ViewModel/
+│   │   ├── Recommend/            # 영양제 추천
+│   │   │   ├── Components/
+│   │   │   ├── View/
+│   │   │   └── ViewModel/
+│   │   ├── Setting/              # 설정
+│   │   │   ├── View/
+│   │   │   └── ViewModel/
+│   │   ├── Splash/               # 스플래시 화면
+│   │   │   └── SplashView.swift
+│   │   └── SupplementDetail/     # 영양제 상세
+│   │       ├── Components/
+│   │       ├── Helpers/
+│   │       ├── Model/
+│   │       ├── View/
+│   │       └── ViewModel/
+│   │
+│   ├── Network/                  # 네트워크 레이어
+│   │   ├── Client/
+│   │   ├── Core/
+│   │   ├── DTO/
+│   │   ├── Endpoint/
+│   │   ├── Extension/
+│   │   └── Utilities/
+│   │
+│   ├── Persistence/              # 데이터 영속성 계층
+│   │   ├── Models/
+│   │   ├── Stores/
+│   │   ├── DataController.swift
+│   │   └── ExtraInfo.swift
+│   │
+│   ├── Resource/                 # 리소스 모음
+│   │   ├── Font/
+│   │   ├── Assets.xcassets
+│   │   ├── GoogleService-Info.plist
+│   │   ├── Info.plist
+│   │   └── Secrets.xcconfig
+│   │
+│   ├── MeditoryApp.swift         # 앱 엔트리 포인트
+│   └── ...
+│
+├── MeditoryTests/                # 단위 테스트
+└── MeditoryUITests/              # UI 테스트
+```
 
 ## ⚙️ 설치 및 실행 방법
 ### ⚡️ 1. 프로젝트 설치 방법
