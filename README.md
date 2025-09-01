@@ -79,8 +79,8 @@ Alan AI 기반 큐레이션 기술을 활용하여, 영양제 추천부터 복�
 
 | 항목 | 내용 |
 |------|------|
-| 💻 Framework | ![SwiftUI](https://img.shields.io/badge/UIKit-Framework-blue) ![CoreLocation](https://img.shields.io/badge/CoreLocation-Framework-lightgrey) |
-| 🗃 Database | ![SwiftData](https://img.shields.io/badge/CoreData-Database-blueviolet) |
+| 💻 Framework | <img src="https://img.shields.io/badge/iOS-000000?style=flat&logo=ios&logoColor=white"/> <img src="https://img.shields.io/badge/swift-F05138?style=flat&logo=swift&logoColor=white"/> <img src="https://img.shields.io/badge/SwiftUI-2379F4?style=flat&logo=swift&logoColor=white"/> <img src="https://img.shields.io/badge/UIKit-F05138?style=flat&logo=swift&logoColor=white"/> <img src="https://img.shields.io/badge/Alan AI-000000?style=flat&logo=&logoColor=white"/> <img src="https://img.shields.io/badge/UserNotification-258AAF?style=flat&logo=swift&logoColor=white"/> <img src="https://img.shields.io/badge/HealthKit-EE0000?style=flat&logo=swift&logoColor=white"/> <img src="https://img.shields.io/badge/MVVM-4B32C3?style=flat&logo=&logoColor=white"/> <img src="https://img.shields.io/badge/RestFul API-002873?style=flat&logo=&logoColor=white"/> |
+| 🗃 Database | <img src="https://img.shields.io/badge/SwiftData-007AFF?style=flat&logo=swift&logoColor=white"/> |
 | 🛠️ Tooling | ![Xcode](https://img.shields.io/badge/Xcode-IDE-147EFB?logo=xcode&logoColor=white) ![Figma](https://img.shields.io/badge/Figma-Design-red?logo=figma&logoColor=white) ![Postman](https://img.shields.io/badge/Postman-API-orange?logo=postman) ![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?logo=discord&logoColor=white) ![GitHub](https://img.shields.io/badge/GitHub-Repo-black?logo=github) |
 
 <br/>
