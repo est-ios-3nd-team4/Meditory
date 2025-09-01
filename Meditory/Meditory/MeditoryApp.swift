@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-//import FirebaseCore
+import FirebaseCore
 import UserNotifications
 
 /// Meditory 앱의 진입점(`@main`).
@@ -33,7 +33,7 @@ struct MeditoryApp: App {
   }()
 
   init() {
-    //        FirebaseApp.configure()
+    FirebaseApp.configure()
   }
 
   /// 앱 최초 실행 여부(온보딩 필요 여부).
