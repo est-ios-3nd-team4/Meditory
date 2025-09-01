@@ -2,7 +2,9 @@ import Foundation
 import SwiftData
 import CryptoKit
 
+// MARK: - Meal 확장
 extension Meal {
+  /// 식단 기록의 요약 문자열 (날짜, 식사 이름, 매크로, 음식 일부 포함)
   var nutritionSummaryLine: String {
     let df = DateFormatter()
     df.dateFormat = "yyyy-MM-dd HH:mm"
@@ -12,6 +14,7 @@ extension Meal {
 }
 
 extension Collection where Element == Meal {
+  /// 전체 식단에 대한 매크로(탄수화물/단백질/지방) 합계
   var macroTotals: (carb: Double, protein: Double, fat: Double) {
     reduce(into: (0.0, 0.0, 0.0)) { acc, meal in
       acc.carb += meal.carbohydrateTotal
@@ -21,17 +24,26 @@ extension Collection where Element == Meal {
   }
 }
 
+// MARK: - NutrientViewModel
+/// 사용자의 식단과 프로필을 기반으로
+/// AI에게 부족한 영양 성분을 추천받고 관리하는 뷰모델
 @MainActor
 final class NutrientViewModel: ObservableObject {
-  // UI 바인딩용 (직관적 이름)
+  // MARK: UI 바인딩용 프로퍼티
+  /// 추천된 영양소 chip 목록
   @Published var chips: [String] = []
+  /// 추천된 영양소 상세 목록
   @Published var recommendations: [Nutrient] = []
+  /// 로딩 상태
   @Published var isLoading = false
+  /// 에러 메시지
   @Published var errorMessage: String?
 
+  /// AI API 클라이언트
   private let client = AlanAPIClient()
 
-  // AI 응답 디코딩 DTO
+  // MARK: - AI 응답 DTO
+  /// AI로부터 받은 추천 영양소 응답 모델
   private struct NutrientDTO: Codable, Identifiable, Sendable {
     let id: String
     let name: String
@@ -40,17 +52,23 @@ final class NutrientViewModel: ObservableObject {
     let content: String
   }
 
-  // 캐시
+  // MARK: - 캐시 관련 구조체
+  /// 캐시 엔트리
   private struct CacheEntry {
     let chips: [String]
     let nutrients: [Nutrient]
     let cachedAt: Date
   }
+
+  /// 캐시 저장소 (키: 사용자+식단 fingerprint)
   private static var cache: [String: CacheEntry] = [:]
+  /// 실행 중인 태스크 캐시
   private static var inFlight: [String: Task<(chips: [String], nutrients: [NutrientDTO]), Error>] = [:]
+  /// 캐시 TTL (12시간)
   private static let ttl: TimeInterval = 60 * 60 * 12
 
-  // MARK: - Cache Key (user + meal fingerprint)
+  // MARK: - 캐시 키 생성
+  /// 사용자 + 식단 기반 캐시 키 생성
   private func makeCacheKey(user: User?, meals: [Meal]) -> String {
     let who = (user?.name ?? user?.displayName ?? "@@").trimmingCharacters(in: .whitespacesAndNewlines)
     let base = who.isEmpty ? "@@" : who
@@ -58,6 +76,7 @@ final class NutrientViewModel: ObservableObject {
     return "nutrients:\(base.lowercased())|\(fp)"
   }
 
+  /// 식단 fingerprint 문자열
   private func mealFingerprint(_ meals: [Meal]) -> String {
     // 날짜/매크로/대표 음식명으로 간단 지문 생성 → SHA256
     let sorted = meals.sorted { $0.date < $1.date }
@@ -212,8 +231,9 @@ final class NutrientViewModel: ObservableObject {
       }
     }
   }
-
-  // 저장
+  
+  // MARK: - 데이터 저장
+  /// 추천 영양소를 SwiftData 컨텍스트에 저장 (중복 시 업데이트)
   func saveRecommendations(to context: ModelContext) {
     do {
       let stored = try context.fetch(FetchDescriptor<Nutrient>())

@@ -1,14 +1,21 @@
 import SwiftUI
 
+/// 영양 점수 및 상세 분석 결과를 보여주는 화면
 struct ScoreDetailView: View {
+  /// 현재 뷰 닫기 위한 dismiss 액션
   @Environment(\.dismiss) private var dismiss
+  /// 다크/라이트 모드
   @Environment(\.colorScheme) private var colorScheme
-  
+
+  /// 점수 및 분석 결과
   let result: ScoreResult
-  
+
+  /// 점수(Double 변환)
   private var score: Double { Double(result.score) }
+  /// 카테고리별 영양 상태 개수
   private var counts: ScoreCounts { result.counts }
-  
+
+  /// 게이지 애니메이션 진행률
   @State private var animatedProgress: Double = 0
   
   var body: some View {
@@ -16,11 +23,13 @@ struct ScoreDetailView: View {
       HeaderBar(score: Int(score), dismiss: dismiss)
       
       ZStack {
+        // 배경 카드
         RoundedRectangle(cornerRadius: .defaultRadius)
           .fill(colorScheme == .dark ? Color.black : Color.customBackground)
         
         VStack(spacing: .defaultSpacing) {
-          ScoreGauge(progress: animatedProgress, score: Int(score)) // 게이지
+          // 원형 게이지
+          ScoreGauge(progress: animatedProgress, score: Int(score))
           
           VStack(spacing: .defaultSpacing) {
             Text("AI 분석결과")
@@ -56,7 +65,6 @@ struct ScoreDetailView: View {
         .padding(.top, 50)
         .scrollIndicators(.hidden)
       }
-      //.padding(.horizontal, 16)
       .padding(.top, 0)
     }
     .navigationBarHidden(true)
@@ -82,6 +90,7 @@ struct ScoreDetailView: View {
   }
 }
 
+/// 상단 헤더 (뒤로가기 버튼 + 제목 + 점수)
 private struct HeaderBar: View {
   let score: Int
   let dismiss: DismissAction
@@ -109,21 +118,26 @@ private struct HeaderBar: View {
   }
 }
 
+/// 원형 게이지 (점수 시각화)
 private struct ScoreGauge: View {
   @Environment(\.colorScheme) private var colorScheme
+  /// 게이지 진행률 (0.0 ~ 1.0)
   let progress: Double
+  /// 실제 점수
   let score: Int
   var body: some View {
     ZStack(alignment: .center) {
+      // 바탕 원
       Circle()
         .trim(from: 0, to: 1)
         .stroke(
-          colorScheme == .dark ? Color.white : Color.gray.opacity(0.3), // 원본과 동일
+          colorScheme == .dark ? Color.white : Color.gray.opacity(0.3),
           style: StrokeStyle(lineWidth: 30, lineCap: .round)
         )
         .rotationEffect(.degrees(-90))
         .padding(5)
-      
+
+      // 진행 원
       Circle()
         .trim(from: 0, to: progress)
         .stroke(
@@ -131,7 +145,8 @@ private struct ScoreGauge: View {
           style: StrokeStyle(lineWidth: 40, lineCap: .butt)
         )
         .rotationEffect(.degrees(-90))
-      
+
+      // 점수 텍스트
       HStack(alignment: .firstTextBaseline, spacing: 0) {
         Text("\(score)")
           .font(.notoSans(weight: .medium, size: 50))
@@ -145,7 +160,9 @@ private struct ScoreGauge: View {
   }
 }
 
+/// 카테고리별 영양 상태 통계 행
 private struct StatRow: View {
+  /// 개별 항목 데이터
   struct Item {
     let title: String
     let tint: Color
@@ -160,7 +177,8 @@ private struct StatRow: View {
       StatCard(item: right)
     }
   }
-  
+
+  /// 개별 통계 카드
   private struct StatCard: View {
     @Environment(\.colorScheme) private var colorScheme
     let item: Item

@@ -1,21 +1,30 @@
 import SwiftUI
 import SwiftData
 
+/// 개별 영양소의 상세 정보를 표시하는 뷰
 struct NutrientDetailSectionView: View {
+  /// 표시할 영양소 모델
   @Bindable var nutrient: Nutrient
+  /// SwiftData 모델 컨텍스트 (저장/삭제 등 DB 작업에 사용)
   @Environment(\.modelContext) private var context
+  /// 현재 뷰를 닫기 위한 dismiss 환경값
   @Environment(\.dismiss) private var dismiss
+  /// 현재 색상 모드 (다크/라이트)
   @Environment(\.colorScheme) private var colorScheme
 
+  /// 기본 네비게이션 바 대신 커스텀 네비게이션 바를 표시할지 여부
   var showsCustomNavBar: Bool = false
 
+  /// 저장된 전체 스크랩 목록 (최신순 정렬)
   @Query(sort: \Scrap.createdAt, order: .reverse)
   private var allScraps: [Scrap]
 
+  /// 현재 영양소에 해당하는 스크랩만 필터링한 배열
   private var scraps: [Scrap] {
     allScraps.filter { $0.nutrientId == nutrient.id }
   }
 
+  /// 공유 시 사용할 텍스트 (이름 + 해시태그 + 설명)
   private var shareText: String {
     let tags = nutrient.hashtags.isEmpty ? "" : "\n" + nutrient.hashtags.map { "#\($0)" }.joined(separator: " ")
     return """
@@ -27,14 +36,18 @@ struct NutrientDetailSectionView: View {
     """
   }
 
+  /// 영양소 카테고리에 따른 아이콘과 색상 스타일
   private var style: (symbol: String, color: Color) {
     RoutineIconResolver.style(category: nutrient.name, displayName: nutrient.name)
   }
 
+  /// 현재 영양소를 스크랩에 추가하거나 제거하는 동작
   private func toggleScrap() {
     if let existing = scraps.first {
+      // 이미 스크랩된 경우 삭제
       context.delete(existing)
     } else {
+      // 없으면 새로 추가
       let new = Scrap(
         id: UUID().uuidString,
         userId: "dummy",
@@ -45,6 +58,7 @@ struct NutrientDetailSectionView: View {
     try? context.save()
   }
 
+  /// 현재 영양소가 스크랩 상태인지 여부
   private var isScrapped: Bool { !scraps.isEmpty }
 
   private struct CustomNavBarModifier: ViewModifier {

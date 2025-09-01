@@ -1,35 +1,48 @@
 import Foundation
 
+/// 연령대/성별 기반으로 추천 영양 성분 칩을 제공하는 뷰모델.
+/// - AlanAPIClient를 통해 AI로부터 추천을 받아오고, 캐시 및 inFlight 요청 관리 기능을 포함한다.
 @MainActor
 final class SearchViewModel: ObservableObject {
+  /// UI에 표시할 영양 성분 칩 (텍스트)
   @Published var chips: [String] = []
+  /// 로딩 상태
   @Published var isLoading = false
+  /// 에러 메시지 (UI에서 표시 가능)
   @Published var errorMessage: String?
 
   private let client = AlanAPIClient()
 
+  /// API 응답 디코딩용 DTO
   private struct NutrientChipDTO: Codable, Identifiable {
     let id: String
     let name: String
   }
 
+  /// 캐시 엔트리 구조체
   private struct CacheEntry {
     let chips: [String]
     let cachedAt: Date
   }
 
+  /// 캐시 저장소
   private static var cache: [String: CacheEntry] = [:]
+  /// 동일한 요청(inFlight)을 합류하기 위한 저장소
   private static var inFlight: [String: Task<[String], Error>] = [:]
+  /// 캐시 TTL (12시간)
   private static let ttl: TimeInterval = 60 * 60 * 12
 
-  // 캐시 키 (연령대/성별)
+  // MARK: - 캐시 키
+  /// 캐시 키 생성 (연령대/성별 조합)
   private func cacheKey(ageGroup: String?, gender: String?) -> String {
     let age = ageGroup ?? "unknown"
     let sex = gender ?? "unknown"
     return "nutrient-chips:\(age)-\(sex)".lowercased()
   }
 
-  // 프롬프트 (칩만 뽑기)
+  // MARK: - 프롬프트 빌더
+  /// AI에게 전달할 프롬프트를 생성한다.
+  /// - Parameter user: 사용자 정보
   private func prompt(user: User) -> String {
     let ageText = user.ageGroup
     let genderText = user.gender.isEmpty ? "성별 미상" : user.gender
@@ -49,7 +62,11 @@ final class SearchViewModel: ObservableObject {
       """
   }
 
-  // 로드
+  // MARK: - Public
+  /// 사용자 정보를 바탕으로 추천 칩 로드
+  /// - Parameters:
+  ///   - user: 현재 사용자
+  ///   - force: true면 캐시/진행중 요청 무시하고 새로 요청
   func load(user: User, force: Bool = false) {
     let key = cacheKey(ageGroup: user.ageGroup, gender: user.gender)
 

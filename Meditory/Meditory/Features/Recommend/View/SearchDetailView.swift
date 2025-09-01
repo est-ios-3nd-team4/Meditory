@@ -1,24 +1,38 @@
 import SwiftUI
 
+/// 특정 영양 성분 또는 영양제 검색 결과를 보여주는 상세 뷰
 struct SearchDetailView: View {
+  /// 검색 전용 뷰모델
   @StateObject private var searchVM: SearchDetailViewModel
 
+  /// 현재 뷰 닫기 위한 dismiss 액션
   @Environment(\.dismiss) private var dismiss
+  /// 다크/라이트 모드
   @Environment(\.colorScheme) private var colorScheme
 
+  /// 더미 데이터 시딩 여부 (향후 테스트용)
   @State private var didSeedNutrients = false
+  /// 검색어
   @State private var searchText = ""
+  /// 웹뷰로 열릴 URL
   @State private var presentedURL: URL?
+  /// 웹뷰 표시 여부
   @State private var isWebPresented = false
 
+  /// 초기 검색어로 뷰모델을 생성
   init(query: String? = nil) {
     let safeQuery = query?.trimmingCharacters(in: .whitespacesAndNewlines)
     _searchVM = StateObject(
-      wrappedValue: SearchDetailViewModel(query: safeQuery?.isEmpty == false ? safeQuery! : "비타민D")
+      wrappedValue: SearchDetailViewModel(
+        query: safeQuery?.isEmpty == false ? safeQuery! : "비타민D"
+      )
     )
-    _searchText = State(initialValue: safeQuery?.isEmpty == false ? safeQuery! : "비타민D")
+    _searchText = State(
+      initialValue: safeQuery?.isEmpty == false ? safeQuery! : "비타민D"
+    )
   }
 
+  /// 새로운 검색 실행
   private func triggerSearch() {
     Task { await searchVM.restart(with: searchText) }
   }

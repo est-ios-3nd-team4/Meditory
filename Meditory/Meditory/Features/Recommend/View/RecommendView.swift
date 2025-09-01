@@ -2,24 +2,39 @@ import SwiftUI
 import SwiftData
 import Foundation
 
+/// 사용자의 식단과 관심사 기반으로
+/// 영양 성분과 관련 상품을 추천해주는 메인 뷰
 struct RecommendView: View {
 
+  // MARK: - Environment
+  /// 현재 색상 모드 (다크/라이트)
   @Environment(\.colorScheme) private var colorScheme
+  /// SwiftData 모델 컨텍스트
   @Environment(\.modelContext) private var context
+  /// 사용자 정보
   @Query private var users: [User]
 
+  /// 최근 식단 정보 (날짜 역순 정렬)
   @Query(sort: [SortDescriptor(\Meal.date, order: .reverse)])
   private var meals: [Meal]
 
+  // MARK: - ViewModels
+  /// 상품 추천 로직을 담당하는 뷰모델
   @StateObject private var recommendVM = ProductRecommendViewModel()
+  /// 영양소 추천 로직을 담당하는 뷰모델
   @StateObject private var nutrientVM = NutrientViewModel()
 
+  // MARK: - Meal & Nutrient Helpers
+  /// 식단 분석 대상 기간(일 단위)
   private let mealWindowDays: Int = 30
+
+  /// 최근 30일 이내 식단 데이터
   private var recentMeals: [Meal] {
     guard let start = Calendar.current.date(byAdding: .day, value: -mealWindowDays, to: Date()) else { return meals }
     return meals.filter { $0.date >= start }
   }
 
+  /// 영양소 재로딩 키 (사용자 이름 + 식단 개수 + 최신 날짜)
   private var nutrientReloadKey: String {
     let who = userNameKey
     let count = recentMeals.count
@@ -27,6 +42,8 @@ struct RecommendView: View {
     return "\(who)|\(count)|\(Int(latestTS))"
   }
 
+
+  /// 점수 계산을 위한 식단 입력 모델
   private var dietInputForScore: DietInput {
     // Meal → Food 이름으로 단순 변환 (중복 제거/공백 제거)
     let names = recentMeals.flatMap { $0.foods.map { $0.foodName.trimmingCharacters(in: .whitespacesAndNewlines) } }
@@ -54,15 +71,20 @@ struct RecommendView: View {
   @State private var hydrateTask: Task<Void, Never>?
   @State private var isLoadingProducts = false
 
+  // MARK: - Helpers
+  /// 해시 태그 시그니처 문자열 생성
   private func chipSignature(_ chips: [String]) -> String {
     chips.sorted().joined(separator: "|")
   }
+
+  /// 추천 영양소 시그니처 문자열 생성
   private func recommendSignature(_ nutrients: [Nutrient]) -> String {
     nutrients.map { $0.id }.sorted().joined(separator: "|")
   }
 
   private var imageService = GoogleCSEImageClient()
 
+  /// 사용자 관심사 목록
   private var userConcerns: [String] {
     guard let concerns = users.first?.userExtraInfos.first?.concern else { return [] }
     return concerns.map { $0.value }
@@ -125,15 +147,18 @@ struct RecommendView: View {
     }
   }
 
+  /// 현재 사용자 이름
   private var name: String {
     let rawName = users.first?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
     return rawName.isEmpty ? "사용자" : rawName
   }
 
+  /// 사용자 이름 키 (공백 제거)
   private var userNameKey: String {
     users.first?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
   }
 
+  /// 현재 화면 탭
   enum SceneTab {
     case recommend
     case scrap
@@ -264,6 +289,7 @@ struct RecommendView: View {
     }
   }
 
+  /// 추천 탭 콘텐츠
   private var recommendContent: some View {
     VStack(spacing: 16) {
       Color.clear
@@ -337,6 +363,7 @@ struct RecommendView: View {
     }
   }
 
+  /// 스크랩 탭 콘텐츠
   private var scrapContent: some View {
     VStack {
       ScrapView()
@@ -345,6 +372,7 @@ struct RecommendView: View {
     }
   }
 
+  /// 배경 뷰 (상단 메인컬러 + 하단 배경)
   private var backgroundView: some View {
     GeometryReader { geo in
       let topH = geo.size.height * 0.5 + geo.safeAreaInsets.top
@@ -360,6 +388,8 @@ struct RecommendView: View {
     }
   }
 
+  // MARK: - Lifecycle
+  /// onAppear 시 실행할 초기화 로직
   private func onAppear() {
     guard !didSeedNutrients else { return }
     didSeedNutrients = true
@@ -376,6 +406,7 @@ struct RecommendView: View {
     fetchRealDataOnLaunch()
   }
 
+  /// 앱 실행 시 실제 데이터 불러오기
   private func fetchRealDataOnLaunch() {
     guard !isLoadingReal else { return }
     isLoadingReal = true
@@ -403,7 +434,8 @@ struct RecommendView: View {
     isOverlappingHeader = firstCardTopY < (headerBottomY - 2)
   }
 
-  // 더미데이터(영양성분)
+  // MARK: - Dummy Data
+  /// 더미 데이터(제품, 영양소) 생성 함수들
   private func seedDummyData() {
     items = [
       Product(

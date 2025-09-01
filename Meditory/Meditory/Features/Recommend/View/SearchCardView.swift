@@ -1,14 +1,21 @@
 import SwiftUI
 
+/// 검색 결과의 단일 상품을 카드 형태로 표시하는 뷰
 struct SearchCardView: View {
+  /// 상품 이미지 URL
   let imageURL: String
+  /// 상품 브랜드명
   let brand: String
+  /// 상품 이름
   let productName: String
+  /// 상품 상세 페이지 링크 (옵션)
   let link: String?
+  /// 상세 링크 열기 액션
   let onOpen: (URL) -> Void
 
+  /// 썸네일 이미지 크기
   let imgSize: CGFloat = 100
-
+  
   @Environment(\.openURL) private var openURL
   @Environment(\.colorScheme) private var colorScheme
 

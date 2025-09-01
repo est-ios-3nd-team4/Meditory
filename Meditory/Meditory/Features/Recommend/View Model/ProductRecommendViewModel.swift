@@ -1,27 +1,47 @@
 import Foundation
 
+/// 특정 건강/영양제 카테고리에 맞는 제품을 추천받고
+/// 이미지/링크까지 보강하는 ViewModel
 final class ProductRecommendViewModel: ObservableObject {
+  /// UI에 표시할 추천 제품 목록
   @Published var products: [Product] = []
-  
+
+  /// AI 클라이언트
   private let client = AlanAPIClient()
+  /// Google 이미지/링크 검색 클라이언트
   private let googleClient = GoogleCSEImageClient()
-  private struct CacheEntry { let products: [Product]; let cachedAt: Date }
+  /// 캐시 엔트리 구조체
+  private struct CacheEntry {
+    let products: [Product]
+    let cachedAt: Date
+  }
+
+  /// 제품 캐시 저장소
   private static var cache: [String: CacheEntry] = [:]
+  /// 현재 실행 중인 네트워크 요청 (카테고리별)
   private static var inFlight: [String: Task<[Product], Error>] = [:]
+  /// 캐시 TTL (12시간)
   private static let ttl: TimeInterval = 60 * 60 * 12
-  
+
+  // MARK: - 캐시 키
+  /// 카테고리 기반 캐시 키 생성
   private func cacheKey(_ category: String) -> String {
     "product-reco:\(category.trimmingCharacters(in: .whitespacesAndNewlines).lowercased())"
   }
-  
+
+  /// AI 응답 JSON 문자열을 정리 (백틱 제거 등)
   private func cleanJSON(_ rawJSONString: String) -> String {
     rawJSONString
       .replacingOccurrences(of: "```json", with: "")
       .replacingOccurrences(of: "```", with: "")
       .trimmingCharacters(in: .whitespacesAndNewlines)
   }
-  
-  // force: true 면 캐시/진행중 요청 무시하고 새로 불러오기
+
+  // MARK: - Public
+  /// 카테고리에 맞는 제품 로드
+  /// - Parameters:
+  ///   - category: 추천받을 카테고리
+  ///   - force: true면 캐시/진행중 요청 무시하고 새 요청 수행
   func loadProducts(for category: String, force: Bool = false) async {
     let categoryCacheKey = cacheKey(category)
     
@@ -103,7 +123,9 @@ final class ProductRecommendViewModel: ObservableObject {
     ]
     """
   }
-  
+
+  // MARK: - 이미지/링크 보강
+  /// Google CSE를 이용해 이미지 URL과 링크를 붙여서 반환
   private func enrichWithImageURLs(products: [Product]) async -> [Product] {
     await withTaskGroup(of: Product?.self) { group in
       for product in products {
