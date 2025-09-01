@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7A4B00F02E3BA21200F00C94 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 7A4B00EF2E3BA21200F00C94 /* FirebaseAnalytics */; };
-		7A4B00F22E3BA21200F00C94 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 7A4B00F12E3BA21200F00C94 /* FirebaseCrashlytics */; };
+		4BD85D852E44875800D04680 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 7A4B00EF2E3BA21200F00C94 /* FirebaseAnalytics */; };
+		4BD85D862E44875800D04680 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 7A4B00F12E3BA21200F00C94 /* FirebaseCrashlytics */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,9 +34,22 @@
 		7A02BFF12E39D9AF00587F53 /* MeditoryUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeditoryUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		36FF9FE62E3F781B00903AA4 /* Exceptions for "Meditory" folder in "Meditory" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resource/Info.plist,
+			);
+			target = 7A02BFD72E39D9AD00587F53 /* Meditory */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		7A02BFDA2E39D9AD00587F53 /* Meditory */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				36FF9FE62E3F781B00903AA4 /* Exceptions for "Meditory" folder in "Meditory" target */,
+			);
 			path = Meditory;
 			sourceTree = "<group>";
 		};
@@ -57,8 +70,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7A4B00F02E3BA21200F00C94 /* FirebaseAnalytics in Frameworks */,
-				7A4B00F22E3BA21200F00C94 /* FirebaseCrashlytics in Frameworks */,
+				4BD85D862E44875800D04680 /* FirebaseCrashlytics in Frameworks */,
+				4BD85D852E44875800D04680 /* FirebaseAnalytics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -360,6 +373,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/Meditory/Resource/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -418,6 +432,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/Meditory/Resource/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -430,22 +445,25 @@
 		};
 		7A02BFFC2E39D9AF00587F53 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 7A02BFF42E39D9AF00587F53 /* MeditoryUITests */;
-			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
+			baseConfigurationReferenceAnchor = 7A02BFDA2E39D9AD00587F53 /* Meditory */;
+			baseConfigurationReferenceRelativePath = Resource/Secrets.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Meditory/Meditory.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = H7398M62YF;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "앱에서 영양제 사진을 촬영하거나 스캔하여 정보를 인식하기 위해 카메라 접근 권한이 필요합니다.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "걸음 수 데이터를 확인하여 건강 정보를 제공합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -462,21 +480,24 @@
 		};
 		7A02BFFD2E39D9AF00587F53 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 7A02BFF42E39D9AF00587F53 /* MeditoryUITests */;
-			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
+			baseConfigurationReferenceAnchor = 7A02BFDA2E39D9AD00587F53 /* Meditory */;
+			baseConfigurationReferenceRelativePath = Resource/Secrets.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Meditory/Meditory.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = H7398M62YF;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "앱에서 영양제 사진을 촬영하거나 스캔하여 정보를 인식하기 위해 카메라 접근 권한이 필요합니다.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "걸음 수 데이터를 확인하여 건강 정보를 제공합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

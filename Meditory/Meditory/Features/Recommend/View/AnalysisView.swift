@@ -1,0 +1,113 @@
+import SwiftUI
+
+struct AnalysisView: View {
+  @Environment(\.dismiss) private var dismiss
+  @Environment(\.colorScheme) private var colorScheme
+
+  let result: ScoreResult
+
+  @State private var isAtTop = true
+
+  var body: some View {
+    VStack  {
+      // 추후 수정부분
+      ScrollView {
+        VStack(alignment: .leading) {
+          // 부족
+          SectionChipsParagraphView(
+            title: "부족 영양성분",
+            chips: result.deficient,
+            paragraph: result.summaries.deficient
+          )
+          .padding(.bottom, .defaultSpacing)
+
+          Divider()
+          // 주의
+          SectionChipsParagraphView(
+            title: "주의 영양성분",
+            chips: result.caution,
+            paragraph: result.summaries.caution
+          )
+          .padding(.vertical, .defaultSpacing)
+
+          Divider()
+          // 최적
+          SectionChipsParagraphView(
+            title: "최적 영양성분",
+            chips: result.optimal,
+            paragraph: result.summaries.optimal
+          )
+          .padding(.vertical, .defaultSpacing)
+
+          Divider()
+
+          // 충족
+          SectionChipsParagraphView(
+            title: "충족 영양성분",
+            chips: result.adequate,
+            paragraph: result.summaries.adequate
+          )
+          .padding(.vertical, .defaultSpacing)
+
+          Divider()
+
+        }
+        .padding(.horizontal, .defaultSpacing)
+      }
+    }
+    .background(
+      ScrollTopObserver(isAtTop: $isAtTop)
+    )
+    .navigationBarHidden(true)
+    .navigationBar(
+      .aiAnalysisResult,
+      backgroundStyle: .system,
+      isAtTop: isAtTop
+    )
+  }
+}
+
+
+private struct SectionChipsParagraphView: View {
+
+  let title: String
+  let chips: [String]
+  let paragraph: String
+
+  var titleColor: Color {
+    switch title {
+    case "부족 영양성분":
+      return .red
+    case "주의 영양성분":
+      return .yellow
+    case "최적 영양성분":
+      return .blue
+    case "충족 영양성분":
+      return .green
+    default:
+      return .primary
+    }
+  }
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: .defaultSpacing) {
+      Text(title)
+        .font(.notoSans(weight: .bold, size: .defaultFontSize))
+        .foregroundColor(titleColor)
+
+      // 칩을 가로 스크롤로 나열
+      ScrollView(.horizontal, showsIndicators: false) {
+        HStack(spacing: .smallSpacing) {
+          ForEach(chips, id: \.self) { chip in
+            NutrientChip(title: chip)
+          }
+        }
+      }
+
+      // 설명 문단
+      Text(paragraph)
+        .font(.notoSans(weight: .medium, size: .defaultFontSize - 3))
+        .lineSpacing(4)
+    }
+  }
+}

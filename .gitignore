@@ -102,3 +102,5 @@ iOSInjectionProject/
 *.xcconfig
 GoogleService-Info.plist
 # End of https://www.toptal.com/developers/gitignore/api/swift,xcode
+GoogleService-Info.plist
+Meditory/Meditory/Resource/GoogleService-Info.plist

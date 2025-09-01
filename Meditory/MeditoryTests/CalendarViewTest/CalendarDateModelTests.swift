@@ -1,0 +1,101 @@
+//
+//  CalendarDateModelTests.swift
+//  Meditory
+//
+//  Created by 윤혜주 on 8/26/25.
+//
+
+import XCTest
+@testable import Meditory
+
+/// `CalendarDateModel`의 핵심 날짜 계산 유틸리티 메서드를 검증하는 단위 테스트입니다.
+/// - 검증 범위:
+///   - 월 시작일(`startOfMonth`)이 올바르게 계산되는지
+///   - 동일 월/동일 일자 판별(`isSameMonth`, `isSameDay`)이 정상 동작하는지
+///   - 월간 날짜 그리드(`daysInMonthGrid`)가 월요일 시작 규칙에 따라 올바르게 생성되는지
+final class CalendarDateModelTests: XCTestCase {
+  private var cal: Calendar!
+  private var model: CalendarDateModel!
+  
+  override func setUp() {
+    super.setUp()
+    var c = Calendar(identifier: .iso8601)
+    c.locale = Locale(identifier: "ko_KR")
+    c.timeZone = TimeZone(secondsFromGMT: 9 * 3600)!
+    cal = c
+    model = CalendarDateModel()
+  }
+  
+  private func day(_ y: Int, _ m: Int, _ d: Int) -> Date {
+    let comp = DateComponents(calendar: cal, year: y, month: m, day: d)
+    return cal.date(from: comp)!
+  }
+  
+  /// `startOfMonth(_:)`가 입력된 날짜를 해당 월의 1일 00:00으로 올바르게 잘라내는지 검증합니다.
+  func test_startOfMonth_TruncatesToFirstDay() {
+    // Given: 2025-08-26
+    let src = day(2025, 8, 26)
+    
+    // When: startOfMonth 호출
+    let first = model.startOfMonth(src)
+    
+    // Then: 결과는 2025-08-01 00:00이어야 함
+    let comp = cal.dateComponents([.year, .month, .day], from: first)
+    XCTAssertEqual(comp.year, 2025)
+    XCTAssertEqual(comp.month, 8)
+    XCTAssertEqual(comp.day, 1)
+  }
+  
+  /// 두 날짜가 같은 월에 속하는지 판별하는 `isSameMonth`의 동작을 검증합니다.
+  func test_isSameMonth() {
+    let a = day(2025, 8, 15)
+    let b = day(2025, 8, 31)
+    let c = day(2025, 9, 1)
+    
+    XCTAssertTrue(model.isSameMonth(a, baseMonth: b))
+    XCTAssertFalse(model.isSameMonth(c, baseMonth: b))
+  }
+  
+  /// 같은 달/일자라면 시각이 달라도 `isSameDay`가 true를 반환하는지 검증합니다.
+  func test_isSameDay_TrueWhenSameCalendarDay() {
+    let a = day(2025, 8, 15)
+    let comp = DateComponents(calendar: cal, year: 2025, month: 8, day: 15, hour: 22, minute: 30)
+    let b = cal.date(from: comp)!
+    
+    XCTAssertTrue(model.isSameDay(a, b))
+  }
+  
+  /// 월요일 시작 기준으로 월간 날짜 배열이 올바르게 생성되는지 검증합니다.
+  /// - 케이스: 2025-09-01은 월요일 → 선행 공백(lead) 없음, 총 30일
+  func test_daysInMonthGrid_MondayFirstLead_CorrectCountAndFirstCell() {
+    let base = day(2025, 9, 15)
+    let grid = model.daysInMonthGrid(base)
+    
+    // 총 길이는 해당 월 일수와 동일해야 함
+    XCTAssertEqual(grid.count, 30)
+    
+    // 첫 셀은 반드시 2025-09-01이어야 함
+    let first = grid.first!
+    let comp = cal.dateComponents([.year, .month, .day], from: first)
+    XCTAssertEqual(comp.year, 2025)
+    XCTAssertEqual(comp.month, 9)
+    XCTAssertEqual(comp.day, 1)
+  }
+  
+  /// 일요일 시작 월의 경우, 앞쪽에 올바른 개수의 선행 날짜(lead)가 추가되는지 검증합니다.
+  /// - 케이스: 2025-06-01은 일요일 → lead = 6, 총 36칸
+  func test_daysInMonthGrid_WithLead_FromSundayMonth() {
+    let base = day(2025, 6, 10)
+    let grid = model.daysInMonthGrid(base)
+    
+    // 총 길이 = 일수(30) + 선행 공백(6)
+    XCTAssertEqual(grid.count, 30 + 6)
+    
+    // 첫 셀은 이전 달의 2025-05-26이어야 함
+    let first = grid.first!
+    let comp = cal.dateComponents([.year, .month, .day], from: first)
+    XCTAssertEqual(comp.year, 2025)
+    XCTAssertEqual(comp.month, 5)
+    XCTAssertEqual(comp.day, 26)
+  }
+}
