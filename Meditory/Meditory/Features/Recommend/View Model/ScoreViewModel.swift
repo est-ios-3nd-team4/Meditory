@@ -1,41 +1,56 @@
 import Foundation
 import CryptoKit
 
+// MARK: - 내부 입력 모델
+/// 사용자 프로필 입력값 (AI 프롬프트용)
 private struct ProfileInput: Codable {
   let name: String
   let ageGroup: String?
   let gender: String?
 }
 
+/// 총 섭취량 입력값 (탄수/단백질/지방, AI 프롬프트용)
 private struct MacroTotalsInput: Codable {
   let carbohydrate: Int
   let protein: Int
   let fat: Int
 }
 
+/// 식단 맥락 입력값 (요약/기간 포함, AI 프롬프트용)
 private struct MealContextInput: Codable {
   let windowDays: Int
   let summaryLines: [String]
   let macroTotals: MacroTotalsInput
 }
 
+// MARK: - ViewModel
+/// 식단과 사용자 정보를 바탕으로 AI 분석 점수(ScoreResult)를 계산하는 뷰모델
 @MainActor
 final class ScoreViewModel: ObservableObject {
+  /// 최종 분석 결과
   @Published var result: ScoreResult?
+  /// 로딩 상태
   @Published var isLoading = false
+  /// 에러 메시지
   @Published var errorMessage: String?
-  
+
   private let client = AlanAPIClient()
-  
+
+  /// 캐시 엔트리 구조체
   private struct CacheEntry {
     let result: ScoreResult
     let cachedAt: Date
   }
+
+  /// 캐시 (입력 조건 → ScoreResult)
   private static var cache: [String: CacheEntry] = [:]
+  /// 현재 진행 중인 요청 (중복 호출 방지)
   private static var inFlight: [String: Task<ScoreResult, Error>] = [:]
+  /// 캐시 TTL (12시간)
   private static let ttl: TimeInterval = 60 * 60 * 12
-  
-  // 식단/기간까지 포함한 캐시 키
+
+  // MARK: - 캐시 키
+  /// 캐시 키 생성 (식단/가중치/기간/지문 포함)
   private func cacheKey(diet: DietInput,
                         weights: ScoreWeights,
                         meals: [Meal],
@@ -59,7 +74,16 @@ final class ScoreViewModel: ObservableObject {
     let json = String(data: data, encoding: .utf8) ?? ""
     return "score:\(json)"
   }
-  
+
+  // MARK: - Public
+  /// 점수 로드
+  /// - Parameters:
+  ///   - diet: 입력 식단
+  ///   - meals: 식사 기록
+  ///   - user: 사용자 정보
+  ///   - windowDays: 분석 기간(일 단위)
+  ///   - weights: 가중치
+  ///   - force: true면 캐시/진행중 요청 무시하고 새로 호출
   func load(diet: DietInput,
             meals: [Meal],
             user: User?,
@@ -156,9 +180,9 @@ final class ScoreViewModel: ObservableObject {
       }
     }
   }
-  
-  
-  
+
+  // MARK: - Local 계산/후처리
+  /// 로컬 점수 계산 (가중치 적용)
   private func computeLocal(counts: ScoreCounts, weights: ScoreWeights) -> Int {
     let total = counts.deficient + counts.caution + counts.optimal + counts.adequate
     guard total > 0 else { return 0 }
@@ -179,7 +203,8 @@ final class ScoreViewModel: ObservableObject {
   }
 }
 
-// --- 식단 컨텍스트/지문 생성 ---
+// MARK: - Helper 함수
+/// 식단 컨텍스트 생성
 private func makeMealContext(meals: [Meal], windowDays: Int) -> MealContextInput {
   let sortedMeals = meals.sorted { $0.date < $1.date }
   let lines = sortedMeals.map { $0.nutritionSummaryLine }
@@ -192,6 +217,7 @@ private func makeMealContext(meals: [Meal], windowDays: Int) -> MealContextInput
   return MealContextInput(windowDays: windowDays, summaryLines: lines, macroTotals: macroTotals)
 }
 
+/// Meal fingerprint 생성 (날짜/매크로/대표 음식 기준)
 private func mealFingerprint(_ meals: [Meal]) -> String {
   // 날짜/매크로/대표 음식명 기준
   let sorted = meals.sorted { $0.date < $1.date }
@@ -203,11 +229,14 @@ private func mealFingerprint(_ meals: [Meal]) -> String {
   return digest.map { String(format: "%02x", $0) }.joined()
 }
 
+// MARK: - 데이터 모델
+/// 사용자 입력 식단
 struct DietInput: Codable, Equatable {
   var foods: [String]
   var patterns: [String]?
 }
 
+/// AI가 반환하는 분석 결과
 struct IntakeAnalysis: Codable, Equatable {
   let deficient: [String]
   let caution:   [String]
@@ -216,11 +245,13 @@ struct IntakeAnalysis: Codable, Equatable {
   let summaries: AnalysisSummaries
 }
 
+/// AI 프롬프트용 점수 입력 스키마
 private struct ScorePromptBody: Codable {
   let counts: ScoreCounts
   let weights: ScoreWeights
 }
 
+/// 카테고리별 요약 문단
 struct AnalysisSummaries: Codable, Equatable {
   let deficient: String
   let caution: String
@@ -228,6 +259,7 @@ struct AnalysisSummaries: Codable, Equatable {
   let adequate: String
 }
 
+/// 카테고리별 성분 개수
 struct ScoreCounts: Codable, Equatable {
   var deficient: Int
   var caution: Int
@@ -235,6 +267,7 @@ struct ScoreCounts: Codable, Equatable {
   var adequate: Int
 }
 
+/// 가중치
 struct ScoreWeights: Codable, Equatable {
   var deficient: Int
   var caution: Int
@@ -245,18 +278,21 @@ struct ScoreWeights: Codable, Equatable {
   static let `default` = ScoreWeights(deficient: -12, caution: -7, optimal: 2, adequate: 1, base: 70)
 }
 
+/// 최종 점수 결과
 struct ScoreResult: Codable, Equatable {
   let score: Int
   let counts: ScoreCounts
-  // 카테고리별 칩(영양성분 이름들)
+  /// 카테고리별 성분 이름들
   let deficient: [String]
   let caution: [String]
   let optimal: [String]
   let adequate: [String]
-  // 섹션 문단
+  /// 카테고리별 요약 문단
   let summaries: AnalysisSummaries
 }
 
+// MARK: - JSON 처리
+/// 문자열에서 JSON 객체 부분 추출
 private func extractJSON(_ raw: String) -> String? {
   if let range = raw.range(of: #"(?s)\{.*\}"#, options: .regularExpression) {
     return String(raw[range])
@@ -264,6 +300,7 @@ private func extractJSON(_ raw: String) -> String? {
   return nil
 }
 
+/// 식단 분석 프롬프트 빌드
 private func buildIntakeAnalysisPrompt(diet: DietInput,
                                        meals: [Meal],
                                        user: User?,

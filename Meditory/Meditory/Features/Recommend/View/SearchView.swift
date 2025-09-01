@@ -1,25 +1,35 @@
 import SwiftUI
 import SwiftData
 
+/// 검색 진입 화면: 최근 검색어와 맞춤 추천을 보여주고, 상세 검색으로 이동할 수 있는 뷰
 struct SearchView: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.dismiss) private var dismiss
 
-  @State private var query: String = "" // 현재 검색어
+  /// 현재 입력 중인 검색어
+  @State private var query: String = ""
+  /// 최근 검색어 목록
   @State private var recentWords: [String] = []
 
+  /// 검색 상세 화면으로 이동 여부
   @State private var pushToDetail = false
+  /// 선택된 검색어 (상세 검색 시 전달)
   @State private var selectedQuery: String? = nil
 
+  /// 현재 사용자 정보
   @Query private var users: [User]
+  /// 사용자 나이 기반 맞춤 영양 성분 추천 뷰모델
   @StateObject private var ageNutrientVM = SearchViewModel()
 
+  /// 검색창 포커스 상태
   @FocusState private var isQueryFocused: Bool
 
+  /// 검색 가능 여부 (공백 제거 후 비어있지 않은 경우)
   private var canSearch: Bool {
     !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
   }
 
+  /// 검색 아이콘 색상
   private var searchIconColor: Color {
     let base = (colorScheme == .dark ? Color.white.opacity(0.7) : Color.gray)
     return canSearch ? base : base.opacity(0.4)
@@ -32,16 +42,19 @@ struct SearchView: View {
   private let chipUIFont = UIFont.systemFont(ofSize: 15, weight: .medium)
   private let chipItemPadding: CGFloat = 55
 
+  /// 텍스트 길이에 따른 chip 너비 계산
   private func chipWidth(for text: String) -> CGFloat {
     let attr = [NSAttributedString.Key.font: chipUIFont]
     let textW = text.size(withAttributes: attr).width
     return textW + chipItemPadding
   }
 
+  /// UserDefaults에서 최근 검색어 불러오기
   private func loadRecentWords() {
     recentWords = UserDefaults.standard.stringArray(forKey: recentKey) ?? []
   }
 
+  /// UserDefaults에 최근 검색어 저장
   private func persistRecentWords() {
     UserDefaults.standard.set(recentWords, forKey: recentKey)
   }
@@ -185,6 +198,7 @@ struct SearchView: View {
     .padding(.vertical, 12)
   }
 
+  /// 최근 검색어 chip UI
   @ViewBuilder
   private func chip(title: String, action: @escaping () -> Void) -> some View {
     Button(action: action) {
@@ -200,6 +214,7 @@ struct SearchView: View {
     .buttonStyle(.plain)
   }
 
+  /// 검색 실행 → 최근 검색어 저장 후 상세 화면으로 이동
   private func performSearch() {
     // 검색어가 비어있지 않을 때만 검색 실행
     guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {

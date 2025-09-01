@@ -1,10 +1,17 @@
 import SwiftUI
 
+
+/// 개별 상품을 타일(Card) 형태로 표시하는 뷰.
+/// - 이미지 로딩, 실패, 성공 상태를 구분하여 보여준다.
+/// - 로딩 중에는 `ShimmerView`를 placeholder로 표시.
+/// - 성공 시 브랜드명과 제품명을 함께 출력한다.
 struct ProductTile: View {
   @Environment(\.colorScheme) private var colorScheme
 
+  /// 이미지 로드 완료 여부
   @State private var imageLoaded = false
 
+  /// 표시할 상품 데이터
   let product: Product
 
   var body: some View {
