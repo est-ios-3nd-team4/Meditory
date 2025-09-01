@@ -69,9 +69,9 @@ Alan AI 기반 큐레이션 기술을 활용하여, 영양제 추천부터 복�
 
 ## 📷 스크린샷
 
-| 메인 화면 | 영양제 추가 화면 | 영양제 추천 화면 | 식단 관리 화면 | 영양 분석 화면 |
-|-----------|------------|------------|------------|------------|
-|<img width="190" height="671" alt="Flat iPhone" src="https://github.com/user-attachments/assets/f19116bd-3df2-4904-9ea1-fe6508e7dc5e" /> | <img width="190" height="671" alt="Flat iPhone" src="https://github.com/user-attachments/assets/8dc6de62-8a9f-4278-a47d-3b296c24f59b" /> | <img width="190" height="671" alt="Flat iPhone" src="https://github.com/user-attachments/assets/369f1731-971a-4ade-b2c8-5cd72677df2c" /> | <img width="190" height="633" alt="Flat iPhone" src="https://github.com/user-attachments/assets/15f10b91-d005-48e2-9372-576a51c41f4d" /> | <img width="190" height="633" alt="Flat iPhone" src="https://github.com/user-attachments/assets/742ab32d-c556-40d5-bc11-ec5547f0880f" />
+| 온보딩 화면 | 메인 화면 | 영양제 추가 화면 | 영양제 추천 화면 | 식단 관리 화면 | 설정 화면 |
+|-----------|------------|------------|------------|------------|------------|
+|<img width="190" height="868" alt="온보딩" src="https://github.com/user-attachments/assets/bbabe568-8991-4f62-8010-aebf74a939d7" /> | <img width="190" height="868" alt="홈 화면" src="https://github.com/user-attachments/assets/0413fbba-8469-44d8-8105-a2233c33871b" /> | <img width="190" height="868" alt="영양제 추가 화면" src="https://github.com/user-attachments/assets/3410f0c7-d697-43b9-bd14-0d941408de65" /> | <img width="190" height="868" alt="영양제 추천" src="https://github.com/user-attachments/assets/c52c532c-a0a6-4e2c-baa5-df3cc54d8f0f" /> | <img width="190" height="868" alt="식단 관리 화면" src="https://github.com/user-attachments/assets/01a0ed07-fd6a-4b36-9310-f594237775c7" /> | <img width="190" height="868" alt="설정 화면" src="https://github.com/user-attachments/assets/f67c7317-5d7e-4c00-8b26-755cd0e5d75d" />
 
 <br/>
 
