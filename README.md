@@ -99,6 +99,12 @@ Alan AI 기반 큐레이션 기술을 활용하여, 영양제 추천부터 복�
     
   → 크래시 및 버그 추적을 위해 활용
   
+<br/>
+
+# 🏆**Prize**
+
+<img width="1663" height="935" alt="스크린샷 2025-09-02 오전 11 53 16" src="https://github.com/user-attachments/assets/413b9223-9b9f-41e8-8ff1-037889d2c3a3" />
+
 
 <br/>
 <br/>
