@@ -125,8 +125,6 @@ class HealthKitManager: ObservableObject {
     }
     // 실제 권한 상태를 확인
     do {
-      try await Task.sleep(nanoseconds: 500_000_000)
-      
       _ = try await fetchTodaySteps()
       
       await MainActor.run {
